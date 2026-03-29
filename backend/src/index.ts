@@ -324,6 +324,12 @@ app.post('/api/teaser', rateLimiter('teaser', 5, 3600), async (req: Request, res
     if (!headline || headline.trim().length < 10)
       return res.status(400).json({ errors: ['Please paste your LinkedIn headline (at least 10 characters).'] });
 
+    if (headline.trim().length > 500)
+      return res.status(400).json({ error: 'invalid_input', message: 'Headline is too long. Please paste only your LinkedIn headline, not your full profile.' });
+
+    if (!/[a-zA-Z\u0900-\u097F]/.test(headline))
+      return res.status(400).json({ error: 'invalid_input', message: 'Please paste your actual LinkedIn headline.' });
+
     // Check headline cache first
     const headlineHash = crypto
       .createHash('sha256')

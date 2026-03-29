@@ -345,7 +345,19 @@ export default function Home() {
 
   // ── Teaser submit ──
   async function handleTeaserSubmit() {
-    if (!headline.trim() || headline.trim().length < 10) return;
+    const trimmed = headline.trim();
+    if (!trimmed || trimmed.length < 10) {
+      alert('Please paste your complete LinkedIn headline. It should be at least a few words.');
+      return;
+    }
+    if (trimmed.length > 500) {
+      alert('Headline is too long. Please paste only your LinkedIn headline, not your full profile.');
+      return;
+    }
+    if (!/[a-zA-Z\u0900-\u097F]/.test(trimmed)) {
+      alert('Please paste your actual LinkedIn headline.');
+      return;
+    }
 
     // Frontend rate limit (localStorage)
     const today = new Date().toISOString().split('T')[0];
@@ -466,6 +478,7 @@ export default function Home() {
                   onBlur={() => setInputFocused(false)}
                   placeholder={"Paste your headline here...\ne.g. Senior Manager | B2B Sales | 6+ Years | Fortune 500 Clients"}
                   rows={2}
+                  maxLength={500}
                   className="w-full resize-none border-none outline-none bg-transparent text-base"
                   style={{ color: 'var(--li-text-primary)' }}
                 />

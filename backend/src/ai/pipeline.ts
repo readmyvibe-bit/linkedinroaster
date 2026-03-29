@@ -1383,6 +1383,11 @@ export async function runPipeline(orderId: string): Promise<void> {
         'parse',
       );
 
+      // Validate parsed output looks like a real profile
+      if (!parsed.headline && !parsed.experience?.length && !parsed.about) {
+        throw new Error('Could not identify LinkedIn profile content. Please paste your actual LinkedIn profile text.');
+      }
+
       await query(
         'UPDATE orders SET parsed_profile=$1, processing_status=$2 WHERE id=$3',
         [JSON.stringify(parsed), 'analyzing', orderId],
