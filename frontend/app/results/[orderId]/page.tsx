@@ -693,10 +693,12 @@ function RoastReportSection({
   orderId,
   roast,
   scores,
+  rewrite,
 }: {
   orderId: string;
   roast: OrderResults['results']['roast'];
   scores: { before: ScoreBreakdown; after: ScoreBreakdown };
+  rewrite: OrderResults['results']['rewrite'];
 }) {
   const [downloading, setDownloading] = useState(false);
   const [downloadToast, setDownloadToast] = useState(false);
@@ -1986,6 +1988,7 @@ export default function ResultsPage() {
             orderId={orderId}
             roast={roast}
             scores={scores}
+            rewrite={rewrite}
           />
         </SafeRender>
 
