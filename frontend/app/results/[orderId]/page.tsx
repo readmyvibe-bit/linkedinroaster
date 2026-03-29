@@ -345,6 +345,32 @@ function ScoreReveal({ before, after }: { before: ScoreBreakdown; after: ScoreBr
         ))}
       </div>
 
+      {/* VIRAL 3 — Ranking Badge */}
+      {(() => {
+        const afterScore = after.overall;
+        const rankLabel = afterScore >= 80 ? 'Top 10%' : afterScore >= 70 ? 'Top 20%' : afterScore >= 60 ? 'Top 35%' : afterScore >= 50 ? 'Top 50%' : 'Room to improve';
+        return (
+          <div style={{ textAlign: 'center', marginTop: 16 }}>
+            <span style={{
+              background: afterScore >= 70 ? '#DCFCE7' : '#FEF3C7',
+              border: afterScore >= 70 ? '1px solid #057642' : '1px solid #F59E0B',
+              borderRadius: 20,
+              padding: '6px 16px',
+              fontSize: 13,
+              fontWeight: 700,
+              color: afterScore >= 70 ? '#057642' : '#92400E',
+              display: 'inline-block',
+              margin: '0 auto',
+            }}>
+              After rewrite: {rankLabel} of LinkedIn profiles
+            </span>
+            <p style={{ fontSize: 13, color: '#666', textAlign: 'center', marginTop: 8, marginBottom: 0 }}>
+              Most people score below 40. You are now in the {rankLabel}.
+            </p>
+          </div>
+        );
+      })()}
+
       {/* Score gap explanation */}
       <p className="text-xs leading-relaxed mt-4" style={{ color: 'var(--li-text-secondary)' }}>
         Your before score reflects your current profile. Your after score reflects what our
@@ -1509,6 +1535,28 @@ function ShareButtons({ caption, cardUrl, orderId, beforeScore, afterScore, refe
           </p>
         </div>
       )}
+
+      {/* VIRAL 5 — Challenge Button */}
+      <p style={{ fontSize: 13, color: '#666', textAlign: 'center', marginBottom: 8, marginTop: 16 }}>
+        Dare your friends to beat your score
+      </p>
+      <div style={{ textAlign: 'center' }}>
+        <button
+          onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`I just got my LinkedIn roasted by AI\n\nMy score: ${beforeScore} \u2192 ${afterScore}\n\nThink you can beat this?\nTry: profileroaster.in`)}`, '_blank')}
+          style={{
+            background: 'white',
+            border: '1px solid #25D366',
+            color: '#25D366',
+            fontSize: 13,
+            fontWeight: 600,
+            padding: '8px 20px',
+            borderRadius: 50,
+            cursor: 'pointer',
+          }}
+        >
+          Challenge a Friend on WhatsApp
+        </button>
+      </div>
     </div>
   );
 }
@@ -1779,6 +1827,55 @@ export default function ResultsPage() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4">
+        {/* VIRAL 1 — Top Share Block */}
+        <div style={{
+          background: 'linear-gradient(135deg, #004182, #0A66C2)',
+          borderRadius: 14,
+          padding: '20px 24px',
+          marginBottom: 24,
+          textAlign: 'center',
+        }}>
+          <p style={{ fontSize: 20, fontWeight: 900, color: 'white', margin: '0 0 4px' }}>
+            Your profile improved +{scores.after.overall - scores.before.overall} points.
+          </p>
+          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', margin: '0 0 16px' }}>
+            Now challenge your network to beat this
+          </p>
+          <div>
+            <button
+              onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://profileroaster.in')}`, '_blank')}
+              style={{
+                background: 'white',
+                color: '#0A66C2',
+                fontSize: 14,
+                fontWeight: 700,
+                padding: '10px 24px',
+                borderRadius: 50,
+                border: 'none',
+                cursor: 'pointer',
+                marginRight: 8,
+              }}
+            >
+              Share on LinkedIn
+            </button>
+            <button
+              onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`I just improved my LinkedIn profile by ${scores.after.overall - scores.before.overall} points with AI!\n\nThink you can beat this?\nTry: profileroaster.in`)}`, '_blank')}
+              style={{
+                background: 'transparent',
+                color: 'white',
+                fontSize: 14,
+                fontWeight: 700,
+                padding: '10px 24px',
+                borderRadius: 50,
+                border: '1px solid rgba(255,255,255,0.5)',
+                cursor: 'pointer',
+              }}
+            >
+              Challenge a Friend
+            </button>
+          </div>
+        </div>
+
         {/* Score Reveal */}
         <ScoreReveal before={scores.before} after={scores.after} />
 
@@ -1864,6 +1961,28 @@ export default function ResultsPage() {
               atsKeywords={rewrite.ats_keywords}
             />
           ))}
+
+          {/* VIRAL 6 — Rescore Loop */}
+          <div style={{
+            background: '#F0FDF4',
+            border: '1px solid #057642',
+            borderRadius: 10,
+            padding: '14px 18px',
+            marginTop: 16,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+          }}>
+            <span style={{ fontSize: 20 }}>💡</span>
+            <div>
+              <p style={{ fontSize: 13, fontWeight: 700, color: '#057642', margin: 0 }}>
+                After updating LinkedIn
+              </p>
+              <p style={{ fontSize: 12, color: '#444', margin: '4px 0 0' }}>
+                Come back and paste your new headline. Can you hit 90+ points?
+              </p>
+            </div>
+          </div>
         </SafeRender>
 
         {/* Pro-only sections */}

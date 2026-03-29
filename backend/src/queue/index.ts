@@ -28,7 +28,7 @@ export const profileWorker = new Worker(
       throw new Error('Order not found: ' + razorpay_order_id);
     await runPipeline(orderResult.rows[0].id);
   },
-  { connection, concurrency: 3 },
+  { connection, concurrency: 8 },
 );
 
 // WORKER 2: Process upgrades (only Stage 4b — no full pipeline)
@@ -56,7 +56,7 @@ export const upgradeWorker = new Worker(
     // Stub: re-send results email with Pro content
     console.log(`[STUB] sendResultsEmail for upgraded order ${order_id}`);
   },
-  { connection, concurrency: 3 },
+  { connection, concurrency: 8 },
 );
 
 // Error handlers

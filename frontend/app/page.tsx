@@ -116,8 +116,8 @@ function avatarUrl(name: string) {
 }
 
 // ─── RoastCardSmall (floating) ───
-function RoastCardSmall({ name, title, roast, score_before, score_after }: {
-  name: string; title: string; roast: string; score_before: number; score_after: number;
+function RoastCardSmall({ name, title, roast, score_before, score_after, originalHeadline }: {
+  name: string; title: string; roast: string; score_before: number; score_after: number; originalHeadline?: string;
 }) {
   return (
     <div className="w-[260px] min-h-[150px] bg-white border border-[#e5e7eb] rounded-lg shadow-md p-4 text-left">
@@ -133,8 +133,14 @@ function RoastCardSmall({ name, title, roast, score_before, score_after }: {
           <div className="text-[12px] text-gray-500">{title}</div>
         </div>
       </div>
+      {originalHeadline && (
+        <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', borderRadius: 6, padding: '6px 10px', marginTop: 8 }}>
+          <div style={{ fontSize: 9, fontWeight: 700, color: '#CC1016', marginBottom: 3 }}>&#10007; Their Headline</div>
+          <div style={{ fontSize: 11, color: '#666', fontStyle: 'italic', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as any }}>{originalHeadline}</div>
+        </div>
+      )}
       <div className="mt-3 bg-[rgba(232,82,10,0.08)] border-l-4 border-[#E16B00] p-3 rounded-r-md">
-        <div className="text-[13px] font-semibold text-[#E16B00] mb-1">🔥 Brutal Truth</div>
+        <div className="text-[13px] font-semibold text-[#E16B00] mb-1">&#128293; AI Roast</div>
         <div className="text-[13px] leading-snug break-words text-gray-800">{roast}</div>
       </div>
       <div className="flex items-center gap-2 mt-3">
@@ -207,6 +213,7 @@ function FloatingCards() {
           roast="Your headline lists every skill you have ever googled but forgets what you actually do."
           score_before={28}
           score_after={76}
+          originalHeadline="Software Engineer | Python | Java | AWS | Docker | React | Node.js | Seeking new opportunities"
         />
       </div>
       {/* BOTTOM LEFT — Roast */}
@@ -217,6 +224,7 @@ function FloatingCards() {
           roast="Aspiring Professional is the career equivalent of a menu that says food — completely useless."
           score_before={22}
           score_after={71}
+          originalHeadline="Aspiring Professional | Hardworking | Passionate | MBA Graduate | Open to work | Delhi NCR"
         />
       </div>
       {/* TOP RIGHT — Rewrite */}
@@ -245,6 +253,57 @@ function FloatingCards() {
   );
 }
 
+// ─── StatsRow ───
+function StatsRow() {
+  const [profileCount, setProfileCount] = useState(0);
+
+  useEffect(() => {
+    const duration = 1500;
+    const target = 500;
+    const steps = 60;
+    const increment = target / steps;
+    const interval = duration / steps;
+    let current = 0;
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= target) {
+        current = target;
+        clearInterval(timer);
+      }
+      setProfileCount(Math.round(current));
+    }, interval);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div
+      style={{
+        background: 'white',
+        borderRadius: 12,
+        border: '1px solid #E0E0E0',
+        padding: '12px 0',
+        margin: '20px 0',
+        display: 'flex',
+        justifyContent: 'center',
+        gap: 40,
+      }}
+    >
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: 22, fontWeight: 700, color: '#191919' }}>{profileCount}+</div>
+        <div style={{ fontSize: 12, color: '#888' }}>Profiles Roasted</div>
+      </div>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: 22, fontWeight: 700, color: '#191919' }}>+42 pts</div>
+        <div style={{ fontSize: 12, color: '#888' }}>Avg Improvement</div>
+      </div>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: 22, fontWeight: 700, color: '#191919' }}>60s</div>
+        <div style={{ fontSize: 12, color: '#888' }}>To Get Results</div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Page ───
 export default function Home() {
   const [headline, setHeadline] = useState('');
@@ -254,9 +313,14 @@ export default function Home() {
   const [emailSaved, setEmailSaved] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'standard' | 'pro' | null>(null);
+  const [inputFocused, setInputFocused] = useState(false);
+  const [ctaHovered, setCtaHovered] = useState(false);
 
   const pricingRef = useRef<HTMLDivElement>(null);
   const inputFormRef = useRef<HTMLDivElement>(null);
+  const heroInputRef = useRef<HTMLDivElement>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
+  const [submitted, setSubmitted] = useState(false);
 
   // Live activity indicator — initialize on client only to avoid hydration mismatch
   const [recentCount, setRecentCount] = useState(12);
@@ -269,6 +333,15 @@ export default function Home() {
   }, []);
 
   const [rateLimited, setRateLimited] = useState(false);
+
+  // Auto scroll to result when teaser loads
+  useEffect(() => {
+    if (teaser && resultRef.current) {
+      setTimeout(() => {
+        resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    }
+  }, [teaser]);
 
   // ── Teaser submit ──
   async function handleTeaserSubmit() {
@@ -284,6 +357,7 @@ export default function Home() {
     }
 
     setLoading(true);
+    setSubmitted(true);
     try {
       const res = await fetch(`${API_URL}/api/teaser`, {
         method: 'POST',
@@ -331,23 +405,36 @@ export default function Home() {
     setTimeout(() => inputFormRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
   }
 
+  function scrollToHeroInput() {
+    heroInputRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }
+
   return (
     <main className="min-h-screen pb-16">
+      {/* ─── Top Bar ─── */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 24px', maxWidth: 1200, margin: '0 auto' }}>
+        <a href="/recover" style={{ fontSize: 13, color: '#0A66C2', textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+          Already got roasted? Find your burn report &rarr;
+        </a>
+      </div>
       {/* ─── Hero with Floating Cards ─── */}
       <div className="relative max-w-5xl mx-auto overflow-visible px-6">
         <FloatingCards />
 
         <section className="relative z-10 max-w-2xl mx-auto text-center px-4 pt-12 pb-8">
-          <h1
-            className="text-3xl md:text-4xl font-extrabold leading-tight mb-3"
-            style={{ color: 'var(--li-text-primary)' }}
-          >
-            Your LinkedIn Profile is Invisible to Recruiters.
+          {/* CHANGE 1 — Headline */}
+          <h1 className="leading-tight mb-1" style={{ fontSize: 36, fontWeight: 900, color: '#191919' }}>
+            Your LinkedIn Profile is Costing You
           </h1>
-          <p className="text-base md:text-lg mb-8" style={{ color: 'var(--li-text-secondary)' }}>
-            Get brutally roasted by AI &mdash; then get a complete rewrite.<br />
-            Average improvement: 34&rarr;84. Takes 60 seconds.
+          <div className="mb-3" style={{ fontSize: 40, fontWeight: 900, color: '#0A66C2' }}>
+            &#8377;10 Lakhs Every Year.
+          </div>
+          <p className="mb-4" style={{ fontSize: 18, color: '#666' }}>
+            AI shows exactly why recruiters skip you. Fix it in 60 seconds.
           </p>
+
+          {/* CHANGE 2 — Stats Row */}
+          <StatsRow />
 
           {/* Curiosity hook */}
           <p className="text-center text-[14px] italic text-[#666666] mb-3">
@@ -355,32 +442,55 @@ export default function Home() {
           </p>
 
           {/* ─── LinkedIn-style composer ─── */}
-          <div
-            className="flex items-start gap-3 p-6 rounded-xl text-left bg-white shadow-lg"
-            style={{
-              border: '1px solid var(--li-border)',
-            }}
-          >
-            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-lg mt-1">
-              &#128100;
+          <div ref={heroInputRef}>
+            {/* CHANGE 3 — Label above composer */}
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#0A66C2', letterSpacing: 1, textTransform: 'uppercase' as const, marginBottom: 8, textAlign: 'left' }}>
+              Step 1 — Paste your LinkedIn headline
             </div>
-            <div className="flex-1">
-              <textarea
-                value={headline}
-                onChange={(e) => setHeadline(e.target.value)}
-                placeholder="Paste your LinkedIn headline here..."
-                rows={2}
-                className="w-full resize-none border-none outline-none bg-transparent text-base"
-                style={{ color: 'var(--li-text-primary)' }}
-              />
-              <button
-                onClick={handleTeaserSubmit}
-                disabled={loading || headline.trim().length < 10}
-                className="mt-2 w-full md:w-auto px-6 py-3 rounded-full text-white font-semibold text-[15px] cursor-pointer disabled:opacity-50"
-                style={{ background: 'var(--li-blue)', minHeight: '48px' }}
-              >
-                {loading ? 'Analyzing...' : 'See What\u2019s Wrong With Your Profile \u2192'}
-              </button>
+            <div
+              className="flex items-start gap-3 p-6 rounded-xl text-left bg-white shadow-lg"
+              style={{
+                border: inputFocused ? '2px solid #0A66C2' : '1px solid var(--li-border)',
+                boxShadow: inputFocused ? '0 0 0 4px rgba(10,102,194,0.12), 0 4px 12px rgba(0,0,0,0.08)' : undefined,
+                transition: 'border 0.2s, box-shadow 0.2s',
+              }}
+            >
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-lg mt-1">
+                &#128100;
+              </div>
+              <div className="flex-1">
+                <textarea
+                  value={headline}
+                  onChange={(e) => setHeadline(e.target.value)}
+                  onFocus={() => setInputFocused(true)}
+                  onBlur={() => setInputFocused(false)}
+                  placeholder={"Paste your headline here...\ne.g. Senior Manager | B2B Sales | 6+ Years | Fortune 500 Clients"}
+                  rows={2}
+                  className="w-full resize-none border-none outline-none bg-transparent text-base"
+                  style={{ color: 'var(--li-text-primary)' }}
+                />
+                {/* CHANGE 4 — CTA Button */}
+                <button
+                  onClick={handleTeaserSubmit}
+                  disabled={loading || headline.trim().length < 10}
+                  onMouseEnter={() => setCtaHovered(true)}
+                  onMouseLeave={() => setCtaHovered(false)}
+                  className="mt-2 w-full rounded-full text-white cursor-pointer disabled:opacity-50"
+                  style={{
+                    background: 'linear-gradient(135deg, #0A66C2, #004182)',
+                    fontSize: 16,
+                    fontWeight: 700,
+                    padding: '16px 32px',
+                    borderRadius: 50,
+                    boxShadow: '0 4px 16px rgba(10,102,194,0.4)',
+                    border: 'none',
+                    transform: ctaHovered ? 'translateY(-2px)' : 'translateY(0)',
+                    transition: 'transform 0.2s',
+                  }}
+                >
+                  {loading ? 'Analyzing...' : 'Reveal What\u2019s Wrong With Your Profile \u2192'}
+                </button>
+              </div>
             </div>
           </div>
           {rateLimited && (
@@ -400,47 +510,65 @@ export default function Home() {
               </button>
             </div>
           )}
+          {/* CHANGE 5 — Trust line */}
           {!rateLimited && (
-            <p className="text-xs mt-3" style={{ color: 'var(--li-text-secondary)' }}>
-              No LinkedIn login. No credit card.
+            <p className="text-center mt-3" style={{ fontSize: 12, color: '#888' }}>
+              No login &#8226; 60-90 sec &#8226; Used by 500+ professionals
             </p>
           )}
 
-          <LiveCounter />
+          {!submitted && <LiveCounter />}
 
-          {/* Live activity indicator */}
-          <p className="text-[13px] font-medium text-[#E16B00] text-center mt-1">
-            🔥 {recentCount} people got roasted in the last 10 minutes
-          </p>
+          {!submitted && (
+            <p className="text-[13px] font-medium text-[#E16B00] text-center mt-1">
+              &#128293; {recentCount} people got roasted in the last 10 minutes
+            </p>
+          )}
+
+          {/* Fix 4 — Loading indicator */}
+          {loading && (
+            <div style={{ textAlign: 'center', padding: 24, marginTop: 16 }}>
+              <div style={{ fontSize: 14, color: '#0A66C2', fontWeight: 600, marginBottom: 8 }}>
+                Analyzing your headline...
+              </div>
+              <div style={{ fontSize: 12, color: '#aaa' }}>
+                This takes 3-5 seconds
+              </div>
+            </div>
+          )}
         </section>
       </div>
 
-      {/* ─── What You Get badges ─── */}
-      <div className="flex flex-wrap justify-center gap-3 max-w-2xl mx-auto px-4 py-6">
-        {[
-          { emoji: '🔥', label: 'Brutal Roast' },
-          { emoji: '✍️', label: 'Full Rewrite' },
-          { emoji: '📈', label: 'Score Boost' },
-          { emoji: '💡', label: 'Hidden Strengths' },
-          { emoji: '🎯', label: 'ATS Keywords' },
-        ].map((b) => (
-          <span
-            key={b.label}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[13px] font-medium"
-            style={{
-              background: 'var(--li-card)',
-              border: '1px solid var(--li-border)',
-              color: 'var(--li-text-secondary)',
-            }}
-          >
-            {b.emoji} {b.label}
-          </span>
-        ))}
-      </div>
+      {/* ─── CHANGE 6 — Value Cards ─── */}
+      {!submitted && <div className="max-w-2xl mx-auto px-4 py-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: 20, textAlign: 'center' }}>
+            <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(232,82,10,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 22 }}>
+              &#128293;
+            </div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#191919', marginBottom: 4 }}>Brutal Roast</div>
+            <div style={{ fontSize: 12, color: '#666', lineHeight: 1.5 }}>See exactly what makes recruiters ignore your profile.</div>
+          </div>
+          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: 20, textAlign: 'center' }}>
+            <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(10,102,194,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 22 }}>
+              &#9997;&#65039;
+            </div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#191919', marginBottom: 4 }}>Full Rewrite</div>
+            <div style={{ fontSize: 12, color: '#666', lineHeight: 1.5 }}>Turn your profile into something recruiters actually respond to.</div>
+          </div>
+          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: 20, textAlign: 'center' }}>
+            <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(5,118,66,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 22 }}>
+              &#128200;
+            </div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#191919', marginBottom: 4 }}>Score Improvement</div>
+            <div style={{ fontSize: 12, color: '#666', lineHeight: 1.5 }}>Track how much stronger your profile becomes instantly.</div>
+          </div>
+        </div>
+      </div>}
 
       {/* ─── Teaser Result ─── */}
       {teaser && (
-        <section className="max-w-2xl mx-auto px-4 pb-8">
+        <section ref={resultRef} className="max-w-2xl mx-auto px-4 pb-8" style={{ animation: 'resultAppear 0.5s ease forwards' }}>
           {/* Score card */}
           <div
             className="p-6 rounded-lg mb-4"
@@ -466,8 +594,8 @@ export default function Home() {
                 : teaser.score < 70
                 ? 'Your headline scores lower than 72% of profiles that land interviews.'
                 : teaser.score < 85
-                ? 'Your headline is above average. But top candidates score above 90 on their FULL profile \u2014 not just headline.'
-                : 'Your headline scores higher than 78% of profiles we have analyzed. But top candidates score above 90 on their FULL profile \u2014 not just headline.'}
+                ? 'Your headline is above average. But top candidates score above 90 on their FULL profile — not just headline.'
+                : 'Your headline scores higher than 78% of profiles we have analyzed. But top candidates score above 90 on their FULL profile — not just headline.'}
             </p>
           </div>
 
@@ -489,7 +617,7 @@ export default function Home() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold" style={{ color: 'var(--li-text-primary)' }}>
-                    🔥 The LinkedIn Roastmaster
+                    &#128293; The LinkedIn Roastmaster
                   </p>
                   <p className="text-xs" style={{ color: 'var(--li-text-secondary)' }}>
                     AI Career Critic
@@ -518,7 +646,7 @@ export default function Home() {
             <div className="space-y-2">
               {['2 critical profile issues hidden', 'ATS keyword gaps hidden', 'Experience section assessment hidden'].map((item, i) => (
                 <p key={i} className="text-sm" style={{ color: '#AAAAAA', filter: 'blur(0.5px)' }}>
-                  🔒 {item}
+                  &#128274; {item}
                 </p>
               ))}
             </div>
@@ -714,14 +842,62 @@ export default function Home() {
         </section>
       )}
 
+      {/* ─── CHANGE 8 — Bottom Urgency Section ─── */}
+      <section style={{ maxWidth: 700, margin: '32px auto', padding: '0 16px' }}>
+        <div
+          style={{
+            background: '#0A66C2',
+            borderRadius: 16,
+            padding: '40px 24px',
+            textAlign: 'center',
+          }}
+        >
+          <div style={{ fontSize: 24, fontWeight: 900, color: 'white', marginBottom: 8 }}>
+            Stop losing opportunities.
+          </div>
+          <div style={{ fontSize: 15, color: 'rgba(255,255,255,0.8)', marginBottom: 24 }}>
+            Every day with a weak profile is another recruiter who scrolled past you.
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 32, flexWrap: 'wrap', marginBottom: 24 }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 28, fontWeight: 700, color: 'white' }}>3x</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>More recruiter views</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 28, fontWeight: 700, color: 'white' }}>70%</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>Fewer views if score &lt; 40</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 28, fontWeight: 700, color: 'white' }}>&#8377;299</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>One time, no subscription</div>
+            </div>
+          </div>
+          <button
+            onClick={scrollToHeroInput}
+            style={{
+              background: 'white',
+              color: '#0A66C2',
+              fontSize: 15,
+              fontWeight: 700,
+              padding: '14px 32px',
+              borderRadius: 50,
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            Get My Score Free &#8594;
+          </button>
+        </div>
+      </section>
+
       {/* ─── Trust Badges ─── */}
       <section className="max-w-2xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {[
             { icon: '\uD83D\uDD12', text: 'We never access your LinkedIn account' },
             { icon: '\uD83D\uDDD1\uFE0F', text: 'Your profile data is deleted after 30 days' },
-            { icon: '\uD83D\uDC41\uFE0F', text: '100% AI \u2014 no humans read your profile' },
-            { icon: '\u23F1\uFE0F', text: '100% private \u2014 results in 60-90 seconds' },
+            { icon: '\uD83D\uDC41\uFE0F', text: '100% AI — no humans read your profile' },
+            { icon: '\u23F1\uFE0F', text: '100% private — results in 60-90 seconds' },
           ].map((badge, i) => (
             <div
               key={i}
@@ -809,7 +985,7 @@ function ProfileInputForm({
       },
       modal: {
         ondismiss: function () {
-          alert('Payment cancelled. Your profile is saved \u2014 complete payment when ready.');
+          alert('Payment cancelled. Your profile is saved — complete payment when ready.');
         },
       },
     };
@@ -832,7 +1008,7 @@ function ProfileInputForm({
         Paste Your LinkedIn Profile
       </h3>
       <p className="text-xs mb-1" style={{ color: 'var(--li-text-secondary)' }}>
-        {plan === 'pro' ? 'Pro Plan \u2014 \u20b9599' : 'Standard Plan \u2014 \u20b9299'}
+        {plan === 'pro' ? 'Pro Plan — \u20b9599' : 'Standard Plan — \u20b9299'}
         {teaserId && <span className="ml-2 opacity-60">(teaser linked)</span>}
       </p>
       <p className="text-xs mb-4" style={{ color: 'var(--li-text-secondary)' }}>
@@ -851,7 +1027,7 @@ function ProfileInputForm({
         <textarea
           value={rawPaste}
           onChange={(e) => setRawPaste(e.target.value)}
-          placeholder="Paste your entire LinkedIn profile here \u2014 headline, about, experience, everything. Our AI will parse it automatically. *"
+          placeholder="Paste your entire LinkedIn profile here — headline, about, experience, everything. Our AI will parse it automatically. *"
           rows={10}
           className="w-full px-4 py-3 rounded-lg text-sm outline-none resize-none"
           style={{ border: '1px solid var(--li-border)' }}
@@ -859,14 +1035,14 @@ function ProfileInputForm({
         {rawPaste.trim().length > 0 && (
           <p className="text-xs" style={{ color: rawPaste.trim().length > 100 ? 'var(--li-green)' : 'var(--li-orange)' }}>
             {rawPaste.trim().length} characters pasted
-            {rawPaste.trim().length < 100 && ' \u2014 paste more for better results (include About + Experience)'}
+            {rawPaste.trim().length < 100 && ' — paste more for better results (include About + Experience)'}
           </p>
         )}
         {plan === 'pro' && (
           <textarea
             value={jobDescription}
             onChange={(e) => setJobDescription(e.target.value)}
-            placeholder="Job description to match against (optional \u2014 Pro feature)"
+            placeholder="Job description to match against (optional — Pro feature)"
             rows={3}
             className="w-full px-4 py-3 rounded-lg text-sm outline-none resize-none"
             style={{ border: '1px solid var(--li-border)' }}

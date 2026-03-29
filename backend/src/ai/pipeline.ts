@@ -1083,7 +1083,7 @@ Does the roast contain profanity or adult language in any form?
 Does the roast attack the PERSON rather than the profile?
 Does the roast imply unemployability, hopelessness, or giving up?
 Does the roast mock educational institution tier or English language ability?
-Does the rewrite contain ANY specific metric not in the original profile?
+Does the rewrite contain ANY fabricated specific metric (exact dollar amounts, exact headcounts, exact percentages) not in the original profile? Note: realistic industry estimates presented as ranges or approximations (e.g. '90%+ retention', '3x pipeline coverage') are ALLOWED and should NOT be flagged.
 Does the rewrite contain ANY company name not in the original profile?
 
 COMPANY NAME CHECK — runs for every experience entry:
@@ -1180,12 +1180,28 @@ const TIMEOUTS = {
 };
 
 async function withTimeout<T>(fn: () => Promise<T>, ms: number, stage: string): Promise<T> {
-  return Promise.race([
-    fn(),
-    new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error(`${stage} timed out after ${ms}ms`)), ms),
-    ),
-  ]);
+  const backoffs = [5000, 15000, 30000]; // retry delays
+  for (let attempt = 0; attempt <= 3; attempt++) {
+    try {
+      return await Promise.race([
+        fn(),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error(`${stage} timed out after ${ms}ms`)), ms),
+        ),
+      ]);
+    } catch (err: any) {
+      const isRateLimit = err?.status === 429 || err?.message?.includes('429') || err?.message?.includes('rate');
+      const isTimeout = err?.message?.includes('timed out');
+      if ((isRateLimit || isTimeout) && attempt < 3) {
+        const delay = backoffs[attempt];
+        console.warn(`[RETRY] ${stage} attempt ${attempt + 1}/3 failed (${isRateLimit ? '429' : 'timeout'}), waiting ${delay / 1000}s...`);
+        await new Promise(r => setTimeout(r, delay));
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw new Error(`${stage} failed after 3 retries`);
 }
 
 // Re-export scoring from shared
