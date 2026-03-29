@@ -9,49 +9,153 @@ function getToken(): string | null {
   return sessionStorage.getItem('admin_token');
 }
 
+function setToken(token: string) {
+  sessionStorage.setItem('admin_token', token);
+}
+
+function clearToken() {
+  sessionStorage.removeItem('admin_token');
+}
+
 async function apiFetch(path: string, opts?: RequestInit) {
   const token = getToken();
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...((opts?.headers as Record<string, string>) || {}),
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
   const res = await fetch(`${API_URL}${path}`, {
     ...opts,
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, ...opts?.headers },
+    headers,
   });
   if (res.status === 401) {
-    sessionStorage.removeItem('admin_token');
-    window.location.reload();
+    clearToken();
+    // Return a signal so callers can handle it
     throw new Error('Unauthorized');
   }
+  return res;
+}
+
+async function apiFetchJson(path: string, opts?: RequestInit) {
+  const res = await apiFetch(path, opts);
   return res.json();
+}
+
+function formatIST(dateStr: string | null | undefined): string {
+  if (!dateStr) return '-';
+  try {
+    return new Date(dateStr).toLocaleString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    }) + ' IST';
+  } catch {
+    return dateStr;
+  }
+}
+
+function Stars({ count }: { count: number }) {
+  return <span>{count > 0 ? '⭐'.repeat(count) : '-'}</span>;
+}
+
+// ─── Toast ───
+function Toast({ message, type, onClose }: { message: string; type: 'success' | 'error'; onClose: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onClose, 4000);
+    return () => clearTimeout(t);
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed top-4 right-4 z-[100] px-4 py-3 rounded-lg shadow-lg text-sm font-medium"
+      style={{
+        background: type === 'success' ? '#059669' : '#DC2626',
+        color: 'white',
+      }}
+    >
+      {message}
+    </div>
+  );
 }
 
 // ─── Login ───
 function LoginForm({ onLogin }: { onLogin: () => void }) {
-  const [pw, setPw] = useState('');
+  const [email, setEmail] = useState('support@profileroaster.in');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   async function submit() {
-    sessionStorage.setItem('admin_token', pw);
-    try {
-      await apiFetch('/api/admin/overview');
-      onLogin();
-    } catch {
-      setError('Invalid password');
-      sessionStorage.removeItem('admin_token');
+    if (!email || !password) {
+      setError('Please enter both email and password');
+      return;
     }
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch(`${API_URL}/api/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setError(body.error || 'Invalid credentials');
+        setLoading(false);
+        return;
+      }
+      const data = await res.json();
+      if (data.token) {
+        setToken(data.token);
+        onLogin();
+      } else {
+        setError('No token returned');
+      }
+    } catch {
+      setError('Login failed. Check your connection.');
+    }
+    setLoading(false);
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--li-gray)' }}>
       <div className="li-card p-8 w-full max-w-sm">
         <h1 className="text-xl font-bold mb-4" style={{ color: 'var(--li-text-primary)' }}>Admin Login</h1>
-        {error && <p className="text-sm mb-2" style={{ color: 'var(--li-red)' }}>{error}</p>}
+        {error && <p className="text-sm mb-3 p-2 rounded" style={{ color: '#DC2626', background: '#FEE2E2' }}>{error}</p>}
+        <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--li-text-secondary)' }}>Email</label>
         <input
-          type="password" value={pw} onChange={e => setPw(e.target.value)}
+          type="email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && submit()}
-          placeholder="Password" className="w-full px-4 py-3 rounded-lg text-sm outline-none mb-3"
+          placeholder="admin@example.com"
+          className="w-full px-4 py-3 rounded-lg text-sm outline-none mb-3"
           style={{ border: '1px solid var(--li-border)' }}
         />
-        <button onClick={submit} className="w-full py-3 rounded-full text-white font-semibold cursor-pointer border-none"
-          style={{ background: 'var(--li-blue)' }}>Login</button>
+        <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--li-text-secondary)' }}>Password</label>
+        <input
+          type="password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && submit()}
+          placeholder="Password"
+          className="w-full px-4 py-3 rounded-lg text-sm outline-none mb-4"
+          style={{ border: '1px solid var(--li-border)' }}
+        />
+        <button
+          onClick={submit}
+          disabled={loading}
+          className="w-full py-3 rounded-full text-white font-semibold cursor-pointer border-none"
+          style={{ background: loading ? '#93C5FD' : 'var(--li-blue)' }}
+        >
+          {loading ? 'Logging in...' : 'Login'}
+        </button>
       </div>
     </div>
   );
@@ -71,7 +175,7 @@ function StatCard({ label, value, sub }: { label: string; value: string | number
 // ─── Overview Screen ───
 function OverviewScreen() {
   const [data, setData] = useState<any>(null);
-  useEffect(() => { apiFetch('/api/admin/overview').then(setData); }, []);
+  useEffect(() => { apiFetchJson('/api/admin/overview').then(setData); }, []);
   if (!data) return <p>Loading...</p>;
 
   return (
@@ -94,20 +198,220 @@ function OverviewScreen() {
   );
 }
 
+// ─── Order Detail Modal ───
+function OrderDetailModal({
+  order,
+  onClose,
+  onToast,
+}: {
+  order: any;
+  onClose: () => void;
+  onToast: (msg: string, type: 'success' | 'error') => void;
+}) {
+  const [sendingEmail, setSendingEmail] = useState(false);
+
+  async function sendEmail() {
+    setSendingEmail(true);
+    try {
+      const res = await apiFetch(`/api/admin/send-email/${order.id}`, { method: 'POST' });
+      if (res.ok) {
+        onToast('Results email sent successfully!', 'success');
+      } else {
+        const body = await res.json().catch(() => ({}));
+        onToast(body.error || 'Failed to send email', 'error');
+      }
+    } catch {
+      onToast('Failed to send email', 'error');
+    }
+    setSendingEmail(false);
+  }
+
+  const s = order;
+  const roast = s.roast;
+  const rewrite = s.rewrite;
+  const scoring = s.scoring || s.score_breakdown;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
+      <div
+        className="li-card p-6 max-w-3xl w-full"
+        style={{ maxHeight: '80vh', overflowY: 'auto' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex justify-between items-start mb-4">
+          <h3 className="font-bold text-lg">Order: {s.id}</h3>
+          <button onClick={onClose} className="text-lg cursor-pointer bg-transparent border-none p-1">✕</button>
+        </div>
+
+        {/* Basic Info */}
+        <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm mb-4 p-3 rounded" style={{ background: 'var(--li-gray)' }}>
+          <div><span className="font-semibold">Email:</span> {s.email}</div>
+          <div><span className="font-semibold">Plan:</span> <span className="px-2 py-0.5 rounded text-xs font-semibold" style={{ background: s.plan === 'pro' ? '#E8F4FD' : '#f3f4f6', color: s.plan === 'pro' ? 'var(--li-blue)' : 'var(--li-text-secondary)' }}>{s.plan}</span></div>
+          <div><span className="font-semibold">Payment:</span> {s.payment_status}</div>
+          <div><span className="font-semibold">Processing:</span> {s.processing_status}</div>
+          <div><span className="font-semibold">Created:</span> {formatIST(s.created_at)}</div>
+          <div><span className="font-semibold">Paid:</span> {formatIST(s.paid_at)}</div>
+          <div><span className="font-semibold">Completed:</span> {formatIST(s.processing_done_at)}</div>
+          <div>
+            <span className="font-semibold">Rating:</span>{' '}
+            {s.user_rating ? <><Stars count={s.user_rating} /> ({s.user_rating}/5)</> : '-'}
+          </div>
+          {s.user_feedback && (
+            <div className="col-span-2"><span className="font-semibold">Feedback:</span> {s.user_feedback}</div>
+          )}
+        </div>
+
+        {/* Score */}
+        {(s.before_score != null || s.after_score != null) && (
+          <div className="mb-4 p-3 rounded" style={{ background: 'var(--li-gray)' }}>
+            <h4 className="font-semibold text-sm mb-2">Score: {s.before_score ?? '-'} → {s.after_score ?? '-'}</h4>
+            {scoring && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                {scoring.headline != null && <div>Headline: {scoring.headline.before ?? scoring.headline} → {scoring.headline.after ?? '-'}</div>}
+                {scoring.about != null && <div>About: {scoring.about.before ?? scoring.about} → {scoring.about.after ?? '-'}</div>}
+                {scoring.experience != null && <div>Experience: {scoring.experience.before ?? scoring.experience} → {scoring.experience.after ?? '-'}</div>}
+                {scoring.completeness != null && <div>Completeness: {scoring.completeness.before ?? scoring.completeness} → {scoring.completeness.after ?? '-'}</div>}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Roast */}
+        {roast && (
+          <div className="mb-4">
+            <h4 className="font-semibold text-sm mb-2" style={{ color: 'var(--li-blue)' }}>
+              Roast: {roast.roast_title}
+            </h4>
+            <div className="space-y-3">
+              {roast.roast_points?.map((p: any, i: number) => (
+                <div key={i} className="p-3 rounded text-sm" style={{ background: i % 2 === 0 ? '#FFF7ED' : '#FFFBEB' }}>
+                  <div className="font-semibold text-xs mb-1" style={{ color: 'var(--li-text-secondary)' }}>
+                    #{p.point_number} — {p.section_targeted}
+                  </div>
+                  <div className="mb-1">{p.roast}</div>
+                  {p.underlying_issue && (
+                    <div className="text-xs italic" style={{ color: 'var(--li-text-secondary)' }}>
+                      Issue: {p.underlying_issue}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            {roast.closing_compliment && (
+              <div className="mt-3 p-3 rounded text-sm" style={{ background: '#F0FDF4' }}>
+                <span className="font-semibold text-xs">Closing compliment:</span> {roast.closing_compliment}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Rewrite */}
+        {rewrite && (
+          <div className="mb-4">
+            <h4 className="font-semibold text-sm mb-2" style={{ color: 'var(--li-blue)' }}>Rewrite</h4>
+
+            {rewrite.rewritten_headline && (
+              <div className="mb-3">
+                <div className="text-xs font-semibold mb-1" style={{ color: 'var(--li-text-secondary)' }}>Headline</div>
+                <div className="text-sm p-2 rounded" style={{ background: 'var(--li-gray)' }}>{rewrite.rewritten_headline}</div>
+              </div>
+            )}
+
+            {rewrite.rewritten_about && (
+              <div className="mb-3">
+                <div className="text-xs font-semibold mb-1" style={{ color: 'var(--li-text-secondary)' }}>About</div>
+                <div className="text-sm p-2 rounded whitespace-pre-wrap" style={{ background: 'var(--li-gray)' }}>{rewrite.rewritten_about}</div>
+              </div>
+            )}
+
+            {rewrite.rewritten_experiences && rewrite.rewritten_experiences.length > 0 && (
+              <div className="mb-3">
+                <div className="text-xs font-semibold mb-1" style={{ color: 'var(--li-text-secondary)' }}>Experience</div>
+                <div className="space-y-2">
+                  {rewrite.rewritten_experiences.map((exp: any, i: number) => (
+                    <div key={i} className="p-2 rounded text-sm" style={{ background: 'var(--li-gray)' }}>
+                      <div className="font-semibold">{exp.title || exp.role}{exp.company ? ` at ${exp.company}` : ''}</div>
+                      {exp.bullets && (
+                        <ul className="list-disc ml-4 mt-1 text-xs space-y-0.5">
+                          {exp.bullets.map((b: string, j: number) => <li key={j}>{b}</li>)}
+                        </ul>
+                      )}
+                      {exp.description && !exp.bullets && (
+                        <p className="text-xs mt-1 whitespace-pre-wrap">{exp.description}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {rewrite.placeholders_to_fill && rewrite.placeholders_to_fill.length > 0 && (
+              <div className="mb-3">
+                <div className="text-xs font-semibold mb-1" style={{ color: 'var(--li-text-secondary)' }}>Placeholders to Fill</div>
+                <ul className="list-disc ml-4 text-sm">
+                  {rewrite.placeholders_to_fill.map((p: string, i: number) => <li key={i}>{p}</li>)}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Card Image */}
+        {s.card_image_url && (
+          <div className="mb-4">
+            <span className="text-xs font-semibold" style={{ color: 'var(--li-text-secondary)' }}>Card Image: </span>
+            <a href={s.card_image_url} target="_blank" rel="noopener noreferrer" className="text-sm underline" style={{ color: 'var(--li-blue)' }}>
+              {s.card_image_url}
+            </a>
+          </div>
+        )}
+
+        {/* Send Email Button */}
+        <div className="flex gap-3 pt-3" style={{ borderTop: '1px solid var(--li-border)' }}>
+          <button
+            onClick={sendEmail}
+            disabled={sendingEmail || s.processing_status !== 'done'}
+            className="px-5 py-2 rounded-full text-white font-semibold text-sm cursor-pointer border-none"
+            style={{
+              background: (sendingEmail || s.processing_status !== 'done') ? '#93C5FD' : 'var(--li-blue)',
+              cursor: (sendingEmail || s.processing_status !== 'done') ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {sendingEmail ? 'Sending...' : 'Send Results Email'}
+          </button>
+          <button
+            onClick={onClose}
+            className="px-5 py-2 rounded-full text-sm cursor-pointer font-semibold"
+            style={{ background: 'var(--li-gray)', border: '1px solid var(--li-border)', color: 'var(--li-text-secondary)' }}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Orders Screen ───
 function OrdersScreen() {
   const [orders, setOrders] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<any>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const load = useCallback(async () => {
-    const data = await apiFetch(`/api/admin/orders?page=${page}&limit=20`);
+    const data = await apiFetchJson(`/api/admin/orders?page=${page}&limit=20`);
     setOrders(data.orders);
     setTotal(data.total);
   }, [page]);
 
   useEffect(() => { load(); }, [load]);
+
+  async function openDetail(orderId: string) {
+    const data = await apiFetchJson(`/api/admin/orders/${orderId}`);
+    setSelected(data);
+  }
 
   return (
     <div>
@@ -118,7 +422,9 @@ function OrdersScreen() {
         <table className="w-full text-sm">
           <thead>
             <tr style={{ background: 'var(--li-gray)' }}>
-              <th className="text-left p-3">Date</th>
+              <th className="text-left p-3">Created</th>
+              <th className="text-left p-3">Paid At</th>
+              <th className="text-left p-3">Completed</th>
               <th className="text-left p-3">Email</th>
               <th className="text-left p-3">Plan</th>
               <th className="text-left p-3">Status</th>
@@ -127,60 +433,82 @@ function OrdersScreen() {
             </tr>
           </thead>
           <tbody>
-            {orders.map(o => (
-              <tr key={o.id} className="cursor-pointer" style={{ borderBottom: '1px solid var(--li-border)' }}
-                onClick={() => apiFetch(`/api/admin/orders/${o.id}`).then(setSelected)}>
-                <td className="p-3">{new Date(o.created_at).toLocaleDateString()}</td>
+            {orders.map((o, idx) => (
+              <tr
+                key={o.id}
+                className="cursor-pointer"
+                style={{
+                  borderBottom: '1px solid var(--li-border)',
+                  background: idx % 2 === 0 ? 'white' : 'var(--li-gray)',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = '#EFF6FF')}
+                onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? 'white' : 'var(--li-gray)')}
+                onClick={() => openDetail(o.id)}
+              >
+                <td className="p-3 text-xs whitespace-nowrap">{formatIST(o.created_at)}</td>
+                <td className="p-3 text-xs whitespace-nowrap">{formatIST(o.paid_at)}</td>
+                <td className="p-3 text-xs whitespace-nowrap">{formatIST(o.processing_done_at)}</td>
                 <td className="p-3">{o.email}</td>
-                <td className="p-3"><span className="px-2 py-0.5 rounded text-xs font-semibold"
-                  style={{ background: o.plan === 'pro' ? '#E8F4FD' : 'var(--li-gray)', color: o.plan === 'pro' ? 'var(--li-blue)' : 'var(--li-text-secondary)' }}>{o.plan}</span></td>
+                <td className="p-3">
+                  <span
+                    className="px-2 py-0.5 rounded text-xs font-semibold"
+                    style={{
+                      background: o.plan === 'pro' ? '#E8F4FD' : 'var(--li-gray)',
+                      color: o.plan === 'pro' ? 'var(--li-blue)' : 'var(--li-text-secondary)',
+                    }}
+                  >
+                    {o.plan}
+                  </span>
+                </td>
                 <td className="p-3">{o.payment_status}</td>
-                <td className="p-3">{o.before_score ?? '-'} → {o.after_score ?? '-'}</td>
-                <td className="p-3">{o.user_rating ? '⭐'.repeat(o.user_rating) : '-'}</td>
+                <td className="p-3 whitespace-nowrap">{o.before_score ?? '-'} → {o.after_score ?? '-'}</td>
+                <td className="p-3">
+                  {o.user_rating ? (
+                    <div>
+                      <Stars count={o.user_rating} />
+                      {o.user_feedback && (
+                        <div className="text-xs mt-0.5 truncate max-w-[150px]" style={{ color: 'var(--li-text-secondary)' }}>
+                          {o.user_feedback}
+                        </div>
+                      )}
+                    </div>
+                  ) : '-'}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
       <div className="flex gap-2 mt-4">
-        <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-          className="px-3 py-1 rounded text-sm cursor-pointer border-none" style={{ background: 'var(--li-gray)' }}>← Prev</button>
+        <button
+          onClick={() => setPage(p => Math.max(1, p - 1))}
+          disabled={page === 1}
+          className="px-3 py-1 rounded text-sm cursor-pointer border-none"
+          style={{ background: 'var(--li-gray)' }}
+        >
+          ← Prev
+        </button>
         <span className="text-sm py-1">Page {page}</span>
-        <button onClick={() => setPage(p => p + 1)} disabled={orders.length < 20}
-          className="px-3 py-1 rounded text-sm cursor-pointer border-none" style={{ background: 'var(--li-gray)' }}>Next →</button>
+        <button
+          onClick={() => setPage(p => p + 1)}
+          disabled={orders.length < 20}
+          className="px-3 py-1 rounded text-sm cursor-pointer border-none"
+          style={{ background: 'var(--li-gray)' }}
+        >
+          Next →
+        </button>
       </div>
 
       {/* Order Detail Modal */}
       {selected && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelected(null)}>
-          <div className="li-card p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between mb-4">
-              <h3 className="font-bold">Order: {selected.id?.slice(0, 8)}</h3>
-              <button onClick={() => setSelected(null)} className="text-lg cursor-pointer bg-transparent border-none">✕</button>
-            </div>
-            <p className="text-sm mb-2">Plan: {selected.plan} | Status: {selected.processing_status}</p>
-            {selected.roast && (
-              <div className="mb-4">
-                <h4 className="font-semibold text-sm mb-1">Roast: {selected.roast.roast_title}</h4>
-                {selected.roast.roast_points?.map((p: any, i: number) => (
-                  <p key={i} className="text-xs mb-1 italic" style={{ color: 'var(--li-text-secondary)' }}>
-                    {p.point_number}. {p.roast}
-                  </p>
-                ))}
-              </div>
-            )}
-            {selected.rewrite && (
-              <div>
-                <h4 className="font-semibold text-sm mb-1">Rewrite</h4>
-                <p className="text-xs font-medium">{selected.rewrite.rewritten_headline}</p>
-                <p className="text-xs mt-1 whitespace-pre-wrap" style={{ color: 'var(--li-text-secondary)' }}>
-                  {selected.rewrite.rewritten_about?.substring(0, 500)}
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
+        <OrderDetailModal
+          order={selected}
+          onClose={() => setSelected(null)}
+          onToast={(msg, type) => setToast({ message: msg, type })}
+        />
       )}
+
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
 }
@@ -188,7 +516,7 @@ function OrdersScreen() {
 // ─── Teasers Screen ───
 function TeasersScreen() {
   const [data, setData] = useState<any>(null);
-  useEffect(() => { apiFetch('/api/admin/teasers').then(setData); }, []);
+  useEffect(() => { apiFetchJson('/api/admin/teasers').then(setData); }, []);
   if (!data) return <p>Loading...</p>;
 
   return (
@@ -209,7 +537,7 @@ function TeasersScreen() {
               <div className="flex-1 h-4 rounded" style={{ background: 'var(--li-border)' }}>
                 <div className="h-4 rounded" style={{
                   width: `${Math.min(100, (d.count / Math.max(data.total, 1)) * 100 * 5)}%`,
-                  background: 'var(--li-blue)'
+                  background: 'var(--li-blue)',
                 }} />
               </div>
               <span className="w-8">{d.count}</span>
@@ -223,33 +551,93 @@ function TeasersScreen() {
 
 // ─── Quality Screen ───
 function QualityScreen() {
-  const [orders, setOrders] = useState<any[]>([]);
+  const [ratings, setRatings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    apiFetch('/api/admin/orders?limit=100').then(data => {
-      const rated = data.orders.filter((o: any) => o.user_rating);
-      setOrders(rated);
-    });
+    // Try dedicated ratings endpoint first, fall back to orders
+    apiFetchJson('/api/admin/ratings')
+      .then(data => {
+        setRatings(Array.isArray(data) ? data : data.ratings || []);
+        setLoading(false);
+      })
+      .catch(() => {
+        // Fallback: fetch from orders
+        apiFetchJson('/api/admin/orders?limit=100').then(data => {
+          const rated = (data.orders || []).filter((o: any) => o.user_rating);
+          setRatings(rated);
+          setLoading(false);
+        });
+      });
   }, []);
 
-  const avgRating = orders.length > 0
-    ? (orders.reduce((s: number, o: any) => s + o.user_rating, 0) / orders.length).toFixed(1)
+  const avgRating = ratings.length > 0
+    ? (ratings.reduce((s: number, o: any) => s + (o.user_rating || o.rating || 0), 0) / ratings.length).toFixed(1)
     : '-';
-  const lowRated = orders.filter((o: any) => o.user_rating <= 2);
+  const lowRated = ratings.filter((o: any) => (o.user_rating || o.rating || 0) <= 2);
+
+  if (loading) return <p>Loading...</p>;
 
   return (
     <div>
       <h2 className="text-lg font-bold mb-4">Quality Metrics</h2>
       <div className="grid grid-cols-2 gap-4 mb-6">
-        <StatCard label="Average Rating" value={`${avgRating} ⭐`} sub={`${orders.length} ratings`} />
+        <StatCard label="Average Rating" value={`${avgRating} ⭐`} sub={`${ratings.length} ratings`} />
         <StatCard label="Low Ratings (1-2)" value={lowRated.length}
           sub={lowRated.length > 0 ? '⚠️ Review needed' : 'All good'} />
       </div>
+
+      {/* Full ratings table */}
+      <div className="li-card overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr style={{ background: 'var(--li-gray)' }}>
+              <th className="text-left p-3">Date</th>
+              <th className="text-left p-3">Email</th>
+              <th className="text-left p-3">Rating</th>
+              <th className="text-left p-3">Feedback</th>
+              <th className="text-left p-3">Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ratings
+              .sort((a: any, b: any) => new Date(b.created_at || b.rated_at || 0).getTime() - new Date(a.created_at || a.rated_at || 0).getTime())
+              .map((r: any, idx: number) => {
+                const rating = r.user_rating || r.rating || 0;
+                const feedback = r.user_feedback || r.feedback || '';
+                const email = r.email || r.user_email || '-';
+                const dateStr = r.created_at || r.rated_at;
+                return (
+                  <tr
+                    key={r.id || idx}
+                    style={{
+                      borderBottom: '1px solid var(--li-border)',
+                      background: idx % 2 === 0 ? 'white' : 'var(--li-gray)',
+                    }}
+                  >
+                    <td className="p-3 text-xs whitespace-nowrap">{formatIST(dateStr)}</td>
+                    <td className="p-3">{email}</td>
+                    <td className="p-3"><Stars count={rating} /></td>
+                    <td className="p-3 max-w-xs">{feedback || '-'}</td>
+                    <td className="p-3 whitespace-nowrap">{r.before_score ?? '-'} → {r.after_score ?? '-'}</td>
+                  </tr>
+                );
+              })}
+          </tbody>
+        </table>
+        {ratings.length === 0 && (
+          <p className="text-sm text-center p-6" style={{ color: 'var(--li-text-secondary)' }}>No ratings yet.</p>
+        )}
+      </div>
+
+      {/* Low rated highlight */}
       {lowRated.length > 0 && (
-        <div className="li-card p-4">
+        <div className="li-card p-4 mt-4">
           <h3 className="text-sm font-bold mb-2">Low-rated orders (needs review)</h3>
-          {lowRated.map((o: any) => (
-            <div key={o.id} className="text-xs p-2 mb-1 rounded" style={{ background: '#FEE2E2' }}>
-              {o.email} — {o.user_rating}⭐ — Score: {o.before_score}→{o.after_score}
+          {lowRated.map((o: any, idx: number) => (
+            <div key={o.id || idx} className="text-xs p-2 mb-1 rounded" style={{ background: '#FEE2E2' }}>
+              {o.email || o.user_email} — {o.user_rating || o.rating}⭐ — Score: {o.before_score ?? '-'}→{o.after_score ?? '-'}
+              {(o.user_feedback || o.feedback) && <span className="ml-2 italic">"{o.user_feedback || o.feedback}"</span>}
             </div>
           ))}
         </div>
@@ -261,7 +649,7 @@ function QualityScreen() {
 // ─── Revenue Screen ───
 function RevenueScreen() {
   const [data, setData] = useState<any>(null);
-  useEffect(() => { apiFetch('/api/admin/revenue').then(setData); }, []);
+  useEffect(() => { apiFetchJson('/api/admin/revenue').then(setData); }, []);
   if (!data) return <p>Loading...</p>;
 
   const totalRevenue = data.daily.reduce((s: number, d: any) => s + d.revenue, 0);
@@ -300,18 +688,18 @@ function ReferralsScreen() {
   const [amount, setAmount] = useState('');
   const [txnRef, setTxnRef] = useState('');
 
-  useEffect(() => { apiFetch('/api/admin/referrals').then(setReferrals); }, []);
+  useEffect(() => { apiFetchJson('/api/admin/referrals').then(setReferrals); }, []);
 
   async function processPayout() {
     if (!amount || !txnRef || !payoutModal) return;
-    await apiFetch(`/api/admin/referrals/${payoutModal.referral_code}/payout`, {
+    await apiFetchJson(`/api/admin/referrals/${payoutModal.referral_code}/payout`, {
       method: 'POST',
       body: JSON.stringify({ amount_paise: parseInt(amount) * 100, txn_ref: txnRef }),
     });
     setPayoutModal(null);
     setAmount('');
     setTxnRef('');
-    apiFetch('/api/admin/referrals').then(setReferrals);
+    apiFetchJson('/api/admin/referrals').then(setReferrals);
   }
 
   return (
@@ -330,8 +718,11 @@ function ReferralsScreen() {
             </tr>
           </thead>
           <tbody>
-            {referrals.map(r => (
-              <tr key={r.referral_code} style={{ borderBottom: '1px solid var(--li-border)' }}>
+            {referrals.map((r, idx) => (
+              <tr key={r.referral_code} style={{
+                borderBottom: '1px solid var(--li-border)',
+                background: idx % 2 === 0 ? 'white' : 'var(--li-gray)',
+              }}>
                 <td className="p-3">{r.referrer_email}</td>
                 <td className="p-3 font-mono text-xs">{r.referral_code}</td>
                 <td className="p-3">{r.uses_count}</td>
@@ -384,21 +775,44 @@ const NAV: { key: Screen; label: string }[] = [
 
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
+  const [checking, setChecking] = useState(true);
   const [screen, setScreen] = useState<Screen>('overview');
 
   useEffect(() => {
-    if (getToken()) {
-      apiFetch('/api/admin/overview').then(() => setAuthed(true)).catch(() => setAuthed(false));
+    const token = getToken();
+    if (token) {
+      apiFetchJson('/api/admin/overview')
+        .then(() => setAuthed(true))
+        .catch(() => {
+          clearToken();
+          setAuthed(false);
+        })
+        .finally(() => setChecking(false));
+    } else {
+      setChecking(false);
     }
   }, []);
+
+  function handleLogout() {
+    clearToken();
+    setAuthed(false);
+  }
+
+  if (checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--li-gray)' }}>
+        <p style={{ color: 'var(--li-text-secondary)' }}>Loading...</p>
+      </div>
+    );
+  }
 
   if (!authed) return <LoginForm onLogin={() => setAuthed(true)} />;
 
   return (
     <main className="min-h-screen" style={{ background: 'var(--li-gray)' }}>
       {/* Nav */}
-      <nav className="px-4 py-3 flex gap-2 flex-wrap" style={{ background: 'var(--li-card)', borderBottom: '1px solid var(--li-border)' }}>
-        <span className="font-bold mr-4" style={{ color: 'var(--li-blue)' }}>🔥 Admin</span>
+      <nav className="px-4 py-3 flex gap-2 flex-wrap items-center" style={{ background: 'var(--li-card)', borderBottom: '1px solid var(--li-border)' }}>
+        <span className="font-bold mr-4" style={{ color: 'var(--li-blue)' }}>Admin</span>
         {NAV.map(n => (
           <button key={n.key} onClick={() => setScreen(n.key)}
             className="text-sm px-3 py-1 rounded-full cursor-pointer border-none"
@@ -407,6 +821,14 @@ export default function AdminPage() {
               color: screen === n.key ? 'white' : 'var(--li-text-secondary)',
             }}>{n.label}</button>
         ))}
+        <div className="flex-1" />
+        <button
+          onClick={handleLogout}
+          className="text-xs px-3 py-1 rounded-full cursor-pointer border-none"
+          style={{ background: 'var(--li-gray)', color: 'var(--li-text-secondary)' }}
+        >
+          Logout
+        </button>
       </nav>
 
       <div className="max-w-5xl mx-auto px-4 py-6">

@@ -1,26 +1,60 @@
 import { Router, Request, Response, NextFunction } from 'express';
+import crypto from 'crypto';
 import { query } from '../db';
+import { sendResultsEmail } from '../services/email';
 
 const router = Router();
 
-// Auth middleware
+// ═══════════════════════════════════════════
+// Secure Admin Auth with session tokens
+// ═══════════════════════════════════════════
+const ADMIN_EMAIL = 'support@profileroaster.in';
+const activeSessions = new Map<string, { email: string; createdAt: number }>();
+const SESSION_TTL = 24 * 60 * 60 * 1000; // 24 hours
+
+// POST /api/admin/login
+router.post('/login', async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  if (!email || !password)
+    return res.status(400).json({ error: 'Email and password required' });
+
+  if (email !== ADMIN_EMAIL || password !== process.env.ADMIN_PASSWORD)
+    return res.status(401).json({ error: 'Invalid credentials' });
+
+  const token = crypto.randomBytes(32).toString('hex');
+  activeSessions.set(token, { email, createdAt: Date.now() });
+
+  // Clean expired sessions
+  for (const [k, v] of activeSessions) {
+    if (Date.now() - v.createdAt > SESSION_TTL) activeSessions.delete(k);
+  }
+
+  res.json({ token, email });
+});
+
+// Auth middleware — accepts session token OR legacy password
 function adminAuth(req: Request, res: Response, next: NextFunction) {
   const auth = req.headers.authorization;
-  const password = process.env.ADMIN_PASSWORD;
-  if (!password || auth !== `Bearer ${password}`) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-  next();
+  if (!auth) return res.status(401).json({ error: 'Unauthorized' });
+
+  const token = auth.replace('Bearer ', '');
+
+  // Check session token first
+  const session = activeSessions.get(token);
+  if (session && Date.now() - session.createdAt < SESSION_TTL) return next();
+
+  // Fallback: legacy password
+  if (token === process.env.ADMIN_PASSWORD) return next();
+
+  return res.status(401).json({ error: 'Unauthorized' });
 }
 
-router.use(adminAuth);
-
-// Helper: mask email
-function maskEmail(email: string): string {
-  if (!email || !email.includes('@')) return '***';
-  const [local, domain] = email.split('@');
-  return `${local.slice(0, 2)}***@${domain}`;
-}
+router.use('/overview', adminAuth);
+router.use('/orders', adminAuth);
+router.use('/teasers', adminAuth);
+router.use('/revenue', adminAuth);
+router.use('/referrals', adminAuth);
+router.use('/send-email', adminAuth);
 
 // GET /api/admin/overview
 router.get('/overview', async (_req: Request, res: Response) => {
@@ -84,7 +118,7 @@ router.get('/overview', async (_req: Request, res: Response) => {
   }
 });
 
-// GET /api/admin/orders
+// GET /api/admin/orders — now with FULL email visible
 router.get('/orders', async (req: Request, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
@@ -111,7 +145,7 @@ router.get('/orders', async (req: Request, res: Response) => {
     const countResult = await query(`SELECT COUNT(*)::int AS total FROM orders ${where}`, params);
     const result = await query(
       `SELECT id, email, plan, payment_status, processing_status, before_score, after_score,
-              user_rating, created_at
+              user_rating, user_feedback, created_at, paid_at, processing_done_at
        FROM orders ${where} ORDER BY created_at DESC LIMIT $${paramIdx++} OFFSET $${paramIdx++}`,
       [...params, limit, offset],
     );
@@ -119,7 +153,6 @@ router.get('/orders', async (req: Request, res: Response) => {
     res.json({
       orders: result.rows.map(o => ({
         ...o,
-        email: maskEmail(o.email),
         before_score: o.before_score?.overall,
         after_score: o.after_score?.overall,
       })),
@@ -133,16 +166,50 @@ router.get('/orders', async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/admin/orders/:id
+// GET /api/admin/orders/:id — full unmasked details
 router.get('/orders/:id', async (req: Request, res: Response) => {
   try {
     const result = await query('SELECT * FROM orders WHERE id=$1', [req.params.id]);
     if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
-    const o = result.rows[0];
-    o.email = maskEmail(o.email);
-    res.json(o);
+    res.json(result.rows[0]);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch order' });
+  }
+});
+
+// POST /api/admin/send-email/:id — resend results email
+router.post('/send-email/:id', async (req: Request, res: Response) => {
+  try {
+    const result = await query('SELECT * FROM orders WHERE id=$1', [req.params.id]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Order not found' });
+    const order = result.rows[0];
+    if (order.processing_status !== 'done')
+      return res.status(400).json({ error: 'Order not completed yet' });
+
+    await sendResultsEmail(order);
+    res.json({ sent: true, email: order.email });
+  } catch (err) {
+    console.error('Admin send-email error:', err);
+    res.status(500).json({ error: 'Failed to send email' });
+  }
+});
+
+// GET /api/admin/ratings — ratings with user emails
+router.get('/ratings', adminAuth, async (_req: Request, res: Response) => {
+  try {
+    const result = await query(`
+      SELECT id, email, user_rating, user_feedback, feedback_at,
+             before_score->'overall' as before_score,
+             after_score->'overall' as after_score,
+             created_at
+      FROM orders
+      WHERE user_rating IS NOT NULL
+      ORDER BY feedback_at DESC
+      LIMIT 100
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch ratings' });
   }
 });
 
@@ -239,7 +306,6 @@ router.get('/referrals', async (_req: Request, res: Response) => {
       );
       return {
         ...r,
-        referrer_email: maskEmail(r.referrer_email),
         pending_payout_paise: r.earnings_paise - totalPaid,
       };
     }));
