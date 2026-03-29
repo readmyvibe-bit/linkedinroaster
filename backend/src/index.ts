@@ -411,7 +411,7 @@ app.post('/api/orders/:id/upgrade', async (req: Request, res: Response) => {
     const rzpOrder = await razorpay.orders.create({
       amount: 30000,
       currency: 'INR',
-      receipt: `upgrade_${req.params.id}`,
+      receipt: `upg_${req.params.id.slice(0, 32)}`,
       notes: { original_order_id: req.params.id, type: 'upgrade' } as any,
     }) as any;
 
