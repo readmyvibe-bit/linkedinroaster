@@ -130,6 +130,7 @@ async function testInfrastructure() {
       topRoast: 'Your headline says Aspiring which is LinkedIn code for unemployed.',
       secondRoast: 'Your about section reads like a cover letter from 2011.',
       hiddenStrength: { strength: 'Cross-functional versatility', evidence: 'Worked across engineering, product, and sales teams', how_to_show_it: 'Add a dedicated Skills section highlighting both technical and business capabilities.' },
+      closingCompliment: 'Your cross-functional experience is genuinely rare and worth showcasing.',
       industry: 'Technology',
     });
     assert(!!url, `Card generated: ${url?.substring(0, 60)}`);
