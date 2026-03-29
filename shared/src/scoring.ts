@@ -1,10 +1,10 @@
 export interface ScoreBreakdown {
   headline: number; about: number; experience: number;
-  completeness: number; overall: number;
+  completeness: number; ats: number; overall: number;
 }
 
 export function calculateScore(profile: any, ai: any): ScoreBreakdown {
-  // HEADLINE (25% of overall)
+  // HEADLINE (23% of overall)
   let h = 0;
   if (profile.headline) {
     h += 20; // has a headline
@@ -18,7 +18,7 @@ export function calculateScore(profile: any, ai: any): ScoreBreakdown {
   }
   const headlineScore = Math.min(h, 100);
 
-  // ABOUT (35% of overall)
+  // ABOUT (32% of overall)
   let a = 0;
   if (profile.about) {
     a += 15;
@@ -35,7 +35,7 @@ export function calculateScore(profile: any, ai: any): ScoreBreakdown {
   }
   const aboutScore = Math.max(0, Math.min(a, 100));
 
-  // EXPERIENCE (30% of overall)
+  // EXPERIENCE (27% of overall)
   let e = 0;
   if (profile.experience?.length) {
     e += 15;
@@ -52,7 +52,7 @@ export function calculateScore(profile: any, ai: any): ScoreBreakdown {
   }
   const experienceScore = Math.max(0, Math.min(e, 100));
 
-  // COMPLETENESS (10% of overall)
+  // COMPLETENESS (8% of overall)
   let c = 0;
   if (profile.headline) c += 20;
   if (profile.about)    c += 25;
@@ -61,13 +61,33 @@ export function calculateScore(profile: any, ai: any): ScoreBreakdown {
   if (profile.education?.length)  c += 15;
   const completenessScore = Math.min(c, 100);
 
+  // ATS (10% of overall)
+  let ats = 0;
+  // Keyword presence (50 points)
+  const keywordsPresent = ai.ats_intelligence?.keywords_present?.length || 0;
+  const keywordsTotal = ai.ats_intelligence?.top_searched_keywords?.length || 10;
+  ats += Math.round((keywordsPresent / keywordsTotal) * 50);
+  // Weak verb penalty (30 points — start at 30, lose points per weak verb)
+  const weakVerbs = ai.weak_verbs_found?.length || 0;
+  if (weakVerbs === 0) ats += 30;
+  else if (weakVerbs <= 2) ats += 20;
+  else if (weakVerbs <= 4) ats += 10;
+  // Quantification bonus (20 points)
+  const qPct = ai.quantification_breakdown?.percentage || 0;
+  if (qPct >= 60) ats += 20;
+  else if (qPct >= 40) ats += 12;
+  else if (qPct >= 20) ats += 5;
+  const atsScore = Math.min(ats, 100);
+
   const overall = Math.round(
-    headlineScore * 0.25 + aboutScore * 0.35 +
-    experienceScore * 0.30 + completenessScore * 0.10
+    headlineScore * 0.23 + aboutScore * 0.32 +
+    experienceScore * 0.27 + completenessScore * 0.08 +
+    atsScore * 0.10
   );
 
   return { headline: headlineScore, about: aboutScore,
-    experience: experienceScore, completeness: completenessScore, overall };
+    experience: experienceScore, completeness: completenessScore,
+    ats: atsScore, overall };
 }
 
 export function capAfterScore(beforeScore: number, rawAfterScore: number): number {

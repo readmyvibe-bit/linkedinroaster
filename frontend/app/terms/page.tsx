@@ -160,7 +160,26 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold mb-3">9. Limitation of Liability</h2>
+            <h2 className="text-lg font-bold mb-3">9. AI-Generated Content Disclaimer</h2>
+            <p>
+              All content produced by the Service — including roasts, profile rewrites, headline suggestions,
+              ATS keyword recommendations, job description matching, cover letters, and scoring — is generated
+              by artificial intelligence and is provided as suggestions only.
+            </p>
+            <p className="mt-2">
+              Users are strongly advised to review all AI-generated content for accuracy before applying it
+              to their LinkedIn profile or any professional document. profileroaster.in is not responsible
+              for any inaccuracies in AI-generated roasts, rewrites, or recommendations.
+            </p>
+            <p className="mt-2">
+              Specifically, users should verify that company names, job titles, employment dates, metrics,
+              and claimed achievements are factually correct before publishing any rewritten content.
+              AI may occasionally hallucinate details that were not present in the original profile.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-bold mb-3">10. Limitation of Liability</h2>
             <p>
               To the maximum extent permitted by applicable law, Profile Roaster and its owners, operators, employees, and affiliates
               shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from:
@@ -178,7 +197,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold mb-3">10. Prohibited Use</h2>
+            <h2 className="text-lg font-bold mb-3">11. Prohibited Use</h2>
             <p>You agree not to:</p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li>Use the Service for any unlawful purpose or in violation of any applicable laws</li>
@@ -193,7 +212,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold mb-3">11. Referral Program</h2>
+            <h2 className="text-lg font-bold mb-3">12. Referral Program</h2>
             <p>
               The Service offers a referral program where users can earn &#8377;50 credit for each successful referral.
               Referral credits are subject to the following conditions:
@@ -207,7 +226,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold mb-3">12. Third-Party Services</h2>
+            <h2 className="text-lg font-bold mb-3">13. Third-Party Services</h2>
             <p>
               The Service integrates with the following third-party services:
             </p>
@@ -225,7 +244,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold mb-3">13. Termination</h2>
+            <h2 className="text-lg font-bold mb-3">14. Termination</h2>
             <p>
               We reserve the right to suspend or terminate your access to the Service at any time, without prior notice, for
               conduct that we determine violates these Terms, is harmful to other users, or is otherwise objectionable.
@@ -237,7 +256,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold mb-3">14. Governing Law and Dispute Resolution</h2>
+            <h2 className="text-lg font-bold mb-3">15. Governing Law and Dispute Resolution</h2>
             <p>
               These Terms shall be governed by and construed in accordance with the laws of India. Any disputes arising from
               or relating to these Terms or the Service shall be subject to the exclusive jurisdiction of the courts in New Delhi, India.
@@ -249,7 +268,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold mb-3">15. Severability</h2>
+            <h2 className="text-lg font-bold mb-3">16. Severability</h2>
             <p>
               If any provision of these Terms is found to be unenforceable or invalid by a court of competent jurisdiction,
               that provision shall be limited or eliminated to the minimum extent necessary so that the remaining provisions
@@ -258,7 +277,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold mb-3">16. Entire Agreement</h2>
+            <h2 className="text-lg font-bold mb-3">17. Entire Agreement</h2>
             <p>
               These Terms, together with the Privacy Policy and Refund Policy, constitute the entire agreement between you and
               Profile Roaster regarding your use of the Service. These Terms supersede any prior agreements or understandings,
@@ -267,7 +286,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold mb-3">17. Contact Information</h2>
+            <h2 className="text-lg font-bold mb-3">18. Contact Information</h2>
             <p>
               For any questions, concerns, or disputes regarding these Terms, please contact us at:
             </p>

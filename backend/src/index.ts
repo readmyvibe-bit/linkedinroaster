@@ -12,6 +12,7 @@ import { teaserAnalysis } from './ai/teaser';
 import { trackPaymentInitiated, trackPaymentCompleted, trackUpgradeCompleted } from './services/analytics';
 import { startAllCrons } from './cron';
 import adminRouter from './routes/admin';
+import { generateAndUploadRoastSheet } from './services/card-generator';
 dotenv.config();
 
 // --- Sentry ---
@@ -307,16 +308,41 @@ app.post('/api/orders', async (req: Request, res: Response) => {
   }
 });
 
-// POST /api/teaser — rate limited (3/IP/hour), AI-powered
-app.post('/api/teaser', rateLimiter('teaser', 3, 3600), async (req: Request, res: Response) => {
+// POST /api/teaser — rate limited (5/IP/hour), headline cached, AI-powered
+app.post('/api/teaser', rateLimiter('teaser', 5, 3600), async (req: Request, res: Response) => {
   try {
     const { headline } = req.body;
 
     if (!headline || headline.trim().length < 10)
       return res.status(400).json({ errors: ['Please paste your LinkedIn headline (at least 10 characters).'] });
 
+    // Check headline cache first
+    const headlineHash = crypto
+      .createHash('sha256')
+      .update(headline.trim().toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' '))
+      .digest('hex');
+    const cacheKey = `teaser:hash:${headlineHash}`;
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      const cachedResult = JSON.parse(cached);
+      // Still save the attempt for analytics
+      const saved = await query(
+        `INSERT INTO teaser_attempts (headline_text, score, issues_found,
+         ip_address, user_agent, utm_source, utm_medium, utm_campaign)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+        [headline, cachedResult.score, JSON.stringify(cachedResult.issues),
+         req.ip, req.headers['user-agent'] || null,
+         (req.query.utm_source as string) || null, (req.query.utm_medium as string) || null,
+         (req.query.utm_campaign as string) || null],
+      );
+      return res.json({ ...cachedResult, teaser_id: saved.rows[0].id, cached: true });
+    }
+
     // Run AI teaser analysis
     const result = await teaserAnalysis(stripHtml(headline) || headline);
+
+    // Cache for 24 hours
+    await redis.setex(cacheKey, 86400, JSON.stringify(result));
 
     // Save to teaser_attempts
     const saved = await query(
@@ -427,6 +453,7 @@ app.get('/api/orders/:id', rateLimiter('poll', 60, 60), async (req: Request, res
         scores: { before: o.before_score, after: o.after_score },
         roast: o.roast,
         rewrite: o.rewrite,
+        analysis: o.analysis,
         card_image_url: o.card_image_url,
       },
       referral_code: refCode,
@@ -466,6 +493,158 @@ app.get('/api/stats', async (_req: Request, res: Response) => {
   } catch (err) {
     console.error('GET /api/stats error:', err);
     res.status(500).json({ error: 'Failed to fetch stats' });
+  }
+});
+
+// POST /api/generate-roast-sheet — generate combined roast report PNG
+app.post('/api/generate-roast-sheet', async (req: Request, res: Response) => {
+  try {
+    const { orderId } = req.body;
+    if (!orderId) return res.status(400).json({ error: 'Missing orderId' });
+
+    const result = await query('SELECT * FROM orders WHERE id=$1', [orderId]);
+    const o = result.rows[0];
+    if (!o || o.processing_status !== 'done')
+      return res.status(404).json({ error: 'Order not found or not done' });
+
+    const url = await generateAndUploadRoastSheet({
+      orderId: o.id,
+      beforeScore: o.before_score?.overall || 0,
+      afterScore: o.after_score?.overall || 0,
+      headlineScore: o.before_score?.headline || 0,
+      aboutScore: o.before_score?.about || 0,
+      experienceScore: o.before_score?.experience || 0,
+      roastPoints: (o.roast?.roast_points || []).map((p: any) => ({
+        section_targeted: p.section_targeted || 'overall',
+        roast: p.roast || '',
+        underlying_issue: p.underlying_issue || '',
+      })),
+    });
+
+    if (!url) return res.status(500).json({ error: 'Sheet generation failed' });
+    res.json({ url });
+  } catch (err) {
+    console.error('POST /api/generate-roast-sheet error:', err);
+    res.status(500).json({ error: 'Failed to generate roast sheet' });
+  }
+});
+
+// ==================== RECOVERY ====================
+
+// POST /api/recover/send-otp
+app.post('/api/recover/send-otp', rateLimiter('recover-otp', 5, 3600), async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    if (!email || !validateEmail(email))
+      return res.status(400).json({ error: 'Invalid email address' });
+
+    // Check orders and result_lookups
+    const orders = await query(
+      `SELECT id FROM orders WHERE email=$1 AND processing_status='done'
+       AND created_at > NOW() - INTERVAL '30 days'
+       UNION
+       SELECT order_id as id FROM result_lookups WHERE email=$1
+       AND created_at > NOW() - INTERVAL '30 days'`,
+      [email],
+    );
+
+    if (!orders.rows.length)
+      return res.json({ found: false });
+
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    await redis.setex(`otp:${email}`, 600, otp);
+
+    // Send OTP email via Resend
+    const { Resend } = require('resend');
+    const resendClient = new Resend(process.env.RESEND_API_KEY);
+    await resendClient.emails.send({
+      from: `Profile Roaster <${process.env.FROM_EMAIL || 'roast@profileroaster.in'}>`,
+      to: email,
+      subject: 'Your Recovery Code — Profile Roaster',
+      html: `<div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px">
+        <h2 style="color:#004182;margin-bottom:16px">Your Recovery Code</h2>
+        <p style="color:#333;font-size:15px">Use this code to access your LinkedIn roast results:</p>
+        <div style="background:#F3F2EF;border-radius:8px;padding:20px;text-align:center;margin:20px 0">
+          <span style="font-size:32px;font-weight:700;letter-spacing:6px;color:#004182">${otp}</span>
+        </div>
+        <p style="color:#666;font-size:13px">This code expires in 10 minutes.</p>
+        <p style="color:#666;font-size:13px">If you didn't request this, you can safely ignore this email.</p>
+      </div>`,
+    });
+
+    res.json({ found: true });
+  } catch (err) {
+    console.error('POST /api/recover/send-otp error:', err);
+    res.status(500).json({ error: 'Failed to send OTP' });
+  }
+});
+
+// POST /api/recover/verify-otp
+app.post('/api/recover/verify-otp', async (req: Request, res: Response) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp)
+      return res.status(400).json({ error: 'Missing email or OTP' });
+
+    const storedOtp = await redis.get(`otp:${email}`);
+    if (!storedOtp || storedOtp !== otp)
+      return res.status(401).json({ error: 'Invalid or expired OTP' });
+
+    await redis.del(`otp:${email}`);
+
+    // Find all completed orders for this email
+    const orders = await query(
+      `SELECT id, roast->'roast_title' as roast_title,
+              before_score->'overall' as before_score,
+              after_score->'overall' as after_score,
+              created_at
+       FROM orders WHERE email=$1 AND processing_status='done'
+       AND created_at > NOW() - INTERVAL '30 days'
+       ORDER BY created_at DESC`,
+      [email],
+    );
+
+    res.json({
+      orders: orders.rows.map((o: any) => ({
+        orderId: o.id,
+        roastTitle: o.roast_title,
+        beforeScore: o.before_score,
+        afterScore: o.after_score,
+        createdAt: o.created_at,
+      })),
+    });
+  } catch (err) {
+    console.error('POST /api/recover/verify-otp error:', err);
+    res.status(500).json({ error: 'Verification failed' });
+  }
+});
+
+// POST /api/recover/delete
+app.post('/api/recover/delete', async (req: Request, res: Response) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email) return res.status(400).json({ error: 'Missing email' });
+
+    // Require valid OTP session — re-verify or use a token
+    const storedOtp = await redis.get(`otp:${email}`);
+    if (!storedOtp || storedOtp !== otp)
+      return res.status(401).json({ error: 'Please verify your email first' });
+
+    await redis.del(`otp:${email}`);
+
+    // Delete order data (keep payment record but clear personal data)
+    await query(
+      `UPDATE orders SET profile_input=NULL, parsed_profile=NULL, analysis=NULL,
+       roast=NULL, rewrite=NULL, quality_check=NULL, card_image_url=NULL
+       WHERE email=$1`, [email],
+    );
+    await query('DELETE FROM result_lookups WHERE email=$1', [email]);
+
+    res.json({ deleted: true });
+  } catch (err) {
+    console.error('POST /api/recover/delete error:', err);
+    res.status(500).json({ error: 'Deletion failed' });
   }
 });
 

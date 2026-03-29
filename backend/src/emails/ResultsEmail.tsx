@@ -4,8 +4,8 @@ import {
 import * as React from 'react';
 
 interface ResultsEmailProps {
-  beforeScore: { headline: number; about: number; experience: number; completeness: number; overall: number };
-  afterScore: { headline: number; about: number; experience: number; completeness: number; overall: number };
+  beforeScore: { headline: number; about: number; experience: number; completeness: number; ats?: number; overall: number };
+  afterScore: { headline: number; about: number; experience: number; completeness: number; ats?: number; overall: number };
   roast: {
     roast_title: string;
     roast_points: Array<{ point_number: number; roast: string; underlying_issue: string }>;
@@ -17,6 +17,7 @@ interface ResultsEmailProps {
     rewritten_about: string;
     rewritten_experience: Array<{ title: string; company: string; bullets: string[] }>;
     headline_variations?: Array<{ headline: string; style: string }>;
+    personalization_note?: string;
   };
   cardImageUrl: string | null;
   orderId: string;
@@ -70,6 +71,17 @@ export default function ResultsEmail({
             </Text>
           </Section>
 
+          {/* Save This Email Box */}
+          <Section style={saveBox}>
+            <Text style={saveTitle}>Save this email — your results link is valid for 30 days</Text>
+            <Text style={saveDesc}>
+              Your profile score: {beforeScore.overall} → {afterScore.overall} (+{afterScore.overall - beforeScore.overall} points)
+            </Text>
+            <Button style={ctaButton} href={resultsUrl}>
+              View My Full Results →
+            </Button>
+          </Section>
+
           <Hr style={divider} />
 
           {/* Roast Title */}
@@ -93,6 +105,14 @@ export default function ResultsEmail({
           </Section>
 
           <Hr style={divider} />
+
+          {/* Personalization Note */}
+          {rewrite.personalization_note && (
+            <Section style={{ background: '#FFFFFF', borderLeft: '4px solid #0A66C2', padding: '12px 16px', marginBottom: '16px', borderRadius: '4px' }}>
+              <Text style={{ fontSize: '11px', fontWeight: 700 as const, color: '#0A66C2', letterSpacing: '1px', margin: '0 0 6px 0' }}>ABOUT YOUR REWRITE</Text>
+              <Text style={{ fontSize: '14px', color: '#191919', fontStyle: 'italic' as const, lineHeight: '1.6', margin: '0' }}>{rewrite.personalization_note}</Text>
+            </Section>
+          )}
 
           {/* Rewrite: Headline */}
           <Section>
@@ -175,6 +195,10 @@ export default function ResultsEmail({
             <Text style={footerMuted}>
               You received this because you ordered a LinkedIn profile roast.
             </Text>
+            <Text style={footerMuted}>
+              Lost this email? Recover your results at{' '}
+              <Link href="https://profileroaster.in/recover" style={footerLink}>profileroaster.in/recover</Link>
+            </Text>
           </Section>
         </Container>
       </Body>
@@ -196,6 +220,9 @@ const scoreLabel = { fontSize: '11px', fontWeight: '700' as const, letterSpacing
 const scoreNumber = { fontSize: '36px', fontWeight: '800' as const, margin: '4px 0 0', color: '#CC1016' };
 const scoreNumberGreen = { fontSize: '36px', fontWeight: '800' as const, margin: '4px 0 0', color: '#057642' };
 const improvementText = { fontSize: '14px', color: '#057642', fontWeight: '600' as const, marginTop: '12px' };
+const saveBox = { margin: '0 24px', padding: '14px 18px', backgroundColor: '#FEF3C7', border: '1px solid #F59E0B', borderLeft: '4px solid #F59E0B', borderRadius: '8px', textAlign: 'center' as const };
+const saveTitle = { fontSize: '14px', fontWeight: '700' as const, color: '#92400E', margin: '0 0 8px' };
+const saveDesc = { fontSize: '15px', fontWeight: '600' as const, color: '#92400E', margin: '0 0 12px' };
 const divider = { borderColor: '#E0E0E0', margin: '24px 0' };
 const sectionTitle = { fontSize: '18px', fontWeight: '700' as const, color: '#191919', padding: '0 24px' };
 const verdictText = { fontSize: '14px', color: '#666666', fontStyle: 'italic' as const, padding: '0 24px' };

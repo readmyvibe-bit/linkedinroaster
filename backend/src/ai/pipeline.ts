@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import Anthropic from '@anthropic-ai/sdk';
 import { jsonrepair } from 'jsonrepair';
@@ -61,6 +62,27 @@ export interface AnalysisIssue {
   why_it_matters: string;
 }
 
+export interface WeakVerbFound {
+  verb: string;
+  location: string;
+  suggested_replacement: string;
+}
+
+export interface QuantificationBreakdown {
+  total_bullets: number;
+  quantified_bullets: number;
+  unquantified_bullets: number;
+  percentage: number;
+  grade: 'A' | 'B' | 'C' | 'F';
+}
+
+export interface ATSIntelligence {
+  top_searched_keywords: string[];
+  keywords_present: string[];
+  keywords_missing: string[];
+  critical_missing: string[];
+}
+
 export interface Analysis {
   headline_score: number;
   headline_issues: AnalysisIssue[];
@@ -75,6 +97,11 @@ export interface Analysis {
   positioning: 'clear' | 'vague' | 'missing' | 'contradictory';
   top_3_problems: string[];
   detected_strengths: string[];
+  weak_verbs_found: WeakVerbFound[];
+  quantification_score: number;
+  quantification_breakdown: QuantificationBreakdown;
+  total_bullets_detected: number;
+  ats_intelligence: ATSIntelligence;
 }
 
 export interface RoastPoint {
@@ -121,7 +148,9 @@ export interface StandardRewrite {
   about_changes: string;
   rewritten_experience: RewrittenExperience[];
   suggested_skills: Array<{ skill: string; reason: string }>;
+  ats_keywords: string[];
   placeholders_to_fill: Placeholder[];
+  personalization_note: string;
   linkedin_post_hook: string;
 }
 
@@ -356,8 +385,6 @@ async function validateAndRetry(
   }
 
   // If validation fails — retry with stricter prompt
-  console.log('[Parser] Validation failed:', issues);
-  console.log('[Parser] Retrying with strict prompt...');
 
   const retryPrompt = `The previous extraction missed these sections: ${issues.join(', ')}
 
@@ -380,8 +407,6 @@ Return ONLY valid JSON. No markdown. No explanation.`;
 
   const retried = safeJsonParse<ParsedProfile>(retryResult.response.text());
 
-  console.log('[Parser] Retry experience count:', retried.experience?.length);
-
   // Return retried result if it has more experience entries, otherwise keep original
   if ((retried.experience?.length || 0) >= experienceCount) {
     return retried;
@@ -395,7 +420,6 @@ export async function stage1_parse(rawInput: string, orderId?: string): Promise<
   try {
     // Layer 1: Preprocess (deterministic cleanup)
     const clean = preprocessInput(rawInput);
-    console.log('[Parser Layer 1] Preprocessed input length:', clean.length);
 
     const flash = genAI.getGenerativeModel({
       model: 'gemini-2.5-flash',
@@ -409,15 +433,9 @@ export async function stage1_parse(rawInput: string, orderId?: string): Promise<
     });
 
     const parsed = safeJsonParse<ParsedProfile>(result.response.text());
-    console.log('[Parser Layer 2] AI extracted - experience count:', parsed.experience?.length);
 
     // Layer 3: Validate + retry if needed
     const validated = await validateAndRetry(parsed, clean, flash);
-
-    console.log('=== PARSER RESULT ===');
-    console.log('Experience count:', validated.experience?.length);
-    console.log('Companies:', validated.experience?.map(e => e.company));
-    console.log('===================');
 
     return validated;
   } catch (err) {
@@ -457,6 +475,25 @@ EXPERIENCE (0-100):
 
 OVERALL = Headline(0.25) + About(0.35) + Experience(0.30) + Completeness(0.10)
 
+WEAK VERB DETECTION:
+Scan ALL experience bullets for these weak starters and flag each one found.
+Maximum 10 entries — if more than 10, keep the worst offenders.
+
+Weak verbs to detect:
+Responsible for, Tasked with, Duties include, Helped, Assisted, Supported,
+Worked on, Participated in, Involved in, Contributed to, Was part of,
+Collaborated on, Did, Made, Handled, Dealt with, Took care of.
+Note: "Managed" is weak ONLY when used without specific scope or numbers
+(e.g. "Managed tasks" is weak, "Managed $2M portfolio across 15 accounts" is strong).
+
+QUANTIFICATION ANALYSIS:
+Count experience bullets that contain real numbers, percentages, or metrics.
+Calculate: quantified_bullets / total_bullets * 100.
+Calibrate grade by detected_seniority from the parsed profile:
+  Student/Entry: A (60%+) B (40-59%) C (25-39%) F (below 25%)
+  Mid level: A (70%+) B (50-69%) C (35-49%) F (below 35%)
+  Senior/Executive: A (80%+) B (65-79%) C (45-64%) F (below 45%)
+
 OUTPUT FORMAT (strict JSON):
 {
   "headline_score": number,
@@ -476,8 +513,36 @@ OUTPUT FORMAT (strict JSON):
   "metrics_count": number,
   "positioning": "clear | vague | missing | contradictory",
   "top_3_problems": ["most impactful problems, 1 sentence each"],
-  "detected_strengths": ["genuine positives — 1 to 3"]
-}`;
+  "detected_strengths": ["genuine positives — 1 to 3"],
+  "weak_verbs_found": [{
+    "verb": "exact weak phrase found",
+    "location": "which company or section",
+    "suggested_replacement": "stronger verb"
+  }],
+  "quantification_score": number,
+  "quantification_breakdown": {
+    "total_bullets": number,
+    "quantified_bullets": number,
+    "unquantified_bullets": number,
+    "percentage": number,
+    "grade": "A | B | C | F"
+  },
+  "total_bullets_detected": number,
+  "ats_intelligence": {
+    "top_searched_keywords": ["10-15 keywords that LinkedIn recruiters actually search for in this specific role and industry"],
+    "keywords_present": ["which of the top keywords already exist in their current profile"],
+    "keywords_missing": ["which top keywords are completely absent from their profile"],
+    "critical_missing": ["top 3 keywords that MUST be added for basic ATS visibility"]
+  }
+}
+
+ATS KEYWORD INTELLIGENCE:
+Based on their role, industry, and seniority, identify the keywords LinkedIn recruiters
+actually search for when hiring for this type of position.
+top_searched_keywords: 10-15 keywords recruiters would type into LinkedIn search.
+keywords_present: which of those keywords already appear somewhere in the profile.
+keywords_missing: which of those keywords are completely absent.
+critical_missing: the top 3 most important missing keywords — these must be added first.`;
 
 export async function stage2_analyze(parsed: ParsedProfile, orderId?: string): Promise<Analysis> {
   if (orderId) await updateProcessingStatus(orderId, 'analyzing');
@@ -653,7 +718,6 @@ Return ONLY valid JSON.`;
       console.warn(`[Stage 3] hidden_strengths missing from AI response, stop_reason: ${response.stop_reason}`);
       roast.hidden_strengths = [];
     }
-    console.log(`[Stage 3] hidden_strengths count: ${roast.hidden_strengths.length}`);
 
     return roast;
   } catch (err) {
@@ -663,9 +727,89 @@ Return ONLY valid JSON.`;
 }
 
 // ═══════════════════════════════════════════════════════
-// STAGE 4 — STANDARD REWRITE
+// INDUSTRY-SPECIFIC POWER VERB BANKS
 // ═══════════════════════════════════════════════════════
-const STAGE4_SYSTEM = `You are a top-tier LinkedIn ghostwriter who has optimized 10,000+
+const VERB_BANKS: Record<string, string> = {
+  'sales': `POWER VERBS FOR SALES / BUSINESS DEVELOPMENT:
+Generated, Closed, Negotiated, Prospected, Converted, Exceeded, Penetrated, Captured,
+Expanded, Accelerated, Drove, Delivered, Secured, Landed, Grew, Spearheaded`,
+
+  'hr': `POWER VERBS FOR HR / RECRUITMENT / TALENT:
+Sourced, Screened, Placed, Headhunted, Reduced, Streamlined, Implemented, Built,
+Developed, Transformed, Optimized, Led, Recruited, Onboarded, Retained, Coached`,
+
+  'technology': `POWER VERBS FOR TECHNOLOGY / ENGINEERING:
+Architected, Engineered, Deployed, Shipped, Automated, Scaled, Optimized, Integrated,
+Developed, Launched, Refactored, Designed, Built, Implemented, Migrated, Delivered`,
+
+  'marketing': `POWER VERBS FOR MARKETING / GROWTH:
+Grew, Increased, Launched, Managed, Created, Drove, Generated, Amplified, Executed, Built,
+Designed, Produced, Improved, Boosted, Led`,
+
+  'finance': `POWER VERBS FOR FINANCE / OPERATIONS:
+Managed, Reduced, Saved, Increased, Audited, Forecasted, Streamlined, Improved, Delivered,
+Controlled, Analyzed, Reported, Optimized`,
+
+  'customer_success': `POWER VERBS FOR CUSTOMER SUCCESS / ACCOUNT MANAGEMENT:
+Retained, Expanded, Upsold, Managed, Built, Delivered, Resolved, Improved, Achieved,
+Maintained, Grew, Exceeded, Partnered`,
+
+  'general': `POWER VERBS FOR GENERAL / LEADERSHIP:
+Led, Spearheaded, Championed, Directed, Established, Launched, Built, Drove,
+Delivered, Achieved, Exceeded, Transformed`,
+};
+
+// ═══════════════════════════════════════════════════════
+// INDUSTRY-SPECIFIC KEYWORD BANKS (ATS fallback)
+// ═══════════════════════════════════════════════════════
+const INDUSTRY_KEYWORDS: Record<string, string[]> = {
+  sales: ['Revenue Generation', 'Pipeline', 'CRM', 'B2B Sales', 'Lead Generation',
+    'Account Management', 'Quota', 'Closing', 'Prospecting', 'Client Relations'],
+  hr: ['Talent Acquisition', 'Recruitment', 'HRIS', 'Onboarding', 'Employee Engagement',
+    'Performance Management', 'Sourcing', 'ATS', 'Workforce Planning', 'HR Analytics'],
+  technology: ['Software Development', 'Agile', 'Cloud', 'API', 'Microservices', 'DevOps',
+    'CI/CD', 'System Design', 'Full Stack', 'Data Structures'],
+  marketing: ['Digital Marketing', 'SEO', 'SEM', 'Content Strategy', 'Brand Management',
+    'Analytics', 'Campaign Management', 'Social Media', 'Lead Generation', 'ROI'],
+  finance: ['Financial Analysis', 'Forecasting', 'Budgeting', 'Risk Management', 'Compliance',
+    'Excel', 'Financial Modeling', 'Audit', 'Cost Reduction', 'Variance Analysis'],
+  customer_success: ['Customer Retention', 'Account Management', 'NPS', 'Churn Reduction',
+    'Upselling', 'Customer Satisfaction', 'SaaS', 'Revenue Expansion', 'QBR',
+    'Customer Onboarding', 'Stakeholder Management', 'Business Value',
+    'Enterprise Accounts', 'Customer Health', 'Post-Sales'],
+  general: ['Leadership', 'Project Management', 'Stakeholder Management', 'Communication',
+    'Problem Solving', 'Team Management', 'Strategic Planning', 'Data Analysis',
+    'Cross-functional', 'Process Improvement'],
+};
+
+function getKeywordsForIndustry(industry: string): string[] {
+  const lower = (industry || '').toLowerCase();
+  // Check customer_success and account management BEFORE technology
+  if (/customer.?success|csm|account.?manage/i.test(lower)) return INDUSTRY_KEYWORDS['customer_success'];
+  if (/sales|business.?dev|inside.?sales|bdr|sdr/i.test(lower)) return INDUSTRY_KEYWORDS['sales'];
+  if (/hr|human.?resource|recruit|talent/i.test(lower)) return INDUSTRY_KEYWORDS['hr'];
+  if (/market|growth|brand|content|seo|social.?media|digital/i.test(lower)) return INDUSTRY_KEYWORDS['marketing'];
+  if (/finance|accounting|banking/i.test(lower)) return INDUSTRY_KEYWORDS['finance'];
+  // Use word boundary for "it" to avoid matching "training", "recruiting", etc.
+  if (/software|engineer|developer|technology|\bit\b|devops|cloud|cyber/i.test(lower)) return INDUSTRY_KEYWORDS['technology'];
+  return INDUSTRY_KEYWORDS['general'];
+}
+
+function getVerbBankForIndustry(industry: string): string {
+  const lower = industry.toLowerCase();
+  if (/sales|business.?dev|bdr|sdr/i.test(lower)) return VERB_BANKS['sales'];
+  if (/hr|human.?resource|recruit|talent/i.test(lower)) return VERB_BANKS['hr'];
+  if (/tech|engineer|software|data|devops|it|cloud|cyber/i.test(lower)) return VERB_BANKS['technology'];
+  if (/market|growth|brand|content|seo|social.?media|digital/i.test(lower)) return VERB_BANKS['marketing'];
+  if (/finance|account|banking|operations|supply.?chain|logistics/i.test(lower)) return VERB_BANKS['finance'];
+  if (/customer.?success|account.?manage|client|support/i.test(lower)) return VERB_BANKS['customer_success'];
+  return VERB_BANKS['general'];
+}
+
+// ═══════════════════════════════════════════════════════
+// STAGE 4 — SHARED REWRITE RULES (used by Standard + Pro)
+// ═══════════════════════════════════════════════════════
+const BASE_REWRITE_RULES = `You are a top-tier LinkedIn ghostwriter who has optimized 10,000+
 profiles for executives, founders, and job seekers globally.
 
 ABSOLUTE REWRITING RULES:
@@ -723,8 +867,6 @@ EXPERIENCE BULLETS FORMATTING RULES:
 7. Recent role: 4-5 bullets
 8. Older roles: 2-3 bullets
 9. Very old roles (3+ years ago): 1-2 bullets
-
-STANDARD PLAN — Do NOT include ats_keywords in output.
 
 PLACEHOLDER RULES — MAXIMUM 3 [X] IN ENTIRE OUTPUT:
 NEVER use placeholders for these — always use real data:
@@ -765,6 +907,25 @@ If profile has NO metrics at all — use their most specific niche or specializa
 VOICE MATCHING:
 Study the tone and voice of the original profile. If person writes casually — keep it warm. If person writes formally — keep it professional. If they use Indian English — preserve it. Rewrite should feel like THEIR voice upgraded, not like a different person wrote it.
 
+POWER VERB RULES:
+Every experience bullet MUST start with a verb from the POWER VERBS list provided below.
+Never repeat the same verb within a single role. Minimize repetition across roles.
+If the list does not have enough verbs, you may use similar strong action verbs.
+
+PERSONALIZATION NOTE:
+Write 2 sentences explaining what makes this rewrite specific to THIS person.
+Reference specific names, numbers, or achievements from THIS profile that shaped the rewrite.
+Example: "Your rewrite is built around your 7x Hall of Fame record and 6.5 Crore revenue. We positioned you as a revenue-driving CSM, not a generic customer success professional."
+This must feel custom — never generic.`;
+
+// ═══════════════════════════════════════════════════════
+// STAGE 4 — STANDARD REWRITE
+// ═══════════════════════════════════════════════════════
+const STANDARD_OUTPUT_FORMAT = `
+STANDARD PLAN — Include 5-8 core ATS keywords in ats_keywords field.
+These are the most important searchable terms for their role and industry.
+Pro plan gets 10-15 keywords and JD matching.
+
 OUTPUT FORMAT (strict JSON):
 {
   "rewritten_headline": "string",
@@ -778,13 +939,20 @@ OUTPUT FORMAT (strict JSON):
     "changes_made": "what was improved"
   }],
   "suggested_skills": [{"skill": "string", "reason": "why this matters"}],
+  "ats_keywords": ["5-8 most important searchable keywords for their role and industry"],
   "placeholders_to_fill": [{
     "location": "where in the rewrite",
     "placeholder": "[X]%",
     "instruction": "replace with your actual number"
   }],
+  "personalization_note": "2 sentences explaining what makes this rewrite specific to this person",
   "linkedin_post_hook": "punchy 1-line opener for their LinkedIn transformation post"
 }`;
+
+function buildStage4System(industry: string): string {
+  const verbBank = getVerbBankForIndustry(industry);
+  return `${BASE_REWRITE_RULES}\n\n${verbBank}\n\n${STANDARD_OUTPUT_FORMAT}`;
+}
 
 export async function stage4_rewrite(
   parsed: ParsedProfile,
@@ -803,7 +971,7 @@ Return ONLY valid JSON.`;
       model: 'claude-sonnet-4-20250514',
       max_tokens: 3000,
       temperature: 0.5,
-      system: STAGE4_SYSTEM,
+      system: buildStage4System(parsed.detected_industry),
       messages: [{ role: 'user', content: userPrompt }],
     });
 
@@ -818,87 +986,8 @@ Return ONLY valid JSON.`;
 // ═══════════════════════════════════════════════════════
 // STAGE 4b — PRO REWRITE
 // ═══════════════════════════════════════════════════════
-const STAGE4B_SYSTEM = `You are a top-tier LinkedIn ghostwriter who has optimized 10,000+
-profiles for executives, founders, and job seekers globally.
-
-ABSOLUTE REWRITING RULES:
-1. NEVER invent: metrics, achievements, company names, credentials,
-   certifications, awards not in the original profile
-2. Use [X] brackets where metrics are missing — never write fake numbers
-3. Keep actual job titles — never inflate or change them
-4. Match industry tone exactly: tech differs from finance, creative, healthcare
-5. Calibrate for detected seniority — fresher profile must not sound executive
-
-COMPANY NAME RULE — ABSOLUTE ZERO EXCEPTIONS:
-Copy every company name exactly as it appears in parsed_profile.experience[].company field.
-Character by character. No corrections. No abbreviations. No expansions.
-No spelling fixes. No punctuation changes.
-If parsed profile has 'GAOTek Inc.' — rewrite must say 'GAOTek Inc.' exactly.
-If parsed profile has 'CloudThat' — rewrite must say 'CloudThat' exactly.
-Violation of this rule = fabrication error.
-
-HEADLINE FORMULA:
-[What You Do] | [Who You Help or Where You Work] | [Key Result / Differentiator]
-Max 220 characters. No emojis for Finance, Legal, Healthcare, Government.
-Banned headline words: Aspiring, Passionate, Dedicated, Committed,
-Results-driven, Thought Leader, Ninja, Guru, Rockstar, Looking for opportunities
-
-ABOUT SECTION FRAMEWORK (follow this order exactly):
-Lines 1-2:  HOOK — compelling, above LinkedIn fold, NOT starting with I am a
-Lines 3-4:  PROBLEM or VALUE — pain you solve, for whom
-Lines 5-8:  HOW — your approach, methodology, specific tools
-Lines 9-11: PROOF — achievements with numbers, [X] where missing
-Lines 12-13: CTA — specific next step, not just open to work
-Line 14:   CONTACT — email or message preference
-Max 2600 characters. Use line breaks between sections.
-
-ABOUT SECTION FORMATTING RULES:
-1. Maximum 3 sentences per paragraph
-2. Blank line between every paragraph — use \\n\\n in JSON output
-3. Use bullet points (•) for listing skills or achievements
-4. Never write more than 3 items in a comma list — convert to bullet points instead
-5. Final output must have at least 3 separate paragraphs with blank lines between them
-6. CTA must be its own separate final paragraph
-7. The about section must NOT be one wall of text
-
-EXPERIENCE BULLET FORMAT:
-[Strong Action Verb] + [Specific What You Did] + [Measurable Result]
-Never start a bullet with: I / The / Was / Responsible / Helped / Supported / Assisted
-Recent role: 4-5 bullets. Previous roles: 2-3 bullets. Old roles: 1-2 bullets.
-
-EXPERIENCE BULLETS FORMATTING RULES:
-1. Each bullet point = one separate string in the bullets array
-2. Never combine multiple bullets with • separator in a single string
-3. Never put more than one achievement per bullet
-4. Each bullet starts with a strong action verb
-5. Each bullet is one complete sentence
-6. Minimum 3 bullets per role, maximum 5 bullets
-7. Recent role: 4-5 bullets
-8. Older roles: 2-3 bullets
-9. Very old roles (3+ years ago): 1-2 bullets
-
-Pro mode adds 5 headline variations, ATS keywords, JD analysis, cover letter.
-
-PLACEHOLDER RULES — MAXIMUM 3 [X] IN ENTIRE OUTPUT:
-NEVER use placeholders for these — always use real data:
-- Company name — use exact company from parsed profile
-- Job title — use exact title from parsed profile
-- Year — calculate from date ranges in parsed profile
-- Numbers stated in profile — use them directly
-NEVER output: [Your Current Company Name], [Your Email Address], [Year], [Your Name].
-ONLY use [X] when metric is genuinely unknown. Count before finalizing — max 3.
-
-COMPANY NAME PRESERVATION:
-Copy every company name character by character from parsed_profile.experience[i].company.
-No corrections. No abbreviations. No additions. No removals. This applies to every company.
-
-HEADLINE QUALITY STANDARD:
-Extract the most impressive metric or achievement. Build headline around that data point.
-Formula: [Specific Role] | [Their Best Metric] | [Their Niche]. Max 220 chars.
-BANNED: Aspiring / Passionate / Dedicated / Dynamic / Results-driven / Seeking / Looking.
-
-VOICE MATCHING:
-Match the tone of the original profile. Casual stays warm. Formal stays professional. Indian English preserved. Their voice upgraded, not replaced.
+const PRO_OUTPUT_FORMAT = `
+PRO PLAN — Include 10-15 ATS keywords, 5 headline variations, JD analysis, and cover letter.
 
 OUTPUT FORMAT (strict JSON — Pro plan):
 {
@@ -938,8 +1027,14 @@ OUTPUT FORMAT (strict JSON — Pro plan):
   },
 
   "placeholders_to_fill": [{"location": "", "placeholder": "", "instruction": ""}],
+  "personalization_note": "2 sentences explaining what makes this rewrite specific to this person",
   "linkedin_post_hook": "punchy opener for transformation LinkedIn post"
 }`;
+
+function buildStage4bSystem(industry: string): string {
+  const verbBank = getVerbBankForIndustry(industry);
+  return `${BASE_REWRITE_RULES}\n\n${verbBank}\n\n${PRO_OUTPUT_FORMAT}`;
+}
 
 export async function stage4b_proRewrite(
   parsed: ParsedProfile,
@@ -964,7 +1059,7 @@ Return ONLY valid JSON.`;
       model: 'claude-sonnet-4-20250514',
       max_tokens: 4000,
       temperature: 0.5,
-      system: STAGE4B_SYSTEM,
+      system: buildStage4bSystem(parsed.detected_industry),
       messages: [{ role: 'user', content: userPrompt }],
     });
 
@@ -1144,13 +1239,11 @@ async function alertTeam(message: string): Promise<void> {
 
 async function postProcess(orderId: string): Promise<void> {
   try {
-    console.log(`[postProcess] Starting for order ${orderId}`);
     const result = await query('SELECT * FROM orders WHERE id=$1', [orderId]);
     const order = result.rows[0];
-    if (!order) { console.log(`[postProcess] Order ${orderId} not found`); return; }
+    if (!order) return;
 
     // Generate card image
-    console.log(`[postProcess] Generating card for order ${orderId}`);
     const firstStrength = order.roast?.hidden_strengths?.[0] || null;
     const cardUrl = await generateAndUploadCard({
       orderId,
@@ -1162,15 +1255,13 @@ async function postProcess(orderId: string): Promise<void> {
       topRoast: order.roast?.roast_points?.[0]?.roast || 'Your profile got roasted!',
       secondRoast: order.roast?.roast_points?.[1]?.roast || '',
       hiddenStrength: firstStrength ? { strength: firstStrength.strength, evidence: firstStrength.evidence || '', how_to_show_it: firstStrength.how_to_show_it } : null,
+      closingCompliment: order.roast?.closing_compliment || '',
       industry: order.parsed_profile?.detected_industry || 'Technology',
     });
 
     if (cardUrl) {
-      console.log(`[postProcess] Card uploaded: ${cardUrl}`);
       await query('UPDATE orders SET card_image_url=$1 WHERE id=$2', [cardUrl, orderId]);
       order.card_image_url = cardUrl;
-    } else {
-      console.log(`[postProcess] Card generation returned null for order ${orderId}`);
     }
 
     // Send results email
@@ -1215,6 +1306,12 @@ export async function processAutoRefund(orderId: string, reason: string): Promis
 // ═══════════════════════════════════════════════════════
 // MAIN PIPELINE ORCHESTRATOR
 // ═══════════════════════════════════════════════════════
+function generateProfileHash(profileInput: any): string {
+  const raw = typeof profileInput === 'string' ? profileInput : JSON.stringify(profileInput);
+  const normalized = raw.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+  return crypto.createHash('sha256').update(normalized).digest('hex').substring(0, 16);
+}
+
 export async function runPipeline(orderId: string): Promise<void> {
   let attempts = 0;
   const orderResult = await query('SELECT * FROM orders WHERE id=$1', [orderId]);
@@ -1224,6 +1321,36 @@ export async function runPipeline(orderId: string): Promise<void> {
   const profileInput = order.profile_input;
   const plan: string = order.plan;
   const jobDesc: string | null = order.job_description;
+
+  // Profile fingerprinting — check for duplicate
+  const profileHash = generateProfileHash(profileInput);
+  await query('UPDATE orders SET profile_hash=$1 WHERE id=$2', [profileHash, orderId]);
+
+  const existing = await query(
+    `SELECT * FROM orders WHERE profile_hash=$1 AND processing_status='done'
+     AND created_at > NOW() - INTERVAL '30 days' AND id != $2
+     ORDER BY created_at DESC LIMIT 1`,
+    [profileHash, orderId],
+  );
+
+  if (existing.rows.length > 0) {
+    const src = existing.rows[0];
+    console.log(`[FINGERPRINT] Duplicate detected for ${orderId}, copying results from ${src.id}`);
+    await query(
+      `UPDATE orders SET parsed_profile=$1, analysis=$2, roast=$3, rewrite=$4,
+       quality_check=$5, before_score=$6, after_score=$7, card_image_url=$8,
+       processing_status='done', processing_done_at=NOW() WHERE id=$9`,
+      [JSON.stringify(src.parsed_profile), JSON.stringify(src.analysis),
+       JSON.stringify(src.roast), JSON.stringify(src.rewrite),
+       JSON.stringify(src.quality_check), JSON.stringify(src.before_score),
+       JSON.stringify(src.after_score), src.card_image_url, orderId],
+    );
+    // Track in result_lookups
+    await query('INSERT INTO result_lookups (email, order_id) VALUES ($1, $2)',
+      [order.email, src.id]);
+    await postProcess(orderId);
+    return;
+  }
 
   while (attempts < 3) {
     try {
@@ -1240,17 +1367,6 @@ export async function runPipeline(orderId: string): Promise<void> {
         'parse',
       );
 
-      console.log('=== STAGE 1 PARSER DEBUG ===');
-      console.log('Input length:', rawInput.length);
-      console.log('Input preview:', rawInput.substring(0, 200));
-      console.log('Parsed headline:', parsed.headline);
-      console.log('Parsed about length:', parsed.about?.length);
-      console.log('Experience count:', parsed.experience?.length);
-      if (parsed.experience?.length) {
-        parsed.experience.forEach((e: any, i: number) => console.log(`  Exp ${i}: ${e.title} @ ${e.company}`));
-      }
-      console.log('=== END PARSER DEBUG ===');
-
       await query(
         'UPDATE orders SET parsed_profile=$1, processing_status=$2 WHERE id=$3',
         [JSON.stringify(parsed), 'analyzing', orderId],
@@ -1262,6 +1378,21 @@ export async function runPipeline(orderId: string): Promise<void> {
         TIMEOUTS.analyze,
         'analyze',
       );
+
+      // Fallback: if Stage 2 did not return ats_intelligence, build from industry keywords
+      if (!analysis.ats_intelligence) {
+        console.warn('ats_intelligence missing from Stage 2 — using keyword fallback');
+        // Include role title so a CSM at a tech company gets CSM keywords, not tech keywords
+        const roleSignal = `${parsed.detected_industry} ${parsed.current_role?.title || ''}`;
+        const industryKeywords = getKeywordsForIndustry(roleSignal);
+        analysis.ats_intelligence = {
+          top_searched_keywords: industryKeywords,
+          keywords_present: [],
+          keywords_missing: industryKeywords,
+          critical_missing: industryKeywords.slice(0, 3),
+        };
+      }
+
       await query(
         'UPDATE orders SET analysis=$1, processing_status=$2 WHERE id=$3',
         [JSON.stringify(analysis), 'roasting', orderId],
@@ -1339,9 +1470,34 @@ export async function runPipeline(orderId: string): Promise<void> {
           };
         }
 
+        // Connect Stage 4 ats_keywords to after score: boost ATS by matching rewrite keywords
+        const rewriteKeywords = rewrite.ats_keywords || [];
+        const expectedKeywords = analysis.ats_intelligence?.top_searched_keywords || [];
+        if (rewriteKeywords.length > 0 && expectedKeywords.length > 0) {
+          const matched = expectedKeywords.filter(expected =>
+            rewriteKeywords.some(rk =>
+              rk.toLowerCase().includes(expected.toLowerCase()) ||
+              expected.toLowerCase().includes(rk.toLowerCase())
+            )
+          );
+          // Update afterAnalysis ats_intelligence to reflect rewrite keywords
+          afterAnalysis.ats_intelligence = {
+            ...afterAnalysis.ats_intelligence,
+            top_searched_keywords: expectedKeywords,
+            keywords_present: matched,
+            keywords_missing: expectedKeywords.filter(k => !matched.includes(k)),
+            critical_missing: (afterAnalysis.ats_intelligence?.critical_missing || [])
+              .filter(k => !matched.includes(k)),
+          };
+        }
+
         const rawAfter = calculateScore(mergedForScoring, afterAnalysis);
         const cappedAfterOverall = capAfterScore(before.overall, rawAfter.overall);
-        const after = { ...rawAfter, overall: cappedAfterOverall };
+        const after = {
+          ...rawAfter,
+          overall: cappedAfterOverall,
+          ats: Math.max(rawAfter.ats, before.ats),
+        };
 
         await query(
           `UPDATE orders SET before_score=$1, after_score=$2,

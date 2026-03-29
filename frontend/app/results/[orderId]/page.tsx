@@ -1,9 +1,30 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, Component, ErrorInfo, ReactNode } from 'react';
 import { useParams } from 'next/navigation';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
+// ─── ErrorBoundary — catches React render errors in children ───
+class SafeRender extends Component<
+  { name: string; children: ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { name: string; children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error(`[SafeRender] ${this.props.name} crashed:`, error.message, info.componentStack);
+  }
+  render() {
+    if (this.state.hasError) return null;
+    return this.props.children;
+  }
+}
 
 // ─── Types ───
 interface ScoreBreakdown {
@@ -11,6 +32,7 @@ interface ScoreBreakdown {
   about: number;
   experience: number;
   completeness: number;
+  ats?: number;
   overall: number;
 }
 
@@ -48,6 +70,16 @@ interface OrderResults {
   plan: string;
   results: {
     scores: { before: ScoreBreakdown; after: ScoreBreakdown };
+    analysis?: {
+      ats_intelligence?: {
+        top_searched_keywords: string[];
+        keywords_present: string[];
+        keywords_missing: string[];
+        critical_missing: string[];
+      };
+      weak_verbs_found?: Array<{ verb: string; location: string; suggested_replacement: string }>;
+      quantification_breakdown?: { total_bullets: number; quantified_bullets: number; percentage: number; grade: string };
+    };
     roast: {
       roast_title: string;
       roast_points: RoastPoint[];
@@ -64,6 +96,7 @@ interface OrderResults {
       rewritten_experience: RewrittenExperience[];
       suggested_skills: Array<{ skill: string; reason: string }>;
       placeholders_to_fill: Array<{ location: string; placeholder: string; instruction: string }>;
+      personalization_note?: string;
       linkedin_post_hook: string;
       headline_variations?: HeadlineVariation[];
       ats_keywords?: string[];
@@ -112,6 +145,50 @@ function highlightPlaceholders(text: string) {
     /\[X\][%xX+]?/g,
     (match) => `<span style="background:#FEF3C7;color:#92400E;border-radius:3px;padding:1px 4px;font-weight:600">${match}</span>`,
   );
+}
+
+const KNOWN_POWER_VERBS = new Set([
+  'generated', 'closed', 'negotiated', 'prospected', 'converted', 'exceeded', 'penetrated',
+  'captured', 'expanded', 'accelerated', 'drove', 'delivered', 'secured', 'landed', 'grew',
+  'spearheaded', 'sourced', 'screened', 'placed', 'headhunted', 'reduced', 'streamlined',
+  'implemented', 'built', 'developed', 'transformed', 'optimized', 'led', 'recruited',
+  'onboarded', 'retained', 'coached', 'architected', 'engineered', 'deployed', 'shipped',
+  'automated', 'scaled', 'integrated', 'launched', 'refactored', 'designed', 'migrated',
+  'increased', 'managed', 'created', 'amplified', 'executed', 'produced', 'improved',
+  'boosted', 'saved', 'audited', 'forecasted', 'controlled', 'analyzed', 'reported',
+  'upsold', 'resolved', 'achieved', 'maintained', 'partnered', 'championed', 'directed',
+  'established', 'exceeded', 'pioneered', 'orchestrated', 'revamped', 'consolidated',
+]);
+
+function highlightPowerVerbs(html: string): string {
+  if (!html || typeof html !== 'string') return html || '';
+  // Match bullet lines: "• FirstWord rest..."
+  return html.replace(
+    /(•\s*)(\w+)/g,
+    (match, bullet, firstWord) => {
+      if (KNOWN_POWER_VERBS.has(firstWord.toLowerCase())) {
+        return `${bullet}<span style="font-weight:800;color:#0A66C2">${firstWord}</span>`;
+      }
+      return match;
+    },
+  );
+}
+
+function highlightATSKeywords(html: string, keywords: string[]): string {
+  if (!html || typeof html !== 'string') return html || '';
+  if (!keywords || !keywords.length) return html;
+  const highlighted = new Set<string>();
+  let result = html;
+  for (const kw of keywords) {
+    if (highlighted.has(kw.toLowerCase())) continue;
+    const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`\\b(${escaped})\\b`, 'i');
+    result = result.replace(regex, (match) => {
+      highlighted.add(kw.toLowerCase());
+      return `<span style="text-decoration:underline;text-decoration-color:#0A66C2;text-underline-offset:2px">${match}</span>`;
+    });
+  }
+  return result;
 }
 
 // ─── Stage Labels ───
@@ -180,6 +257,14 @@ function getVerdict(score: number): string {
 }
 
 function ScoreReveal({ before, after }: { before: ScoreBreakdown; after: ScoreBreakdown }) {
+  const atsVerdict = (score: number) => {
+    if (score >= 86) return { text: 'Optimized', color: '#057642' };
+    if (score >= 71) return { text: 'Strong', color: '#44A340' };
+    if (score >= 51) return { text: 'Moderate', color: '#B59F3B' };
+    if (score >= 31) return { text: 'Weak', color: '#E16B00' };
+    return { text: 'Invisible', color: '#CC1016' };
+  };
+
   const subScores = [
     { label: 'Headline', b: before.headline, a: after.headline },
     { label: 'About', b: before.about, a: after.about },
@@ -260,7 +345,7 @@ function ScoreReveal({ before, after }: { before: ScoreBreakdown; after: ScoreBr
         ))}
       </div>
 
-      {/* FIX 13 — Score gap explanation */}
+      {/* Score gap explanation */}
       <p className="text-xs leading-relaxed mt-4" style={{ color: 'var(--li-text-secondary)' }}>
         Your before score reflects your current profile. Your after score reflects what our
         rewrite achieves when you add your real numbers. The bigger the gap — the more
@@ -273,57 +358,428 @@ function ScoreReveal({ before, after }: { before: ScoreBreakdown; after: ScoreBr
 // ═══════════════════════════════════════════
 // RoastCard
 // ═══════════════════════════════════════════
-function RoastCard({ point, total }: { point: RoastPoint; total: number }) {
+function RoastCard({ point, pointNumber, totalPoints }: { point: RoastPoint; pointNumber: number; totalPoints: number }) {
   const [expanded, setExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
 
   return (
-    <div className="li-card p-4 mb-3">
-      <div className="flex justify-between text-xs mb-2" style={{ color: 'var(--li-text-secondary)' }}>
-        <span>🔥 LinkedIn Profile Roast</span>
-        <span>Point {point.point_number}/{total}</span>
-      </div>
-      <div
-        className="text-base italic pl-3 mb-3"
-        style={{
-          borderLeft: '3px solid var(--li-orange)',
-          paddingLeft: 12,
-          color: 'var(--li-text-primary)',
-        }}
-      >
-        {point.roast}
+    <div style={{
+      borderRadius: 14,
+      overflow: 'hidden',
+      border: '1px solid #E0E0E0',
+      background: 'white',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+      marginBottom: 16,
+    }}>
+      {/* Header bar */}
+      <div style={{
+        background: 'linear-gradient(135deg, #004182, #0A66C2)',
+        padding: '12px 18px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <span role="img" aria-label="fire" style={{ fontSize: 16 }}>🔥</span>
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, color: 'white' }}>
+            LINKEDIN ROAST
+          </span>
+        </div>
+        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>
+          Point {pointNumber} / {totalPoints}
+        </span>
       </div>
 
+      {/* Section tag */}
+      <div style={{ background: '#F3F2EF', padding: '10px 18px 0' }}>
+        <span style={{
+          display: 'inline-block',
+          background: 'white',
+          border: '1px solid #E0E0E0',
+          borderRadius: 10,
+          padding: '3px 12px',
+          fontSize: 10,
+          fontWeight: 700,
+          color: '#666',
+          letterSpacing: 1,
+        }}>
+          {point.section_targeted.toUpperCase()}
+        </span>
+      </div>
+
+      {/* Quote body */}
+      <div style={{ background: '#F3F2EF', padding: '16px 20px 12px', position: 'relative' }}>
+        <span style={{
+          position: 'absolute',
+          top: -8,
+          left: 10,
+          fontSize: 72,
+          fontFamily: 'Georgia, serif',
+          color: 'rgba(10,102,194,0.10)',
+          lineHeight: 1,
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}>
+          {'\u201C'}
+        </span>
+        <p style={{
+          fontSize: 14,
+          color: '#191919',
+          fontStyle: 'italic',
+          lineHeight: 1.75,
+          paddingLeft: 18,
+          position: 'relative',
+          zIndex: 1,
+          margin: 0,
+        }}>
+          {point.roast}
+        </p>
+      </div>
+
+      {/* Expandable panel */}
       {expanded && (
-        <div
-          className="text-sm p-3 rounded mb-3"
-          style={{ background: 'var(--li-gray)', color: 'var(--li-text-secondary)' }}
-        >
-          <span className="font-semibold">The real issue: </span>
+        <div style={{
+          background: '#F3F2EF',
+          padding: '12px 18px',
+          borderTop: '1px solid #E0E0E0',
+          fontSize: 13,
+          color: '#444',
+          lineHeight: 1.6,
+        }}>
           {point.underlying_issue}
         </div>
       )}
 
-      <div className="flex gap-3">
+      {/* Footer */}
+      <div style={{
+        background: 'white',
+        padding: '10px 18px 14px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderTop: '1px solid #F3F2EF',
+      }}>
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-xs font-medium cursor-pointer bg-transparent border-none"
-          style={{ color: 'var(--li-blue)' }}
+          style={{
+            fontSize: 11,
+            color: '#0A66C2',
+            fontWeight: 700,
+            cursor: 'pointer',
+            background: 'none',
+            border: 'none',
+            padding: 0,
+          }}
         >
           {expanded ? '▲ Hide' : '▼ Why it matters'}
         </button>
         <button
           onClick={() => {
-            copyToClipboard(point.roast);
+            copyToClipboard(`${point.roast}\n\n— AI roasted my LinkedIn profile 🔥\nGet yours: profileroaster.in`);
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
           }}
-          className="text-xs font-medium cursor-pointer bg-transparent border-none"
-          style={{ color: 'var(--li-blue)' }}
+          style={{
+            fontSize: 11,
+            color: '#0A66C2',
+            fontWeight: 700,
+            border: '1px solid #0A66C2',
+            borderRadius: 8,
+            padding: '4px 12px',
+            background: 'white',
+            cursor: 'pointer',
+          }}
         >
-          {copied ? '✓ Copied' : '📋 Copy Roast'}
+          {copied ? 'Copied!' : 'Copy Roast'}
         </button>
+        <span style={{ fontSize: 10, color: '#aaa' }}>profileroaster.in</span>
       </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════
+// RoastSheetPreview (HTML inline preview)
+// ═══════════════════════════════════════════
+function RoastSheetPreview({
+  roastPoints,
+  scores,
+  roastTitle,
+}: {
+  roastPoints: RoastPoint[];
+  scores: { before: ScoreBreakdown; after: ScoreBreakdown };
+  roastTitle: string;
+}) {
+  const improvement = scores.after.overall - scores.before.overall;
+  const subScorePills = [
+    { label: 'Headline', value: scores.before.headline, color: '#0A66C2' },
+    { label: 'About', value: scores.before.about, color: '#E16B00' },
+    { label: 'Experience', value: scores.before.experience, color: '#057642' },
+  ];
+
+  return (
+    <div style={{
+      width: '100%', maxWidth: 720, borderRadius: 16, overflow: 'hidden',
+      boxShadow: '0 4px 16px rgba(0,0,0,0.12)', background: '#F3F2EF', margin: '0 auto',
+    }}>
+      {/* Header */}
+      <div style={{
+        background: '#0A66C2', padding: '16px 32px',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      }}>
+        <span style={{ fontSize: 16, fontWeight: 900, color: 'white', letterSpacing: 2 }}>
+          LINKEDIN PROFILE ROAST REPORT
+        </span>
+        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>profileroaster.in</span>
+      </div>
+      <div style={{ height: 3, background: '#E16B00' }} />
+
+      {/* Score row */}
+      <div style={{
+        background: 'white', padding: '14px 32px',
+        display: 'flex', alignItems: 'center', gap: 16,
+        borderBottom: '1px solid #E0E0E0', flexWrap: 'wrap',
+      }}>
+        {/* Before circle */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{
+            width: 56, height: 56, border: '5px solid #CC1016', background: '#FEE2E2',
+            borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{ fontSize: 20, fontWeight: 900, color: '#CC1016' }}>{scores.before.overall}</span>
+          </div>
+          <span style={{ fontSize: 8, color: '#CC1016', marginTop: 2, fontWeight: 700 }}>BEFORE</span>
+        </div>
+
+        <span style={{ fontSize: 16, color: '#aaa' }}>{'\u2192'}</span>
+
+        {/* +pts badge */}
+        <span style={{
+          background: '#057642', color: 'white', fontSize: 12, fontWeight: 800,
+          borderRadius: 12, padding: '4px 12px',
+        }}>+{improvement} pts</span>
+
+        {/* After circle */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{
+            width: 68, height: 68, border: '6px solid #057642', background: 'white',
+            borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{ fontSize: 24, fontWeight: 900, color: '#057642' }}>{scores.after.overall}</span>
+          </div>
+          <span style={{ fontSize: 8, color: '#057642', marginTop: 2, fontWeight: 700 }}>AFTER</span>
+        </div>
+
+        {/* Sub-score pills */}
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {subScorePills.map((p) => (
+            <span key={p.label} style={{
+              background: '#F3F2EF', border: '1px solid #E0E0E0', borderRadius: 10,
+              padding: '3px 8px', fontSize: 10, color: '#555', display: 'flex', alignItems: 'center', gap: 3,
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: p.color, display: 'inline-block' }} />
+              {p.label} {p.value}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Roast grid */}
+      <div style={{
+        padding: '12px 16px',
+        display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10,
+      }}>
+        {roastPoints.map((point, i) => (
+          <div key={i} style={{
+            background: 'white', borderRadius: 10,
+            border: '1px solid #E0E0E0', overflow: 'hidden',
+          }}>
+            {/* Mini header */}
+            <div style={{
+              background: 'linear-gradient(135deg, #004182, #0A66C2)',
+              padding: '7px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            }}>
+              <span style={{ fontSize: 8, fontWeight: 700, color: 'white', letterSpacing: 1 }}>ROAST</span>
+              <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.45)' }}>Point {i + 1} / {roastPoints.length}</span>
+            </div>
+
+            {/* Section tag */}
+            <div style={{ background: '#F3F2EF', padding: '5px 10px 0' }}>
+              <span style={{
+                display: 'inline-block', background: 'white', border: '1px solid #E0E0E0',
+                borderRadius: 6, padding: '2px 6px', fontSize: 7, fontWeight: 700, color: '#666',
+              }}>
+                {point.section_targeted.toUpperCase()}
+              </span>
+            </div>
+
+            {/* Quote */}
+            <div style={{ background: '#F3F2EF', padding: '7px 10px' }}>
+              <p style={{
+                fontSize: 9.5, color: '#191919', fontStyle: 'italic', lineHeight: 1.55,
+                margin: 0, overflow: 'hidden', display: '-webkit-box',
+                WebkitLineClamp: 4, WebkitBoxOrient: 'vertical',
+              }}>
+                {point.roast}
+              </p>
+            </div>
+
+            {/* Real issue */}
+            {point.underlying_issue && (
+              <div style={{
+                background: 'white', borderTop: '1px solid #E0E0E0',
+                padding: '5px 10px', display: 'flex', gap: 5, alignItems: 'flex-start',
+              }}>
+                <span style={{
+                  background: '#FEE2E2', border: '1px solid #CC1016', color: '#CC1016',
+                  fontSize: 6.5, fontWeight: 700, padding: '2px 5px', borderRadius: 4, flexShrink: 0,
+                }}>REAL ISSUE</span>
+                <span style={{
+                  fontSize: 8.5, color: '#555', lineHeight: 1.4,
+                  overflow: 'hidden', display: '-webkit-box',
+                  WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+                }}>
+                  {point.underlying_issue}
+                </span>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <div style={{
+        background: '#004182', padding: '12px 32px',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      }}>
+        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)' }}>Get your profile roasted at</span>
+        <span style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>profileroaster.in</span>
+        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>#LinkedInRoast</span>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════
+// RoastReportSection (preview + download + caption)
+// ═══════════════════════════════════════════
+function RoastReportSection({
+  orderId,
+  roast,
+  scores,
+}: {
+  orderId: string;
+  roast: OrderResults['results']['roast'];
+  scores: { before: ScoreBreakdown; after: ScoreBreakdown };
+}) {
+  const [downloading, setDownloading] = useState(false);
+  const [downloadToast, setDownloadToast] = useState(false);
+  const [captionCopied, setCaptionCopied] = useState(false);
+
+  const improvement = scores.after.overall - scores.before.overall;
+  const firstRoast = roast.roast_points[0]?.roast || '';
+  const caption = `I just got my LinkedIn profile brutally roasted by AI \u{1F525}
+
+The verdict: [${roast.roast_title}]
+
+My worst roast point:
+"${firstRoast.length > 350 ? firstRoast.slice(0, firstRoast.slice(0, 350).lastIndexOf(' ')) + '...' : firstRoast}"
+
+Score went from ${scores.before.overall} to ${scores.after.overall} (+${improvement} points)
+
+Best \u20B9299 I spent on my career.
+
+Get yours: profileroaster.in
+
+#LinkedInRoast #CareerGrowth #LinkedInTips #ProfileMakeover`;
+
+  async function handleDownload() {
+    setDownloading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/generate-roast-sheet`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId }),
+      });
+      const { url } = await res.json();
+      if (url) {
+        const img = await fetch(`${url}?t=${Date.now()}`);
+        const blob = await img.blob();
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'linkedin-roast-report.png';
+        a.click();
+        URL.revokeObjectURL(a.href);
+        setDownloadToast(true);
+        setTimeout(() => setDownloadToast(false), 3000);
+      }
+    } catch { /* ignore */ } finally {
+      setDownloading(false);
+    }
+  }
+
+  return (
+    <div style={{ marginBottom: 24 }}>
+      <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--li-text-primary)' }}>
+        Your Complete Roast Report
+      </h3>
+      <p className="text-sm mb-4" style={{ color: 'var(--li-text-secondary)' }}>
+        Preview your full roast card before downloading and sharing
+      </p>
+
+      {/* HTML Preview */}
+      <RoastSheetPreview
+        roastPoints={roast.roast_points}
+        scores={scores}
+        roastTitle={roast.roast_title}
+      />
+
+      {/* Download PNG Button */}
+      <button
+        onClick={handleDownload}
+        disabled={downloading}
+        style={{
+          width: '100%', marginTop: 16, padding: 12,
+          background: '#0A66C2', color: 'white',
+          fontSize: 15, fontWeight: 700,
+          border: 'none', borderRadius: 8, cursor: 'pointer',
+          opacity: downloading ? 0.6 : 1,
+        }}
+      >
+        {downloading ? 'Generating...' : 'Download Roast Report PNG'}
+      </button>
+
+      {downloadToast && (
+        <p className="text-sm text-center mt-2" style={{ color: 'var(--li-green)' }}>
+          Roast Report downloaded!
+        </p>
+      )}
+
+      {/* Caption */}
+      <h4 className="text-sm font-bold mt-6 mb-2" style={{ color: 'var(--li-text-primary)' }}>
+        Caption for LinkedIn Post
+      </h4>
+      <div style={{
+        background: 'white', border: '1px solid var(--li-border)', borderRadius: 8,
+        padding: 16, fontSize: 13, color: 'var(--li-text-primary)', lineHeight: 1.7,
+        whiteSpace: 'pre-line', marginBottom: 8,
+      }}>
+        {caption}
+      </div>
+      <button
+        onClick={() => {
+          copyToClipboard(caption);
+          setCaptionCopied(true);
+          setTimeout(() => setCaptionCopied(false), 2000);
+        }}
+        style={{
+          fontSize: 13, fontWeight: 700, color: '#0A66C2',
+          border: '1px solid #0A66C2', borderRadius: 8,
+          padding: '8px 20px', background: 'white', cursor: 'pointer',
+        }}
+      >
+        {captionCopied ? 'Copied!' : 'Copy Caption'}
+      </button>
     </div>
   );
 }
@@ -380,20 +836,25 @@ function RewriteSection({
   before,
   after,
   copyText,
+  atsKeywords,
 }: {
   title: string;
   before: string;
   after: string;
   copyText?: string;
+  atsKeywords?: string[];
 }) {
   const [copied, setCopied] = useState(false);
   const charCount = after?.length || 0;
 
-  // Convert newlines to <br> for proper HTML rendering, then highlight placeholders
+  // Convert newlines to <br>, highlight placeholders, power verbs, and ATS keywords
   const renderHtml = (text: string) => {
-    if (!text) return text;
-    const withBreaks = text.replace(/\n/g, '<br>');
-    return highlightPlaceholders(withBreaks);
+    if (!text || typeof text !== 'string') return text || '';
+    let html = text.replace(/\n/g, '<br>');
+    html = highlightPlaceholders(html);
+    html = highlightPowerVerbs(html);
+    if (atsKeywords?.length) html = highlightATSKeywords(html, atsKeywords);
+    return html;
   };
 
   return (
@@ -514,7 +975,7 @@ function ATSSection({ keywords }: { keywords: string[] }) {
   return (
     <div className="li-card p-4 mb-4">
       <h3 className="text-sm font-bold mb-3" style={{ color: 'var(--li-text-primary)' }}>
-        ATS Keywords (Pro)
+        ATS Keywords
       </h3>
       <div className="flex flex-wrap gap-2">
         {keywords.map((kw, i) => (
@@ -532,10 +993,99 @@ function ATSSection({ keywords }: { keywords: string[] }) {
 }
 
 // ═══════════════════════════════════════════
+// ATS Intelligence Card (Phase 1)
+// ═══════════════════════════════════════════
+function ATSIntelligenceCard({ atsScore, analysis }: {
+  atsScore: number;
+  analysis: NonNullable<OrderResults['results']['analysis']>;
+}) {
+  if (!analysis || !analysis.ats_intelligence) return null;
+  const atsInt = analysis.ats_intelligence;
+
+  const verdict = (() => {
+    if (atsScore >= 86) return { text: 'Optimized', color: '#057642' };
+    if (atsScore >= 71) return { text: 'Strong', color: '#44A340' };
+    if (atsScore >= 51) return { text: 'Moderate', color: '#B59F3B' };
+    if (atsScore >= 31) return { text: 'Weak', color: '#E16B00' };
+    return { text: 'Invisible', color: '#CC1016' };
+  })();
+
+  return (
+    <div className="li-card mb-4 overflow-hidden">
+      {/* Header */}
+      <div className="px-5 py-3" style={{ background: '#004182' }}>
+        <span className="text-xs font-bold text-white" style={{ letterSpacing: '2px' }}>
+          ATS INTELLIGENCE REPORT
+        </span>
+      </div>
+
+      <div className="p-5">
+        <div className="flex flex-col sm:flex-row gap-6">
+          {/* Section A — ATS Score */}
+          <div className="flex flex-col items-center justify-center" style={{ minWidth: 100 }}>
+            <div
+              className="flex items-center justify-center rounded-full"
+              style={{ width: 70, height: 70, border: `4px solid ${verdict.color}` }}
+            >
+              <span className="text-2xl font-bold" style={{ color: verdict.color }}>{atsScore}</span>
+            </div>
+            <span className="text-xs font-semibold mt-2" style={{ color: 'var(--li-text-secondary)' }}>ATS Score</span>
+            <span className="text-xs font-bold mt-1 px-2 py-0.5 rounded-full text-white" style={{ background: verdict.color }}>
+              {verdict.text}
+            </span>
+          </div>
+
+          {/* Section C — Keywords Missing */}
+          <div className="flex-1">
+            {Array.isArray(atsInt.critical_missing) && atsInt.critical_missing.length > 0 && (
+              <div className="mb-4">
+                <span className="text-xs font-bold block mb-2" style={{ color: '#CC1016', letterSpacing: '0.5px' }}>
+                  Add these keywords to your profile:
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {atsInt.critical_missing.map((kw, i) => (
+                    <span
+                      key={i}
+                      className="text-xs font-semibold px-3 py-1 rounded-full"
+                      style={{ border: '1px solid #CC1016', color: '#CC1016', background: '#FEE2E2' }}
+                    >
+                      {kw}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {Array.isArray(atsInt.keywords_present) && atsInt.keywords_present.length > 0 && (
+              <div>
+                <span className="text-xs font-bold block mb-2" style={{ color: 'var(--li-text-secondary)', letterSpacing: '0.5px' }}>
+                  Keywords in your rewrite:
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {atsInt.keywords_present.map((kw, i) => (
+                    <span
+                      key={i}
+                      className="text-xs px-2.5 py-1 rounded-full"
+                      style={{ background: '#E8F4FD', color: 'var(--li-blue)' }}
+                    >
+                      {kw}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════
 // Pro-only: JD Analysis
 // ═══════════════════════════════════════════
 function JDAnalysis({ analysis }: { analysis: NonNullable<OrderResults['results']['rewrite']['jd_analysis']> }) {
-  if (analysis.match_score === null) return null;
+  if (!analysis || analysis.match_score === null) return null;
   return (
     <div className="li-card p-4 mb-4">
       <h3 className="text-sm font-bold mb-3" style={{ color: 'var(--li-text-primary)' }}>
@@ -557,7 +1107,7 @@ function JDAnalysis({ analysis }: { analysis: NonNullable<OrderResults['results'
           <p className="text-xs" style={{ color: 'var(--li-text-secondary)' }}>{analysis.gap_summary}</p>
         </div>
       </div>
-      {analysis.missing_keywords.length > 0 && (
+      {Array.isArray(analysis.missing_keywords) && analysis.missing_keywords.length > 0 && (
         <div>
           <p className="text-xs font-semibold mb-1" style={{ color: 'var(--li-red)' }}>Missing keywords:</p>
           <div className="flex flex-wrap gap-1">
@@ -1210,7 +1760,7 @@ export default function ResultsPage() {
 
   // ── Results ──
   const { results, plan, referral_code, referral_url } = data;
-  const { scores, roast, rewrite } = results;
+  const { scores, roast, rewrite, analysis } = results;
   const isPro = plan === 'pro';
 
   return (
@@ -1233,8 +1783,13 @@ export default function ResultsPage() {
         <h2 className="text-lg font-bold mb-3" style={{ color: 'var(--li-text-primary)' }}>
           Your Roast 🔥
         </h2>
-        {roast.roast_points.map((point) => (
-          <RoastCard key={point.point_number} point={point} total={roast.roast_points.length} />
+        {roast.roast_points.map((point, i) => (
+          <RoastCard
+            key={i}
+            point={point}
+            pointNumber={i + 1}
+            totalPoints={roast.roast_points.length}
+          />
         ))}
 
         {/* Closing compliment */}
@@ -1244,55 +1799,89 @@ export default function ResultsPage() {
           </p>
         </div>
 
+        {/* ── Your Complete Roast Report ── */}
+        <SafeRender name="RoastReport">
+          <RoastReportSection
+            orderId={orderId}
+            roast={roast}
+            scores={scores}
+          />
+        </SafeRender>
+
         {/* Hidden Strengths */}
         {roast.hidden_strengths && roast.hidden_strengths.length > 0 && (
           <HiddenStrengths strengths={roast.hidden_strengths} />
         )}
 
+        {/* Personalization Note */}
+        {rewrite?.personalization_note && (
+          <SafeRender name="PersonalizationNote">
+            <div
+              className="li-card p-4 mb-4"
+              style={{ borderLeft: '4px solid var(--li-blue)' }}
+            >
+              <span className="text-xs font-bold block mb-1" style={{ color: 'var(--li-blue)', letterSpacing: '1px' }}>
+                ABOUT YOUR REWRITE
+              </span>
+              <p className="text-sm italic" style={{ color: 'var(--li-text-primary)', lineHeight: '1.6' }}>
+                {rewrite.personalization_note}
+              </p>
+            </div>
+          </SafeRender>
+        )}
+
         {/* Rewrite Section */}
-        <h2 className="text-lg font-bold mb-3" style={{ color: 'var(--li-text-primary)' }}>
-          Your Rewrite ✍️
-        </h2>
+        <SafeRender name="RewriteSections">
+          <h2 className="text-lg font-bold mb-3" style={{ color: 'var(--li-text-primary)' }}>
+            Your Rewrite ✍️
+          </h2>
 
-        <RewriteSection
-          title="Headline"
-          before={scores.before.headline < 50 ? '(Original headline scored low)' : ''}
-          after={rewrite.rewritten_headline}
-        />
-
-        <RewriteSection
-          title="About"
-          before=""
-          after={rewrite.rewritten_about}
-          copyText={formatAboutForCopy(rewrite.rewritten_about)}
-        />
-
-        {rewrite.rewritten_experience?.map((exp, i) => (
           <RewriteSection
-            key={i}
-            title={`${exp.title} at ${exp.company}`}
-            before={exp.changes_made}
-            after={formatBulletsForCopy(exp.bullets)}
-            copyText={formatBulletsForCopy(exp.bullets)}
+            title="Headline"
+            before={scores.before.headline < 50 ? '(Original headline scored low)' : ''}
+            after={rewrite.rewritten_headline}
+            atsKeywords={rewrite.ats_keywords}
           />
-        ))}
+
+          <RewriteSection
+            title="About"
+            before=""
+            after={rewrite.rewritten_about}
+            copyText={formatAboutForCopy(rewrite.rewritten_about)}
+            atsKeywords={rewrite.ats_keywords}
+          />
+
+          {rewrite.rewritten_experience?.map((exp, i) => (
+            <RewriteSection
+              key={i}
+              title={`${exp.title} at ${exp.company}`}
+              before={exp.changes_made}
+              after={formatBulletsForCopy(exp.bullets || [])}
+              copyText={formatBulletsForCopy(exp.bullets || [])}
+              atsKeywords={rewrite.ats_keywords}
+            />
+          ))}
+        </SafeRender>
 
         {/* Pro-only sections */}
-        {isPro && rewrite.headline_variations && (
-          <HeadlineVariants variations={rewrite.headline_variations} />
-        )}
+        <SafeRender name="ProSections">
+          {isPro && rewrite.headline_variations && (
+            <HeadlineVariants variations={rewrite.headline_variations} />
+          )}
 
-        {isPro && rewrite.ats_keywords && (
-          <ATSSection keywords={rewrite.ats_keywords} />
-        )}
+          {/* ATS Keywords — shown for ALL plans */}
+          {rewrite?.ats_keywords && (
+            <ATSSection keywords={rewrite.ats_keywords} />
+          )}
 
-        {isPro && rewrite.jd_analysis && (
-          <JDAnalysis analysis={rewrite.jd_analysis} />
-        )}
+          {isPro && rewrite.jd_analysis && (
+            <JDAnalysis analysis={rewrite.jd_analysis} />
+          )}
 
-        {isPro && rewrite.cover_letter && (
-          <CoverLetterSection coverLetter={rewrite.cover_letter} />
-        )}
+          {isPro && rewrite.cover_letter && (
+            <CoverLetterSection coverLetter={rewrite.cover_letter} />
+          )}
+        </SafeRender>
 
         {/* Placeholder Guide */}
         <PlaceholderGuide placeholders={rewrite.placeholders_to_fill} />
@@ -1300,7 +1889,7 @@ export default function ResultsPage() {
         {/* Share */}
         <ShareButtons
           caption={roast.linkedin_caption}
-          cardUrl={results.card_image_url}
+          cardUrl={results.card_image_url ? `${results.card_image_url}?t=${Date.now()}` : null}
           orderId={orderId}
           beforeScore={scores.before.overall}
           afterScore={scores.after.overall}
@@ -1315,6 +1904,36 @@ export default function ResultsPage() {
 
         {/* Upsell for Standard */}
         {!isPro && <UpsellBanner orderId={orderId} />}
+
+        {/* AI Disclaimer */}
+        <div style={{
+          background: '#FFFBEB', border: '1px solid #F59E0B', borderLeft: '4px solid #F59E0B',
+          borderRadius: 8, padding: '14px 18px', margin: '24px 0',
+          display: 'flex', alignItems: 'flex-start', gap: 10,
+        }}>
+          <span style={{ fontSize: 20, color: '#D97706', flexShrink: 0 }}>&#x26A0;</span>
+          <div>
+            <p style={{ fontSize: 13, fontWeight: 700, color: '#92400E', marginBottom: 6 }}>
+              AI-Generated Content — Please Review Before Using
+            </p>
+            <p style={{ fontSize: 12, color: '#78350F', lineHeight: 1.7, margin: 0 }}>
+              Everything on this page — the roast, hidden strengths, rewrite, headlines,
+              ATS keywords, JD match, and cover letter — was generated by AI.
+              {'\n\n'}
+              AI can make mistakes. Please carefully verify the following before copying
+              anything to your LinkedIn profile:
+              {'\n\n'}
+              • Company names and job titles are correct{'\n'}
+              • Employment dates match your actual history{'\n'}
+              • Metrics and numbers are accurate{'\n'}
+              • Skills and keywords reflect your real experience{'\n'}
+              • The rewrite sounds like your own voice
+              {'\n\n'}
+              profileroaster.in is not responsible for any inaccuracies in AI-generated
+              content. Use your judgment before updating your profile.
+            </p>
+          </div>
+        </div>
       </div>
     </main>
   );

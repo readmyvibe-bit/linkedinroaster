@@ -130,6 +130,7 @@ export default function PrivacyPage() {
               <li><strong>Email addresses:</strong> Retained for customer support and communication purposes</li>
               <li><strong>Payment records:</strong> Retained as required by Indian tax and accounting regulations (minimum 7 years for financial records)</li>
               <li><strong>Teaser data (headline only):</strong> Deleted after 30 days for non-converted users</li>
+              <li><strong>Result recovery:</strong> Profile analysis results are stored for 30 days to allow result recovery. Users can delete their results at any time by visiting <a href="https://profileroaster.in/recover" className="text-blue-600 underline">profileroaster.in/recover</a> and clicking Delete My Results.</li>
             </ul>
           </section>
 

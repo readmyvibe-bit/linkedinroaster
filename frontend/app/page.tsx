@@ -268,9 +268,21 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
+  const [rateLimited, setRateLimited] = useState(false);
+
   // ── Teaser submit ──
   async function handleTeaserSubmit() {
     if (!headline.trim() || headline.trim().length < 10) return;
+
+    // Frontend rate limit (localStorage)
+    const today = new Date().toISOString().split('T')[0];
+    const lsKey = `teaser_count_${today}`;
+    const count = parseInt(localStorage.getItem(lsKey) || '0', 10);
+    if (count >= 5) {
+      setRateLimited(true);
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch(`${API_URL}/api/teaser`, {
@@ -281,6 +293,9 @@ export default function Home() {
       const data = await res.json();
       if (res.ok) {
         setTeaser(data);
+        localStorage.setItem(lsKey, String(count + 1));
+      } else if (res.status === 429) {
+        setRateLimited(true);
       } else {
         alert(data.errors?.[0] || data.error || 'Something went wrong');
       }
@@ -368,9 +383,28 @@ export default function Home() {
               </button>
             </div>
           </div>
-          <p className="text-xs mt-3" style={{ color: 'var(--li-text-secondary)' }}>
-            No LinkedIn login. No credit card.
-          </p>
+          {rateLimited && (
+            <div className="mt-3 p-4 rounded-lg text-sm" style={{ background: '#FEF3C7', border: '1px solid #F59E0B' }}>
+              <p className="font-semibold mb-1" style={{ color: '#92400E' }}>
+                You{"'"}ve used your 5 free previews today.
+              </p>
+              <p className="mb-3" style={{ color: '#92400E' }}>
+                Come back tomorrow or get your full roast + rewrite for just &#8377;299.
+              </p>
+              <button
+                onClick={() => { setRateLimited(false); scrollToPricing(); }}
+                className="px-5 py-2.5 rounded-full text-white font-semibold text-sm"
+                style={{ background: '#0A66C2' }}
+              >
+                Get Full Roast for &#8377;299 &rarr;
+              </button>
+            </div>
+          )}
+          {!rateLimited && (
+            <p className="text-xs mt-3" style={{ color: 'var(--li-text-secondary)' }}>
+              No LinkedIn login. No credit card.
+            </p>
+          )}
 
           <LiveCounter />
 
