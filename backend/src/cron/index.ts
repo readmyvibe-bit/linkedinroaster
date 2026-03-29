@@ -113,8 +113,42 @@ export function startTeaserFollowUpCron(): void {
   console.log('[CRON] Teaser follow-up scheduled: daily 04:30 UTC');
 }
 
-// Start both crons
+// ═══════════════════════════════════════════════════════
+// CRON 3 — AUTO-CANCEL STUCK ORDERS
+// Schedule: every 10 minutes
+// ═══════════════════════════════════════════════════════
+export async function runStuckOrderCleanup(): Promise<number> {
+  const result = await query(`
+    UPDATE orders SET processing_status='failed',
+      processing_error='timeout_auto_cancelled',
+      processing_done_at=NOW()
+    WHERE payment_status='paid'
+      AND processing_status NOT IN ('done', 'failed')
+      AND paid_at < NOW() - INTERVAL '30 minutes'
+    RETURNING id, email
+  `);
+
+  if (result.rows.length > 0) {
+    console.log(`[CRON] Auto-cancelled ${result.rows.length} stuck orders:`, result.rows.map((r: any) => r.id));
+  }
+
+  return result.rows.length;
+}
+
+export function startStuckOrderCron(): void {
+  cron.schedule('*/10 * * * *', async () => {
+    try {
+      await runStuckOrderCleanup();
+    } catch (err) {
+      console.error('[CRON] Stuck order cleanup failed:', (err as Error).message);
+    }
+  });
+  console.log('[CRON] Stuck order cleanup scheduled: every 10 minutes');
+}
+
+// Start all crons
 export function startAllCrons(): void {
   startDataCleanupCron();
   startTeaserFollowUpCron();
+  startStuckOrderCron();
 }

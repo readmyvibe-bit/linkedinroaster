@@ -99,18 +99,58 @@ router.get('/overview', async (_req: Request, res: Response) => {
     const tTotal = teasersToday.rows[0].cnt;
     const tConverted = convToday.rows[0].cnt;
 
+    // Pipeline stage breakdown
+    const stages = await query(`
+      SELECT processing_status, COUNT(*)::int AS cnt
+      FROM orders WHERE payment_status='paid' AND processing_status NOT IN ('done','failed')
+      GROUP BY processing_status
+    `);
+
+    // Average processing time (completed orders today)
+    const avgTime = await query(`
+      SELECT COALESCE(AVG(EXTRACT(EPOCH FROM (processing_done_at - paid_at))), 0)::int AS avg_seconds
+      FROM orders WHERE processing_status='done' AND paid_at >= CURRENT_DATE - INTERVAL '7 days'
+    `);
+
+    // Conversion funnel
+    const funnel = await query(`
+      SELECT
+        (SELECT COUNT(*)::int FROM teaser_attempts WHERE created_at >= CURRENT_DATE - INTERVAL '7 days') AS teasers,
+        (SELECT COUNT(*)::int FROM teaser_attempts WHERE created_at >= CURRENT_DATE - INTERVAL '7 days' AND email IS NOT NULL) AS emails_captured,
+        (SELECT COUNT(*)::int FROM orders WHERE created_at >= CURRENT_DATE - INTERVAL '7 days') AS payments_initiated,
+        (SELECT COUNT(*)::int FROM orders WHERE created_at >= CURRENT_DATE - INTERVAL '7 days' AND payment_status='paid') AS payments_completed,
+        (SELECT COUNT(*)::int FROM orders WHERE created_at >= CURRENT_DATE - INTERVAL '7 days' AND processing_status='done') AS results_delivered
+    `);
+
+    // Emails sent today
+    const emailsSent = await query(`
+      SELECT COUNT(*)::int AS cnt FROM orders
+      WHERE email_sent=TRUE AND processing_done_at >= CURRENT_DATE
+    `);
+
+    // Auto-cancelled today
+    const autoCancelled = await query(`
+      SELECT COUNT(*)::int AS cnt FROM orders
+      WHERE processing_error='timeout_auto_cancelled' AND processing_done_at >= CURRENT_DATE
+    `);
+
     res.json({
       today: {
         orders: today.rows[0].orders,
         revenue_paise: today.rows[0].revenue_paise,
         teasers: tTotal,
         conversion_pct: tTotal > 0 ? Math.round((tConverted / tTotal) * 100) : 0,
+        emails_sent: emailsSent.rows[0].cnt,
+        auto_cancelled: autoCancelled.rows[0].cnt,
       },
       week: week.rows[0],
       month: month.rows[0],
       active_jobs: activeJobs.rows[0].cnt,
       refund_rate: Math.round(refundRate * 100) / 100,
       total_teasers_today: tTotal,
+      avg_processing_seconds: avgTime.rows[0].avg_seconds,
+      pipeline_stages: stages.rows,
+      funnel: funnel.rows[0],
     });
   } catch (err) {
     console.error('Admin overview error:', err);
@@ -242,6 +282,38 @@ router.get('/teasers', async (_req: Request, res: Response) => {
       GROUP BY 1 ORDER BY 1
     `);
 
+    // Average score
+    const avgScore = await query(
+      `SELECT COALESCE(AVG(score), 0)::int AS avg FROM teaser_attempts WHERE score IS NOT NULL`,
+    );
+
+    // Conversion by score range
+    const convByScore = await query(`
+      SELECT
+        CASE WHEN score < 40 THEN 'low' WHEN score < 70 THEN 'mid' ELSE 'high' END AS tier,
+        COUNT(*)::int AS total,
+        COUNT(*) FILTER (WHERE converted)::int AS converted
+      FROM teaser_attempts WHERE score IS NOT NULL
+      GROUP BY 1
+    `);
+
+    // Recent headlines
+    const recent = await query(`
+      SELECT headline_text, score, email, converted, created_at
+      FROM teaser_attempts ORDER BY created_at DESC LIMIT 15
+    `);
+
+    // Hourly distribution (last 7 days)
+    const hourly = await query(`
+      SELECT EXTRACT(HOUR FROM created_at AT TIME ZONE 'Asia/Kolkata')::int AS hour,
+             COUNT(*)::int AS cnt
+      FROM teaser_attempts WHERE created_at >= CURRENT_DATE - INTERVAL '7 days'
+      GROUP BY 1 ORDER BY 1
+    `);
+
+    // Email capture rate
+    const emailRate = s.total > 0 ? Math.round((s.with_email / s.total) * 100) : 0;
+
     res.json({
       total: s.total,
       converted: s.converted,
@@ -249,6 +321,11 @@ router.get('/teasers', async (_req: Request, res: Response) => {
       with_email: s.with_email,
       without_email: s.without_email,
       score_distribution: dist.rows,
+      avg_score: avgScore.rows[0].avg,
+      conversion_by_score: convByScore.rows,
+      recent_headlines: recent.rows,
+      hourly_distribution: hourly.rows,
+      email_capture_rate: emailRate,
     });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch teasers' });
@@ -279,12 +356,37 @@ router.get('/revenue', async (_req: Request, res: Response) => {
       `SELECT COALESCE(AVG(amount_paise), 0)::int AS avg_order_value FROM orders WHERE payment_status='paid'`,
     );
 
+    // Revenue by plan
+    const revByPlan = await query(`
+      SELECT
+        COALESCE(SUM(amount_paise) FILTER (WHERE plan='standard' AND payment_status='paid'), 0)::int AS standard_revenue,
+        COALESCE(SUM(amount_paise) FILTER (WHERE plan='pro' AND payment_status='paid'), 0)::int AS pro_revenue,
+        COALESCE(SUM(amount_paise) FILTER (WHERE payment_status='refunded'), 0)::int AS refund_amount
+      FROM orders
+    `);
+
+    // Upgrades (standard → pro)
+    const upgrades = await query(`
+      SELECT COUNT(*)::int AS cnt FROM orders WHERE upgraded_to_pro=TRUE
+    `);
+
+    // MRR (rolling 30-day)
+    const mrr = await query(`
+      SELECT COALESCE(SUM(amount_paise), 0)::int AS mrr
+      FROM orders WHERE payment_status='paid' AND created_at >= CURRENT_DATE - INTERVAL '30 days'
+    `);
+
     res.json({
       daily: daily.rows,
       standard_count: plans.rows[0].standard_count,
       pro_count: plans.rows[0].pro_count,
       avg_order_value: avg.rows[0].avg_order_value,
       total_refunds: plans.rows[0].total_refunds,
+      standard_revenue: revByPlan.rows[0].standard_revenue,
+      pro_revenue: revByPlan.rows[0].pro_revenue,
+      refund_amount: revByPlan.rows[0].refund_amount,
+      upgrades: upgrades.rows[0].cnt,
+      mrr: mrr.rows[0].mrr,
     });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch revenue' });

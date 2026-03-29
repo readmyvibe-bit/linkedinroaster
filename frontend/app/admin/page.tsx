@@ -178,6 +178,20 @@ function OverviewScreen() {
   useEffect(() => { apiFetchJson('/api/admin/overview').then(setData); }, []);
   if (!data) return <p>Loading...</p>;
 
+  const avgMins = data.avg_processing_seconds != null
+    ? Math.round(data.avg_processing_seconds / 60)
+    : null;
+
+  const funnel = data.funnel;
+  const funnelSteps = funnel ? [
+    { label: 'Teasers', value: funnel.teasers },
+    { label: 'Emails', value: funnel.emails_captured },
+    { label: 'Pay Started', value: funnel.payments_initiated },
+    { label: 'Completed', value: funnel.payments_completed },
+    { label: 'Delivered', value: funnel.results_delivered },
+  ] : [];
+  const funnelMax = funnelSteps.length > 0 ? Math.max(...funnelSteps.map(s => s.value), 1) : 1;
+
   return (
     <div>
       <h2 className="text-lg font-bold mb-4">Overview</h2>
@@ -187,13 +201,79 @@ function OverviewScreen() {
         <StatCard label="Week Orders" value={data.week.orders} sub={`₹${(data.week.revenue_paise / 100).toFixed(0)}`} />
         <StatCard label="Month Orders" value={data.month.orders} sub={`₹${(data.month.revenue_paise / 100).toFixed(0)}`} />
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <StatCard label="Active Jobs" value={data.active_jobs} />
         <StatCard label="Refund Rate"
           value={`${data.refund_rate}%`}
           sub={data.refund_rate > 5 ? '⚠️ ALERT: Above 5%' : 'Healthy'}
         />
+        {avgMins != null && <StatCard label="Avg Processing Time" value={`${avgMins} min`} />}
+        <StatCard label="Emails Sent Today" value={data.today.emails_sent ?? 0} />
       </div>
+
+      {data.today.auto_cancelled != null && data.today.auto_cancelled > 0 && (
+        <div className="mb-6">
+          <StatCard label="Auto-Cancelled Today" value={data.today.auto_cancelled} sub="Unpaid orders cleaned up" />
+        </div>
+      )}
+
+      {/* Pipeline Status */}
+      {data.pipeline_stages && data.pipeline_stages.length > 0 && (
+        <div className="li-card p-4 mb-6">
+          <h3 className="text-sm font-bold mb-3">Pipeline Status</h3>
+          <div className="flex flex-wrap gap-2">
+            {data.pipeline_stages.map((s: any) => {
+              const colors: Record<string, string> = {
+                parsing: '#2563EB',
+                roasting: '#D97706',
+                rewriting: '#7C3AED',
+                scoring: '#0891B2',
+                card_generating: '#059669',
+                sending_email: '#DC2626',
+                done: '#16A34A',
+                failed: '#DC2626',
+              };
+              const bg = colors[s.processing_status] || 'var(--li-blue)';
+              return (
+                <span key={s.processing_status} className="px-3 py-1 rounded-full text-xs font-semibold text-white"
+                  style={{ background: bg }}>
+                  {s.processing_status}: {s.cnt}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Conversion Funnel */}
+      {funnel && (
+        <div className="li-card p-4 mb-6">
+          <h3 className="text-sm font-bold mb-3">Conversion Funnel (Last 7 Days)</h3>
+          <div className="space-y-2">
+            {funnelSteps.map((step, i) => {
+              const pct = funnelMax > 0 ? (step.value / funnelMax) * 100 : 0;
+              const convPct = i > 0 && funnelSteps[0].value > 0
+                ? ((step.value / funnelSteps[0].value) * 100).toFixed(1)
+                : '100.0';
+              return (
+                <div key={step.label} className="flex items-center gap-3 text-sm">
+                  <span className="w-24 text-right text-xs font-semibold" style={{ color: 'var(--li-text-secondary)' }}>{step.label}</span>
+                  <div className="flex-1 h-6 rounded" style={{ background: 'var(--li-border)' }}>
+                    <div className="h-6 rounded flex items-center px-2" style={{
+                      width: `${Math.max(pct, 3)}%`,
+                      background: 'var(--li-blue)',
+                      transition: 'width 0.3s',
+                    }}>
+                      <span className="text-xs font-semibold text-white whitespace-nowrap">{step.value}</span>
+                    </div>
+                  </div>
+                  <span className="w-14 text-xs" style={{ color: 'var(--li-text-secondary)' }}>{convPct}%</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -521,6 +601,14 @@ function TeasersScreen() {
   useEffect(() => { apiFetchJson('/api/admin/teasers').then(setData); }, []);
   if (!data) return <p>Loading...</p>;
 
+  const avgScoreColor = data.avg_score != null
+    ? data.avg_score >= 70 ? 'var(--li-green)' : data.avg_score >= 40 ? '#D97706' : 'var(--li-red)'
+    : 'var(--li-text-primary)';
+
+  const hourlyMax = data.hourly_distribution
+    ? Math.max(...data.hourly_distribution.map((h: any) => h.cnt), 1)
+    : 1;
+
   return (
     <div>
       <h2 className="text-lg font-bold mb-4">Teaser Analytics</h2>
@@ -530,7 +618,51 @@ function TeasersScreen() {
         <StatCard label="With Email" value={data.with_email} />
         <StatCard label="Without Email" value={data.without_email} />
       </div>
-      <div className="li-card p-4">
+
+      {/* Avg Score + Email Capture Rate */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+        {data.avg_score != null && (
+          <div className="li-card p-4 text-center">
+            <p className="text-xs font-semibold uppercase" style={{ color: 'var(--li-text-secondary)' }}>Avg Teaser Score</p>
+            <p className="text-4xl font-bold mt-2" style={{ color: avgScoreColor }}>{data.avg_score.toFixed(1)}</p>
+          </div>
+        )}
+        {data.email_capture_rate != null && (
+          <StatCard label="Email Capture Rate" value={`${data.email_capture_rate.toFixed(1)}%`} sub="of teasers leave email" />
+        )}
+      </div>
+
+      {/* Conversion by Score Tier */}
+      {data.conversion_by_score && data.conversion_by_score.length > 0 && (
+        <div className="li-card p-4 mb-6">
+          <h3 className="text-sm font-bold mb-3">Conversion by Score Tier</h3>
+          <div className="space-y-3">
+            {data.conversion_by_score.map((tier: any) => {
+              const rate = tier.total > 0 ? ((tier.converted / tier.total) * 100).toFixed(1) : '0.0';
+              const tierColors: Record<string, string> = { low: 'var(--li-red)', mid: '#D97706', high: 'var(--li-green)' };
+              return (
+                <div key={tier.tier}>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="font-semibold" style={{ color: tierColors[tier.tier] || 'var(--li-text-primary)' }}>
+                      {tier.tier.toUpperCase()} ({tier.converted}/{tier.total})
+                    </span>
+                    <span style={{ color: 'var(--li-text-secondary)' }}>{rate}%</span>
+                  </div>
+                  <div className="h-4 rounded" style={{ background: 'var(--li-border)' }}>
+                    <div className="h-4 rounded" style={{
+                      width: `${Math.max(parseFloat(rate), 1)}%`,
+                      background: tierColors[tier.tier] || 'var(--li-blue)',
+                      transition: 'width 0.3s',
+                    }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <div className="li-card p-4 mb-6">
         <h3 className="text-sm font-bold mb-3">Score Distribution</h3>
         <div className="space-y-2">
           {data.score_distribution.map((d: any) => (
@@ -547,6 +679,69 @@ function TeasersScreen() {
           ))}
         </div>
       </div>
+
+      {/* Recent Headlines */}
+      {data.recent_headlines && data.recent_headlines.length > 0 && (
+        <div className="li-card p-4 mb-6 overflow-x-auto">
+          <h3 className="text-sm font-bold mb-3">Recent Headlines</h3>
+          <table className="w-full text-sm">
+            <thead>
+              <tr style={{ background: 'var(--li-gray)' }}>
+                <th className="text-left p-2">Headline</th>
+                <th className="text-left p-2">Score</th>
+                <th className="text-left p-2">Email</th>
+                <th className="text-left p-2">Converted</th>
+                <th className="text-left p-2">Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.recent_headlines.map((h: any, idx: number) => (
+                <tr key={idx} style={{
+                  borderBottom: '1px solid var(--li-border)',
+                  background: idx % 2 === 0 ? 'white' : 'var(--li-gray)',
+                }}>
+                  <td className="p-2 max-w-xs truncate">{h.headline_text || '-'}</td>
+                  <td className="p-2">{h.score ?? '-'}</td>
+                  <td className="p-2 text-xs">{h.email || '-'}</td>
+                  <td className="p-2">
+                    {h.converted ? (
+                      <span className="px-2 py-0.5 rounded text-xs font-semibold text-white" style={{ background: 'var(--li-green)' }}>Yes</span>
+                    ) : (
+                      <span className="px-2 py-0.5 rounded text-xs font-semibold" style={{ background: 'var(--li-gray)', color: 'var(--li-text-secondary)' }}>No</span>
+                    )}
+                  </td>
+                  <td className="p-2 text-xs whitespace-nowrap">{formatIST(h.created_at)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Peak Hours */}
+      {data.hourly_distribution && data.hourly_distribution.length > 0 && (
+        <div className="li-card p-4">
+          <h3 className="text-sm font-bold mb-3">Peak Hours (Teaser Generation)</h3>
+          <div className="space-y-1">
+            {data.hourly_distribution.map((h: any) => {
+              const pct = (h.cnt / hourlyMax) * 100;
+              const hourLabel = `${h.hour.toString().padStart(2, '0')}:00`;
+              return (
+                <div key={h.hour} className="flex items-center gap-2 text-xs">
+                  <span className="w-12 text-right font-mono" style={{ color: 'var(--li-text-secondary)' }}>{hourLabel}</span>
+                  <div className="flex-1 h-4 rounded" style={{ background: 'var(--li-border)' }}>
+                    <div className="h-4 rounded" style={{
+                      width: `${Math.max(pct, 1)}%`,
+                      background: 'var(--li-blue)',
+                    }} />
+                  </div>
+                  <span className="w-8" style={{ color: 'var(--li-text-secondary)' }}>{h.cnt}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -655,17 +850,58 @@ function RevenueScreen() {
   if (!data) return <p>Loading...</p>;
 
   const totalRevenue = data.daily.reduce((s: number, d: any) => s + d.revenue, 0);
+  const stdRev = data.standard_revenue ?? 0;
+  const proRev = data.pro_revenue ?? 0;
+  const revSplitTotal = stdRev + proRev || 1;
 
   return (
     <div>
       <h2 className="text-lg font-bold mb-4">Revenue</h2>
+
+      {/* MRR highlight */}
+      {data.mrr != null && (
+        <div className="li-card p-6 mb-6 text-center">
+          <p className="text-xs font-semibold uppercase" style={{ color: 'var(--li-text-secondary)' }}>Monthly Recurring Revenue (30-day rolling)</p>
+          <p className="text-4xl font-bold mt-2" style={{ color: 'var(--li-green)' }}>
+            ₹{(data.mrr / 100).toLocaleString('en-IN')}
+          </p>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <StatCard label="30-Day Revenue" value={`₹${(totalRevenue / 100).toFixed(0)}`} />
+        <StatCard label="30-Day Revenue" value={`₹${(totalRevenue / 100).toLocaleString('en-IN')}`} />
         <StatCard label="Standard Orders" value={data.standard_count} />
         <StatCard label="Pro Orders" value={data.pro_count} />
         <StatCard label="Avg Order Value" value={`₹${(data.avg_order_value / 100).toFixed(0)}`} />
       </div>
-      <div className="li-card p-4">
+
+      {/* Revenue Split */}
+      {(data.standard_revenue != null || data.pro_revenue != null) && (
+        <div className="li-card p-4 mb-6">
+          <h3 className="text-sm font-bold mb-3">Revenue Split</h3>
+          <div className="flex gap-4 mb-2 text-sm">
+            <span style={{ color: 'var(--li-blue)' }}>Standard: ₹{(stdRev / 100).toLocaleString('en-IN')}</span>
+            <span style={{ color: '#7C3AED' }}>Pro: ₹{(proRev / 100).toLocaleString('en-IN')}</span>
+          </div>
+          <div className="h-6 rounded flex overflow-hidden" style={{ background: 'var(--li-border)' }}>
+            <div className="h-6" style={{ width: `${(stdRev / revSplitTotal) * 100}%`, background: 'var(--li-blue)', transition: 'width 0.3s' }} />
+            <div className="h-6" style={{ width: `${(proRev / revSplitTotal) * 100}%`, background: '#7C3AED', transition: 'width 0.3s' }} />
+          </div>
+        </div>
+      )}
+
+      {/* Refunds + Upgrades */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <StatCard label="Total Refunds" value={data.total_refunds} />
+        {data.refund_amount != null && (
+          <StatCard label="Refund Amount" value={`₹${(data.refund_amount / 100).toLocaleString('en-IN')}`} />
+        )}
+        {data.upgrades != null && (
+          <StatCard label="Std → Pro Upgrades" value={data.upgrades} />
+        )}
+      </div>
+
+      <div className="li-card p-4 mb-6">
         <h3 className="text-sm font-bold mb-3">Daily Revenue (Last 30 Days)</h3>
         <div className="flex items-end gap-1 h-32">
           {data.daily.map((d: any, i: number) => {
@@ -678,7 +914,6 @@ function RevenueScreen() {
           })}
         </div>
       </div>
-      <StatCard label="Total Refunds" value={data.total_refunds} />
     </div>
   );
 }
