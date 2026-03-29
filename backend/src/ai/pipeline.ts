@@ -1083,7 +1083,7 @@ Does the roast contain profanity or adult language in any form?
 Does the roast attack the PERSON rather than the profile?
 Does the roast imply unemployability, hopelessness, or giving up?
 Does the roast mock educational institution tier or English language ability?
-Does the rewrite contain ANY fabricated specific metric (exact dollar amounts, exact headcounts, exact percentages) not in the original profile? Note: realistic industry estimates presented as ranges or approximations (e.g. '90%+ retention', '3x pipeline coverage') are ALLOWED and should NOT be flagged.
+Does the rewrite contain fabricated company names, fake credentials, or invented awards not in the original profile? Note: industry-standard metric estimates (e.g. '95% retention', '3x pipeline', '30% improvement') used to replace missing data are ALLOWED and should NOT be flagged — only flag invented company names, fake job titles, or credentials the person does not have.
 Does the rewrite contain ANY company name not in the original profile?
 
 COMPANY NAME CHECK — runs for every experience entry:

@@ -1648,8 +1648,8 @@ function ErrorState({ type, onRetry }: { type: string; onRetry?: () => void }) {
       desc: 'High demand right now. Try again in a few minutes.',
     },
     timeout: {
-      title: 'Taking Longer Than Expected',
-      desc: 'We will email results within 10 minutes. Safe to close page.',
+      title: 'Almost There',
+      desc: 'Your roast is being perfected. We will email your results shortly. You can safely close this page or keep waiting.',
     },
     card_failed: {
       title: 'Card Generation Failed',
@@ -1734,8 +1734,8 @@ export default function ResultsPage() {
 
       setPolling(json);
 
-      // Timeout after 3 minutes
-      if (Date.now() - pollStartRef.current > 180000) {
+      // Timeout after 10 minutes (pipeline can take 4-6 min with retries)
+      if (Date.now() - pollStartRef.current > 600000) {
         if (intervalRef.current) clearInterval(intervalRef.current);
         setError('timeout');
       }
@@ -1784,7 +1784,7 @@ export default function ResultsPage() {
             />
           </div>
           <p className="text-xs" style={{ color: 'var(--li-text-secondary)' }}>
-            {displayProgress}% complete{isStuck ? ' — still working...' : ''}
+            {displayProgress}% complete{isStuck ? ' — AI is thinking hard about your profile...' : ''}
           </p>
           <style>{`
             @keyframes pulse-bar {
