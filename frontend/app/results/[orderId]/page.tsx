@@ -1186,6 +1186,9 @@ function PlaceholderGuide({ placeholders }: { placeholders: Array<{ location: st
   if (!placeholders?.length) return null;
   return (
     <div className="li-card p-4 mb-4">
+      <p style={{ fontSize: 13, color: '#057642', fontStyle: 'italic', marginBottom: 8 }}>
+        We estimated these metrics based on your industry. Update with your actual numbers for maximum accuracy.
+      </p>
       <h3 className="text-sm font-bold mb-3" style={{ color: 'var(--li-text-primary)' }}>
         Fill In Your Numbers
       </h3>

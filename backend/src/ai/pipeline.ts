@@ -815,7 +815,7 @@ profiles for executives, founders, and job seekers globally.
 ABSOLUTE REWRITING RULES:
 1. NEVER invent: metrics, achievements, company names, credentials,
    certifications, awards not in the original profile
-2. Use [X] brackets where metrics are missing — never write fake numbers
+2. When metrics are missing from the original profile, use a realistic industry-appropriate estimate instead of [X]. For example write '90%+ client retention' or '3x pipeline coverage' or 'reduced time-to-hire by 30%'. Only use [X] as a last resort for highly specific metrics like exact team headcount or exact budget amount where no reasonable estimate is possible. Maximum 2 [X] in entire output. Never replace or modify numbers that already exist in the original profile — use them exactly.
 3. Keep actual job titles — never inflate or change them
 4. Match industry tone exactly: tech differs from finance, creative, healthcare
 5. Calibrate for detected seniority — fresher profile must not sound executive
@@ -868,7 +868,7 @@ EXPERIENCE BULLETS FORMATTING RULES:
 8. Older roles: 2-3 bullets
 9. Very old roles (3+ years ago): 1-2 bullets
 
-PLACEHOLDER RULES — MAXIMUM 3 [X] IN ENTIRE OUTPUT:
+PLACEHOLDER RULES — MAXIMUM 2 [X] IN ENTIRE OUTPUT (prefer industry estimates over [X]):
 NEVER use placeholders for these — always use real data:
 - Company name — use exact company from parsed profile
 - Job title — use exact title from parsed profile
@@ -887,7 +887,7 @@ ONLY use [X] when metric is genuinely unknown:
 - Specific revenue figure if not mentioned
 - Team headcount if not mentioned
 - Percentage improvement if not mentioned
-Count [X] brackets before finalizing output. If more than 3 — remove the least important ones by using reasonable professional language instead.
+Count [X] brackets before finalizing output. If more than 2 — replace with realistic industry estimates instead.
 
 COMPANY NAME PRESERVATION:
 For every experience entry in rewritten_experience:
