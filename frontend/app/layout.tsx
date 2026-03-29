@@ -28,7 +28,7 @@ export default function RootLayout({
               <a href="/terms" style={{ fontSize: 13, color: 'var(--li-text-secondary)', textDecoration: 'none' }}>Terms &amp; Conditions</a>
               <a href="/privacy" style={{ fontSize: 13, color: 'var(--li-text-secondary)', textDecoration: 'none' }}>Privacy Policy</a>
               <a href="/refund" style={{ fontSize: 13, color: 'var(--li-text-secondary)', textDecoration: 'none' }}>Refund Policy</a>
-              <a href="mailto:support@profileroaster.in" style={{ fontSize: 13, color: 'var(--li-text-secondary)', textDecoration: 'none' }}>Contact</a>
+              <span style={{ fontSize: 13, color: 'var(--li-text-secondary)' }}>Contact: support@profileroaster.in</span>
             </div>
             <p style={{ fontSize: 12, color: 'var(--li-text-secondary)', margin: 0 }}>
               &copy; 2026 Profile Roaster. Not affiliated with LinkedIn Corporation.
