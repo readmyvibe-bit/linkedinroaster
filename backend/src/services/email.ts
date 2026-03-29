@@ -5,7 +5,7 @@ import RefundEmail from '../emails/RefundEmail';
 import TeaserFollowUpEmail from '../emails/TeaserFollowUpEmail';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 'dummy_key');
-const FROM = `Profile Roaster <${process.env.FROM_EMAIL || 'roast@profileroaster.in'}>`;
+const FROM = `Profile Roaster <${process.env.FROM_EMAIL || 'support@profileroaster.in'}>`;
 const EMAIL_ENABLED = !!process.env.RESEND_API_KEY;
 
 export async function sendResultsEmail(order: any): Promise<void> {

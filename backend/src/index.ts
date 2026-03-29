@@ -567,7 +567,7 @@ app.post('/api/recover/send-otp', rateLimiter('recover-otp', 5, 3600), async (re
     const { Resend } = require('resend');
     const resendClient = new Resend(process.env.RESEND_API_KEY);
     await resendClient.emails.send({
-      from: `Profile Roaster <${process.env.FROM_EMAIL || 'roast@profileroaster.in'}>`,
+      from: `Profile Roaster <${process.env.FROM_EMAIL || 'support@profileroaster.in'}>`,
       to: email,
       subject: 'Your Recovery Code — Profile Roaster',
       html: `<div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px">
