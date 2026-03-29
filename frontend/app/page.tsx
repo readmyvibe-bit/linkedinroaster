@@ -505,6 +505,16 @@ export default function Home() {
                 </button>
               </div>
             </div>
+            {headline.length > 0 && headline.trim().length < 10 && (
+              <p className="mt-2 text-center" style={{ fontSize: 13, color: '#CC1016' }}>
+                Please paste your complete LinkedIn headline — at least a few words.
+              </p>
+            )}
+            {headline.trim().length > 220 && (
+              <p className="mt-2 text-center" style={{ fontSize: 12, color: '#E16B00' }}>
+                This looks longer than a typical headline (220 chars). Make sure you{"'"}re pasting only your headline, not your About section.
+              </p>
+            )}
           </div>
           {rateLimited && (
             <div className="mt-3 p-4 rounded-lg text-sm" style={{ background: '#FEF3C7', border: '1px solid #F59E0B' }}>
