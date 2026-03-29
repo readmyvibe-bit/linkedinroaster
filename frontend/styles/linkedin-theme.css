@@ -1,0 +1,15 @@
+:root {
+  --li-blue: #0A66C2;
+  --li-dark-blue: #004182;
+  --li-gray: #F3F2EF;
+  --li-card: #FFFFFF;
+  --li-border: #E0E0E0;
+  --li-text-primary: #191919;
+  --li-text-secondary: #666666;
+  --li-green: #057642;
+  --li-red: #CC1016;
+  --li-orange: #E16B00;
+  --li-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --li-radius: 8px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}

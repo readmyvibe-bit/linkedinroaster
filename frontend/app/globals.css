@@ -1,0 +1,15 @@
+@import "tailwindcss";
+@import "../styles/linkedin-theme.css";
+
+body {
+  background-color: var(--li-gray);
+  color: var(--li-text-primary);
+  margin: 0;
+}
+
+.li-card {
+  background: var(--li-card);
+  border: 1px solid var(--li-border);
+  border-radius: var(--li-radius);
+  box-shadow: var(--li-shadow);
+}
