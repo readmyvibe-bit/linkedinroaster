@@ -49,6 +49,14 @@ const ALLOWED_ORIGINS = [
 ].filter(Boolean) as string[];
 
 app.use((req: Request, res: Response, next: NextFunction) => {
+  const origin = req.headers.origin;
+  if (origin && origin.endsWith('.vercel.app')) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  next();
+});
+
+app.use((req: Request, res: Response, next: NextFunction) => {
   if (req.path === '/api/webhooks/razorpay') return next();
   cors({
     origin: ALLOWED_ORIGINS,
