@@ -262,17 +262,15 @@ function OrderDetailModal({
         </div>
 
         {/* Score */}
-        {(s.before_score != null || s.after_score != null) && (
+        {(s.before_score || s.after_score) && (
           <div className="mb-4 p-3 rounded" style={{ background: 'var(--li-gray)' }}>
-            <h4 className="font-semibold text-sm mb-2">Score: {s.before_score ?? '-'} → {s.after_score ?? '-'}</h4>
-            {scoring && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                {scoring.headline != null && <div>Headline: {scoring.headline.before ?? scoring.headline} → {scoring.headline.after ?? '-'}</div>}
-                {scoring.about != null && <div>About: {scoring.about.before ?? scoring.about} → {scoring.about.after ?? '-'}</div>}
-                {scoring.experience != null && <div>Experience: {scoring.experience.before ?? scoring.experience} → {scoring.experience.after ?? '-'}</div>}
-                {scoring.completeness != null && <div>Completeness: {scoring.completeness.before ?? scoring.completeness} → {scoring.completeness.after ?? '-'}</div>}
-              </div>
-            )}
+            <h4 className="font-semibold text-sm mb-2">Score: {s.before_score?.overall ?? '-'} → {s.after_score?.overall ?? '-'}</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+              <div>Headline: {s.before_score?.headline ?? '-'} → {s.after_score?.headline ?? '-'}</div>
+              <div>About: {s.before_score?.about ?? '-'} → {s.after_score?.about ?? '-'}</div>
+              <div>Experience: {s.before_score?.experience ?? '-'} → {s.after_score?.experience ?? '-'}</div>
+              <div>Completeness: {s.before_score?.completeness ?? '-'} → {s.after_score?.completeness ?? '-'}</div>
+            </div>
           </div>
         )}
 
@@ -324,11 +322,11 @@ function OrderDetailModal({
               </div>
             )}
 
-            {rewrite.rewritten_experiences && rewrite.rewritten_experiences.length > 0 && (
+            {rewrite.rewritten_experience && rewrite.rewritten_experience.length > 0 && (
               <div className="mb-3">
                 <div className="text-xs font-semibold mb-1" style={{ color: 'var(--li-text-secondary)' }}>Experience</div>
                 <div className="space-y-2">
-                  {rewrite.rewritten_experiences.map((exp: any, i: number) => (
+                  {rewrite.rewritten_experience.map((exp: any, i: number) => (
                     <div key={i} className="p-2 rounded text-sm" style={{ background: 'var(--li-gray)' }}>
                       <div className="font-semibold">{exp.title || exp.role}{exp.company ? ` at ${exp.company}` : ''}</div>
                       {exp.bullets && (
@@ -409,8 +407,12 @@ function OrdersScreen() {
   useEffect(() => { load(); }, [load]);
 
   async function openDetail(orderId: string) {
-    const data = await apiFetchJson(`/api/admin/orders/${orderId}`);
-    setSelected(data);
+    try {
+      const data = await apiFetchJson(`/api/admin/orders/${orderId}`);
+      setSelected(data);
+    } catch (err) {
+      setToast({ message: 'Failed to load order details', type: 'error' });
+    }
   }
 
   return (
