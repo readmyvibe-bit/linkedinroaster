@@ -320,6 +320,7 @@ export default function Home() {
   const inputFormRef = useRef<HTMLDivElement>(null);
   const heroInputRef = useRef<HTMLDivElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [submitted, setSubmitted] = useState(false);
 
   // Live activity indicator — initialize on client only to avoid hydration mismatch
@@ -333,6 +334,22 @@ export default function Home() {
   }, []);
 
   const [rateLimited, setRateLimited] = useState(false);
+
+  // Auto-resize textarea based on content
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      const scrollHeight = textareaRef.current.scrollHeight;
+      const MAX_HEIGHT = 180;
+      if (scrollHeight > MAX_HEIGHT) {
+        textareaRef.current.style.height = MAX_HEIGHT + 'px';
+        textareaRef.current.style.overflowY = 'auto';
+      } else {
+        textareaRef.current.style.height = scrollHeight + 'px';
+        textareaRef.current.style.overflowY = 'hidden';
+      }
+    }
+  }, [headline]);
 
   // Auto scroll to result when teaser loads
   useEffect(() => {
@@ -472,15 +489,16 @@ export default function Home() {
               </div>
               <div className="flex-1">
                 <textarea
+                  ref={textareaRef}
                   value={headline}
                   onChange={(e) => setHeadline(e.target.value)}
                   onFocus={() => setInputFocused(true)}
                   onBlur={() => setInputFocused(false)}
                   placeholder={"Paste your headline here...\ne.g. Senior Manager | B2B Sales | 6+ Years | Fortune 500 Clients"}
-                  rows={2}
+                  rows={1}
                   maxLength={500}
-                  className="w-full resize-none border-none outline-none bg-transparent text-base"
-                  style={{ color: 'var(--li-text-primary)' }}
+                  className="w-full resize-none border-none outline-none bg-transparent text-[15px]"
+                  style={{ color: 'var(--li-text-primary)', minHeight: 60, overflow: 'hidden', lineHeight: '1.6', padding: '8px 0' }}
                 />
                 {/* CHANGE 4 — CTA Button */}
                 <button
