@@ -2086,7 +2086,7 @@ function printSidebar(data: ResumeData): string {
   const mainHdr = (t: string) => `<div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#1E293B;border-bottom:2px solid #1E293B;padding-bottom:3px;margin-bottom:8px">${t}</div>`;
   const sideHdr = (t: string) => `<div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.5);margin-bottom:8px">${t}</div>`;
 
-  let sidebar = `<div class="two-col-left" style="width:30%;background:#1E293B;color:#fff;padding:24px 16px;position:relative;z-index:1"><div class="sidebar-bg" style="width:30%;background:#1E293B"></div>`;
+  let sidebar = `<div class="two-col-left" style="width:30%;background:#1E293B;color:#fff;padding:24px 16px">`;
   sidebar += `<div style="font-size:18px;font-weight:700;margin-bottom:4px">${esc(c.name) || 'Your Name'}</div>`;
   sidebar += `<div style="border-bottom:1px solid rgba(255,255,255,0.2);margin:10px 0"></div>`;
   if (contactParts.length) {
@@ -2120,7 +2120,7 @@ function printSidebar(data: ResumeData): string {
   if (ach) main += `<div style="margin-bottom:16px">${mainHdr('Achievements')}${ach}</div>`;
   main += `</div>`;
 
-  return printPageWrapper(`<div class="resume-wrapper" style="font-family:Arial,Helvetica,sans-serif;font-size:10px;line-height:1.4"><div class="two-col">${sidebar}${main}</div></div>`);
+  return printPageWrapper(`<div class="resume-wrapper" style="font-family:Arial,Helvetica,sans-serif;font-size:10px;line-height:1.4;position:relative"><div style="position:absolute;top:0;left:0;bottom:0;width:30%;background:#1E293B;min-height:297mm"></div><div class="two-col" style="position:relative;z-index:1">${sidebar}${main}</div></div>`);
 }
 
 // ─── Print: Split Modern ────────────────────────────────────────────────────
@@ -2134,7 +2134,7 @@ function printSplitModern(data: ResumeData): string {
 
   let h = `<div class="resume-wrapper" style="font-family:Arial,Helvetica,sans-serif;font-size:10px;line-height:1.4">`;
   h += `<div style="padding:16px 24px 10px;border-bottom:2px solid #E2E8F0"><div style="font-size:22px;font-weight:700;color:#0F172A">${esc(c.name) || 'Your Name'}</div></div>`;
-  h += `<div class="two-col">`;
+  h += `<div style="position:relative"><div style="position:absolute;top:0;left:0;bottom:0;width:35%;background:#F1F5F9;min-height:250mm"></div><div class="two-col" style="position:relative;z-index:1">`;
 
   // Left panel
   h += `<div class="two-col-left" style="width:35%;background:#F1F5F9;padding:16px">`;
@@ -2171,7 +2171,7 @@ function printSplitModern(data: ResumeData): string {
   if (ach) h += `<div style="margin-bottom:16px">${mainHdr('Achievements')}${ach}</div>`;
   h += `</div>`;
 
-  h += `</div></div>`;
+  h += `</div></div></div>`;
   return printPageWrapper(h);
 }
 
@@ -2190,7 +2190,7 @@ function printHighlight(data: ResumeData): string {
   if (cp) h += `<div style="font-size:9px;color:rgba(255,255,255,0.7);margin-top:3px">${cp}</div>`;
   h += `</div>`;
   // Body
-  h += `<div class="two-col">`;
+  h += `<div style="position:relative"><div style="position:absolute;top:0;right:0;bottom:0;width:35%;background:#F0F7FF;min-height:250mm"></div><div class="two-col" style="position:relative;z-index:1">`;
   // Left main
   h += `<div class="two-col-left" style="width:65%;padding:16px 16px 16px 24px;color:#333">`;
   if (data.summary) h += `<div style="margin-bottom:18px">${mainHdr('Summary')}<div>${esc(data.summary)}</div></div>`;
@@ -2218,7 +2218,7 @@ function printHighlight(data: ResumeData): string {
   const ach = buildAchievementsHTML(data, '&bull;');
   if (ach) h += `<div style="margin-bottom:18px">${sideHdr('Achievements')}${ach}</div>`;
   h += `</div>`;
-  h += `</div></div>`;
+  h += `</div></div></div>`;
   return printPageWrapper(h);
 }
 
@@ -2237,7 +2237,7 @@ function printCorporate(data: ResumeData): string {
   if (cp) h += `<div style="font-size:9px;color:rgba(255,255,255,0.6);margin-top:3px">${cp}</div>`;
   h += `</div>`;
   // Body
-  h += `<div class="two-col">`;
+  h += `<div style="position:relative"><div style="position:absolute;top:0;left:0;bottom:0;width:28%;background:#F8FAFC;border-right:1px solid #E2E8F0;min-height:250mm"></div><div class="two-col" style="position:relative;z-index:1">`;
   // Left sidebar
   h += `<div class="two-col-left" style="width:28%;background:#F8FAFC;padding:16px 14px;border-right:1px solid #E2E8F0">`;
   if (skillGroups.length) {
@@ -2265,7 +2265,7 @@ function printCorporate(data: ResumeData): string {
   const ach = buildAchievementsHTML(data, '&bull;');
   if (ach) h += `<div style="margin-bottom:18px">${mainHdr('Achievements')}${ach}</div>`;
   h += `</div>`;
-  h += `</div></div>`;
+  h += `</div></div></div>`;
   return printPageWrapper(h);
 }
 

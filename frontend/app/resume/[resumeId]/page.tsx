@@ -102,8 +102,16 @@ export default function ResumePreviewPage() {
       });
   }, [resumeId]);
 
+  const orderPlan = (resume as any)?.order_plan || 'standard';
+  const currentTemplate = TEMPLATES.find(t => t.id === templateId);
+  const isTemplateLocked = orderPlan !== 'pro' && (currentTemplate as any)?.proOnly;
+
   function handleDownloadPDF() {
     if (!resume) return;
+    if (isTemplateLocked) {
+      alert(`"${currentTemplate?.name}" is a Pro template. Upgrade to Pro for ₹500 to unlock all 20 templates.`);
+      return;
+    }
     const html = buildPrintHTML(resume.resume_data, templateId, resume.page_count || 2);
     const win = window.open('', '_blank');
     if (!win) return;
@@ -220,9 +228,10 @@ export default function ResumePreviewPage() {
             PDF
           </button>
           <a
-            href={`${API_URL}/api/resume/${resume.id}/download/docx`}
+            href={isTemplateLocked ? '#' : `${API_URL}/api/resume/${resume.id}/download/docx`}
+            onClick={(e) => { if (isTemplateLocked) { e.preventDefault(); alert(`"${currentTemplate?.name}" is a Pro template. Upgrade to Pro for ₹500.`); } }}
             style={{
-              padding: '6px 14px', background: '#374151', color: '#fff', border: 'none',
+              padding: '6px 14px', background: isTemplateLocked ? '#999' : '#374151', color: '#fff', border: 'none',
               borderRadius: 16, fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
             }}
           >
@@ -350,25 +359,56 @@ export default function ResumePreviewPage() {
           border: '1px solid #E0E0E0', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap',
         }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: '#333', marginRight: 4 }}>Template:</span>
-          {TEMPLATES.map((t) => (
+          {TEMPLATES.map((t) => {
+            const locked = orderPlan !== 'pro' && (t as any).proOnly;
+            return (
             <button
               key={t.id}
               onClick={() => setTemplateId(t.id)}
               style={{
                 padding: '4px 12px', borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer',
                 border: templateId === t.id ? '2px solid #0A66C2' : '1px solid #D0D0D0',
-                background: templateId === t.id ? '#E8F0FE' : '#fff',
-                color: templateId === t.id ? '#0A66C2' : '#666',
+                background: templateId === t.id ? '#E8F0FE' : locked ? '#F9FAFB' : '#fff',
+                color: templateId === t.id ? '#0A66C2' : locked ? '#999' : '#666',
                 transition: 'all 0.15s',
               }}
             >
-              {t.name}
+              {t.name}{locked ? ' 🔒' : ''}
             </button>
-          ))}
+          );})}
         </div>
 
         {/* ─── RESUME PREVIEW ─── */}
-        {renderResumeHTML(rd, templateId)}
+        <div style={{ position: 'relative' }}>
+          {renderResumeHTML(rd, templateId)}
+          {isTemplateLocked && (
+            <div style={{
+              position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+              background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(2px)',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              borderRadius: 4, zIndex: 10,
+            }}>
+              <div style={{ background: 'white', border: '2px solid #0A66C2', borderRadius: 16, padding: '28px 36px', textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.15)', maxWidth: 380 }}>
+                <div style={{ fontSize: 28, marginBottom: 8 }}>&#128274;</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#1E40AF', marginBottom: 8 }}>Pro Template</div>
+                <div style={{ fontSize: 13, color: '#666', lineHeight: 1.5, marginBottom: 16 }}>
+                  &ldquo;{currentTemplate?.name}&rdquo; is available for Pro users. Upgrade to unlock all 20 templates + 3 resumes.
+                </div>
+                <a
+                  href={`/results/${resume.order_id}#upgrade`}
+                  style={{
+                    display: 'inline-block', padding: '12px 28px', background: '#0A66C2',
+                    color: 'white', borderRadius: 50, fontSize: 15, fontWeight: 700,
+                    textDecoration: 'none',
+                  }}
+                >
+                  Upgrade to Pro — &#8377;500 &rarr;
+                </a>
+                <div style={{ fontSize: 11, color: '#888', marginTop: 8 }}>Your &#8377;299 Standard payment will be adjusted</div>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* ─── COVER LETTER ─── */}
         {resume.cover_letter && (

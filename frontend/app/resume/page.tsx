@@ -607,8 +607,20 @@ function ResumeFormContent() {
 
           {/* Error message */}
           {submitError && (
-            <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, padding: '10px 14px', marginBottom: 16 }}>
+            <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, padding: '14px 16px', marginBottom: 16 }}>
               <p style={{ margin: 0, color: '#CC1016', fontSize: 14 }}>{submitError}</p>
+              {submitError.includes('Pro template') && orderId && (
+                <a
+                  href={`/results/${orderId}#upgrade`}
+                  style={{
+                    display: 'inline-block', marginTop: 10, padding: '10px 24px',
+                    background: '#0A66C2', color: 'white', borderRadius: 50,
+                    fontSize: 14, fontWeight: 700, textDecoration: 'none',
+                  }}
+                >
+                  Upgrade to Pro &rarr;
+                </a>
+              )}
             </div>
           )}
 
