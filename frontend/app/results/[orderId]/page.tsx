@@ -1390,15 +1390,31 @@ function FeedbackWidget({ orderId }: { orderId: string }) {
 // ═══════════════════════════════════════════
 // ReferralWidget
 // ═══════════════════════════════════════════
-function ReferralWidget({ code, url }: { code: string; url: string }) {
+function ReferralWidget({ code, url, cardUrl }: { code: string; url: string; cardUrl?: string | null }) {
   const [copied, setCopied] = useState(false);
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`I just got my LinkedIn profile roasted! Score went way up. Try it: ${url}`)}`;
   const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+
+  async function handleWhatsAppReferral() {
+    const text = `I just got my LinkedIn profile roasted by AI!\n\nScore went way up after the rewrite.\n\nTry it: ${url}`;
+    if (typeof navigator !== 'undefined' && navigator.share && navigator.canShare && cardUrl) {
+      try {
+        const response = await fetch(`${cardUrl}?t=${Date.now()}`);
+        const blob = await response.blob();
+        const file = new File([blob], 'linkedin-roast-card.png', { type: 'image/png' });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ title: 'My LinkedIn Roast', text, files: [file] });
+          return;
+        }
+      } catch { /* fall through */ }
+    }
+    const fallbackText = cardUrl ? `${text}\n\nSee my roast card: ${cardUrl}` : text;
+    window.open(`https://wa.me/?text=${encodeURIComponent(fallbackText)}`, '_blank');
+  }
 
   return (
     <div className="li-card p-4 mb-4">
       <h3 className="text-sm font-bold mb-1" style={{ color: 'var(--li-text-primary)' }}>
-        🎁 Share & Earn ₹50
+        Share & Earn &#8377;50
       </h3>
       <p className="text-xs mb-3" style={{ color: 'var(--li-text-secondary)' }}>
         Your link: {url}
@@ -1413,7 +1429,7 @@ function ReferralWidget({ code, url }: { code: string; url: string }) {
           className="text-xs font-semibold cursor-pointer px-3 py-1.5 rounded-full text-white border-none"
           style={{ background: 'var(--li-blue)' }}
         >
-          {copied ? '✓ Copied!' : '📋 Copy Link'}
+          {copied ? 'Copied!' : 'Copy Link'}
         </button>
         <a
           href={linkedinUrl}
@@ -1424,15 +1440,13 @@ function ReferralWidget({ code, url }: { code: string; url: string }) {
         >
           Share on LinkedIn
         </a>
-        <a
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs font-semibold px-3 py-1.5 rounded-full no-underline"
-          style={{ background: '#25D366', color: 'white' }}
+        <button
+          onClick={handleWhatsAppReferral}
+          className="text-xs font-semibold cursor-pointer px-3 py-1.5 rounded-full text-white border-none"
+          style={{ background: '#25D366' }}
         >
           Share on WhatsApp
-        </a>
+        </button>
       </div>
     </div>
   );
@@ -1625,7 +1639,19 @@ function ShareButtons({ caption, cardUrl, orderId, beforeScore, afterScore, refe
       </p>
       <div style={{ textAlign: 'center' }}>
         <button
-          onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`I just got my LinkedIn roasted by AI\n\nMy score: ${beforeScore} \u2192 ${afterScore}\n\nThink you can beat this?\nTry: profileroaster.in`)}`, '_blank')}
+          onClick={async () => {
+            const text = `I just got my LinkedIn roasted by AI\n\nMy score: ${beforeScore} \u2192 ${afterScore}\n\nThink you can beat this?\nTry: ${referralUrl || 'profileroaster.in'}`;
+            if (typeof navigator !== 'undefined' && navigator.share && navigator.canShare && cardUrl) {
+              try {
+                const r = await fetch(`${cardUrl}?t=${Date.now()}`);
+                const blob = await r.blob();
+                const file = new File([blob], 'linkedin-roast.png', { type: 'image/png' });
+                if (navigator.canShare({ files: [file] })) { await navigator.share({ title: 'LinkedIn Roast Challenge', text, files: [file] }); return; }
+              } catch {}
+            }
+            const fallback = cardUrl ? `${text}\n\nSee my card: ${cardUrl}` : text;
+            window.open(`https://wa.me/?text=${encodeURIComponent(fallback)}`, '_blank');
+          }}
           style={{
             background: 'white',
             border: '1px solid #25D366',
@@ -1942,7 +1968,20 @@ export default function ResultsPage() {
               Share on LinkedIn
             </button>
             <button
-              onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`I just improved my LinkedIn profile by ${scores.after.overall - scores.before.overall} points with AI!\n\nThink you can beat this?\nTry: profileroaster.in`)}`, '_blank')}
+              onClick={async () => {
+                const text = `I just improved my LinkedIn profile by ${scores.after.overall - scores.before.overall} points with AI!\n\nThink you can beat this?\nTry: ${referral_url || 'https://profileroaster.in'}`;
+                const cUrl = results.card_image_url;
+                if (typeof navigator !== 'undefined' && navigator.share && navigator.canShare && cUrl) {
+                  try {
+                    const r = await fetch(`${cUrl}?t=${Date.now()}`);
+                    const blob = await r.blob();
+                    const file = new File([blob], 'linkedin-roast.png', { type: 'image/png' });
+                    if (navigator.canShare({ files: [file] })) { await navigator.share({ title: 'LinkedIn Roast Challenge', text, files: [file] }); return; }
+                  } catch {}
+                }
+                const fallback = cUrl ? `${text}\n\nSee my card: ${cUrl}` : text;
+                window.open(`https://wa.me/?text=${encodeURIComponent(fallback)}`, '_blank');
+              }}
               style={{
                 background: 'transparent',
                 color: 'white',
@@ -2106,7 +2145,7 @@ export default function ResultsPage() {
         <FeedbackWidget orderId={orderId} />
 
         {/* Referral */}
-        {referral_code && <ReferralWidget code={referral_code} url={referral_url} />}
+        {referral_code && <ReferralWidget code={referral_code} url={referral_url} cardUrl={results.card_image_url ? `${results.card_image_url}?t=${Date.now()}` : null} />}
 
         {/* Upsell for Standard */}
         {!isPro && <UpsellBanner orderId={orderId} />}
