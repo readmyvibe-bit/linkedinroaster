@@ -13,30 +13,35 @@
   <!-- Orange accent line at top -->
   <rect x="0" y="0" width="1200" height="6" fill="#E16B00"/>
 
-  <!-- CENTERED ROW: Flame icon + ProfileRoaster.in -->
-  <!-- Flame icon — symmetric, left of text, centered at y=280 -->
-  <g transform="translate(340, 230)">
-    <!-- Outer flame -->
-    <path d="M40 0 C40 0 35 9 32.5 14 C27 23 19 31 19 42 C19 53 27 62 40 62 C53 62 61 53 61 42 C61 31 53 23 47.5 14 C45 9 40 0 40 0Z" fill="#E16B00"/>
+  <!-- CENTERED GROUP: flame + text aligned on same baseline -->
+  <!-- Total width: flame 60px + gap 14px + text ~540px = ~614px -->
+  <!-- Center at x=600: start at x = 600 - 307 = 293 -->
+
+  <!-- Flame icon — top aligned with text cap height -->
+  <!-- Flame center x = 293 + 30 = 323, vertical center at y=260 -->
+  <g transform="translate(293, 228)">
+    <!-- Outer flame: center x=30, height 64 -->
+    <path d="M30 0 C30 0 26 7.5 24 11 C20 17.5 14 24 14 33 C14 42 21 49 30 49 C39 49 46 42 46 33 C46 24 40 17.5 36 11 C34 7.5 30 0 30 0Z" fill="#E16B00"/>
     <!-- Inner flame -->
-    <path d="M40 12 C40 12 37 18 35.5 21 C31 28 26 34 26 41 C26 49 32 55 40 55 C48 55 54 49 54 41 C54 34 49 28 44.5 21 C43 18 40 12 40 12Z" fill="#F59E0B"/>
+    <path d="M30 10 C30 10 27.5 15 26.2 17.5 C23 22.5 19 27 19 32.5 C19 38.5 24 43 30 43 C36 43 41 38.5 41 32.5 C41 27 37 22.5 33.8 17.5 C32.5 15 30 10 30 10Z" fill="#F59E0B"/>
     <!-- Core flame -->
-    <path d="M40 22 C40 22 38 26 37 28 C34.5 32 32 36 32 40 C32 44.5 35.5 48 40 48 C44.5 48 48 44.5 48 40 C48 36 45.5 32 43 28 C42 26 40 22 40 22Z" fill="#FCD34D"/>
+    <path d="M30 18 C30 18 28.2 21.5 27.5 23 C25.5 26 24 29 24 32 C24 35.5 26.5 38 30 38 C33.5 38 36 35.5 36 32 C36 29 34.5 26 32.5 23 C31.8 21.5 30 18 30 18Z" fill="#FCD34D"/>
   </g>
 
-  <!-- Brand name — right of flame -->
-  <text x="440" y="278" font-family="Inter, -apple-system, Helvetica, sans-serif" font-size="62" font-weight="600" letter-spacing="-1.5">
+  <!-- Brand name — tight after flame, vertically centered with flame -->
+  <!-- Flame bottom at y=277, text baseline needs to match flame vertical center y=252 -->
+  <text x="357" y="270" font-family="Inter, -apple-system, Helvetica, sans-serif" font-size="62" font-weight="600" letter-spacing="-1.5">
     <tspan fill="white">Profile</tspan><tspan fill="#E16B00" font-weight="800">Roaster</tspan><tspan fill="rgba(255,255,255,0.35)" font-weight="400">.in</tspan>
   </text>
 
   <!-- Tagline centered -->
-  <text x="600" y="340" font-family="Inter, -apple-system, Helvetica, sans-serif" font-size="20" font-weight="400" fill="rgba(255,255,255,0.45)" text-anchor="middle" letter-spacing="5">AI-POWERED LINKEDIN PROFILE ANALYSIS</text>
+  <text x="600" y="330" font-family="Inter, -apple-system, Helvetica, sans-serif" font-size="20" font-weight="400" fill="rgba(255,255,255,0.45)" text-anchor="middle" letter-spacing="5">AI-POWERED LINKEDIN PROFILE ANALYSIS</text>
 
   <!-- Divider line -->
-  <rect x="540" y="370" width="120" height="2" rx="1" fill="rgba(255,255,255,0.1)"/>
+  <rect x="540" y="358" width="120" height="2" rx="1" fill="rgba(255,255,255,0.1)"/>
 
   <!-- URL below -->
-  <text x="600" y="410" font-family="Inter, Helvetica, sans-serif" font-size="16" font-weight="500" fill="rgba(255,255,255,0.2)" text-anchor="middle">profileroaster.in</text>
+  <text x="600" y="396" font-family="Inter, Helvetica, sans-serif" font-size="16" font-weight="500" fill="rgba(255,255,255,0.2)" text-anchor="middle">profileroaster.in</text>
 
   <!-- Bottom bar -->
   <rect x="0" y="580" width="1200" height="50" fill="rgba(0,0,0,0.2)"/>
