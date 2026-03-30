@@ -426,7 +426,13 @@ function OrderDetailModal({
               <div className="mb-3">
                 <div className="text-xs font-semibold mb-1" style={{ color: 'var(--li-text-secondary)' }}>Placeholders to Fill</div>
                 <ul className="list-disc ml-4 text-sm">
-                  {rewrite.placeholders_to_fill.map((p: string, i: number) => <li key={i}>{p}</li>)}
+                  {rewrite.placeholders_to_fill.map((p: any, i: number) => (
+                    <li key={i}>
+                      <span className="font-mono text-xs" style={{ color: '#E16B00' }}>{typeof p === 'string' ? p : p.placeholder || ''}</span>
+                      {typeof p === 'object' && p.location && <span className="text-xs" style={{ color: 'var(--li-text-secondary)' }}> in {p.location}</span>}
+                      {typeof p === 'object' && p.instruction && <span className="text-xs" style={{ color: 'var(--li-text-secondary)' }}> — {p.instruction}</span>}
+                    </li>
+                  ))}
                 </ul>
               </div>
             )}
