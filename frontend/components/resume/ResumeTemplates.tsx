@@ -1800,7 +1800,9 @@ body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!importa
   .resume-wrapper{width:100%;min-height:297mm}
   .two-col{min-height:297mm}
   .sidebar-bg{min-height:297mm}
-  .entry{page-break-inside:avoid}
+  .entry{page-break-inside:avoid;orphans:3;widows:3}
+  p,div{orphans:3;widows:3}
+  .page-top-margin{margin-top:20mm}
 }
 </style></head><body style="-webkit-print-color-adjust:exact;print-color-adjust:exact">${body}</body></html>`;
 }

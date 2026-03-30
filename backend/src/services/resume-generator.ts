@@ -104,7 +104,12 @@ STRICT ATS RULES:
 6. Keywords from JD must appear naturally in summary, bullets, and skills
 7. Summary is 3-4 sentences maximum
 8. Skills grouped by category
-9. Fit on 1 page if candidate has 2 or fewer jobs. Use 2 pages only if 3+ jobs with detailed bullets. Always prioritize conciseness.
+9. PAGE LENGTH RULES (CRITICAL):
+   - 2 or fewer jobs: MUST fit on 1 page. Use 3-4 bullets per job max. Keep summary to 2 sentences. Be concise.
+   - 3 jobs: Try to fit on 1 page. Use 3 bullets per job. If it won't fit, use 2 pages.
+   - 4+ jobs: Use 2 pages. Older roles get 2 bullets max.
+   - NEVER let 1-3 lines spill to a second page. Either cut content to fit 1 page or add enough for a proper 2nd page.
+   - Skills section: comma-separated on 1-2 lines, not one skill per line.
 10. Use exact company names and job titles from the LinkedIn data
 
 KEYWORD ANALYSIS:
