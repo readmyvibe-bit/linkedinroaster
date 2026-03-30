@@ -65,27 +65,29 @@ interface TemplateDefinition {
 
 // ─── Template Definitions ────────────────────────────────────────────────────
 
-export const TEMPLATES: TemplateDefinition[] = [
+export const TEMPLATES: (TemplateDefinition & { proOnly?: boolean })[] = [
+  // Standard-accessible (12)
   { id: 'classic', name: 'Classic Professional', description: 'Traditional clean layout. Maximum ATS compatibility.', category: 'ATS-Friendly' },
   { id: 'modern', name: 'Modern Accent', description: 'Blue accent styling with skill tags. ATS safe.', category: 'ATS-Friendly' },
   { id: 'minimal', name: 'Minimalist', description: 'Ultra clean with maximum whitespace.', category: 'ATS-Friendly' },
-  { id: 'executive', name: 'Executive Premium', description: 'Refined formal layout for senior professionals.', category: 'Professional' },
   { id: 'compact', name: 'Compact Dense', description: 'Maximum content in minimum space. Perfect for 1-page.', category: 'ATS-Friendly' },
+  { id: 'technical', name: 'Technical Developer', description: 'Code-inspired design for engineering roles.', category: 'ATS-Friendly' },
   { id: 'bold', name: 'Bold Statement', description: 'High impact with strong visual hierarchy.', category: 'Professional' },
   { id: 'elegant', name: 'Elegant Refined', description: 'Sophisticated design for consulting and finance.', category: 'Professional' },
-  { id: 'technical', name: 'Technical Developer', description: 'Code-inspired design for engineering roles.', category: 'ATS-Friendly' },
-  { id: 'sidebar', name: 'Modern Sidebar', description: 'Dark sidebar with clean main content area.', category: 'Visual' },
-  { id: 'splitmodern', name: 'Split Modern', description: 'Light sidebar with skills and education.', category: 'Visual' },
-  { id: 'highlight', name: 'Highlight Sections', description: 'Full-width header with highlighted side panel.', category: 'Visual' },
-  { id: 'corporate', name: 'Corporate Formal', description: 'Navy header with structured sidebar layout.', category: 'Visual' },
+  { id: 'executive', name: 'Executive Premium', description: 'Refined formal layout for senior professionals.', category: 'Professional' },
   { id: 'monochrome', name: 'Monochrome Prestige', description: 'Pure black and white luxury typography.', category: 'Premium' },
   { id: 'serif', name: 'Professional Serif', description: 'Classic serif typography for consulting and finance.', category: 'Premium' },
   { id: 'headline', name: 'Headline Impact', description: 'Large summary section. Perfect for sales and CS roles.', category: 'Premium' },
   { id: 'divider', name: 'Modern Divider', description: 'Elegant dividers between sections. Minimalist rhythm.', category: 'Premium' },
-  { id: 'crimson', name: 'Crimson Authority', description: 'Deep red accents. Commanding leadership presence.', category: 'Premium' },
-  { id: 'ocean', name: 'Ocean Professional', description: 'Teal accents. Calm and trustworthy.', category: 'Premium' },
-  { id: 'slategold', name: 'Slate & Gold', description: 'Dark slate with gold accents. Luxury corporate.', category: 'Premium' },
-  { id: 'indigo', name: 'Indigo Modern', description: 'Purple accents for tech and startup roles.', category: 'Premium' },
+  // Pro-only (8)
+  { id: 'crimson', name: 'Crimson Authority', description: 'Deep red accents. Commanding leadership presence.', category: 'Premium', proOnly: true },
+  { id: 'ocean', name: 'Ocean Professional', description: 'Teal accents. Calm and trustworthy.', category: 'Premium', proOnly: true },
+  { id: 'slategold', name: 'Slate & Gold', description: 'Dark slate with gold accents. Luxury corporate.', category: 'Premium', proOnly: true },
+  { id: 'indigo', name: 'Indigo Modern', description: 'Purple accents for tech and startup roles.', category: 'Premium', proOnly: true },
+  { id: 'sidebar', name: 'Modern Sidebar', description: 'Dark sidebar with clean main content area.', category: 'Visual', proOnly: true },
+  { id: 'splitmodern', name: 'Split Modern', description: 'Light sidebar with skills and education.', category: 'Visual', proOnly: true },
+  { id: 'highlight', name: 'Highlight Sections', description: 'Full-width header with highlighted side panel.', category: 'Visual', proOnly: true },
+  { id: 'corporate', name: 'Corporate Formal', description: 'Navy header with structured sidebar layout.', category: 'Visual', proOnly: true },
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -1787,16 +1789,17 @@ function printPageWrapper(body: string, pageCount?: number): string {
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:210mm;height:297mm;margin:0;padding:0;overflow:${onePage ? 'hidden' : 'visible'}}
 body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
-.resume-wrapper{width:210mm;height:297mm;position:relative;overflow:${onePage ? 'hidden' : 'visible'}}
-.two-col{display:table;width:100%;height:100%;table-layout:fixed;border-collapse:collapse}
-.two-col-left{display:table-cell;vertical-align:top;height:100%}
-.two-col-right{display:table-cell;vertical-align:top;height:100%}
+.resume-wrapper{width:210mm;min-height:297mm;position:relative;overflow:${onePage ? 'hidden' : 'visible'}}
+.two-col{display:flex;width:100%;min-height:297mm}
+.two-col-left{flex-shrink:0}
+.two-col-right{flex:1}
+.sidebar-bg{position:absolute;top:0;bottom:0;left:0;min-height:297mm}
 @media print{
   html,body{width:210mm;height:297mm;margin:0;padding:0;overflow:${onePage ? 'hidden' : 'visible'}}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-  .resume-wrapper{width:100%;height:100%}
-  .two-col{height:100%}
-  .two-col-left,.two-col-right{height:100%}
+  .resume-wrapper{width:100%;min-height:297mm}
+  .two-col{min-height:297mm}
+  .sidebar-bg{min-height:297mm}
   .entry{page-break-inside:avoid}
 }
 </style></head><body style="-webkit-print-color-adjust:exact;print-color-adjust:exact">${body}</body></html>`;
@@ -2083,7 +2086,7 @@ function printSidebar(data: ResumeData): string {
   const mainHdr = (t: string) => `<div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#1E293B;border-bottom:2px solid #1E293B;padding-bottom:3px;margin-bottom:8px">${t}</div>`;
   const sideHdr = (t: string) => `<div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.5);margin-bottom:8px">${t}</div>`;
 
-  let sidebar = `<div class="two-col-left" style="width:30%;background:#1E293B;color:#fff;padding:24px 16px">`;
+  let sidebar = `<div class="two-col-left" style="width:30%;background:#1E293B;color:#fff;padding:24px 16px;position:relative;z-index:1"><div class="sidebar-bg" style="width:30%;background:#1E293B"></div>`;
   sidebar += `<div style="font-size:18px;font-weight:700;margin-bottom:4px">${esc(c.name) || 'Your Name'}</div>`;
   sidebar += `<div style="border-bottom:1px solid rgba(255,255,255,0.2);margin:10px 0"></div>`;
   if (contactParts.length) {

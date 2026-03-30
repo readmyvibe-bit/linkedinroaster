@@ -106,7 +106,11 @@ router.get('/:resumeId', async (req: Request, res: Response) => {
   try {
     const result = await query('SELECT * FROM resumes WHERE id=$1', [req.params.resumeId]);
     if (!result.rows.length) return res.status(404).json({ error: 'Resume not found' });
-    res.json(result.rows[0]);
+    const resume = result.rows[0];
+    // Add plan info from order
+    const orderResult = await query('SELECT plan FROM orders WHERE id=$1', [resume.order_id]);
+    resume.order_plan = orderResult.rows[0]?.plan || 'standard';
+    res.json(resume);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch resume' });
   }

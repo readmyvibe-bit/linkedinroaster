@@ -104,7 +104,7 @@ STRICT ATS RULES:
 6. Keywords from JD must appear naturally in summary, bullets, and skills
 7. Summary is 3-4 sentences maximum
 8. Skills grouped by category
-9. Maximum ${input.pageCount || 2} pages of content
+9. Fit on 1 page if candidate has 2 or fewer jobs. Use 2 pages only if 3+ jobs with detailed bullets. Always prioritize conciseness.
 10. Use exact company names and job titles from the LinkedIn data
 
 KEYWORD ANALYSIS:

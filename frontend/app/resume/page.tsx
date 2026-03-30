@@ -178,6 +178,12 @@ function ResumeFormContent() {
       setSubmitError('Job description must be at least 100 characters.');
       return;
     }
+    // Check if selected template is Pro-only
+    const selectedTemplate = TEMPLATES.find(t => t.id === template);
+    if (orderPlan !== 'pro' && (selectedTemplate as any)?.proOnly) {
+      setSubmitError(`"${selectedTemplate?.name}" is a Pro template. Upgrade to Pro for ₹500 to unlock all 20 templates + 3 resumes. Your Standard payment of ₹299 will be adjusted.`);
+      return;
+    }
     setSubmitError('');
     setSubmitting(true);
     try {
@@ -550,21 +556,28 @@ function ResumeFormContent() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
               {TEMPLATES.filter(t => {
                 const catMatch = templateFilter === 'All' || t.category === templateFilter;
-                const planMatch = orderPlan === 'pro' || t.category !== 'Visual'; // Standard: no Visual templates
-                return catMatch && planMatch;
+                return catMatch; // Show ALL templates, lock Pro-only for Standard users
               }).map((t) => {
+                const isLocked = orderPlan !== 'pro' && (t as any).proOnly;
                 const selected = template === t.id;
                 return (
                   <label
                     key={t.id}
+                    onClick={(e) => {
+                      if (isLocked) { e.preventDefault(); setTemplate(t.id); }
+                    }}
                     style={{
                       display: 'flex', flexDirection: 'column', gap: 4,
                       padding: 12, borderRadius: 8, cursor: 'pointer',
-                      border: selected ? '2px solid #0A66C2' : '1px solid #CCC',
-                      background: selected ? '#F0F7FF' : '#fff',
-                      transition: 'all 0.15s',
+                      border: selected ? '2px solid #0A66C2' : isLocked ? '1px solid #E0E0E0' : '1px solid #CCC',
+                      background: selected ? '#F0F7FF' : isLocked ? '#F9FAFB' : '#fff',
+                      opacity: isLocked ? 0.75 : 1,
+                      transition: 'all 0.15s', position: 'relative',
                     }}
                   >
+                    {isLocked && (
+                      <div style={{ position: 'absolute', top: 6, right: 6, background: '#FEF3C7', color: '#92400E', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 4 }}>PRO</div>
+                    )}
                     <input
                       type="radio" name="template" value={t.id}
                       checked={selected}
@@ -572,7 +585,7 @@ function ResumeFormContent() {
                       style={{ display: 'none' }}
                     />
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: 14, fontWeight: selected ? 700 : 600, color: selected ? '#0A66C2' : '#191919' }}>{t.name}</span>
+                      <span style={{ fontSize: 14, fontWeight: selected ? 700 : 600, color: isLocked ? '#999' : selected ? '#0A66C2' : '#191919' }}>{t.name}</span>
                       <span style={{
                         fontSize: 10, fontWeight: 600, padding: '2px 6px', borderRadius: 4,
                         background: t.category === 'ATS-Friendly' ? '#E8F0FE' : t.category === 'Professional' ? '#FEF3C7' : t.category === 'Premium' ? '#FDF2F8' : t.category === 'Visual' ? '#F0FDF4' : '#E8F0FE',
@@ -587,30 +600,8 @@ function ResumeFormContent() {
           </div>
 
           <div style={{ marginBottom: 28 }}>
-            <label style={{ ...labelStyle, marginBottom: 10 }}>Resume Length</label>
-            <div style={{ display: 'flex', gap: 12 }}>
-              {[{ value: '1', label: '1 Page' }, { value: '2', label: '2 Pages' }].map((opt) => (
-                <label
-                  key={opt.value}
-                  style={{
-                    flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    padding: '12px', borderRadius: 8, cursor: 'pointer',
-                    border: resumeLength === opt.value ? '2px solid #0A66C2' : '1px solid #CCC',
-                    background: resumeLength === opt.value ? '#F0F7FF' : '#fff',
-                    fontWeight: resumeLength === opt.value ? 700 : 500,
-                    fontSize: 14, color: resumeLength === opt.value ? '#0A66C2' : '#191919',
-                    transition: 'all 0.15s',
-                  }}
-                >
-                  <input
-                    type="radio" name="resumeLength" value={opt.value}
-                    checked={resumeLength === opt.value}
-                    onChange={() => setResumeLength(opt.value)}
-                    style={{ display: 'none' }}
-                  />
-                  {opt.label}
-                </label>
-              ))}
+            <div style={{ background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 8, padding: '10px 14px', fontSize: 12, color: '#1E40AF' }}>
+              AI automatically fits your resume to 1 page if possible. 2 pages only when needed for extensive experience.
             </div>
           </div>
 
