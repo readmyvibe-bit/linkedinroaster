@@ -23,6 +23,8 @@ interface ExperienceEntry {
   dates?: string;
   startDate?: string;
   endDate?: string;
+  start_date?: string;
+  end_date?: string;
   current?: boolean;
   location?: string;
   bullets?: string[];
@@ -602,7 +604,7 @@ export default function ResumeEditorPage() {
               <div>
                 {(rd.experience || []).map((exp, i) => {
                   const isOpen = !!expandedJobs[i];
-                  const dateStr = exp.dates || [exp.startDate, exp.current ? 'Present' : exp.endDate].filter(Boolean).join(' - ');
+                  const dateStr = exp.dates || [exp.startDate || exp.start_date, exp.current ? 'Present' : (exp.endDate || exp.end_date)].filter(Boolean).join(' - ');
                   return (
                     <div
                       key={i}
@@ -699,12 +701,22 @@ export default function ResumeEditorPage() {
                             <label style={labelStyle}>Location</label>
                             <input style={inputStyle} value={exp.location || ''} onChange={e => updateExperience(i, 'location', e.target.value)} />
                           </div>
+                          {(() => {
+                            // Normalize: handle both startDate/endDate and start_date/end_date formats
+                            const startStr = exp.startDate || exp.start_date || (exp.dates ? exp.dates.split(/\s*[-–—]\s*/)[0] : '') || '';
+                            const endStr = exp.current ? 'Present' : (exp.endDate || exp.end_date || (exp.dates ? exp.dates.split(/\s*[-–—]\s*/)[1] : '') || '');
+                            const startMonth = startStr.replace(/\s*\d{4}$/, '').trim();
+                            const startYear = startStr.match(/\d{4}/)?.[0] || '';
+                            const endMonth = endStr.replace(/\s*\d{4}$/, '').replace('Present', '').trim();
+                            const endYear = endStr === 'Present' ? '' : (endStr.match(/\d{4}/)?.[0] || '');
+                            const isCurrent = exp.current || endStr === 'Present';
+                            return (
                           <div style={{ display: 'flex', gap: 8, ...fieldGap, flexWrap: 'wrap' }}>
-                            <div style={{ flex: 1, minWidth: 120 }}>
+                            <div style={{ flex: 1, minWidth: 110 }}>
                               <label style={labelStyle}>Start Month</label>
-                              <select style={inputStyle} value={(exp.startDate || (exp.dates ? exp.dates.split(' - ')[0] || '' : '')).replace(/\s*\d{4}$/, '').trim()} onChange={e => {
-                                const yr = (exp.startDate || '').match(/\d{4}/)?.[0] || '';
-                                updateExperience(i, 'startDate', `${e.target.value} ${yr}`.trim());
+                              <select style={inputStyle} value={startMonth} onChange={e => {
+                                updateExperience(i, 'start_date', `${e.target.value} ${startYear}`.trim());
+                                updateExperience(i, 'startDate', `${e.target.value} ${startYear}`.trim());
                               }}>
                                 <option value="">Month</option>
                                 {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map(m => <option key={m} value={m}>{m}</option>)}
@@ -712,19 +724,19 @@ export default function ResumeEditorPage() {
                             </div>
                             <div style={{ flex: 1, minWidth: 80 }}>
                               <label style={labelStyle}>Start Year</label>
-                              <select style={inputStyle} value={(exp.startDate || (exp.dates ? exp.dates.split(' - ')[0] || '' : '')).match(/\d{4}/)?.[0] || ''} onChange={e => {
-                                const mon = (exp.startDate || '').replace(/\d{4}/, '').trim() || '';
-                                updateExperience(i, 'startDate', `${mon} ${e.target.value}`.trim());
+                              <select style={inputStyle} value={startYear} onChange={e => {
+                                updateExperience(i, 'start_date', `${startMonth} ${e.target.value}`.trim());
+                                updateExperience(i, 'startDate', `${startMonth} ${e.target.value}`.trim());
                               }}>
                                 <option value="">Year</option>
-                                {Array.from({ length: 30 }, (_, j) => 2026 - j).map(y => <option key={y} value={y}>{y}</option>)}
+                                {Array.from({ length: 30 }, (_, j) => 2026 - j).map(y => <option key={y} value={String(y)}>{y}</option>)}
                               </select>
                             </div>
-                            <div style={{ flex: 1, minWidth: 120 }}>
+                            <div style={{ flex: 1, minWidth: 110 }}>
                               <label style={labelStyle}>End Month</label>
-                              <select style={inputStyle} disabled={!!exp.current} value={exp.current ? '' : ((exp.endDate || (exp.dates ? exp.dates.split(' - ')[1] || '' : '')).replace(/\s*\d{4}$/, '').replace('Present', '').trim())} onChange={e => {
-                                const yr = (exp.endDate || '').match(/\d{4}/)?.[0] || '';
-                                updateExperience(i, 'endDate', `${e.target.value} ${yr}`.trim());
+                              <select style={inputStyle} disabled={!!isCurrent} value={isCurrent ? '' : endMonth} onChange={e => {
+                                updateExperience(i, 'end_date', `${e.target.value} ${endYear}`.trim());
+                                updateExperience(i, 'endDate', `${e.target.value} ${endYear}`.trim());
                               }}>
                                 <option value="">Month</option>
                                 {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map(m => <option key={m} value={m}>{m}</option>)}
@@ -732,15 +744,17 @@ export default function ResumeEditorPage() {
                             </div>
                             <div style={{ flex: 1, minWidth: 80 }}>
                               <label style={labelStyle}>End Year</label>
-                              <select style={inputStyle} disabled={!!exp.current} value={exp.current ? '' : ((exp.endDate || (exp.dates ? exp.dates.split(' - ')[1] || '' : '')).match(/\d{4}/)?.[0] || '')} onChange={e => {
-                                const mon = (exp.endDate || '').replace(/\d{4}/, '').trim() || '';
-                                updateExperience(i, 'endDate', `${mon} ${e.target.value}`.trim());
+                              <select style={inputStyle} disabled={!!isCurrent} value={isCurrent ? '' : endYear} onChange={e => {
+                                updateExperience(i, 'end_date', `${endMonth} ${e.target.value}`.trim());
+                                updateExperience(i, 'endDate', `${endMonth} ${e.target.value}`.trim());
                               }}>
                                 <option value="">Year</option>
-                                {Array.from({ length: 30 }, (_, j) => 2026 - j).map(y => <option key={y} value={y}>{y}</option>)}
+                                {Array.from({ length: 30 }, (_, j) => 2026 - j).map(y => <option key={y} value={String(y)}>{y}</option>)}
                               </select>
                             </div>
                           </div>
+                            );
+                          })()}
                           <div style={fieldGap}>
                             <div>
                               <label style={{ fontSize: 12, color: '#666', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
