@@ -436,12 +436,15 @@ export default function ResumeEditorPage() {
     <div style={{ height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
       {/* ─── TOP BAR ─── */}
       <div style={{
-        height: 56, minHeight: 56, background: '#fff', borderBottom: '1px solid #E0E0E0',
-        padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        minHeight: 48, background: '#fff', borderBottom: '1px solid #E0E0E0',
+        padding: isMobile ? '8px 12px' : '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        flexWrap: 'wrap', gap: 6,
       }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#004182' }}>ProfileRoaster Resume Editor</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: savedStatusColor }}>{savedStatusText}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          {!isMobile && <div style={{ fontSize: 14, fontWeight: 700, color: '#004182' }}>Resume Editor</div>}
+          <div style={{ fontSize: 12, fontWeight: 600, color: savedStatusColor }}>{savedStatusText}</div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
           {isMobile && (
             <div style={{ display: 'flex', gap: 4, background: '#F3F2EF', borderRadius: 20, padding: 2 }}>
               <button onClick={() => setMobileView('edit')} style={{
@@ -457,11 +460,11 @@ export default function ResumeEditorPage() {
             </div>
           )}
         </div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
           <select
             value={templateId}
             onChange={e => setTemplateId(e.target.value)}
-            style={{ padding: '6px 10px', border: '1px solid #D0D0D0', borderRadius: 6, fontSize: 13, outline: 'none' }}
+            style={{ padding: '5px 8px', border: '1px solid #D0D0D0', borderRadius: 6, fontSize: 12, outline: 'none', maxWidth: isMobile ? 120 : 200 }}
           >
             {TEMPLATES.map(t => (
               <option key={t.id} value={t.id}>{t.name}</option>
@@ -470,24 +473,24 @@ export default function ResumeEditorPage() {
           <button
             onClick={handleDownloadPDF}
             style={{
-              padding: '7px 16px', background: '#0A66C2', color: '#fff', border: 'none',
-              borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: 'pointer',
+              padding: '5px 12px', background: '#0A66C2', color: '#fff', border: 'none',
+              borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap',
             }}
           >
-            Download PDF
+            PDF
           </button>
           <a
             href={`${API_URL}/api/resume/${resumeId}/download/docx`}
             style={{
-              padding: '7px 16px', background: '#374151', color: '#fff', border: 'none',
-              borderRadius: 20, fontSize: 13, fontWeight: 600, textDecoration: 'none',
+              padding: '5px 12px', background: '#374151', color: '#fff', border: 'none',
+              borderRadius: 16, fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
             }}
           >
             DOCX
           </a>
           <a
             href={`/resume/${resumeId}`}
-            style={{ fontSize: 13, fontWeight: 600, color: '#666', textDecoration: 'none' }}
+            style={{ fontSize: 12, fontWeight: 600, color: '#666', textDecoration: 'none', whiteSpace: 'nowrap' }}
           >
             Back
           </a>
@@ -497,15 +500,15 @@ export default function ResumeEditorPage() {
       {/* ─── TWO PANELS ─── */}
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         {/* ─── LEFT PANEL ─── */}
-        <div style={{ width: isMobile ? '100%' : '45%', display: (!isMobile || mobileView === 'edit') ? 'block' : 'none', background: '#fff', overflowY: 'auto', height: 'calc(100vh - 56px)', padding: 16 }}>
+        <div style={{ width: isMobile ? '100%' : '45%', display: (!isMobile || mobileView === 'edit') ? 'block' : 'none', background: '#fff', overflowY: 'auto', height: isMobile ? 'calc(100vh - 100px)' : 'calc(100vh - 56px)', padding: 16 }}>
           {/* Tab Bar */}
-          <div style={{ display: 'flex', borderBottom: '1px solid #E0E0E0', marginBottom: 0 }}>
+          <div style={{ display: 'flex', borderBottom: '1px solid #E0E0E0', marginBottom: 0, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
             {tabs.map(tab => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
                 style={{
-                  flex: 1, padding: '10px 0', background: 'none', border: 'none',
+                  flex: isMobile ? 'none' : 1, padding: isMobile ? '8px 12px' : '10px 0', background: 'none', border: 'none', whiteSpace: 'nowrap',
                   borderBottom: activeTab === tab.key ? '2px solid #0A66C2' : '2px solid transparent',
                   color: activeTab === tab.key ? '#0A66C2' : '#666',
                   fontSize: 13, fontWeight: 600, cursor: 'pointer',
@@ -967,7 +970,7 @@ export default function ResumeEditorPage() {
         </div>
 
         {/* ─── RIGHT PANEL ─── */}
-        <div style={{ width: isMobile ? '100%' : '55%', display: (!isMobile || mobileView === 'preview') ? 'block' : 'none', background: '#F3F2EF', overflowY: 'auto', height: 'calc(100vh - 56px)', padding: 20 }}>
+        <div style={{ width: isMobile ? '100%' : '55%', display: (!isMobile || mobileView === 'preview') ? 'block' : 'none', background: '#F3F2EF', overflowY: 'auto', height: isMobile ? 'calc(100vh - 100px)' : 'calc(100vh - 56px)', padding: 20 }}>
           {/* ATS Score Mini Widget */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
             <span style={{
