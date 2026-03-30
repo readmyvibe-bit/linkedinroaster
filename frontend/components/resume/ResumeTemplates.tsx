@@ -1800,9 +1800,11 @@ body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!importa
   .resume-wrapper{width:100%;min-height:297mm}
   .two-col{min-height:297mm}
   .sidebar-bg{min-height:297mm}
-  .entry{page-break-inside:avoid;orphans:3;widows:3}
-  p,div{orphans:3;widows:3}
-  .page-top-margin{margin-top:20mm}
+  .entry{page-break-inside:avoid;orphans:4;widows:4}
+  p,div{orphans:4;widows:4}
+  @page:left{margin-top:15mm}
+  @page:right{margin-top:15mm}
+  @page:first{margin-top:0}
 }
 </style></head><body style="-webkit-print-color-adjust:exact;print-color-adjust:exact">${body}</body></html>`;
 }

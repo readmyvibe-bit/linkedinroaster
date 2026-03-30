@@ -113,12 +113,32 @@ export default function ResumePreviewPage() {
       return;
     }
     const html = buildPrintHTML(resume.resume_data, templateId, resume.page_count || 2);
+    // Add auto-shrink script that reduces font if content spills past 1 page
+    const autoShrinkScript = `<script>
+      window.addEventListener('load', function() {
+        var body = document.body;
+        var wrapper = document.querySelector('.resume-wrapper') || body;
+        var pageHeight = 1122; // A4 height in px at 96dpi
+        var attempts = 0;
+        while (wrapper.scrollHeight > pageHeight && attempts < 8) {
+          var currentSize = parseFloat(window.getComputedStyle(body).fontSize) || 11;
+          body.style.fontSize = (currentSize - 0.5) + 'px';
+          var allText = document.querySelectorAll('div, span, p, li');
+          allText.forEach(function(el) {
+            var s = parseFloat(window.getComputedStyle(el).fontSize);
+            if (s > 8) el.style.fontSize = (s - 0.3) + 'px';
+          });
+          attempts++;
+        }
+      });
+    </script>`;
+    const finalHtml = html.replace('</body>', autoShrinkScript + '</body>');
     const win = window.open('', '_blank');
     if (!win) return;
-    win.document.write(html);
+    win.document.write(finalHtml);
     win.document.close();
     win.document.title = ' ';
-    setTimeout(() => { win.print(); }, 600);
+    setTimeout(() => { win.print(); }, 800);
   }
 
   function handleDownloadCoverLetterPDF() {
@@ -394,16 +414,30 @@ export default function ResumePreviewPage() {
                 <div style={{ fontSize: 13, color: '#666', lineHeight: 1.5, marginBottom: 16 }}>
                   &ldquo;{currentTemplate?.name}&rdquo; is available for Pro users. Upgrade to unlock all 20 templates + 3 resumes.
                 </div>
-                <a
-                  href={`/results/${resume.order_id}#upgrade`}
+                <button
+                  onClick={async () => {
+                    try {
+                      const res = await fetch(`${API_URL}/api/orders/${resume.order_id}/upgrade`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+                      const data = await res.json();
+                      if (data.razorpay_order_id) {
+                        const opts = {
+                          key: data.razorpay_key, amount: data.amount, currency: data.currency,
+                          order_id: data.razorpay_order_id, name: 'ProfileRoaster',
+                          description: 'Upgrade to Pro', theme: { color: '#0A66C2' },
+                          handler: () => { window.location.reload(); },
+                        };
+                        const rzp = new (window as any).Razorpay(opts); rzp.open();
+                      } else { alert(data.error || 'Failed'); }
+                    } catch { alert('Failed to initiate upgrade.'); }
+                  }}
                   style={{
                     display: 'inline-block', padding: '12px 28px', background: '#0A66C2',
                     color: 'white', borderRadius: 50, fontSize: 15, fontWeight: 700,
-                    textDecoration: 'none',
+                    border: 'none', cursor: 'pointer',
                   }}
                 >
                   Upgrade to Pro — &#8377;500 &rarr;
-                </a>
+                </button>
                 <div style={{ fontSize: 11, color: '#888', marginTop: 8 }}>Your &#8377;299 Standard payment will be adjusted</div>
               </div>
             </div>

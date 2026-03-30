@@ -610,16 +610,30 @@ function ResumeFormContent() {
             <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, padding: '14px 16px', marginBottom: 16 }}>
               <p style={{ margin: 0, color: '#CC1016', fontSize: 14 }}>{submitError}</p>
               {submitError.includes('Pro template') && orderId && (
-                <a
-                  href={`/results/${orderId}#upgrade`}
+                <button
+                  onClick={async () => {
+                    try {
+                      const res = await fetch(`${API_URL}/api/orders/${orderId}/upgrade`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+                      const data = await res.json();
+                      if (data.razorpay_order_id) {
+                        const opts = {
+                          key: data.razorpay_key, amount: data.amount, currency: data.currency,
+                          order_id: data.razorpay_order_id, name: 'ProfileRoaster',
+                          description: 'Upgrade to Pro', theme: { color: '#0A66C2' },
+                          handler: () => { window.location.reload(); },
+                        };
+                        const rzp = new (window as any).Razorpay(opts); rzp.open();
+                      } else { alert(data.error || 'Failed to create upgrade order'); }
+                    } catch { alert('Failed to initiate upgrade. Please try again.'); }
+                  }}
                   style={{
                     display: 'inline-block', marginTop: 10, padding: '10px 24px',
-                    background: '#0A66C2', color: 'white', borderRadius: 50,
-                    fontSize: 14, fontWeight: 700, textDecoration: 'none',
+                    background: '#0A66C2', color: 'white', borderRadius: 50, border: 'none',
+                    fontSize: 14, fontWeight: 700, cursor: 'pointer',
                   }}
                 >
-                  Upgrade to Pro &rarr;
-                </a>
+                  Upgrade to Pro — &#8377;500 &rarr;
+                </button>
               )}
             </div>
           )}
