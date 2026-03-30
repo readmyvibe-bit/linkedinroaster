@@ -108,6 +108,7 @@ function ResumeFormContent() {
   const [languages, setLanguages] = useState<string[]>([]);
   const [totalExperience, setTotalExperience] = useState('');
   const [template, setTemplate] = useState('classic');
+  const [templateFilter, setTemplateFilter] = useState('All');
   const [resumeLength, setResumeLength] = useState('2');
 
   // Additional section collapsed
@@ -527,9 +528,23 @@ function ResumeFormContent() {
           {/* SECTION 4 - Preferences */}
           <h2 style={sectionHeading}>Preferences</h2>
           <div style={{ marginBottom: 20 }}>
-            <label style={{ ...labelStyle, marginBottom: 10 }}>Template</label>
+            <label style={{ ...labelStyle, marginBottom: 10 }}>Template ({TEMPLATES.length} designs)</label>
+            {/* Category filter */}
+            <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
+              {['All', 'ATS-Friendly', 'Professional', 'Premium', 'Visual'].map(cat => {
+                const isAll = cat === 'All';
+                const count = isAll ? TEMPLATES.length : TEMPLATES.filter(t => t.category === cat).length;
+                return (
+                  <button key={cat} type="button" onClick={() => setTemplateFilter(cat)} style={{
+                    padding: '4px 12px', borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: 'none',
+                    background: templateFilter === cat ? '#0A66C2' : '#F3F2EF',
+                    color: templateFilter === cat ? '#fff' : '#666',
+                  }}>{cat} ({count})</button>
+                );
+              })}
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
-              {TEMPLATES.map((t) => {
+              {TEMPLATES.filter(t => templateFilter === 'All' || t.category === templateFilter).map((t) => {
                 const selected = template === t.id;
                 return (
                   <label
@@ -552,8 +567,8 @@ function ResumeFormContent() {
                       <span style={{ fontSize: 14, fontWeight: selected ? 700 : 600, color: selected ? '#0A66C2' : '#191919' }}>{t.name}</span>
                       <span style={{
                         fontSize: 10, fontWeight: 600, padding: '2px 6px', borderRadius: 4,
-                        background: t.category === 'Standard' ? '#E8F0FE' : t.category === 'Professional' ? '#FEF3C7' : '#F0FDF4',
-                        color: t.category === 'Standard' ? '#0A66C2' : t.category === 'Professional' ? '#92400E' : '#057642',
+                        background: t.category === 'ATS-Friendly' ? '#E8F0FE' : t.category === 'Professional' ? '#FEF3C7' : t.category === 'Premium' ? '#FDF2F8' : t.category === 'Visual' ? '#F0FDF4' : '#E8F0FE',
+                        color: t.category === 'ATS-Friendly' ? '#0A66C2' : t.category === 'Professional' ? '#92400E' : t.category === 'Premium' ? '#9D174D' : t.category === 'Visual' ? '#057642' : '#0A66C2',
                       }}>{t.category}</span>
                     </div>
                     <span style={{ fontSize: 12, color: '#666', lineHeight: 1.4 }}>{t.description}</span>
