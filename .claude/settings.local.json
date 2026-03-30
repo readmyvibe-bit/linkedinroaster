@@ -9,7 +9,12 @@
       "Bash(railway link:*)",
       "Bash(vercel --prod --yes)",
       "Bash(curl -s https://profileroaster.in/admin)",
-      "Bash(netstat -ano)"
+      "Bash(netstat -ano)",
+      "Bash(curl -s https://profileroaster-api-production.up.railway.app/api/health)",
+      "Bash(__NEW_LINE_e1016c319e18b247__ echo:*)",
+      "Bash(cd /c/LinkedinRoast/backend __NEW_LINE_2a2dbfe6d2b4d042__ echo \"--- 4. Teaser API \\(low score\\) ---\" curl -s -X POST https://profileroaster-api-production.up.railway.app/api/teaser -H \"Content-Type: application/json\" -d '{\"\"\"\"headline\"\"\"\":\"\"\"\"Software Engineer Looking for Opportunities\"\"\"\"}')",
+      "Bash(cd /c/LinkedinRoast/backend __NEW_LINE_16978444889df044__ echo \"--- 9. Recovery OTP ---\" echo \"  Non-existent email:\" curl -s -X POST https://profileroaster-api-production.up.railway.app/api/recover/send-otp -H \"Content-Type: application/json\" -d '{\"\"\"\"email\"\"\"\":\"\"\"\"nobody@test.com\"\"\"\"}' 2)",
+      "Bash(1 echo:*)"
     ]
   }
 }
