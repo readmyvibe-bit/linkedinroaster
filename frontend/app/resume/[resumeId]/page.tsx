@@ -203,46 +203,47 @@ export default function ResumePreviewPage() {
       {/* ─── TOP BAR ─── */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 100, background: '#fff',
-        borderBottom: '1px solid #E0E0E0', padding: '12px 24px',
+        borderBottom: '1px solid #E0E0E0', padding: '10px 16px',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        flexWrap: 'wrap', gap: 8,
       }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#004182' }}>ProfileRoaster Resume</div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: '#004182' }}>Resume</div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
           <button
             onClick={handleDownloadPDF}
             style={{
-              padding: '8px 18px', background: '#0A66C2', color: '#fff', border: 'none',
-              borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: 'pointer',
+              padding: '6px 14px', background: '#0A66C2', color: '#fff', border: 'none',
+              borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap',
             }}
           >
-            Download PDF
+            PDF
           </button>
           <a
             href={`${API_URL}/api/resume/${resume.id}/download/docx`}
             style={{
-              padding: '8px 18px', background: '#374151', color: '#fff', border: 'none',
-              borderRadius: 20, fontSize: 13, fontWeight: 600, textDecoration: 'none',
+              padding: '6px 14px', background: '#374151', color: '#fff', border: 'none',
+              borderRadius: 16, fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
             }}
           >
-            Download DOCX
+            DOCX
           </a>
           <a
             href={`/resume/${resume.id}/edit`}
             style={{
-              padding: '8px 18px', background: '#057642', color: '#fff', border: 'none',
-              borderRadius: 20, fontSize: 13, fontWeight: 600, textDecoration: 'none',
+              padding: '6px 14px', background: '#057642', color: '#fff', border: 'none',
+              borderRadius: 16, fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
             }}
           >
-            Edit Resume
+            Edit
           </a>
           <a
             href={`/results/${resume.order_id}`}
             style={{
-              padding: '8px 18px', background: '#fff', color: '#666', border: '1px solid #999',
-              borderRadius: 20, fontSize: 13, fontWeight: 600, textDecoration: 'none',
+              padding: '6px 14px', background: '#fff', color: '#666', border: '1px solid #ccc',
+              borderRadius: 16, fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
             }}
           >
-            Back to Results
+            Results
           </a>
         </div>
       </div>
