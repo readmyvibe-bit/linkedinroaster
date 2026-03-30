@@ -69,7 +69,7 @@ function getScoreColor(score: number): string {
 }
 
 // ─── Build Resume HTML for Print ───
-function buildPrintHTML(data: ResumeData): string {
+function buildPrintHTML(data: any): string {
   const c = data.contact || {};
   const contactParts = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean);
 
