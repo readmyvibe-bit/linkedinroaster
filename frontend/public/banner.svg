@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#004182"/>
+
+  <!-- Subtle grid pattern -->
+  <g opacity="0.03">
+    <line x1="0" y1="0" x2="1200" y2="630" stroke="white" stroke-width="1"/>
+    <line x1="200" y1="0" x2="1200" y2="500" stroke="white" stroke-width="1"/>
+    <line x1="400" y1="0" x2="1200" y2="370" stroke="white" stroke-width="1"/>
+    <line x1="0" y1="130" x2="1200" y2="630" stroke="white" stroke-width="1"/>
+    <line x1="0" y1="260" x2="1000" y2="630" stroke="white" stroke-width="1"/>
+    <line x1="0" y1="390" x2="800" y2="630" stroke="white" stroke-width="1"/>
+  </g>
+
+  <!-- Orange accent line at top -->
+  <rect x="0" y="0" width="1200" height="6" fill="#E16B00"/>
+
+  <!-- Left decorative flame (large, subtle) -->
+  <g transform="translate(80, 140)" opacity="0.06">
+    <path d="M80 350C36 350 0 310 0 260c0-50 25-95 60-130 12-12 24-28 36-44 12 16 24 32 36 44 35 35 60 80 60 130 0 50-36 90-80 90h-32z" fill="white"/>
+  </g>
+
+  <!-- Flame icon -->
+  <g transform="translate(440, 160)">
+    <path d="M40 92C22 92 8 78 8 60c0-14 7-26 16-34 3-3 6-7 9-11 3 4 6 8 9 11 9 8 16 20 16 34 0 18-14 32-32 32h14z" fill="#E16B00"/>
+    <path d="M40 82c-10 0-18-8-18-18 0-8 4-15 9-21 2-2 4-4 5-7 1 3 3 5 5 7 5 6 9 13 9 21 0 10-8 18-18 18h8z" fill="#F59E0B"/>
+    <path d="M40 72c-5 0-10-4-10-10 0-5 3-8 6-12 1-1 2-2 2.5-3 .5 1 1.5 2 2.5 3 3 4 6 7 6 12 0 6-5 10-10 10h3z" fill="#FCD34D"/>
+  </g>
+
+  <!-- Text: Profile -->
+  <text x="352" y="310" font-family="Inter, -apple-system, Helvetica, sans-serif" font-size="64" font-weight="700" fill="white" letter-spacing="-1" text-anchor="middle">Profile</text>
+
+  <!-- Text: Roaster -->
+  <text x="352" y="310" font-family="Inter, -apple-system, Helvetica, sans-serif" font-size="64" font-weight="700" fill="white" letter-spacing="-1" text-anchor="middle" dx="296">Roaster</text>
+
+  <!-- Combined centered text -->
+  <text x="600" y="310" font-family="Inter, -apple-system, Helvetica, sans-serif" font-size="68" font-weight="700" fill="white" letter-spacing="-1.5" text-anchor="middle">
+    <tspan fill="white">Profile</tspan><tspan fill="#E16B00"> Roaster</tspan>
+  </text>
+
+  <!-- Tagline -->
+  <text x="600" y="360" font-family="Inter, -apple-system, Helvetica, sans-serif" font-size="22" font-weight="400" fill="rgba(255,255,255,0.6)" text-anchor="middle" letter-spacing="4">AI-POWERED LINKEDIN PROFILE ANALYSIS</text>
+
+  <!-- Bottom bar -->
+  <rect x="0" y="580" width="1200" height="50" fill="rgba(0,0,0,0.2)"/>
+
+  <!-- Bottom stats -->
+  <text x="200" y="612" font-family="Inter, Helvetica, sans-serif" font-size="16" font-weight="700" fill="rgba(255,255,255,0.7)" text-anchor="middle">500+ Profiles Improved</text>
+  <text x="460" y="612" font-family="Inter, Helvetica, sans-serif" font-size="16" font-weight="400" fill="rgba(255,255,255,0.3)" text-anchor="middle">|</text>
+  <text x="600" y="612" font-family="Inter, Helvetica, sans-serif" font-size="16" font-weight="700" fill="rgba(255,255,255,0.7)" text-anchor="middle">+42 Avg Score Improvement</text>
+  <text x="740" y="612" font-family="Inter, Helvetica, sans-serif" font-size="16" font-weight="400" fill="rgba(255,255,255,0.3)" text-anchor="middle">|</text>
+  <text x="900" y="612" font-family="Inter, Helvetica, sans-serif" font-size="16" font-weight="700" fill="rgba(255,255,255,0.7)" text-anchor="middle">Results in 60 Seconds</text>
+
+  <!-- URL -->
+  <text x="600" y="410" font-family="Inter, Helvetica, sans-serif" font-size="18" font-weight="600" fill="rgba(255,255,255,0.35)" text-anchor="middle">profileroaster.in</text>
+
+  <!-- Orange bottom accent -->
+  <rect x="0" y="624" width="1200" height="6" fill="#E16B00"/>
+</svg>
