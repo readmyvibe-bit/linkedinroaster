@@ -1780,22 +1780,23 @@ function esc(s?: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function printPageWrapper(body: string): string {
+function printPageWrapper(body: string, pageCount?: number): string {
+  const onePage = pageCount === 1;
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><title> </title><style>
-@page{size:A4;margin:0}
+@page{size:A4;margin:${onePage ? '8mm 10mm' : '0'}}
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:210mm;height:auto;overflow:visible;margin:0;padding:0}
+html,body{width:210mm;height:auto;overflow:${onePage ? 'hidden' : 'visible'};margin:0;padding:0}
+${onePage ? 'html,body{max-height:297mm}' : ''}
 body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
-.resume-wrapper{width:210mm;min-height:297mm;position:relative;overflow:visible}
+.resume-wrapper{width:210mm;${onePage ? 'max-height:280mm;overflow:hidden' : 'min-height:297mm'};position:relative}
 .two-col{display:table;width:100%;table-layout:fixed;border-collapse:collapse}
 .two-col-left{display:table-cell;vertical-align:top}
 .two-col-right{display:table-cell;vertical-align:top}
 @media print{
-  html,body{width:210mm;margin:0;padding:0}
+  html,body{width:210mm;margin:0;padding:0;${onePage ? 'max-height:297mm;overflow:hidden' : ''}}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-  .resume-wrapper{width:100%;page-break-inside:auto}
-  .two-col{page-break-inside:auto}
-  .two-col-left,.two-col-right{page-break-inside:auto}
+  .resume-wrapper{width:100%;page-break-inside:${onePage ? 'avoid' : 'auto'}}
+  .two-col{page-break-inside:${onePage ? 'avoid' : 'auto'}}
   .entry{page-break-inside:avoid}
 }
 </style></head><body style="-webkit-print-color-adjust:exact;print-color-adjust:exact">${body}</body></html>`;
@@ -2584,28 +2585,41 @@ function printIndigo(data: ResumeData): string {
   return printPageWrapper(h);
 }
 
-export function buildPrintHTML(data: ResumeData, templateId: string): string {
+export function buildPrintHTML(data: ResumeData, templateId: string, pageCount?: number): string {
+  let html: string;
   switch (templateId) {
-    case 'modern': return printModern(data);
-    case 'minimal': return printMinimal(data);
-    case 'executive': return printExecutive(data);
-    case 'compact': return printCompact(data);
-    case 'bold': return printBold(data);
-    case 'elegant': return printElegant(data);
-    case 'technical': return printTechnical(data);
-    case 'sidebar': return printSidebar(data);
-    case 'splitmodern': return printSplitModern(data);
-    case 'highlight': return printHighlight(data);
-    case 'corporate': return printCorporate(data);
-    case 'monochrome': return printMonochrome(data);
-    case 'serif': return printSerif(data);
-    case 'headline': return printHeadline(data);
-    case 'divider': return printDivider(data);
-    case 'crimson': return printCrimson(data);
-    case 'ocean': return printOcean(data);
-    case 'slategold': return printSlateGold(data);
-    case 'indigo': return printIndigo(data);
+    case 'modern': html = printModern(data); break;
+    case 'minimal': html = printMinimal(data); break;
+    case 'executive': html = printExecutive(data); break;
+    case 'compact': html = printCompact(data); break;
+    case 'bold': html = printBold(data); break;
+    case 'elegant': html = printElegant(data); break;
+    case 'technical': html = printTechnical(data); break;
+    case 'sidebar': html = printSidebar(data); break;
+    case 'splitmodern': html = printSplitModern(data); break;
+    case 'highlight': html = printHighlight(data); break;
+    case 'corporate': html = printCorporate(data); break;
+    case 'monochrome': html = printMonochrome(data); break;
+    case 'serif': html = printSerif(data); break;
+    case 'headline': html = printHeadline(data); break;
+    case 'divider': html = printDivider(data); break;
+    case 'crimson': html = printCrimson(data); break;
+    case 'ocean': html = printOcean(data); break;
+    case 'slategold': html = printSlateGold(data); break;
+    case 'indigo': html = printIndigo(data); break;
     case 'classic':
-    default: return printClassic(data);
+    default: html = printClassic(data); break;
   }
+
+  // Enforce 1-page limit if requested
+  if (pageCount === 1) {
+    html = html.replace('</style>', `
+      html,body{max-height:297mm!important;overflow:hidden!important}
+      .resume-wrapper{max-height:280mm!important;overflow:hidden!important}
+      @page{margin:8mm 10mm!important}
+      @media print{html,body{max-height:297mm!important;overflow:hidden!important}}
+    </style>`);
+  }
+
+  return html;
 }

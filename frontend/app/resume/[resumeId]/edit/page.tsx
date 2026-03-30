@@ -81,14 +81,26 @@ function getScoreColor(score: number): string {
   return '#CC1016';
 }
 
-function normalizeSkills(skills: SkillCategory[] | string[] | undefined): {
+function normalizeSkills(skills: any): {
   technical: string[];
   soft: string[];
   languages: string[];
   certifications: string[];
 } {
   const result = { technical: [] as string[], soft: [] as string[], languages: [] as string[], certifications: [] as string[] };
-  if (!skills || !skills.length) return result;
+  if (!skills) return result;
+
+  // Handle object format: { technical: [], soft: [], languages: [], certifications: [] }
+  if (!Array.isArray(skills) && typeof skills === 'object') {
+    if (skills.technical) result.technical = Array.isArray(skills.technical) ? skills.technical : [];
+    if (skills.soft) result.soft = Array.isArray(skills.soft) ? skills.soft : [];
+    if (skills.languages) result.languages = Array.isArray(skills.languages) ? skills.languages : [];
+    if (skills.certifications) result.certifications = Array.isArray(skills.certifications) ? skills.certifications : [];
+    return result;
+  }
+
+  // Handle array format
+  if (!Array.isArray(skills) || !skills.length) return result;
   if (typeof skills[0] === 'string') {
     result.technical = skills as string[];
     return result;

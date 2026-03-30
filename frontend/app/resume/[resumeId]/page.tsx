@@ -103,7 +103,7 @@ export default function ResumePreviewPage() {
 
   function handleDownloadPDF() {
     if (!resume) return;
-    const html = buildPrintHTML(resume.resume_data, templateId);
+    const html = buildPrintHTML(resume.resume_data, templateId, resume.page_count || 2);
     const win = window.open('', '_blank');
     if (!win) return;
     win.document.write(html);

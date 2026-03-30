@@ -78,7 +78,7 @@ ${uploadedResumeText ? uploadedResumeText.slice(0, 4000) : 'No uploaded resume.'
 4. PERSONAL INFO: Use Source 3 for name, phone, email if available. Fall back to user-provided details.
 5. SKILLS: Merge skills from all 3 sources. Remove duplicates.
 6. ACHIEVEMENTS: Include achievements from Source 3 that aren't already in experience bullets.
-7. NEVER FABRICATE: Do not invent any degree, institution, company, or achievement not in any source.
+7. NEVER FABRICATE: Do not invent any degree, institution, company, achievement, or certification not explicitly stated in any source. If no certifications exist in any source, return an empty certifications array. Do NOT guess or generate certifications.
 
 CONTACT INFO:
 Name: ${input.userDetails.name}
