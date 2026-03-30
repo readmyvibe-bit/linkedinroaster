@@ -306,10 +306,9 @@ function OrderDetailModal({
     setSendingEmail(false);
   }
 
-  const s = order;
-  const roast = s.roast;
-  const rewrite = s.rewrite;
-  const scoring = s.scoring || s.score_breakdown;
+  const s = order || {};
+  const roast = s.roast || null;
+  const rewrite = s.rewrite || null;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
@@ -521,6 +520,10 @@ function OrdersScreen() {
   async function openDetail(orderId: string) {
     try {
       const data = await apiFetchJson(`/api/admin/orders/${orderId}`);
+      if (!data || data.error) {
+        setToast({ message: data?.error || 'Failed to load order', type: 'error' });
+        return;
+      }
       setSelected(data);
     } catch (err) {
       setToast({ message: 'Failed to load order details', type: 'error' });
