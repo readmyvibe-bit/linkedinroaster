@@ -875,7 +875,7 @@ export default function Home() {
       )}
 
       {/* ─── Pricing ─── */}
-      {(showPricing || teaser) && (
+      {(showPricing || teaser) && !selectedPlan && (
         <section ref={pricingRef} className="max-w-3xl mx-auto px-4 py-12">
           <h2
             className="text-2xl font-bold text-center mb-2"
