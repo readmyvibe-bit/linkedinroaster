@@ -77,14 +77,14 @@ function buildPrintHTML(data: any): string {
   if (data.experience?.length) {
     experienceHTML = `
       <div class="section-header">WORK EXPERIENCE</div>
-      ${data.experience.map(exp => `
+      ${data.experience.map((exp: any) => `
         <div style="margin-bottom:12px;">
           <div style="display:flex;justify-content:space-between;align-items:baseline;">
             <div style="font-size:12px;font-weight:700;color:#111827;">${exp.role || exp.title || ''}${exp.company ? ' — ' + exp.company : ''}</div>
             <div style="font-size:11px;font-style:italic;color:#666;white-space:nowrap;margin-left:12px;">${exp.dates || (exp.start_date ? exp.start_date + (exp.end_date ? ' - ' + exp.end_date : ' - Present') : '')}</div>
           </div>
           ${exp.location ? `<div style="font-size:11px;color:#888;">${exp.location}</div>` : ''}
-          ${exp.bullets?.length ? `<div style="padding-left:16px;margin-top:4px;">${exp.bullets.map(b => `<div style="font-size:11px;color:#374151;line-height:1.5;">• ${b}</div>`).join('')}</div>` : ''}
+          ${exp.bullets?.length ? `<div style="padding-left:16px;margin-top:4px;">${exp.bullets.map((b: any) => `<div style="font-size:11px;color:#374151;line-height:1.5;">• ${b}</div>`).join('')}</div>` : ''}
         </div>
       `).join('')}
     `;
@@ -94,7 +94,7 @@ function buildPrintHTML(data: any): string {
   if (data.education?.length) {
     educationHTML = `
       <div class="section-header">EDUCATION</div>
-      ${data.education.map(edu => `
+      ${data.education.map((edu: any) => `
         <div style="margin-bottom:8px;">
           <div style="font-size:12px;font-weight:700;color:#111827;">${edu.degree || ''}${edu.institution || edu.school ? ' — ' + (edu.institution || edu.school) : ''}</div>
           <div style="font-size:11px;color:#666;">${[edu.field, edu.year || edu.dates].filter(Boolean).join(' • ')}</div>
@@ -110,7 +110,7 @@ function buildPrintHTML(data: any): string {
       <div style="font-size:11px;color:#374151;line-height:1.6;">
         ${Array.isArray(data.skills) && typeof data.skills[0] === 'string'
           ? (data.skills as string[]).join(', ')
-          : (data.skills as SkillCategory[]).map(s => `<div><strong>${s.category || ''}:</strong> ${(s.skills || []).join(', ')}</div>`).join('')
+          : (data.skills as any[]).map((s: any) => `<div><strong>${s.category || ''}:</strong> ${(s.skills || []).join(', ')}</div>`).join('')
         }
       </div>
     `;
@@ -121,7 +121,7 @@ function buildPrintHTML(data: any): string {
     achievementsHTML = `
       <div class="section-header">ACHIEVEMENTS</div>
       <div style="padding-left:16px;">
-        ${data.achievements.map(a => `<div style="font-size:11px;color:#374151;line-height:1.5;">• ${a}</div>`).join('')}
+        ${data.achievements.map((a: any) => `<div style="font-size:11px;color:#374151;line-height:1.5;">• ${a}</div>`).join('')}
       </div>
     `;
   }
