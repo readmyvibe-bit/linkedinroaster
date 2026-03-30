@@ -104,21 +104,12 @@ export default function ResumePreviewPage() {
   function handleDownloadPDF() {
     if (!resume) return;
     const html = buildPrintHTML(resume.resume_data, templateId);
-    // Add a tip overlay that disappears on print
-    const tipHTML = html.replace('</body>', `
-      <div id="print-tip" style="position:fixed;top:0;left:0;right:0;background:#FEF3C7;border-bottom:2px solid #F59E0B;padding:12px 20px;z-index:9999;font-family:Arial;font-size:13px;color:#92400E;text-align:center">
-        <strong>Important:</strong> In the print dialog, enable <strong>"Background graphics"</strong> (Chrome) or <strong>"Print backgrounds"</strong> (Firefox/Safari) to preserve colors and styling. Then select <strong>"Save as PDF"</strong>.
-        <style>@media print{#print-tip{display:none!important}}</style>
-      </div>
-    </body>`);
     const win = window.open('', '_blank');
     if (!win) return;
-    win.document.write(tipHTML);
+    win.document.write(html);
     win.document.close();
     win.document.title = ' ';
-    setTimeout(() => {
-      win.print();
-    }, 600);
+    setTimeout(() => { win.print(); }, 600);
   }
 
   function handleDownloadCoverLetterPDF() {

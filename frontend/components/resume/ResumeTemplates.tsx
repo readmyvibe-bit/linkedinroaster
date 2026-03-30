@@ -1128,14 +1128,15 @@ function esc(s?: string): string {
 
 function printPageWrapper(body: string): string {
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><title> </title><style>
-@page{size:A4;margin:15mm}
+@page{size:A4;margin:10mm 12mm}
 *{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:auto;overflow:visible}
 body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
 @media print{
   body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   .sidebar{break-inside:avoid}
-  .no-break{break-inside:avoid}
+  .no-break{break-inside:avoid;page-break-inside:avoid}
 }
 </style></head><body style="-webkit-print-color-adjust:exact;print-color-adjust:exact">${body}</body></html>`;
 }
@@ -1185,7 +1186,7 @@ function printClassic(data: ResumeData): string {
   const dateS = 'font-size:10px;color:#666;font-style:italic';
   const titleS = 'font-weight:700;color:#111';
   const hdr = (t: string) => `<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#374151;border-bottom:1px solid #D1D5DB;padding-bottom:2px;margin-bottom:6px">${t}</div>`;
-  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#374151;padding:40px;max-width:800px">`;
+  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#374151;padding:40px;max-width:100%">`;
   h += `<div style="margin-bottom:12px"><div style="font-size:26px;font-weight:700;color:#111;text-align:left">${esc(c.name) || 'Your Name'}</div>`;
   if (cp) h += `<div style="font-size:10px;color:#555;margin-top:4px">${cp}</div>`;
   h += `</div><div style="border-bottom:1px solid #D1D5DB;margin-bottom:14px"></div>`;
@@ -1210,7 +1211,7 @@ function printModern(data: ResumeData): string {
   const titleS = 'font-weight:700;color:#111';
   const hdr = (t: string) => `<div style="font-size:12px;font-weight:700;color:#0A66C2;margin-bottom:6px">${t}</div>`;
   const allSkills = flattenSkills(data.skills);
-  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#374151;padding:40px 40px 40px 44px;max-width:800px;border-left:4px solid #0A66C2">`;
+  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#374151;padding:40px 40px 40px 44px;max-width:100%;border-left:4px solid #0A66C2">`;
   h += `<div style="margin-bottom:16px"><div style="font-size:28px;font-weight:700;color:#0A66C2">${esc(c.name) || 'Your Name'}</div>`;
   if (cp) h += `<div style="font-size:10px;color:#555;margin-top:4px">${cp}</div>`;
   h += `</div>`;
@@ -1235,7 +1236,7 @@ function printMinimal(data: ResumeData): string {
   const dateS = 'font-size:10px;color:#999;font-style:italic';
   const titleS = 'font-weight:700;color:#111';
   const hdr = (t: string) => `<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#9CA3AF;letter-spacing:4px;margin-bottom:10px">${t}</div>`;
-  let h = `<div style="font-family:Georgia,'Times New Roman',serif;font-size:11px;line-height:1.6;color:#374151;padding:40px;max-width:800px">`;
+  let h = `<div style="font-family:Georgia,'Times New Roman',serif;font-size:11px;line-height:1.6;color:#374151;padding:40px;max-width:100%">`;
   h += `<div style="text-align:center;margin-bottom:24px"><div style="font-size:22px;font-weight:700;color:#111">${esc(c.name) || 'Your Name'}</div>`;
   if (cp) h += `<div style="font-size:10px;color:#888;margin-top:6px">${cp}</div>`;
   h += `</div><div style="border-bottom:0.5px solid #E5E7EB;margin-bottom:32px"></div>`;
@@ -1258,7 +1259,7 @@ function printExecutive(data: ResumeData): string {
   const dateS = 'font-size:10px;color:#666;font-style:italic';
   const titleS = 'font-weight:700;color:#111827';
   const hdr = (t: string) => `<div style="font-size:13px;font-variant:small-caps;color:#374151;border-bottom:3px double #D1D5DB;padding-bottom:4px;margin-bottom:10px;letter-spacing:1px">${t}</div>`;
-  let h = `<div style="font-family:Georgia,'Times New Roman',serif;font-size:12px;line-height:1.6;color:#374151;padding:48px;max-width:800px">`;
+  let h = `<div style="font-family:Georgia,'Times New Roman',serif;font-size:12px;line-height:1.6;color:#374151;padding:48px;max-width:100%">`;
   h += `<div style="text-align:center;margin-bottom:10px"><div style="font-size:30px;font-weight:700;color:#111827">${esc(c.name) || 'Your Name'}</div><div style="width:60px;height:2px;background:#D4A574;margin:8px auto"></div>`;
   if (cp) h += `<div style="font-size:10px;color:#666;margin-top:6px">${cp}</div>`;
   h += `</div><div style="height:20px"></div>`;
@@ -1280,7 +1281,7 @@ function printCompact(data: ResumeData): string {
   const cp = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean).map(esc).join(' | ');
   const allSkills = flattenSkills(data.skills);
   const hdr = (t: string) => `<div style="font-size:9px;font-weight:700;text-transform:uppercase;color:#555;border-bottom:0.5px solid #E5E7EB;padding-bottom:1px;margin-bottom:3px">${t}</div>`;
-  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;line-height:1.4;color:#333;padding:24px 32px;max-width:800px">`;
+  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;line-height:1.4;color:#333;padding:24px 32px;max-width:100%">`;
   h += `<div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;margin-bottom:6px"><div style="font-size:20px;font-weight:700;color:#111">${esc(c.name) || 'Your Name'}</div>`;
   if (cp) h += `<div style="font-size:9px;color:#666;text-align:right">${cp}</div>`;
   h += `</div><div style="border-bottom:0.5px solid #D1D5DB;margin-bottom:6px"></div>`;
@@ -1328,7 +1329,7 @@ function printBold(data: ResumeData): string {
   const dateS = 'font-size:10px;color:#666;font-style:italic';
   const titleS = 'font-weight:700;color:#111;font-size:12px';
   const hdr = (t: string) => `<div style="font-size:14px;font-weight:700;color:#057642;border-left:4px solid #057642;padding-left:12px;margin-bottom:8px">${t}</div>`;
-  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#333;padding:40px;max-width:800px">`;
+  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#333;padding:40px;max-width:100%">`;
   h += `<div style="margin-bottom:6px"><div style="font-size:34px;font-weight:800;color:#111">${esc(c.name) || 'Your Name'}</div><div style="width:100%;height:4px;background:#057642;margin-top:6px;margin-bottom:8px"></div>`;
   if (cp) h += `<div style="font-size:10px;color:#666">${cp}</div>`;
   h += `</div><div style="height:16px"></div>`;
@@ -1368,7 +1369,7 @@ function printElegant(data: ResumeData): string {
   const dateS = 'font-size:10px;color:#999;font-style:italic';
   const titleS = 'font-weight:700;color:#222';
   const hdr = (t: string) => `<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#666;letter-spacing:3px;background:#F8F9FA;padding:6px 12px;border-radius:4px;margin-bottom:10px">${t}</div>`;
-  let h = `<div style="font-family:Georgia,'Times New Roman',serif;font-size:11px;line-height:1.6;color:#444;padding:40px;max-width:800px">`;
+  let h = `<div style="font-family:Georgia,'Times New Roman',serif;font-size:11px;line-height:1.6;color:#444;padding:40px;max-width:100%">`;
   h += `<div style="text-align:center;margin-bottom:18px"><div style="font-size:24px;font-weight:400;color:#111;letter-spacing:2px">${esc(c.name) || 'Your Name'}</div>`;
   if (cp) h += `<div style="font-size:10px;color:#888;margin-top:8px">${cp}</div>`;
   h += `</div><div style="border-bottom:0.5px solid #E5E7EB;margin-bottom:20px"></div>`;
@@ -1392,7 +1393,7 @@ function printTechnical(data: ResumeData): string {
   const titleS = 'font-weight:700;color:#111';
   const hdr = (t: string) => `<div style="font-size:12px;font-weight:700;color:#0A66C2;font-family:'Courier New',Courier,monospace;margin-bottom:8px">// ${t}</div>`;
   const skillGroups = normalizeSkills(data.skills);
-  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#333;padding:40px;max-width:800px">`;
+  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#333;padding:40px;max-width:100%">`;
   h += `<div style="margin-bottom:14px"><div style="font-size:24px;font-weight:700;color:#111">${esc(c.name) || 'Your Name'}</div>`;
   if (cp) h += `<div style="font-size:10px;color:#666;font-family:'Courier New',Courier,monospace;margin-top:4px">${cp}</div>`;
   h += `</div><div style="border-bottom:1px solid #E5E7EB;margin-bottom:16px"></div>`;
@@ -1421,7 +1422,7 @@ function printSidebar(data: ResumeData): string {
   const mainHdr = (t: string) => `<div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#1E293B;border-bottom:2px solid #1E293B;padding-bottom:3px;margin-bottom:8px">${t}</div>`;
   const sideHdr = (t: string) => `<div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.5);margin-bottom:8px">${t}</div>`;
 
-  let sidebar = `<div class="sidebar" style="width:30%;background:#1E293B;color:#fff;padding:32px 20px;min-height:600px">`;
+  let sidebar = `<div class="sidebar" style="width:30%;background:#1E293B;color:#fff;padding:32px 20px;min-height:auto">`;
   sidebar += `<div style="font-size:20px;font-weight:700;margin-bottom:4px">${esc(c.name) || 'Your Name'}</div>`;
   sidebar += `<div style="border-bottom:1px solid rgba(255,255,255,0.2);margin:12px 0"></div>`;
   if (contactParts.length) {
@@ -1455,7 +1456,7 @@ function printSidebar(data: ResumeData): string {
   if (ach) main += `<div style="margin-bottom:20px">${mainHdr('Achievements')}${ach}</div>`;
   main += `</div>`;
 
-  return printPageWrapper(`<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;display:flex;max-width:800px">${sidebar}${main}</div>`);
+  return printPageWrapper(`<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;display:flex;max-width:100%">${sidebar}${main}</div>`);
 }
 
 // ─── Print: Split Modern ────────────────────────────────────────────────────
@@ -1467,12 +1468,12 @@ function printSplitModern(data: ResumeData): string {
   const mainHdr = (t: string) => `<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#0F172A;border-bottom:1px solid #E2E8F0;padding-bottom:3px;margin-bottom:8px">${t}</div>`;
   const sideHdr = (t: string) => `<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#64748B;letter-spacing:1px;margin-bottom:8px">${t}</div>`;
 
-  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;max-width:800px">`;
+  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;max-width:100%">`;
   h += `<div style="padding:28px 28px 16px;border-bottom:2px solid #E2E8F0"><div style="font-size:26px;font-weight:700;color:#0F172A">${esc(c.name) || 'Your Name'}</div></div>`;
   h += `<div style="display:flex">`;
 
   // Left panel
-  h += `<div class="sidebar" style="width:35%;background:#F1F5F9;padding:24px 20px;min-height:500px">`;
+  h += `<div class="sidebar" style="width:35%;background:#F1F5F9;padding:24px 20px;min-height:auto">`;
   if (contactParts.length) {
     h += `<div style="margin-bottom:20px">${sideHdr('Contact')}`;
     contactParts.forEach(p => { h += `<div style="font-size:10px;color:#475569;margin-bottom:4px;word-break:break-all">${esc(p)}</div>`; });
@@ -1519,7 +1520,7 @@ function printHighlight(data: ResumeData): string {
   const mainHdr = (t: string) => `<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#004182;border-bottom:2px solid #004182;padding-bottom:3px;margin-bottom:8px">${t}</div>`;
   const sideHdr = (t: string) => `<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#004182;border-bottom:2px solid #004182;padding-bottom:3px;margin-bottom:8px">${t}</div>`;
 
-  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;max-width:800px">`;
+  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;max-width:100%">`;
   // Header
   h += `<div style="background:#004182;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;min-height:60px;flex-wrap:wrap"><div style="font-size:24px;font-weight:700;color:#fff">${esc(c.name) || 'Your Name'}</div>`;
   if (cp) h += `<div style="font-size:10px;color:rgba(255,255,255,0.7);text-align:right">${cp}</div>`;
@@ -1532,7 +1533,7 @@ function printHighlight(data: ResumeData): string {
   if (data.experience?.length) h += `<div style="margin-bottom:18px">${mainHdr('Experience')}${buildExpHTML(data, '&bull;', 'font-size:10px;color:#888;font-style:italic', 'color:#555;font-style:italic;font-size:10px', 'font-weight:700;color:#111')}</div>`;
   h += `</div>`;
   // Right panel
-  h += `<div class="sidebar" style="width:35%;background:#F0F7FF;padding:24px 20px;min-height:400px">`;
+  h += `<div class="sidebar" style="width:35%;background:#F0F7FF;padding:24px 20px;min-height:auto">`;
   if (skillGroups.length) {
     h += `<div style="margin-bottom:18px">${sideHdr('Skills')}`;
     skillGroups.forEach(g => {
@@ -1566,15 +1567,15 @@ function printCorporate(data: ResumeData): string {
   const mainHdr = (t: string) => `<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#0F172A;border-bottom:1px solid #CBD5E1;padding-bottom:3px;margin-bottom:8px">${t}</div>`;
   const sideHdr = (t: string) => `<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#0F172A;letter-spacing:1px;border-bottom:1px solid #CBD5E1;padding-bottom:3px;margin-bottom:8px">${t}</div>`;
 
-  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;max-width:800px">`;
+  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;max-width:100%">`;
   // Header band
-  h += `<div style="background:#0F172A;padding:20px 28px;min-height:80px;display:flex;flex-direction:column;justify-content:center"><div style="font-size:28px;font-weight:700;color:#fff">${esc(c.name) || 'Your Name'}</div>`;
+  h += `<div style="background:#0F172A;padding:16px 28px;display:flex;flex-direction:column;justify-content:center"><div style="font-size:24px;font-weight:700;color:#fff">${esc(c.name) || 'Your Name'}</div>`;
   if (cp) h += `<div style="font-size:10px;color:rgba(255,255,255,0.6);margin-top:6px">${cp}</div>`;
   h += `</div>`;
   // Body
   h += `<div style="display:flex">`;
   // Left sidebar
-  h += `<div class="sidebar" style="width:28%;background:#F8FAFC;padding:24px 18px;min-height:500px;border-right:1px solid #E2E8F0">`;
+  h += `<div class="sidebar" style="width:28%;background:#F8FAFC;padding:24px 18px;min-height:auto;border-right:1px solid #E2E8F0">`;
   if (skillGroups.length) {
     h += `<div style="margin-bottom:20px">${sideHdr('Skills')}`;
     skillGroups.forEach(g => {

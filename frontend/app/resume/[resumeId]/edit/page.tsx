@@ -374,15 +374,9 @@ export default function ResumeEditorPage() {
   function handleDownloadPDF() {
     if (!resumeData) return;
     const html = buildPrintHTML(resumeData, templateId);
-    const tipHTML = html.replace('</body>', `
-      <div id="print-tip" style="position:fixed;top:0;left:0;right:0;background:#FEF3C7;border-bottom:2px solid #F59E0B;padding:12px 20px;z-index:9999;font-family:Arial;font-size:13px;color:#92400E;text-align:center">
-        <strong>Important:</strong> Enable <strong>"Background graphics"</strong> in print settings to preserve colors. Then select <strong>"Save as PDF"</strong>.
-        <style>@media print{#print-tip{display:none!important}}</style>
-      </div>
-    </body>`);
     const win = window.open('', '_blank');
     if (!win) return;
-    win.document.write(tipHTML);
+    win.document.write(html);
     win.document.close();
     win.document.title = ' ';
     setTimeout(() => { win.print(); }, 600);
