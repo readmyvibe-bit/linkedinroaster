@@ -120,6 +120,7 @@ function ResumeFormContent() {
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [uploadError, setUploadError] = useState('');
+  const [uploadedText, setUploadedText] = useState('');
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -199,6 +200,7 @@ function ResumeFormContent() {
         experienceYears: totalExperience,
         templateId: template,
         pageCount: parseInt(resumeLength) || 2,
+        uploadedResumeText: uploadedText || undefined,
       };
       const res = await fetch(`${API_URL}/api/resume/generate`, {
         method: 'POST',
@@ -245,6 +247,8 @@ function ResumeFormContent() {
       if (parsed.certifications) setCertifications(parsed.certifications);
       if (parsed.languages) setLanguages(parsed.languages);
       if (parsed.summary) setKeyAchievements(parsed.summary);
+      // Store full parsed text for resume generation
+      if (data.rawText) setUploadedText(data.rawText);
       setUploadSuccess(true);
     } catch (err: unknown) {
       setUploadError(err instanceof Error ? err.message : 'Failed to parse resume');

@@ -65,7 +65,7 @@ router.post('/upload-parse', upload.single('file'), async (req: Request, res: Re
     // Use AI to parse into structured data
     const parsed = await parseUploadedResume(text);
 
-    res.json({ parsed, rawTextLength: text.length });
+    res.json({ parsed, rawTextLength: text.length, rawText: text.slice(0, 5000) });
   } catch (err: any) {
     console.error('Upload parse error:', err.message, err.stack?.slice(0, 300));
     res.status(500).json({ error: `Failed to parse: ${err.message?.slice(0, 100)}` });
@@ -77,7 +77,7 @@ router.post('/generate', async (req: Request, res: Response) => {
   try {
     const { orderId, userDetails, targetRole, targetCompany, jobDescription,
       additionalAchievements, certifications, languages, experienceYears,
-      templateId, pageCount } = req.body;
+      templateId, pageCount, uploadedResumeText } = req.body;
 
     if (!orderId) return res.status(400).json({ error: 'Missing orderId' });
     if (!targetRole) return res.status(400).json({ error: 'Missing target role' });
@@ -89,7 +89,7 @@ router.post('/generate', async (req: Request, res: Response) => {
     const result = await generateResume({
       orderId, userDetails, targetRole, targetCompany, jobDescription,
       additionalAchievements, certifications, languages, experienceYears,
-      templateId, pageCount,
+      templateId, pageCount, uploadedResumeText,
     });
 
     res.json(result);
