@@ -2131,6 +2131,25 @@ export default function ResultsPage() {
         {/* Placeholder Guide */}
         <PlaceholderGuide placeholders={rewrite.placeholders_to_fill} />
 
+        {/* Resume Builder CTA */}
+        {isPro ? (
+          <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderLeft: '4px solid #0A66C2', borderRadius: 12, padding: '20px 24px', marginTop: 24, marginBottom: 24 }}>
+            <h3 style={{ fontSize: 18, fontWeight: 800, color: '#1E40AF', marginBottom: 8 }}>Build Your ATS Resume</h3>
+            <p style={{ fontSize: 14, color: '#444', lineHeight: 1.6, marginBottom: 16 }}>
+              Your profile rewrite is ready. Turn it into an ATS-optimized resume for any job. Paste a job description and get a complete, downloadable resume in 60 seconds.
+            </p>
+            <a href={`/resume?orderId=${orderId}`} style={{ display: 'inline-block', background: '#0A66C2', color: 'white', padding: '12px 28px', borderRadius: 50, fontSize: 15, fontWeight: 700, textDecoration: 'none' }}>
+              Build My Resume &rarr;
+            </a>
+            <p style={{ fontSize: 12, color: '#888', marginTop: 8 }}>Included in your Pro plan</p>
+          </div>
+        ) : (
+          <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 24px', marginTop: 24, marginBottom: 24, textAlign: 'center' }}>
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: '#374151', marginBottom: 8 }}>Want an ATS Resume?</h3>
+            <p style={{ fontSize: 13, color: '#666', marginBottom: 16 }}>Upgrade to Pro to build ATS-optimized resumes for any job description.</p>
+          </div>
+        )}
+
         {/* Share */}
         <ShareButtons
           caption={roast.linkedin_caption}

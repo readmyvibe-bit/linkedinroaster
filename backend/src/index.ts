@@ -12,6 +12,7 @@ import { teaserAnalysis } from './ai/teaser';
 import { trackPaymentInitiated, trackPaymentCompleted, trackUpgradeCompleted } from './services/analytics';
 import { startAllCrons } from './cron';
 import adminRouter from './routes/admin';
+import resumeRouter from './routes/resume';
 import { generateAndUploadRoastSheet } from './services/card-generator';
 dotenv.config();
 
@@ -102,6 +103,7 @@ function stripHtml(text: string | undefined): string | undefined {
 
 // --- Admin routes ---
 app.use('/api/admin', adminRouter);
+app.use('/api/resume', resumeRouter);
 
 // ==================== ROUTES ====================
 
