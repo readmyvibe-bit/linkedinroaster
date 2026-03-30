@@ -450,7 +450,7 @@ export default function Home() {
       <div className="relative max-w-5xl mx-auto overflow-visible px-6">
         <FloatingCards />
 
-        <section className="relative z-10 max-w-2xl mx-auto text-center px-4 pt-12 pb-8">
+        <section className="relative z-10 max-w-4xl mx-auto text-center px-4 pt-12 pb-8">
           {/* CHANGE 1 — Headline */}
           <h1 className="leading-tight mb-1" style={{ fontSize: 36, fontWeight: 900, color: '#191919' }}>
             Your LinkedIn Profile is Costing You
@@ -581,7 +581,7 @@ export default function Home() {
       </div>
 
       {/* ─── CHANGE 6 — Value Cards ─── */}
-      {!submitted && <div className="max-w-2xl mx-auto px-4 py-6">
+      {!submitted && <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: 20, textAlign: 'center' }}>
             <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(232,82,10,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 22 }}>
@@ -609,7 +609,7 @@ export default function Home() {
 
       {/* ─── Teaser Result ─── */}
       {teaser && (
-        <section ref={resultRef} className="max-w-2xl mx-auto px-4 pb-8" style={{ animation: 'resultAppear 0.5s ease forwards' }}>
+        <section ref={resultRef} className="max-w-4xl mx-auto px-4 pb-8" style={{ animation: 'resultAppear 0.5s ease forwards' }}>
           {/* Score card */}
           <div
             className="p-6 rounded-lg mb-4"
@@ -874,7 +874,7 @@ export default function Home() {
 
       {/* ─── Profile Input Form (after plan selection) ─── */}
       {selectedPlan && (
-        <section ref={inputFormRef} className="max-w-2xl mx-auto px-4 pb-12">
+        <section ref={inputFormRef} className="max-w-4xl mx-auto px-4 pb-12">
           <ProfileInputForm
             plan={selectedPlan}
             teaserId={teaser?.teaser_id || null}
@@ -884,7 +884,7 @@ export default function Home() {
       )}
 
       {/* ─── What You Get — Full Feature Showcase ─── */}
-      <section style={{ maxWidth: 700, margin: '40px auto 0', padding: '0 16px' }}>
+      <section style={{ maxWidth: 900, margin: '40px auto 0', padding: '0 16px' }}>
         <h2 style={{ fontSize: 24, fontWeight: 800, color: '#191919', textAlign: 'center', marginBottom: 8 }}>
           What You Get
         </h2>
@@ -905,6 +905,15 @@ export default function Home() {
                 </div>
               ))}
             </div>
+            <button
+              onClick={() => { handlePlanSelect('standard'); }}
+              style={{
+                width: '100%', marginTop: 16, padding: '12px', background: '#E16B00', color: 'white',
+                border: 'none', borderRadius: 50, fontSize: 15, fontWeight: 700, cursor: 'pointer',
+              }}
+            >
+              Roast My Profile &#8594;
+            </button>
           </div>
 
           {/* Pro */}
@@ -919,12 +928,21 @@ export default function Home() {
                 </div>
               ))}
             </div>
+            <button
+              onClick={() => { handlePlanSelect('pro'); }}
+              style={{
+                width: '100%', marginTop: 16, padding: '12px', background: '#0A66C2', color: 'white',
+                border: 'none', borderRadius: 50, fontSize: 15, fontWeight: 700, cursor: 'pointer',
+              }}
+            >
+              Roast + Build My Resume &#8594;
+            </button>
           </div>
         </div>
       </section>
 
       {/* ─── ATS Resume Showcase ─── */}
-      <section style={{ maxWidth: 700, margin: '32px auto 0', padding: '0 16px' }}>
+      <section style={{ maxWidth: 900, margin: '32px auto 0', padding: '0 16px' }}>
         <div style={{
           background: 'white', border: '1px solid #E0E0E0', borderRadius: 16,
           overflow: 'hidden',
@@ -957,7 +975,7 @@ export default function Home() {
             {/* Mock resume preview */}
             <div style={{ border: '1px solid #E5E7EB', borderRadius: 8, padding: 16, background: '#FAFBFC' }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: '#111827', marginBottom: 4 }}>Priya Mehta</div>
-              <div style={{ fontSize: 10, color: '#888', marginBottom: 10 }}>priya@email.com &bull; +91 98765 43210 &bull; Mumbai</div>
+              <div style={{ fontSize: 10, color: '#888', marginBottom: 10 }}>priya@email.com &bull; +91 &bull;&bull;&bull;&bull;&bull;43210 &bull; Mumbai</div>
               <div style={{ height: 1, background: '#E5E7EB', marginBottom: 10 }} />
               <div style={{ fontSize: 9, fontWeight: 700, color: '#374151', letterSpacing: 2, marginBottom: 6, textTransform: 'uppercase' as const }}>Professional Summary</div>
               <div style={{ fontSize: 10, color: '#555', lineHeight: 1.5, marginBottom: 10 }}>Full-stack engineer with 5+ years building scalable React/Node applications. Led migration of monolith to microservices reducing deploy time by 73%...</div>
@@ -988,7 +1006,7 @@ export default function Home() {
       </section>
 
       {/* ─── How It Works ─── */}
-      <section style={{ maxWidth: 700, margin: '32px auto 0', padding: '0 16px' }}>
+      <section style={{ maxWidth: 900, margin: '32px auto 0', padding: '0 16px' }}>
         <h2 style={{ fontSize: 20, fontWeight: 800, color: '#191919', textAlign: 'center', marginBottom: 20 }}>
           How It Works
         </h2>
@@ -1009,7 +1027,7 @@ export default function Home() {
       </section>
 
       {/* ─── Testimonial/Social Proof ─── */}
-      <section style={{ maxWidth: 700, margin: '32px auto 0', padding: '0 16px' }}>
+      <section style={{ maxWidth: 900, margin: '32px auto 0', padding: '0 16px' }}>
         <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, padding: '20px 24px' }}>
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
             {[
@@ -1037,7 +1055,7 @@ export default function Home() {
       </section>
 
       {/* ─── CHANGE 8 — Bottom Urgency Section ─── */}
-      <section style={{ maxWidth: 700, margin: '32px auto', padding: '0 16px' }}>
+      <section style={{ maxWidth: 900, margin: '32px auto', padding: '0 16px' }}>
         <div
           style={{
             background: '#0A66C2',
@@ -1085,7 +1103,7 @@ export default function Home() {
       </section>
 
       {/* ─── Trust Badges ─── */}
-      <section className="max-w-2xl mx-auto px-4 py-8">
+      <section className="max-w-4xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {[
             { icon: '\uD83D\uDD12', text: 'We never access your LinkedIn account' },
