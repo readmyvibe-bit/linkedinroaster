@@ -60,6 +60,7 @@ interface ResumeResponse {
   template_id: string;
   order_id: string;
   cover_letter?: string;
+  page_count?: number;
 }
 
 // ─── Score Color Helper ───
