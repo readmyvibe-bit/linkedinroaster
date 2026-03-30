@@ -1393,7 +1393,7 @@ function FeedbackWidget({ orderId }: { orderId: string }) {
 // ═══════════════════════════════════════════
 // ResumeBuilderSection — shows existing resumes or build new
 // ═══════════════════════════════════════════
-function ResumeBuilderSection({ orderId }: { orderId: string }) {
+function ResumeBuilderSection({ orderId, maxResumes = 3, plan = 'standard' }: { orderId: string; maxResumes?: number; plan?: string }) {
   const [resumes, setResumes] = useState<any[]>([]);
   const [loaded, setLoaded] = useState(false);
 
@@ -1412,7 +1412,7 @@ function ResumeBuilderSection({ orderId }: { orderId: string }) {
 
       {resumes.length > 0 && (
         <div style={{ marginBottom: 16 }}>
-          <p style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 8 }}>Your Resumes ({resumes.length}/3)</p>
+          <p style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 8 }}>Your Resumes ({resumes.length}/{maxResumes})</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {resumes.map((r: any) => (
               <a
@@ -1445,22 +1445,30 @@ function ResumeBuilderSection({ orderId }: { orderId: string }) {
         </div>
       )}
 
-      {resumes.length < 3 ? (
+      {resumes.length < maxResumes ? (
         <>
           <p style={{ fontSize: 14, color: '#444', lineHeight: 1.6, marginBottom: 12 }}>
             {resumes.length > 0
-              ? `Build another resume for a different job (${3 - resumes.length} remaining).`
-              : 'Turn your rewrite into an ATS-optimized resume. Paste a job description and get a complete resume in 60 seconds.'}
+              ? `Build another resume for a different job (${maxResumes - resumes.length} remaining).`
+              : 'Turn your rewrite into an ATS-optimized resume + cover letter. Paste a job description and get everything in 60 seconds.'}
           </p>
           <a href={`/resume?orderId=${orderId}`} style={{ display: 'inline-block', background: '#0A66C2', color: 'white', padding: '10px 24px', borderRadius: 50, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
             {resumes.length > 0 ? 'Build Another Resume' : 'Build My Resume'} &rarr;
           </a>
+          {plan === 'standard' && resumes.length >= 1 && (
+            <p style={{ fontSize: 12, color: '#0A66C2', marginTop: 8, fontWeight: 600 }}>Upgrade to Pro for 2 more resumes + all 20 templates</p>
+          )}
         </>
       ) : (
-        <p style={{ fontSize: 13, color: '#888' }}>You{"'"}ve used all 3 resume slots for this order.</p>
+        <>
+          <p style={{ fontSize: 13, color: '#888' }}>You{"'"}ve used {plan === 'standard' ? 'your 1 resume slot' : 'all 3 resume slots'}.</p>
+          {plan === 'standard' && (
+            <p style={{ fontSize: 12, color: '#0A66C2', marginTop: 4, fontWeight: 600 }}>Upgrade to Pro for 3 resumes, 3 cover letters + all 20 templates</p>
+          )}
+        </>
       )}
 
-      <p style={{ fontSize: 12, color: '#888', marginTop: 8 }}>Included in your Pro plan</p>
+      <p style={{ fontSize: 12, color: '#888', marginTop: 8 }}>Included in your {plan === 'pro' ? 'Pro' : 'Standard'} plan</p>
     </div>
   );
 }
@@ -2206,15 +2214,8 @@ export default function ResultsPage() {
         {/* Placeholder Guide */}
         <PlaceholderGuide placeholders={rewrite.placeholders_to_fill} />
 
-        {/* Resume Builder CTA */}
-        {isPro ? (
-          <ResumeBuilderSection orderId={orderId} />
-        ) : (
-          <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 24px', marginTop: 24, marginBottom: 24, textAlign: 'center' }}>
-            <h3 style={{ fontSize: 16, fontWeight: 700, color: '#374151', marginBottom: 8 }}>Want an ATS Resume?</h3>
-            <p style={{ fontSize: 13, color: '#666', marginBottom: 16 }}>Upgrade to Pro to build ATS-optimized resumes for any job description.</p>
-          </div>
-        )}
+        {/* Resume Builder CTA — available for all plans */}
+        <ResumeBuilderSection orderId={orderId} maxResumes={isPro ? 3 : 1} plan={plan} />
 
         {/* Share */}
         <ShareButtons

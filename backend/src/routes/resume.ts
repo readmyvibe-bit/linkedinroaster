@@ -86,11 +86,6 @@ router.post('/generate', async (req: Request, res: Response) => {
     if (!userDetails?.name || !userDetails?.email)
       return res.status(400).json({ error: 'Name and email are required' });
 
-    // Check resume limit (max 3 per order)
-    const existingCount = await query('SELECT COUNT(*)::int AS cnt FROM resumes WHERE order_id=$1', [orderId]);
-    if (existingCount.rows[0].cnt >= 3)
-      return res.status(400).json({ error: 'Maximum 3 resumes per order. You have reached the limit.' });
-
     const result = await generateResume({
       orderId, userDetails, targetRole, targetCompany, jobDescription,
       additionalAchievements, certifications, languages, experienceYears,

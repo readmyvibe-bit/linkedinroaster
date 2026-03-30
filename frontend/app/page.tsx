@@ -894,10 +894,10 @@ export default function Home() {
               features={[
                 'Full 6-point roast with humor',
                 'Before & After score breakdown',
-                'Complete headline rewrite',
-                'Complete about section rewrite',
-                'Experience bullet rewrites',
-                'Shareable roast card image',
+                'Complete profile rewrite',
+                '1 ATS Resume + Cover Letter',
+                '12 ATS-safe templates',
+                'Shareable roast card',
               ]}
               onSelect={() => handlePlanSelect('standard')}
             />
@@ -907,11 +907,11 @@ export default function Home() {
               highlighted
               features={[
                 'Everything in Standard',
-                'ATS Resume Builder (3 resumes)',
+                '3 ATS Resumes + 3 Cover Letters',
+                'All 20 templates (incl. Visual)',
                 '5 headline variations',
-                '15+ ATS-optimized keywords',
-                'Job description matcher',
-                'ATS score with keyword analysis',
+                'Resume upload + auto-fill',
+                '15+ ATS keywords + JD matcher',
                 'Priority processing',
               ]}
               onSelect={() => handlePlanSelect('pro')}
@@ -1005,7 +1005,7 @@ export default function Home() {
             <div style={{ fontSize: 11, fontWeight: 700, color: '#888', letterSpacing: 2, marginBottom: 4 }}>STANDARD</div>
             <div style={{ fontSize: 28, fontWeight: 800, color: '#191919', marginBottom: 12 }}>&#8377;299</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {['6-point brutal roast', 'Before/After score', 'Full headline rewrite', 'Full about rewrite', 'Experience rewrites', 'Shareable roast card'].map((f, i) => (
+              {['6-point brutal roast', 'Before/After score', 'Full profile rewrite', '1 ATS Resume + Cover Letter', '12 ATS-safe templates', 'Shareable roast card'].map((f, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#374151' }}>
                   <span style={{ color: '#057642', fontWeight: 700 }}>&#10003;</span> {f}
                 </div>
@@ -1028,7 +1028,7 @@ export default function Home() {
             <div style={{ fontSize: 11, fontWeight: 700, color: '#0A66C2', letterSpacing: 2, marginBottom: 4 }}>PRO</div>
             <div style={{ fontSize: 28, fontWeight: 800, color: '#191919', marginBottom: 12 }}>&#8377;799</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {['Everything in Standard', 'ATS Resume Builder (3 JDs)', 'ATS score + keyword match', '5 headline variations', '15+ ATS keywords', 'Priority processing'].map((f, i) => (
+              {['Everything in Standard', '3 Resumes + 3 Cover Letters', 'All 20 templates (incl. Visual)', 'Resume upload + auto-fill', '5 headline variations', '15+ ATS keywords + JD matcher'].map((f, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#374151' }}>
                   <span style={{ color: '#0A66C2', fontWeight: 700 }}>&#10003;</span> {f}
                 </div>

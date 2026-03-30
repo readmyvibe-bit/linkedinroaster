@@ -288,7 +288,7 @@ function ResumeFormContent() {
     );
   }
 
-  if (orderPlan !== 'pro') {
+  if (false) { // Resume builder available for all plans
     return (
       <div style={{ minHeight: '100vh', background: '#F3F2EF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ background: '#fff', border: '1px solid #E0E0E0', borderRadius: 12, padding: 32, maxWidth: 440, textAlign: 'center' }}>
@@ -544,7 +544,11 @@ function ResumeFormContent() {
               })}
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
-              {TEMPLATES.filter(t => templateFilter === 'All' || t.category === templateFilter).map((t) => {
+              {TEMPLATES.filter(t => {
+                const catMatch = templateFilter === 'All' || t.category === templateFilter;
+                const planMatch = orderPlan === 'pro' || t.category !== 'Visual'; // Standard: no Visual templates
+                return catMatch && planMatch;
+              }).map((t) => {
                 const selected = template === t.id;
                 return (
                   <label

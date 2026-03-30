@@ -27,7 +27,14 @@ export async function generateResume(input: ResumeInput): Promise<{ resumeId: st
   if (!orderResult.rows.length) throw new Error('Order not found');
   const order = orderResult.rows[0];
 
-  if (order.plan !== 'pro') throw new Error('Resume builder requires Pro plan');
+  // Standard: 1 resume, Pro: 3 resumes
+  const maxResumes = order.plan === 'pro' ? 3 : 1;
+  const existingCount = await query('SELECT COUNT(*)::int AS cnt FROM resumes WHERE order_id=$1', [input.orderId]);
+  if (existingCount.rows[0].cnt >= maxResumes) {
+    throw new Error(order.plan === 'pro'
+      ? 'Maximum 3 resumes per Pro order.'
+      : 'Standard plan includes 1 resume. Upgrade to Pro for 3 resumes.');
+  }
   if (order.processing_status !== 'done') throw new Error('Order not completed');
 
   const rewrite = order.rewrite;
