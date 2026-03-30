@@ -81,7 +81,7 @@ function buildPrintHTML(data: ResumeData): string {
         <div style="margin-bottom:12px;">
           <div style="display:flex;justify-content:space-between;align-items:baseline;">
             <div style="font-size:12px;font-weight:700;color:#111827;">${exp.role || exp.title || ''}${exp.company ? ' — ' + exp.company : ''}</div>
-            <div style="font-size:11px;font-style:italic;color:#666;white-space:nowrap;margin-left:12px;">${exp.dates || ''}</div>
+            <div style="font-size:11px;font-style:italic;color:#666;white-space:nowrap;margin-left:12px;">${exp.dates || (exp.start_date ? exp.start_date + (exp.end_date ? ' - ' + exp.end_date : ' - Present') : '')}</div>
           </div>
           ${exp.location ? `<div style="font-size:11px;color:#888;">${exp.location}</div>` : ''}
           ${exp.bullets?.length ? `<div style="padding-left:16px;margin-top:4px;">${exp.bullets.map(b => `<div style="font-size:11px;color:#374151;line-height:1.5;">• ${b}</div>`).join('')}</div>` : ''}
@@ -130,7 +130,7 @@ function buildPrintHTML(data: ResumeData): string {
 <html>
 <head>
 <meta charset="utf-8">
-<title>${c.name || 'Resume'}</title>
+<title> </title>
 <style>
   @page { margin: 20mm; size: A4; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -144,6 +144,8 @@ function buildPrintHTML(data: ResumeData): string {
     body { -webkit-print-color-adjust: exact; }
     * { color: #000 !important; background: none !important; }
   }
+  @page { margin: 20mm; }
+  @page { @top-left { content: none; } @top-right { content: none; } @bottom-left { content: none; } @bottom-right { content: none; } }
 </style>
 </head>
 <body style="padding:40px;">
@@ -196,7 +198,13 @@ export default function ResumePreviewPage() {
     if (!win) return;
     win.document.write(html);
     win.document.close();
-    setTimeout(() => win.print(), 500);
+    // Set empty title to prevent browser showing filename/URL in header
+    win.document.title = ' ';
+    setTimeout(() => {
+      win.print();
+      // Close the window after print dialog
+      setTimeout(() => win.close(), 1000);
+    }, 500);
   }
 
   // ─── Loading State ───
@@ -421,7 +429,7 @@ export default function ResumePreviewPage() {
                       {exp.role || exp.title || ''}{exp.company ? ` \u2014 ${exp.company}` : ''}
                     </div>
                     <div style={{ fontSize: 11, fontStyle: 'italic', color: '#666', whiteSpace: 'nowrap', marginLeft: 12 }}>
-                      {exp.dates || ''}
+                      {exp.dates || (exp.start_date ? `${exp.start_date}${exp.end_date ? ' - ' + exp.end_date : ' - Present'}` : '')}
                     </div>
                   </div>
                   {exp.location && <div style={{ fontSize: 11, color: '#888' }}>{exp.location}</div>}
