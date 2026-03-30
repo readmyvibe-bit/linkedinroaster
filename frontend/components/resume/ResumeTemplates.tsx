@@ -1783,20 +1783,20 @@ function esc(s?: string): string {
 function printPageWrapper(body: string, pageCount?: number): string {
   const onePage = pageCount === 1;
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><title> </title><style>
-@page{size:A4;margin:${onePage ? '8mm 10mm' : '0'}}
+@page{size:A4;margin:0}
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:210mm;height:auto;overflow:${onePage ? 'hidden' : 'visible'};margin:0;padding:0}
-${onePage ? 'html,body{max-height:297mm}' : ''}
+html,body{width:210mm;height:297mm;margin:0;padding:0;overflow:${onePage ? 'hidden' : 'visible'}}
 body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
-.resume-wrapper{width:210mm;${onePage ? 'max-height:280mm;overflow:hidden' : 'min-height:297mm'};position:relative}
-.two-col{display:table;width:100%;table-layout:fixed;border-collapse:collapse}
-.two-col-left{display:table-cell;vertical-align:top}
-.two-col-right{display:table-cell;vertical-align:top}
+.resume-wrapper{width:210mm;height:297mm;position:relative;overflow:${onePage ? 'hidden' : 'visible'}}
+.two-col{display:table;width:100%;height:100%;table-layout:fixed;border-collapse:collapse}
+.two-col-left{display:table-cell;vertical-align:top;height:100%}
+.two-col-right{display:table-cell;vertical-align:top;height:100%}
 @media print{
-  html,body{width:210mm;margin:0;padding:0;${onePage ? 'max-height:297mm;overflow:hidden' : ''}}
+  html,body{width:210mm;height:297mm;margin:0;padding:0;overflow:${onePage ? 'hidden' : 'visible'}}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-  .resume-wrapper{width:100%;page-break-inside:${onePage ? 'avoid' : 'auto'}}
-  .two-col{page-break-inside:${onePage ? 'avoid' : 'auto'}}
+  .resume-wrapper{width:100%;height:100%}
+  .two-col{height:100%}
+  .two-col-left,.two-col-right{height:100%}
   .entry{page-break-inside:avoid}
 }
 </style></head><body style="-webkit-print-color-adjust:exact;print-color-adjust:exact">${body}</body></html>`;
