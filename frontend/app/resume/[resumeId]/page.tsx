@@ -429,7 +429,7 @@ export default function ResumePreviewPage() {
                       {exp.role || exp.title || ''}{exp.company ? ` \u2014 ${exp.company}` : ''}
                     </div>
                     <div style={{ fontSize: 11, fontStyle: 'italic', color: '#666', whiteSpace: 'nowrap', marginLeft: 12 }}>
-                      {exp.dates || (exp.start_date ? `${exp.start_date}${exp.end_date ? ' - ' + exp.end_date : ' - Present'}` : '')}
+                      {(exp as any).dates || ((exp as any).start_date ? `${(exp as any).start_date}${(exp as any).end_date ? ' - ' + (exp as any).end_date : ' - Present'}` : '')}
                     </div>
                   </div>
                   {exp.location && <div style={{ fontSize: 11, color: '#888' }}>{exp.location}</div>}
