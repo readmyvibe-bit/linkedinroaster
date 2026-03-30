@@ -444,8 +444,40 @@ function OrderDetailModal({
           </div>
         )}
 
-        {/* Send Email Button */}
-        <div className="flex gap-3 pt-3" style={{ borderTop: '1px solid var(--li-border)' }}>
+        {/* Action Buttons */}
+        <div className="flex flex-wrap gap-3 pt-3" style={{ borderTop: '1px solid var(--li-border)' }}>
+          {s.processing_status !== 'done' && s.payment_status !== 'paid' && (
+            <button
+              onClick={async () => {
+                if (!confirm('Approve this order? It will be marked as paid and start processing.')) return;
+                try {
+                  const res = await apiFetch(`/api/admin/approve-order/${s.id}`, { method: 'POST' });
+                  if (res.ok) { onToast('Order approved and queued for processing!', 'success'); onClose(); }
+                  else { const b = await res.json().catch(() => ({})); onToast(b.error || 'Failed', 'error'); }
+                } catch { onToast('Failed to approve order', 'error'); }
+              }}
+              className="px-5 py-2 rounded-full text-white font-semibold text-sm cursor-pointer border-none"
+              style={{ background: '#057642' }}
+            >
+              Approve Order
+            </button>
+          )}
+          {s.processing_status !== 'done' && s.processing_status !== 'failed' && (
+            <button
+              onClick={async () => {
+                if (!confirm('Cancel this order? This cannot be undone.')) return;
+                try {
+                  const res = await apiFetch(`/api/admin/cancel-order/${s.id}`, { method: 'POST' });
+                  if (res.ok) { onToast('Order cancelled', 'success'); onClose(); }
+                  else { const b = await res.json().catch(() => ({})); onToast(b.error || 'Failed', 'error'); }
+                } catch { onToast('Failed to cancel order', 'error'); }
+              }}
+              className="px-5 py-2 rounded-full font-semibold text-sm cursor-pointer border-none"
+              style={{ background: '#FEE2E2', color: '#CC1016' }}
+            >
+              Cancel Order
+            </button>
+          )}
           <button
             onClick={sendEmail}
             disabled={sendingEmail || s.processing_status !== 'done'}

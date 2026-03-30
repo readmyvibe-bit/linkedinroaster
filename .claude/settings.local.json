@@ -6,7 +6,8 @@
       "Bash(node:*)",
       "Bash(railway up:*)",
       "Bash(railway service:*)",
-      "Bash(railway link:*)"
+      "Bash(railway link:*)",
+      "Bash(vercel --prod --yes)"
     ]
   }
 }

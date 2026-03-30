@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 import { query } from '../db';
 import { sendResultsEmail } from '../services/email';
+import { profileQueue } from '../queue';
 
 const router = Router();
 
@@ -231,6 +232,52 @@ router.post('/send-email/:id', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('Admin send-email error:', err);
     res.status(500).json({ error: 'Failed to send email' });
+  }
+});
+
+// POST /api/admin/approve-order/:id — manually approve and process order
+router.post('/approve-order/:id', async (req: Request, res: Response) => {
+  try {
+    const result = await query('SELECT * FROM orders WHERE id=$1', [req.params.id]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Order not found' });
+    const order = result.rows[0];
+
+    if (order.payment_status === 'paid' && order.processing_status === 'done')
+      return res.status(400).json({ error: 'Order already completed' });
+
+    await query(
+      "UPDATE orders SET payment_status='paid', paid_at=NOW(), processing_status='queued' WHERE id=$1",
+      [req.params.id],
+    );
+
+    await profileQueue.add('job', { razorpay_order_id: order.razorpay_order_id });
+
+    res.json({ approved: true, orderId: order.id, email: order.email });
+  } catch (err) {
+    console.error('Admin approve-order error:', err);
+    res.status(500).json({ error: 'Failed to approve order' });
+  }
+});
+
+// POST /api/admin/cancel-order/:id — cancel and mark order as failed
+router.post('/cancel-order/:id', async (req: Request, res: Response) => {
+  try {
+    const result = await query('SELECT * FROM orders WHERE id=$1', [req.params.id]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Order not found' });
+    const order = result.rows[0];
+
+    if (order.processing_status === 'done')
+      return res.status(400).json({ error: 'Cannot cancel a completed order' });
+
+    await query(
+      "UPDATE orders SET payment_status='failed', processing_status='failed', processing_error='admin_cancelled', processing_done_at=NOW() WHERE id=$1",
+      [req.params.id],
+    );
+
+    res.json({ cancelled: true, orderId: order.id, email: order.email });
+  } catch (err) {
+    console.error('Admin cancel-order error:', err);
+    res.status(500).json({ error: 'Failed to cancel order' });
   }
 });
 
