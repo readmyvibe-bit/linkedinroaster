@@ -48,7 +48,7 @@ function ScoreBar({ width, color }: { width: number; color: string }) {
   );
 }
 
-function CardDesign({ beforeScore, afterScore, headlineScore, aboutScore, experienceScore, topRoast, secondRoast, hiddenStrength, closingCompliment, industry }: Omit<CardData, 'orderId'>) {
+function CardDesign({ beforeScore, afterScore, topRoast, closingCompliment }: Omit<CardData, 'orderId'>) {
   const improvement = afterScore - beforeScore;
   const truncateAtWord = (text: string, limit: number): string => {
     if (!text || text.length <= limit) return text || '';
@@ -56,200 +56,98 @@ function CardDesign({ beforeScore, afterScore, headlineScore, aboutScore, experi
     const lastSpace = truncated.lastIndexOf(' ');
     return truncated.slice(0, lastSpace > 0 ? lastSpace : limit) + '...';
   };
-  const truncRoast = truncateAtWord(topRoast, 400);
-  const hasStrength = hiddenStrength && hiddenStrength.strength;
-  const truncEvidence = hasStrength && hiddenStrength.evidence
-    ? truncateAtWord(hiddenStrength.evidence, 200)
-    : '';
-  const truncHowTo = hasStrength && hiddenStrength.how_to_show_it
-    ? truncateAtWord(hiddenStrength.how_to_show_it, 300)
-    : '';
-  const truncSecond = secondRoast
-    ? truncateAtWord(secondRoast, 400)
-    : '';
-
-  const scores = [
-    { label: 'Headline', value: headlineScore, color: '#0A66C2' },
-    { label: 'About', value: aboutScore, color: '#E16B00' },
-    { label: 'Experience', value: experienceScore, color: '#057642' },
-  ];
 
   return (
     <div style={{ width: 1200, height: 630, display: 'flex', flexDirection: 'column', background: '#F3F2EF', fontFamily: 'Inter' }}>
 
-      {/* ── Header ── */}
-      <div style={{
-        height: 70, background: '#004182',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 48px',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{ fontSize: 20, fontWeight: 700, color: '#E16B00', display: 'flex' }}>ROAST</div>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontSize: 20, fontWeight: 700, color: 'white', letterSpacing: 3, display: 'flex' }}>
-              LINKEDIN PROFILE ROAST
-            </div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: 3, display: 'flex' }}>
-              ROAST &bull; REWRITE &bull; IMPROVE
-            </div>
-          </div>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: 'white', display: 'flex' }}>
-            profileroaster.in
-          </div>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)', display: 'flex' }}>
-            AI-Powered Profile Analysis
-          </div>
-        </div>
+      {/* ── Header 64px ── */}
+      <div style={{ height: 64, background: '#004182', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 44px' }}>
+        <div style={{ fontSize: 17, fontWeight: 700, color: 'white', letterSpacing: 1, display: 'flex' }}>WHY THIS PROFILE GETS IGNORED</div>
+        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', display: 'flex' }}>profileroaster.in</div>
       </div>
-      <div style={{ height: 4, background: '#057642', display: 'flex' }} />
 
-      {/* ── Top section — scores ── */}
-      <div style={{
-        background: 'white', padding: '16px 48px',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        borderBottom: '1px solid #E0E0E0',
-      }}>
-        {/* Left — score transformation */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+      {/* ── Orange line 4px ── */}
+      <div style={{ height: 4, background: '#E16B00', display: 'flex' }} />
+
+      {/* ── Content ── */}
+      <div style={{ display: 'flex', flex: 1 }}>
+
+        {/* LEFT PANEL — 36% */}
+        <div style={{ width: '36%', background: 'white', borderRight: '1px solid #E0E0E0', padding: '20px 28px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 9 }}>
+          {/* Score title */}
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 3, color: '#9CA3AF', display: 'flex' }}>PROFILE SCORE</div>
+          <div style={{ fontSize: 11, color: '#6B7280', display: 'flex', marginTop: 3 }}>Based on recruiter scan behaviour</div>
+
+          {/* Metric labels */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ fontSize: 10, color: '#111827', fontWeight: 700, display: 'flex' }}>VISIBILITY</div>
+            <div style={{ fontSize: 10, color: '#D1D5DB', display: 'flex' }}>&bull;</div>
+            <div style={{ fontSize: 10, color: '#111827', fontWeight: 700, display: 'flex' }}>IMPACT</div>
+            <div style={{ fontSize: 10, color: '#D1D5DB', display: 'flex' }}>&bull;</div>
+            <div style={{ fontSize: 10, color: '#111827', fontWeight: 700, display: 'flex' }}>CLARITY</div>
+          </div>
+
+          {/* Divider */}
+          <div style={{ width: 40, height: 1, background: '#EEEEEE', display: 'flex' }} />
+
           {/* BEFORE */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{
-              width: 100, height: 100, borderRadius: 50,
-              border: '7px solid #CC1016', background: '#FEF2F2',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <div style={{ fontSize: 38, fontWeight: 700, color: '#CC1016', display: 'flex' }}>{beforeScore}</div>
-            </div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#CC1016', letterSpacing: 2, marginTop: 4, display: 'flex' }}>BEFORE</div>
+            <div style={{ fontSize: 48, fontWeight: 700, color: '#CC1016', lineHeight: 1, display: 'flex' }}>{beforeScore}</div>
+            <div style={{ fontSize: 9, fontWeight: 700, color: '#CC1016', letterSpacing: 2, marginTop: 2, display: 'flex' }}>BEFORE</div>
           </div>
 
-          {/* Arrow */}
-          <div style={{ fontSize: 24, color: '#AAAAAA', display: 'flex' }}>{'\u2192'}</div>
+          {/* Arrow down */}
+          <div style={{ fontSize: 20, color: '#DDD', display: 'flex' }}>{'\u2193'}</div>
 
           {/* AFTER */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{
-              width: 120, height: 120, borderRadius: 60,
-              border: '8px solid #057642', background: '#F0FDF4',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <div style={{ fontSize: 48, fontWeight: 700, color: '#057642', display: 'flex' }}>{afterScore}</div>
-            </div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#057642', letterSpacing: 2, marginTop: 4, display: 'flex' }}>AFTER</div>
+            <div style={{ fontSize: 84, fontWeight: 700, color: '#057642', lineHeight: 1, display: 'flex' }}>{afterScore}</div>
+            <div style={{ fontSize: 9, fontWeight: 700, color: '#057642', letterSpacing: 2, marginTop: 2, display: 'flex' }}>AFTER</div>
           </div>
 
-          {/* Badge */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-            <div style={{
-              background: '#057642', color: 'white', borderRadius: 20,
-              padding: '7px 18px', fontSize: 16, fontWeight: 700, display: 'flex',
-            }}>
-              +{improvement} pts
-            </div>
-            <div style={{ fontSize: 11, color: '#057642', fontWeight: 700, display: 'flex' }}>RESULT</div>
+          {/* Points badge */}
+          <div style={{ background: '#16A34A', color: 'white', fontSize: 24, fontWeight: 700, padding: '10px 28px', borderRadius: 50, boxShadow: '0 4px 12px rgba(22,163,74,0.4)', marginTop: 2, display: 'flex' }}>
+            +{improvement} pts
           </div>
         </div>
 
-        {/* Right — sub-score bars */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {scores.map((s) => (
-            <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div style={{ width: 7, height: 7, borderRadius: 4, background: s.color, display: 'flex' }} />
-              <div style={{ fontSize: 13, color: '#333333', width: 115, fontWeight: 700, display: 'flex' }}>{s.label}</div>
-              <ScoreBar width={s.value} color={s.color} />
-              <div style={{ fontSize: 14, fontWeight: 700, color: s.color, width: 28, display: 'flex' }}>{s.value}</div>
-            </div>
-          ))}
-        </div>
-      </div>
+        {/* RIGHT PANEL — 64% */}
+        <div style={{ width: '64%', background: '#F3F2EF', padding: '18px 30px', display: 'flex', flexDirection: 'column', gap: 10, justifyContent: 'center' }}>
 
-      {/* ── What changed — pill badges ── */}
-      <div style={{
-        background: 'white', borderBottom: '1px solid #E0E0E0',
-        padding: '10px 48px',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-      }}>
-        {[
-          { icon: 'REWRITE', text: 'Headline Rewritten' },
-          { icon: 'ABOUT', text: 'About Optimized' },
-          { icon: 'ATS', text: `${Math.max(improvement - 10, 3)} Issues Fixed` },
-          { icon: 'KEYWORDS', text: 'ATS Keywords Added' },
-        ].map((p) => (
-          <div key={p.text} style={{
-            background: '#F3F2EF', border: '1px solid #E0E0E0', borderRadius: 16,
-            padding: '4px 12px', fontSize: 12, color: '#555555', fontWeight: 600,
-            display: 'flex', alignItems: 'center', gap: 5,
-          }}>
-            <div style={{ display: 'flex' }}>{p.icon}</div>
-            <div style={{ display: 'flex' }}>{p.text}</div>
+          {/* Roast box */}
+          <div style={{ background: 'white', borderLeft: '5px solid #E16B00', borderRadius: '0 12px 12px 0', padding: '14px 20px', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: '#E16B00', marginBottom: 9, display: 'flex' }}>AI SAID THIS</div>
+            <div style={{ fontSize: 16, fontStyle: 'italic', color: '#191919', lineHeight: 1.7, fontWeight: 500, display: 'flex' }}>{truncateAtWord(topRoast, 180)}</div>
           </div>
-        ))}
-      </div>
 
-      {/* ── Bottom two columns ── */}
-      <div style={{ display: 'flex', flex: 1 }}>
+          {/* Fix box */}
+          <div style={{ background: 'white', borderLeft: '5px solid #057642', borderRadius: '0 12px 12px 0', padding: '13px 20px', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: '#057642', marginBottom: 8, display: 'flex' }}>THE FIX</div>
+            <div style={{ fontSize: 15, color: '#444', lineHeight: 1.65, display: 'flex' }}>{truncateAtWord(closingCompliment, 160)}</div>
+          </div>
 
-        {/* Left — Roast */}
-        <div style={{
-          width: '50%', background: 'white', borderRight: '1px solid #E0E0E0',
-          padding: '18px 28px', display: 'flex', flexDirection: 'column',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#E16B00', letterSpacing: 2, display: 'flex' }}>
-              ROAST — THE BRUTAL TRUTH
-            </div>
+          {/* Social proof */}
+          <div style={{ background: '#FEF9F0', border: '1.5px solid #F59E0B', borderRadius: 8, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E', display: 'flex' }} />
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#111827', display: 'flex' }}>500+ professionals improved their LinkedIn this week</div>
           </div>
-          <div style={{
-            background: '#FFF8F5', border: '1px solid #F0E0D6',
-            borderLeft: '4px solid #E16B00', borderRadius: 10,
-            padding: '14px 16px', flex: 1, display: 'flex',
-          }}>
-            <div style={{ fontSize: 14, color: '#1A1A1A', fontStyle: 'italic', lineHeight: 1.6, display: 'flex' }}>
-              &ldquo;{truncRoast}&rdquo;
-            </div>
-          </div>
-        </div>
 
-        {/* Right — Closing Compliment */}
-        <div style={{
-          width: '50%', background: '#F9FAFB',
-          padding: '18px 28px', display: 'flex', flexDirection: 'column',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#057642', letterSpacing: 2, display: 'flex' }}>
-              YOUR STRENGTH
+          {/* CTA box */}
+          <div style={{ background: '#0A66C2', borderRadius: 10, padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: 'white', display: 'flex' }}>Check your LinkedIn score</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 2, display: 'flex' }}>profileroaster.in</div>
             </div>
-          </div>
-          <div style={{
-            background: 'rgba(5,118,66,0.04)',
-            borderLeft: '5px solid #057642', borderRadius: '0 8px 8px 0',
-            padding: '20px', flex: 1, display: 'flex',
-          }}>
-            <div style={{ fontSize: 14, color: '#191919', fontStyle: 'italic', lineHeight: 1.75, display: 'flex' }}>
-              {closingCompliment || 'Your profile has real potential.'}
-            </div>
+            <div style={{ fontSize: 30, color: 'white', display: 'flex' }}>{'\u2192'}</div>
           </div>
         </div>
       </div>
 
-      {/* ── Footer ── */}
-      <div style={{
-        height: 52, background: '#004182',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 48px',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.9)', display: 'flex' }}>
-            GET YOURS free at profileroaster.in
-          </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', display: 'flex' }}>
-            #{industry.toLowerCase().replace(/\s+/g, '')}
-          </div>
-        </div>
+      {/* ── Footer 48px ── */}
+      <div style={{ height: 48, background: '#004182', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 44px' }}>
+        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', fontWeight: 700, display: 'flex' }}>This is why recruiters finally started replying</div>
+        <div style={{ fontSize: 16, fontWeight: 700, color: 'white', display: 'flex' }}>profileroaster.in</div>
+        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', display: 'flex' }}>#LinkedInRoast</div>
       </div>
     </div>
   );
@@ -282,7 +180,7 @@ export async function generateAndUploadCard(data: CardData): Promise<string | nu
       },
     );
 
-    const resvg = new Resvg(svg, { fitTo: { mode: 'width', value: 1200 } });
+    const resvg = new Resvg(svg, { fitTo: { mode: 'zoom', value: 3 } });
     const png = resvg.render().asPng();
     const filePath = `cards/${data.orderId}.png`;
 

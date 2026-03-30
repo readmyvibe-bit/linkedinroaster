@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --require ts-node/register -e \":*)",
+      "Bash(npx tsc:*)",
+      "Bash(node:*)"
+    ]
+  }
+}
