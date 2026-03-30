@@ -54,8 +54,8 @@ router.post('/upload-parse', upload.single('file'), async (req: Request, res: Re
 
     res.json({ parsed, rawTextLength: text.length });
   } catch (err: any) {
-    console.error('Upload parse error:', err.message);
-    res.status(500).json({ error: 'Failed to parse uploaded file' });
+    console.error('Upload parse error:', err.message, err.stack?.slice(0, 300));
+    res.status(500).json({ error: `Failed to parse: ${err.message?.slice(0, 100)}` });
   }
 });
 

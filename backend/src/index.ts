@@ -61,7 +61,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   if (req.path === '/api/webhooks/razorpay') return next();
   cors({
     origin: ALLOWED_ORIGINS,
-    methods: ['GET', 'POST', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
     maxAge: 86400,
