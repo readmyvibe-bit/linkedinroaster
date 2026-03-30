@@ -30,9 +30,22 @@ router.post('/upload-parse', upload.single('file'), async (req: Request, res: Re
     let text = '';
 
     if (mime === 'application/pdf') {
-      const pdfParse = require('pdf-parse');
-      const data = await pdfParse(req.file.buffer);
-      text = data.text;
+      // Use Claude to extract text from PDF via base64
+      const Anthropic = require('@anthropic-ai/sdk').default;
+      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
+      const base64 = req.file.buffer.toString('base64');
+      const pdfResponse = await anthropic.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } },
+            { type: 'text', text: 'Extract ALL text content from this PDF resume. Return only the raw text, preserving the structure (names, sections, bullet points). No commentary.' },
+          ],
+        }],
+      });
+      text = ((pdfResponse.content[0] as any).text || '').trim();
     } else if (mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || mime === 'application/msword') {
       const mammoth = require('mammoth');
       const result = await mammoth.extractRawText({ buffer: req.file.buffer });
