@@ -1112,7 +1112,7 @@ export default function Home() {
       </section>
 
       {/* ─── How It Works ─── */}
-      <section style={{ maxWidth: 700, margin: '32px auto 0', padding: '0 16px' }}>
+      <section style={{ maxWidth: 900, margin: '32px auto 0', padding: '0 16px' }}>
         <h2 style={{ fontSize: 20, fontWeight: 800, color: '#191919', textAlign: 'center', marginBottom: 20 }}>
           How It Works
         </h2>
@@ -1133,7 +1133,7 @@ export default function Home() {
       </section>
 
       {/* ─── Testimonial/Social Proof ─── */}
-      <section style={{ maxWidth: 700, margin: '32px auto 0', padding: '0 16px' }}>
+      <section style={{ maxWidth: 900, margin: '32px auto 0', padding: '0 16px' }}>
         <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, padding: '20px 24px' }}>
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
             {[
@@ -1161,7 +1161,7 @@ export default function Home() {
       </section>
 
       {/* ─── CHANGE 8 — Bottom Urgency Section ─── */}
-      <section style={{ maxWidth: 700, margin: '32px auto', padding: '0 16px' }}>
+      <section style={{ maxWidth: 900, margin: '32px auto', padding: '0 16px' }}>
         <div
           style={{
             background: '#0A66C2',
@@ -1209,7 +1209,7 @@ export default function Home() {
       </section>
 
       {/* ─── Trust Badges ─── */}
-      <section className="max-w-2xl mx-auto px-4 py-8">
+      <section style={{ maxWidth: 900, margin: '0 auto', padding: '32px 16px' }}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {[
             { icon: '\uD83D\uDD12', text: 'We never access your LinkedIn account' },
