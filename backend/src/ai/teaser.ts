@@ -29,6 +29,7 @@ RULES:
   - Reference SPECIFIC text from the headline
   - quick_tip: actionable fix in 1 sentence
   - teaser_roast: 1 punchy PG-rated sentence — same safety rules as main pipeline
+  - If score is 75+: start roast with a positive acknowledgment then give the one thing to improve. Keep it funny but frame as refinement not rejection.
   - NEVER use profanity, identity references, or cruelty
 OUTPUT (strict JSON):
 {
