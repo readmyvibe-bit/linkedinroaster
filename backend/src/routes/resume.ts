@@ -99,4 +99,67 @@ router.post('/:resumeId/ats-check', async (req: Request, res: Response) => {
   }
 });
 
+// POST /api/resume/:resumeId/regenerate-section
+router.post('/:resumeId/regenerate-section', async (req: Request, res: Response) => {
+  try {
+    const { section, jobDescription } = req.body;
+    if (!section || !jobDescription)
+      return res.status(400).json({ error: 'Missing section or jobDescription' });
+
+    const result = await query('SELECT * FROM resumes WHERE id=$1', [req.params.resumeId]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Resume not found' });
+
+    const resume = result.rows[0];
+    const data = resume.resume_data;
+
+    const Anthropic = require('@anthropic-ai/sdk').default;
+    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
+
+    let prompt = '';
+    if (section === 'summary') {
+      prompt = `Rewrite this professional summary for an ATS resume targeting this role.
+
+Current summary: ${data.summary || 'None'}
+Target role: ${resume.target_role}
+Job description: ${jobDescription}
+
+Write a 3-4 sentence professional summary that includes keywords from the JD. Return ONLY the summary text, no JSON, no quotes.`;
+    } else if (section === 'skills') {
+      prompt = `Suggest relevant skills for this resume based on the job description.
+
+Current skills: ${JSON.stringify(data.skills)}
+Target role: ${resume.target_role}
+Job description: ${jobDescription}
+
+Return ONLY a JSON object: {"technical":[],"soft":[],"languages":[],"certifications":[]}`;
+    } else {
+      return res.status(400).json({ error: 'Invalid section. Use: summary, skills' });
+    }
+
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }],
+      system: 'You are an expert ATS resume writer. Be concise and professional.',
+    });
+
+    const text = ((response.content[0] as any).text || '').trim();
+    let content: any = text;
+
+    if (section === 'skills') {
+      try {
+        content = JSON.parse(text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, ''));
+      } catch {
+        const { jsonrepair } = require('jsonrepair');
+        content = JSON.parse(jsonrepair(text));
+      }
+    }
+
+    res.json({ section, content });
+  } catch (err: any) {
+    console.error('Regenerate section error:', err.message);
+    res.status(500).json({ error: 'Failed to regenerate section' });
+  }
+});
+
 export default router;

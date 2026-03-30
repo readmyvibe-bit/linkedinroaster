@@ -261,6 +261,15 @@ export default function ResumePreviewPage() {
             Download PDF
           </button>
           <a
+            href={`/resume/${resume.id}/edit`}
+            style={{
+              padding: '8px 18px', background: '#057642', color: '#fff', border: 'none',
+              borderRadius: 20, fontSize: 13, fontWeight: 600, textDecoration: 'none',
+            }}
+          >
+            Edit Resume
+          </a>
+          <a
             href={`/results/${resume.order_id}`}
             style={{
               padding: '8px 18px', background: '#fff', color: '#666', border: '1px solid #999',
