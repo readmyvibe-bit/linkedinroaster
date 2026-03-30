@@ -16,7 +16,8 @@
       "Bash(cd /c/LinkedinRoast/backend __NEW_LINE_16978444889df044__ echo \"--- 9. Recovery OTP ---\" echo \"  Non-existent email:\" curl -s -X POST https://profileroaster-api-production.up.railway.app/api/recover/send-otp -H \"Content-Type: application/json\" -d '{\"\"\"\"email\"\"\"\":\"\"\"\"nobody@test.com\"\"\"\"}' 2)",
       "Bash(1 echo:*)",
       "Bash(ls:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(grep -n \"fontSize: 11, fontWeight: 700, color: ''''#374151'''', textTransform\" frontend/app/resume/[resumeId]/page.tsx)"
     ]
   }
 }

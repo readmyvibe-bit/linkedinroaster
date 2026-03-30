@@ -4,6 +4,19 @@ import { generateResume } from '../services/resume-generator';
 
 const router = Router();
 
+// GET /api/resume/by-order/:orderId — list resumes for an order
+router.get('/by-order/:orderId', async (req: Request, res: Response) => {
+  try {
+    const result = await query(
+      'SELECT id, target_role, target_company, ats_score, template_id, status, created_at FROM resumes WHERE order_id=$1 ORDER BY created_at DESC',
+      [req.params.orderId],
+    );
+    res.json({ resumes: result.rows, count: result.rows.length });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch resumes' });
+  }
+});
+
 // POST /api/resume/generate
 router.post('/generate', async (req: Request, res: Response) => {
   try {
@@ -17,6 +30,11 @@ router.post('/generate', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Job description must be at least 100 characters' });
     if (!userDetails?.name || !userDetails?.email)
       return res.status(400).json({ error: 'Name and email are required' });
+
+    // Check resume limit (max 3 per order)
+    const existingCount = await query('SELECT COUNT(*)::int AS cnt FROM resumes WHERE order_id=$1', [orderId]);
+    if (existingCount.rows[0].cnt >= 3)
+      return res.status(400).json({ error: 'Maximum 3 resumes per order. You have reached the limit.' });
 
     const result = await generateResume({
       orderId, userDetails, targetRole, targetCompany, jobDescription,

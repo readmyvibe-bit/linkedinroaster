@@ -1390,6 +1390,81 @@ function FeedbackWidget({ orderId }: { orderId: string }) {
 // ═══════════════════════════════════════════
 // ReferralWidget
 // ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+// ResumeBuilderSection — shows existing resumes or build new
+// ═══════════════════════════════════════════
+function ResumeBuilderSection({ orderId }: { orderId: string }) {
+  const [resumes, setResumes] = useState<any[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/resume/by-order/${orderId}`)
+      .then(r => r.json())
+      .then(d => { setResumes(d.resumes || []); setLoaded(true); })
+      .catch(() => setLoaded(true));
+  }, [orderId]);
+
+  if (!loaded) return null;
+
+  return (
+    <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderLeft: '4px solid #0A66C2', borderRadius: 12, padding: '20px 24px', marginTop: 24, marginBottom: 24 }}>
+      <h3 style={{ fontSize: 18, fontWeight: 800, color: '#1E40AF', marginBottom: 8 }}>ATS Resume Builder</h3>
+
+      {resumes.length > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <p style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 8 }}>Your Resumes ({resumes.length}/3)</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {resumes.map((r: any) => (
+              <a
+                key={r.id}
+                href={`/resume/${r.id}`}
+                style={{
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  background: 'white', border: '1px solid #E0E0E0', borderRadius: 8,
+                  padding: '10px 16px', textDecoration: 'none',
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#191919' }}>{r.target_role || 'Resume'}{r.target_company ? ` at ${r.target_company}` : ''}</div>
+                  <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>
+                    {new Date(r.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })} &bull; {r.template_id || 'classic'}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{
+                    fontSize: 13, fontWeight: 700,
+                    color: r.ats_score >= 80 ? '#057642' : r.ats_score >= 60 ? '#0A66C2' : '#E16B00',
+                  }}>
+                    ATS: {r.ats_score}%
+                  </span>
+                  <span style={{ fontSize: 12, color: '#0A66C2' }}>&rarr;</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {resumes.length < 3 ? (
+        <>
+          <p style={{ fontSize: 14, color: '#444', lineHeight: 1.6, marginBottom: 12 }}>
+            {resumes.length > 0
+              ? `Build another resume for a different job (${3 - resumes.length} remaining).`
+              : 'Turn your rewrite into an ATS-optimized resume. Paste a job description and get a complete resume in 60 seconds.'}
+          </p>
+          <a href={`/resume?orderId=${orderId}`} style={{ display: 'inline-block', background: '#0A66C2', color: 'white', padding: '10px 24px', borderRadius: 50, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+            {resumes.length > 0 ? 'Build Another Resume' : 'Build My Resume'} &rarr;
+          </a>
+        </>
+      ) : (
+        <p style={{ fontSize: 13, color: '#888' }}>You{"'"}ve used all 3 resume slots for this order.</p>
+      )}
+
+      <p style={{ fontSize: 12, color: '#888', marginTop: 8 }}>Included in your Pro plan</p>
+    </div>
+  );
+}
+
 function ReferralWidget({ code, url, cardUrl }: { code: string; url: string; cardUrl?: string | null }) {
   const [copied, setCopied] = useState(false);
   const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
@@ -2133,18 +2208,7 @@ export default function ResultsPage() {
 
         {/* Resume Builder CTA */}
         {isPro ? (
-          <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderLeft: '4px solid #0A66C2', borderRadius: 12, padding: '20px 24px', marginTop: 24, marginBottom: 24 }}>
-            <h3 style={{ fontSize: 18, fontWeight: 800, color: '#1E40AF', marginBottom: 8 }}>ATS Resume Builder</h3>
-            <p style={{ fontSize: 14, color: '#444', lineHeight: 1.6, marginBottom: 16 }}>
-              Your profile rewrite is ready. Turn it into an ATS-optimized resume for any job. Paste a job description and get a complete, downloadable resume in 60 seconds.
-            </p>
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              <a href={`/resume?orderId=${orderId}`} style={{ display: 'inline-block', background: '#0A66C2', color: 'white', padding: '12px 28px', borderRadius: 50, fontSize: 15, fontWeight: 700, textDecoration: 'none' }}>
-                Build New Resume &rarr;
-              </a>
-            </div>
-            <p style={{ fontSize: 12, color: '#888', marginTop: 8 }}>Included in your Pro plan</p>
-          </div>
+          <ResumeBuilderSection orderId={orderId} />
         ) : (
           <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 24px', marginTop: 24, marginBottom: 24, textAlign: 'center' }}>
             <h3 style={{ fontSize: 16, fontWeight: 700, color: '#374151', marginBottom: 8 }}>Want an ATS Resume?</h3>

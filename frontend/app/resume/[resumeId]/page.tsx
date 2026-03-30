@@ -69,7 +69,7 @@ function getScoreColor(score: number): string {
 }
 
 // ─── Build Resume HTML for Print ───
-function buildPrintHTML(data: any): string {
+function buildPrintHTML(data: any, tmpl: string = 'classic'): string {
   const c = data.contact || {};
   const contactParts = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean);
 
@@ -134,11 +134,15 @@ function buildPrintHTML(data: any): string {
 <style>
   @page { margin: 20mm; size: A4; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: Arial, Helvetica, sans-serif; color: #111827; }
+  body { font-family: Arial, Helvetica, sans-serif; color: #111827; ${tmpl === 'modern' ? 'border-left: 4px solid #0A66C2;' : ''} }
   .section-header {
-    font-size: 11px; font-weight: 700; color: #374151; text-transform: uppercase;
-    letter-spacing: 2px; border-bottom: 1px solid #E5E7EB;
-    margin-top: 20px; margin-bottom: 8px; padding-bottom: 4px;
+    font-size: ${tmpl === 'minimal' ? '10px' : tmpl === 'modern' ? '12px' : '11px'};
+    font-weight: 700;
+    color: ${tmpl === 'modern' ? '#0A66C2' : tmpl === 'minimal' ? '#9CA3AF' : '#374151'};
+    text-transform: uppercase;
+    letter-spacing: ${tmpl === 'minimal' ? '4px' : '2px'};
+    border-bottom: ${tmpl === 'modern' ? 'none' : tmpl === 'minimal' ? '0.5px solid #E5E7EB' : '1px solid #E5E7EB'};
+    margin-top: ${tmpl === 'minimal' ? '28px' : '20px'}; margin-bottom: 8px; padding-bottom: 4px;
   }
   @media print {
     body { -webkit-print-color-adjust: exact; }
@@ -149,9 +153,9 @@ function buildPrintHTML(data: any): string {
 </style>
 </head>
 <body style="padding:40px;">
-  <div style="text-align:center;">
-    <div style="font-size:28px;font-weight:700;color:#111827;">${c.name || ''}</div>
-    ${contactParts.length ? `<div style="font-size:11px;color:#555;margin-top:4px;">${contactParts.join(' • ')}</div>` : ''}
+  <div style="text-align:${tmpl === 'minimal' ? 'center' : 'left'};">
+    <div style="font-size:${tmpl === 'minimal' ? '24' : '28'}px;font-weight:700;color:${tmpl === 'modern' ? '#0A66C2' : '#111827'};">${c.name || ''}</div>
+    ${contactParts.length ? `<div style="font-size:11px;color:#555;margin-top:4px;text-align:${tmpl === 'minimal' ? 'center' : 'left'};">${contactParts.join(tmpl === 'modern' ? ' | ' : ' • ')}</div>` : ''}
   </div>
   <hr style="border:none;border-top:1px solid #D1D5DB;margin:12px 0;">
   ${data.summary ? `<div class="section-header">PROFESSIONAL SUMMARY</div><div style="font-size:11px;color:#374151;line-height:1.6;">${data.summary}</div>` : ''}
@@ -193,7 +197,7 @@ export default function ResumePreviewPage() {
 
   function handleDownloadPDF() {
     if (!resume) return;
-    const html = buildPrintHTML(resume.resume_data);
+    const html = buildPrintHTML(resume.resume_data, resume.template_id || 'classic');
     const win = window.open('', '_blank');
     if (!win) return;
     win.document.write(html);
@@ -248,6 +252,25 @@ export default function ResumePreviewPage() {
   const matchRate = total > 0 ? Math.round((matched / total) * 100) : 0;
   const scoreColor = getScoreColor(resume.ats_score);
   const contactParts = [contact.email, contact.phone, contact.location, contact.linkedin, contact.website].filter(Boolean);
+  const templateId = resume.template_id || 'classic';
+
+  // Template-specific styles
+  const sectionHeaderStyle: React.CSSProperties = {
+    fontSize: templateId === 'minimal' ? 10 : templateId === 'modern' ? 12 : 11,
+    fontWeight: 700,
+    color: templateId === 'modern' ? '#0A66C2' : templateId === 'minimal' ? '#9CA3AF' : '#374151',
+    textTransform: 'uppercase' as const,
+    letterSpacing: templateId === 'minimal' ? 4 : 2,
+    borderBottom: templateId === 'modern' ? 'none' : templateId === 'minimal' ? '0.5px solid #E5E7EB' : '1px solid #E5E7EB',
+    marginTop: templateId === 'minimal' ? 28 : 20,
+    marginBottom: 8,
+    paddingBottom: 4,
+  };
+
+  const skillTagStyle: React.CSSProperties = templateId === 'modern' ? {
+    display: 'inline-block', background: '#EFF6FF', color: '#1D4ED8', borderRadius: 4,
+    padding: '2px 8px', fontSize: 10, marginRight: 4, marginBottom: 4,
+  } : {};
 
   return (
     <div style={{ minHeight: '100vh', background: '#F3F2EF' }}>
@@ -388,28 +411,25 @@ export default function ResumePreviewPage() {
         <div style={{
           background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
           padding: 40, minHeight: 1123, borderRadius: 4,
+          borderLeft: templateId === 'modern' ? '4px solid #0A66C2' : 'none',
         }}>
           {/* Header */}
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 28, fontWeight: 700, color: '#111827' }}>{contact.name || ''}</div>
+          <div style={{ textAlign: templateId === 'minimal' ? 'center' : 'left' }}>
+            <div style={{ fontSize: templateId === 'minimal' ? 24 : 28, fontWeight: 700, color: templateId === 'modern' ? '#0A66C2' : '#111827' }}>{contact.name || ''}</div>
             {contactParts.length > 0 && (
-              <div style={{ fontSize: 11, color: '#555', marginTop: 4 }}>
-                {contactParts.join(' \u2022 ')}
+              <div style={{ fontSize: 11, color: '#555', marginTop: 4, textAlign: templateId === 'minimal' ? 'center' : 'left' }}>
+                {contactParts.join(templateId === 'modern' ? ' | ' : ' \u2022 ')}
               </div>
             )}
           </div>
 
           {/* Divider */}
-          <hr style={{ border: 'none', borderTop: '1px solid #D1D5DB', margin: '12px 0' }} />
+          <hr style={{ border: 'none', borderTop: templateId === 'minimal' ? '0.5px solid #E5E7EB' : '1px solid #D1D5DB', margin: '12px 0' }} />
 
           {/* Professional Summary */}
           {rd.summary && (
             <>
-              <div style={{
-                fontSize: 11, fontWeight: 700, color: '#374151', textTransform: 'uppercase',
-                letterSpacing: 2, borderBottom: '1px solid #E5E7EB',
-                marginTop: 20, marginBottom: 8, paddingBottom: 4,
-              }}>PROFESSIONAL SUMMARY</div>
+              <div style={sectionHeaderStyle}>PROFESSIONAL SUMMARY</div>
               <div style={{ fontSize: 11, color: '#374151', lineHeight: 1.6 }}>{rd.summary}</div>
             </>
           )}
@@ -417,11 +437,7 @@ export default function ResumePreviewPage() {
           {/* Work Experience */}
           {(rd.experience?.length ?? 0) > 0 && (
             <>
-              <div style={{
-                fontSize: 11, fontWeight: 700, color: '#374151', textTransform: 'uppercase',
-                letterSpacing: 2, borderBottom: '1px solid #E5E7EB',
-                marginTop: 20, marginBottom: 8, paddingBottom: 4,
-              }}>WORK EXPERIENCE</div>
+              <div style={sectionHeaderStyle}>WORK EXPERIENCE</div>
               {rd.experience!.map((exp, i) => (
                 <div key={i} style={{ marginBottom: 12 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -448,11 +464,7 @@ export default function ResumePreviewPage() {
           {/* Education */}
           {(rd.education?.length ?? 0) > 0 && (
             <>
-              <div style={{
-                fontSize: 11, fontWeight: 700, color: '#374151', textTransform: 'uppercase',
-                letterSpacing: 2, borderBottom: '1px solid #E5E7EB',
-                marginTop: 20, marginBottom: 8, paddingBottom: 4,
-              }}>EDUCATION</div>
+              <div style={sectionHeaderStyle}>EDUCATION</div>
               {rd.education!.map((edu, i) => (
                 <div key={i} style={{ marginBottom: 8 }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: '#111827' }}>
@@ -471,16 +483,16 @@ export default function ResumePreviewPage() {
           {/* Skills */}
           {(rd.skills?.length ?? 0) > 0 && (
             <>
-              <div style={{
-                fontSize: 11, fontWeight: 700, color: '#374151', textTransform: 'uppercase',
-                letterSpacing: 2, borderBottom: '1px solid #E5E7EB',
-                marginTop: 20, marginBottom: 8, paddingBottom: 4,
-              }}>SKILLS</div>
-              <div style={{ fontSize: 11, color: '#374151', lineHeight: 1.6 }}>
+              <div style={sectionHeaderStyle}>SKILLS</div>
+              <div style={{ fontSize: 11, color: '#374151', lineHeight: 1.6, display: 'flex', flexWrap: 'wrap', gap: templateId === 'modern' ? 0 : undefined }}>
                 {typeof rd.skills![0] === 'string'
-                  ? (rd.skills! as string[]).join(', ')
+                  ? templateId === 'modern'
+                    ? (rd.skills! as string[]).map((sk, i) => <span key={i} style={skillTagStyle}>{sk}</span>)
+                    : (rd.skills! as string[]).join(', ')
                   : (rd.skills! as SkillCategory[]).map((s, i) => (
-                    <div key={i}><strong>{s.category}:</strong> {(s.skills || []).join(', ')}</div>
+                    templateId === 'modern'
+                      ? <div key={i} style={{ width: '100%', marginBottom: 6 }}><strong style={{ fontSize: 11, color: '#0A66C2' }}>{s.category}:</strong> {(s.skills || []).map((sk, j) => <span key={j} style={skillTagStyle}>{sk}</span>)}</div>
+                      : <div key={i}><strong>{s.category}:</strong> {(s.skills || []).join(', ')}</div>
                   ))
                 }
               </div>
@@ -490,11 +502,7 @@ export default function ResumePreviewPage() {
           {/* Achievements */}
           {(rd.achievements?.length ?? 0) > 0 && (
             <>
-              <div style={{
-                fontSize: 11, fontWeight: 700, color: '#374151', textTransform: 'uppercase',
-                letterSpacing: 2, borderBottom: '1px solid #E5E7EB',
-                marginTop: 20, marginBottom: 8, paddingBottom: 4,
-              }}>ACHIEVEMENTS</div>
+              <div style={sectionHeaderStyle}>ACHIEVEMENTS</div>
               <div style={{ paddingLeft: 16 }}>
                 {rd.achievements!.map((a, i) => (
                   <div key={i} style={{ fontSize: 11, color: '#374151', lineHeight: 1.5 }}>{'\u2022'} {a}</div>
