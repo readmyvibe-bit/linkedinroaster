@@ -1785,26 +1785,18 @@ function esc(s?: string): string {
 function printPageWrapper(body: string, pageCount?: number): string {
   const onePage = pageCount === 1;
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><title> </title><style>
-@page{size:A4;margin:0}
+@page{size:A4;margin:12mm 12mm 10mm 12mm}
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:210mm;height:297mm;margin:0;padding:0;overflow:${onePage ? 'hidden' : 'visible'}}
-body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
-.resume-wrapper{width:210mm;min-height:297mm;position:relative;overflow:${onePage ? 'hidden' : 'visible'}}
-.two-col{display:flex;width:100%;min-height:297mm}
+html,body{width:100%;margin:0;padding:0}
+body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important;font-size:11px}
+.resume-wrapper{width:100%;position:relative}
+.two-col{display:flex;width:100%;min-height:calc(297mm - 22mm)}
 .two-col-left{flex-shrink:0}
 .two-col-right{flex:1}
-.sidebar-bg{position:absolute;top:0;bottom:0;left:0;min-height:297mm}
 @media print{
-  html,body{width:210mm;height:297mm;margin:0;padding:0;overflow:${onePage ? 'hidden' : 'visible'}}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-  .resume-wrapper{width:100%;min-height:297mm}
-  .two-col{min-height:297mm}
-  .sidebar-bg{min-height:297mm}
-  .entry{page-break-inside:avoid;orphans:4;widows:4}
-  p,div{orphans:4;widows:4}
-  @page:left{margin-top:15mm}
-  @page:right{margin-top:15mm}
-  @page:first{margin-top:0}
+  .entry{page-break-inside:avoid}
+  .section-block{page-break-inside:avoid}
 }
 </style></head><body style="-webkit-print-color-adjust:exact;print-color-adjust:exact">${body}</body></html>`;
 }
@@ -2616,16 +2608,6 @@ export function buildPrintHTML(data: ResumeData, templateId: string, pageCount?:
     case 'indigo': html = printIndigo(data); break;
     case 'classic':
     default: html = printClassic(data); break;
-  }
-
-  // Enforce 1-page limit if requested
-  if (pageCount === 1) {
-    html = html.replace('</style>', `
-      html,body{max-height:297mm!important;overflow:hidden!important}
-      .resume-wrapper{max-height:280mm!important;overflow:hidden!important}
-      @page{margin:8mm 10mm!important}
-      @media print{html,body{max-height:297mm!important;overflow:hidden!important}}
-    </style>`);
   }
 
   return html;

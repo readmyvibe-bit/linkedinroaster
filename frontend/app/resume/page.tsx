@@ -621,6 +621,7 @@ function ResumeFormContent() {
                           order_id: data.razorpay_order_id, name: 'ProfileRoaster',
                           description: 'Upgrade to Pro', theme: { color: '#0A66C2' },
                           handler: () => { window.location.reload(); },
+                          modal: { ondismiss: () => { document.body.style.overflow = ''; document.body.style.position = ''; document.documentElement.style.overflow = ''; } },
                         };
                         const rzp = new (window as any).Razorpay(opts); rzp.open();
                       } else { alert(data.error || 'Failed to create upgrade order'); }

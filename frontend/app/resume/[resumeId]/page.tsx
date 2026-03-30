@@ -113,29 +113,9 @@ export default function ResumePreviewPage() {
       return;
     }
     const html = buildPrintHTML(resume.resume_data, templateId, resume.page_count || 2);
-    // Add auto-shrink script that reduces font if content spills past 1 page
-    const autoShrinkScript = `<script>
-      window.addEventListener('load', function() {
-        var body = document.body;
-        var wrapper = document.querySelector('.resume-wrapper') || body;
-        var pageHeight = 1122; // A4 height in px at 96dpi
-        var attempts = 0;
-        while (wrapper.scrollHeight > pageHeight && attempts < 8) {
-          var currentSize = parseFloat(window.getComputedStyle(body).fontSize) || 11;
-          body.style.fontSize = (currentSize - 0.5) + 'px';
-          var allText = document.querySelectorAll('div, span, p, li');
-          allText.forEach(function(el) {
-            var s = parseFloat(window.getComputedStyle(el).fontSize);
-            if (s > 8) el.style.fontSize = (s - 0.3) + 'px';
-          });
-          attempts++;
-        }
-      });
-    </script>`;
-    const finalHtml = html.replace('</body>', autoShrinkScript + '</body>');
     const win = window.open('', '_blank');
     if (!win) return;
-    win.document.write(finalHtml);
+    win.document.write(html);
     win.document.close();
     win.document.title = ' ';
     setTimeout(() => { win.print(); }, 800);
@@ -425,6 +405,7 @@ export default function ResumePreviewPage() {
                           order_id: data.razorpay_order_id, name: 'ProfileRoaster',
                           description: 'Upgrade to Pro', theme: { color: '#0A66C2' },
                           handler: () => { window.location.reload(); },
+                          modal: { ondismiss: () => { document.body.style.overflow = ''; document.body.style.position = ''; document.documentElement.style.overflow = ''; } },
                         };
                         const rzp = new (window as any).Razorpay(opts); rzp.open();
                       } else { alert(data.error || 'Failed'); }
