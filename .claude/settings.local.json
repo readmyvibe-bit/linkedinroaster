@@ -7,7 +7,8 @@
       "Bash(railway up:*)",
       "Bash(railway service:*)",
       "Bash(railway link:*)",
-      "Bash(vercel --prod --yes)"
+      "Bash(vercel --prod --yes)",
+      "Bash(curl -s https://profileroaster.in/admin)"
     ]
   }
 }

@@ -175,7 +175,7 @@ function StatCard({ label, value, sub }: { label: string; value: string | number
 // ─── Overview Screen ───
 function OverviewScreen() {
   const [data, setData] = useState<any>(null);
-  useEffect(() => { apiFetchJson('/api/admin/overview').then(setData); }, []);
+  useEffect(() => { apiFetchJson('/api/admin/overview').then(setData).catch(() => {}); }, []);
   if (!data) return <p>Loading...</p>;
 
   const avgMins = data.avg_processing_seconds != null
@@ -510,9 +510,15 @@ function OrdersScreen() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const load = useCallback(async () => {
-    const data = await apiFetchJson(`/api/admin/orders?page=${page}&limit=20`);
-    setOrders(data.orders);
-    setTotal(data.total);
+    try {
+      const data = await apiFetchJson(`/api/admin/orders?page=${page}&limit=20`);
+      if (data?.orders) {
+        setOrders(data.orders);
+        setTotal(data.total || 0);
+      }
+    } catch {
+      setToast({ message: 'Failed to load orders', type: 'error' });
+    }
   }, [page]);
 
   useEffect(() => { load(); }, [load]);
@@ -633,7 +639,7 @@ function OrdersScreen() {
 // ─── Teasers Screen ───
 function TeasersScreen() {
   const [data, setData] = useState<any>(null);
-  useEffect(() => { apiFetchJson('/api/admin/teasers').then(setData); }, []);
+  useEffect(() => { apiFetchJson('/api/admin/teasers').then(setData).catch(() => {}); }, []);
   if (!data) return <p>Loading...</p>;
 
   const avgScoreColor = data.avg_score != null
@@ -796,10 +802,10 @@ function QualityScreen() {
       .catch(() => {
         // Fallback: fetch from orders
         apiFetchJson('/api/admin/orders?limit=100').then(data => {
-          const rated = (data.orders || []).filter((o: any) => o.user_rating);
+          const rated = (data?.orders || []).filter((o: any) => o.user_rating);
           setRatings(rated);
           setLoading(false);
-        });
+        }).catch(() => setLoading(false));
       });
   }, []);
 
@@ -881,7 +887,7 @@ function QualityScreen() {
 // ─── Revenue Screen ───
 function RevenueScreen() {
   const [data, setData] = useState<any>(null);
-  useEffect(() => { apiFetchJson('/api/admin/revenue').then(setData); }, []);
+  useEffect(() => { apiFetchJson('/api/admin/revenue').then(setData).catch(() => {}); }, []);
   if (!data) return <p>Loading...</p>;
 
   const totalRevenue = data.daily.reduce((s: number, d: any) => s + d.revenue, 0);
@@ -960,7 +966,7 @@ function ReferralsScreen() {
   const [amount, setAmount] = useState('');
   const [txnRef, setTxnRef] = useState('');
 
-  useEffect(() => { apiFetchJson('/api/admin/referrals').then(setReferrals); }, []);
+  useEffect(() => { apiFetchJson('/api/admin/referrals').then(setReferrals).catch(() => {}); }, []);
 
   async function processPayout() {
     if (!amount || !txnRef || !payoutModal) return;
