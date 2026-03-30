@@ -292,6 +292,15 @@ export default function ResumePreviewPage() {
             Download PDF
           </button>
           <a
+            href={`${API_URL}/api/resume/${resume.id}/download/docx`}
+            style={{
+              padding: '8px 18px', background: '#374151', color: '#fff', border: 'none',
+              borderRadius: 20, fontSize: 13, fontWeight: 600, textDecoration: 'none',
+            }}
+          >
+            Download DOCX
+          </a>
+          <a
             href={`/resume/${resume.id}/edit`}
             style={{
               padding: '8px 18px', background: '#057642', color: '#fff', border: 'none',

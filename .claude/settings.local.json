@@ -18,7 +18,9 @@
       "Bash(ls:*)",
       "Bash(curl:*)",
       "Bash(grep -n \"fontSize: 11, fontWeight: 700, color: ''''#374151'''', textTransform\" frontend/app/resume/[resumeId]/page.tsx)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(npm list:*)",
+      "Bash(npm install:*)"
     ]
   }
 }

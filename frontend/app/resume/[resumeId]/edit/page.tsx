@@ -189,6 +189,10 @@ export default function ResumeEditorPage() {
   const [skillsParsed, setSkillsParsed] = useState({ technical: [] as string[], soft: [] as string[], languages: [] as string[], certifications: [] as string[] });
   const [isMobile, setIsMobile] = useState(false);
   const [mobileView, setMobileView] = useState<'edit' | 'preview'>('edit');
+  const [dragBullet, setDragBullet] = useState<{expIndex: number; bulletIndex: number} | null>(null);
+  const [dragOverBullet, setDragOverBullet] = useState<{expIndex: number; bulletIndex: number} | null>(null);
+  const [dragExp, setDragExp] = useState<number | null>(null);
+  const [dragOverExp, setDragOverExp] = useState<number | null>(null);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isFirstRender = useRef(true);
@@ -534,6 +538,15 @@ ${experienceHTML}${educationHTML}${skillsHTML}${achievementsHTML}
             Download PDF
           </button>
           <a
+            href={`${API_URL}/api/resume/${resumeId}/download/docx`}
+            style={{
+              padding: '7px 16px', background: '#374151', color: '#fff', border: 'none',
+              borderRadius: 20, fontSize: 13, fontWeight: 600, textDecoration: 'none',
+            }}
+          >
+            DOCX
+          </a>
+          <a
             href={`/resume/${resumeId}`}
             style={{ fontSize: 13, fontWeight: 600, color: '#666', textDecoration: 'none' }}
           >
@@ -620,21 +633,85 @@ ${experienceHTML}${educationHTML}${skillsHTML}${achievementsHTML}
                   const isOpen = !!expandedJobs[i];
                   const dateStr = exp.dates || [exp.startDate, exp.current ? 'Present' : exp.endDate].filter(Boolean).join(' - ');
                   return (
-                    <div key={i} style={{ border: '1px solid #E0E0E0', borderRadius: 8, overflow: 'hidden', marginBottom: 12 }}>
+                    <div
+                      key={i}
+                      style={{
+                        border: '1px solid #E0E0E0', borderRadius: 8, overflow: 'hidden', marginBottom: 12,
+                        borderTop: dragOverExp === i ? '2px solid #0A66C2' : '1px solid #E0E0E0',
+                        opacity: dragExp === i ? 0.4 : 1,
+                      }}
+                      onDragOver={(e) => {
+                        if (dragExp === null) return;
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
+                        setDragOverExp(i);
+                      }}
+                      onDragLeave={() => { if (dragExp !== null) setDragOverExp(null); }}
+                      onDrop={(e) => {
+                        if (dragExp === null) return;
+                        e.preventDefault();
+                        if (dragExp !== i) {
+                          const expArr = [...(resumeData.experience || [])];
+                          const [moved] = expArr.splice(dragExp, 1);
+                          expArr.splice(i, 0, moved);
+                          setResumeData(prev => prev ? { ...prev, experience: expArr } : prev);
+                          // Update expandedJobs to follow the moved entries
+                          setExpandedJobs(ej => {
+                            const newEj: Record<number, boolean> = {};
+                            const oldKeys = Object.keys(ej).map(Number);
+                            for (const k of oldKeys) {
+                              if (!ej[k]) continue;
+                              let newK = k;
+                              if (k === dragExp) {
+                                newK = i;
+                              } else if (dragExp < i && k > dragExp && k <= i) {
+                                newK = k - 1;
+                              } else if (dragExp > i && k >= i && k < dragExp) {
+                                newK = k + 1;
+                              }
+                              newEj[newK] = true;
+                            }
+                            return newEj;
+                          });
+                        }
+                        setDragExp(null);
+                        setDragOverExp(null);
+                      }}
+                    >
                       {/* Header */}
                       <div
-                        onClick={() => setExpandedJobs(ej => ({ ...ej, [i]: !ej[i] }))}
                         style={{
                           padding: '12px 16px', background: '#F9FAFB', cursor: 'pointer',
-                          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                          display: 'flex', alignItems: 'center',
                         }}
                       >
-                        <span style={{ fontSize: 14, fontWeight: 600, color: '#333' }}>
-                          {(exp.role || exp.title || 'New Position')}{exp.company ? ` at ${exp.company}` : ''}
-                        </span>
-                        <span style={{ fontSize: 18, color: '#888', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
-                          &#9662;
-                        </span>
+                        <div
+                          draggable
+                          onDragStart={(e) => {
+                            setDragExp(i);
+                            e.dataTransfer.effectAllowed = 'move';
+                          }}
+                          onDragEnd={() => { setDragExp(null); setDragOverExp(null); }}
+                          onClick={(e) => e.stopPropagation()}
+                          style={{
+                            cursor: 'grab', padding: '0 6px', color: '#bbb', fontSize: 14,
+                            userSelect: 'none', display: 'flex', alignItems: 'center', marginRight: 8,
+                          }}
+                          title="Drag to reorder"
+                        >
+                          ⠿
+                        </div>
+                        <div
+                          onClick={() => setExpandedJobs(ej => ({ ...ej, [i]: !ej[i] }))}
+                          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flex: 1 }}
+                        >
+                          <span style={{ fontSize: 14, fontWeight: 600, color: '#333' }}>
+                            {(exp.role || exp.title || 'New Position')}{exp.company ? ` at ${exp.company}` : ''}
+                          </span>
+                          <span style={{ fontSize: 18, color: '#888', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                            &#9662;
+                          </span>
+                        </div>
                       </div>
                       {/* Body */}
                       {isOpen && (
@@ -683,7 +760,49 @@ ${experienceHTML}${educationHTML}${skillsHTML}${achievementsHTML}
                           {/* Bullets */}
                           <label style={labelStyle}>Bullets</label>
                           {(exp.bullets || []).map((b, j) => (
-                            <div key={j} style={{ display: 'flex', gap: 8, marginBottom: 6, alignItems: 'flex-start' }}>
+                            <div
+                              key={j}
+                              style={{
+                                display: 'flex', gap: 8, marginBottom: 6, alignItems: 'flex-start',
+                                borderTop: dragOverBullet?.expIndex === i && dragOverBullet?.bulletIndex === j ? '2px solid #0A66C2' : 'none',
+                                opacity: dragBullet?.expIndex === i && dragBullet?.bulletIndex === j ? 0.4 : 1,
+                              }}
+                              onDragOver={(e) => {
+                                if (dragBullet === null || dragBullet.expIndex !== i) return;
+                                e.preventDefault();
+                                e.dataTransfer.dropEffect = 'move';
+                                setDragOverBullet({ expIndex: i, bulletIndex: j });
+                              }}
+                              onDragLeave={() => { if (dragBullet !== null) setDragOverBullet(null); }}
+                              onDrop={(e) => {
+                                e.preventDefault();
+                                if (dragBullet && dragBullet.expIndex === i) {
+                                  const expArr = [...(resumeData.experience || [])];
+                                  const bullets = [...(expArr[i].bullets || [])];
+                                  const [moved] = bullets.splice(dragBullet.bulletIndex, 1);
+                                  bullets.splice(j, 0, moved);
+                                  expArr[i] = { ...expArr[i], bullets };
+                                  setResumeData(prev => prev ? { ...prev, experience: expArr } : prev);
+                                }
+                                setDragBullet(null);
+                                setDragOverBullet(null);
+                              }}
+                            >
+                              <div
+                                draggable
+                                onDragStart={(e) => {
+                                  setDragBullet({ expIndex: i, bulletIndex: j });
+                                  e.dataTransfer.effectAllowed = 'move';
+                                }}
+                                onDragEnd={() => { setDragBullet(null); setDragOverBullet(null); }}
+                                style={{
+                                  cursor: 'grab', padding: '0 6px', color: '#bbb', fontSize: 14,
+                                  userSelect: 'none', display: 'flex', alignItems: 'center', flexShrink: 0,
+                                }}
+                                title="Drag to reorder"
+                              >
+                                ⠿
+                              </div>
                               <textarea
                                 rows={1}
                                 style={{ ...inputStyle, resize: 'vertical', minHeight: 32 }}

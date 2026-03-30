@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { query } from '../db';
 import { generateResume } from '../services/resume-generator';
+import { generateDocx } from '../services/resume-docx';
 
 const router = Router();
 
@@ -114,6 +115,29 @@ router.post('/:resumeId/ats-check', async (req: Request, res: Response) => {
     res.json({ score: Math.min(score, 100), keywords_matched: matched, keywords_missing: missing });
   } catch (err) {
     res.status(500).json({ error: 'ATS check failed' });
+  }
+});
+
+// GET /api/resume/:resumeId/download/docx
+router.get('/:resumeId/download/docx', async (req: Request, res: Response) => {
+  try {
+    const result = await query('SELECT * FROM resumes WHERE id=$1', [req.params.resumeId]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Resume not found' });
+
+    const resume = result.rows[0];
+    const data = resume.resume_data;
+    const contact = data.contact || {};
+    const name = (contact.name || 'resume').replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+    const role = (resume.target_role || 'resume').replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+
+    const buffer = await generateDocx(data);
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    res.setHeader('Content-Disposition', `attachment; filename="${name}-${role}-resume.docx"`);
+    res.send(buffer);
+  } catch (err: any) {
+    console.error('DOCX download error:', err.message);
+    res.status(500).json({ error: 'Failed to generate DOCX' });
   }
 });
 
