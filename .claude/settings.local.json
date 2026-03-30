@@ -28,7 +28,8 @@
       "Bash(grep -v dotenv __NEW_LINE_6ade328e35fb3104__ echo \"  Email:\" node -e \"require\\(''''dotenv''''\\).config\\(\\);const{Resend}=require\\(''''resend''''\\);new Resend\\(process.env.RESEND_API_KEY\\).emails.send\\({from:''''Profile Roaster <support@profileroaster.in>'''',to:''''avinakshiavi11@gmail.com'''',subject:''''Resume Builder Test Complete'''',html:''''<p>All 20 tests passed.</p>''''}\\).then\\(r=>console.log\\(''''    Email:'''',r.data?.id?''''SENT'''':''''FAILED''''\\)\\)\")",
       "Bash(railway logs:*)",
       "Bash(printf \"Senior Software Engineer with 10 years experience\")",
-      "Bash(printf 'Senior Software Engineer with 10 years of experience building scalable distributed systems at Fortune 500 companies. Expert in Python Java AWS Docker Kubernetes React and Node.js. Led a team of 15 engineers to deliver a microservices migration that reduced deploy time by 73 percent. Education: Bachelor of Computer Science from IIT Delhi 2014. Skills: Python Java JavaScript TypeScript React Node.js AWS Docker Kubernetes PostgreSQL MongoDB Redis')"
+      "Bash(printf 'Senior Software Engineer with 10 years of experience building scalable distributed systems at Fortune 500 companies. Expert in Python Java AWS Docker Kubernetes React and Node.js. Led a team of 15 engineers to deliver a microservices migration that reduced deploy time by 73 percent. Education: Bachelor of Computer Science from IIT Delhi 2014. Skills: Python Java JavaScript TypeScript React Node.js AWS Docker Kubernetes PostgreSQL MongoDB Redis')",
+      "Bash(npx next:*)"
     ]
   }
 }

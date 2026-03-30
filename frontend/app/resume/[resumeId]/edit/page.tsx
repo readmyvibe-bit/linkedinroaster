@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'next/navigation';
+import { TEMPLATES, renderResumeHTML, buildPrintHTML } from '../../../../components/resume/ResumeTemplates';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -128,11 +129,6 @@ const labelStyle: React.CSSProperties = {
   fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 4, display: 'block',
 };
 const fieldGap: React.CSSProperties = { marginBottom: 12 };
-const sectionHeaderStyle: React.CSSProperties = {
-  fontSize: 11, fontWeight: 700, color: '#374151', textTransform: 'uppercase',
-  letterSpacing: 2, borderBottom: '1px solid #E5E7EB',
-  marginTop: 20, marginBottom: 8, paddingBottom: 4,
-};
 
 // ─── Tag Input Component ───
 function TagInput({ tags, onTagsChange, placeholder }: { tags: string[]; onTagsChange: (t: string[]) => void; placeholder?: string }) {
@@ -377,62 +373,16 @@ export default function ResumeEditorPage() {
   // ─── Download PDF ───
   function handleDownloadPDF() {
     if (!resumeData) return;
-    const c = resumeData.contact || {};
-    const contactParts = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean);
-
-    let experienceHTML = '';
-    if (resumeData.experience?.length) {
-      experienceHTML = `<div class="section-header">WORK EXPERIENCE</div>${resumeData.experience.map(exp => {
-        const dateStr = exp.dates || [exp.startDate, exp.current ? 'Present' : exp.endDate].filter(Boolean).join(' - ');
-        return `<div style="margin-bottom:12px;">
-          <div style="display:flex;justify-content:space-between;align-items:baseline;">
-            <div style="font-size:12px;font-weight:700;color:#111827;">${exp.role || exp.title || ''}${exp.company ? ' \u2014 ' + exp.company : ''}</div>
-            <div style="font-size:11px;font-style:italic;color:#666;white-space:nowrap;margin-left:12px;">${dateStr}</div>
-          </div>
-          ${exp.location ? `<div style="font-size:11px;color:#888;">${exp.location}</div>` : ''}
-          ${exp.bullets?.length ? `<div style="padding-left:16px;margin-top:4px;">${exp.bullets.map(b => `<div style="font-size:11px;color:#374151;line-height:1.5;">\u2022 ${b}</div>`).join('')}</div>` : ''}
-        </div>`;
-      }).join('')}`;
-    }
-
-    let educationHTML = '';
-    if (resumeData.education?.length) {
-      educationHTML = `<div class="section-header">EDUCATION</div>${resumeData.education.map(edu => `<div style="margin-bottom:8px;">
-        <div style="font-size:12px;font-weight:700;color:#111827;">${edu.degree || ''}${(edu.institution || edu.school) ? ' \u2014 ' + (edu.institution || edu.school) : ''}</div>
-        <div style="font-size:11px;color:#666;">${[edu.field, edu.year || edu.dates].filter(Boolean).join(' \u2022 ')}</div>
-      </div>`).join('')}`;
-    }
-
-    let skillsHTML = '';
-    if (resumeData.skills?.length) {
-      skillsHTML = `<div class="section-header">SKILLS</div><div style="font-size:11px;color:#374151;line-height:1.6;">${
-        typeof resumeData.skills[0] === 'string'
-          ? (resumeData.skills as string[]).join(', ')
-          : (resumeData.skills as SkillCategory[]).map(s => `<div><strong>${s.category || ''}:</strong> ${(s.skills || []).join(', ')}</div>`).join('')
-      }</div>`;
-    }
-
-    let achievementsHTML = '';
-    if (resumeData.achievements?.length) {
-      achievementsHTML = `<div class="section-header">ACHIEVEMENTS</div><div style="padding-left:16px;">${resumeData.achievements.map(a => `<div style="font-size:11px;color:#374151;line-height:1.5;">\u2022 ${a}</div>`).join('')}</div>`;
-    }
-
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${c.name || 'Resume'}</title>
-<style>@page{margin:20mm;size:A4}*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#111827}
-.section-header{font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:2px;border-bottom:1px solid #E5E7EB;margin-top:20px;margin-bottom:8px;padding-bottom:4px}
-@media print{body{-webkit-print-color-adjust:exact}*{color:#000!important;background:none!important}}</style></head>
-<body style="padding:40px;">
-<div style="text-align:center;"><div style="font-size:28px;font-weight:700;color:#111827;">${c.name || ''}</div>
-${contactParts.length ? `<div style="font-size:11px;color:#555;margin-top:4px;">${contactParts.join(' \u2022 ')}</div>` : ''}</div>
-<hr style="border:none;border-top:1px solid #D1D5DB;margin:12px 0;">
-${resumeData.summary ? `<div class="section-header">PROFESSIONAL SUMMARY</div><div style="font-size:11px;color:#374151;line-height:1.6;">${resumeData.summary}</div>` : ''}
-${experienceHTML}${educationHTML}${skillsHTML}${achievementsHTML}
-</body></html>`;
+    const html = buildPrintHTML(resumeData, templateId);
     const win = window.open('', '_blank');
     if (!win) return;
     win.document.write(html);
     win.document.close();
-    setTimeout(() => win.print(), 500);
+    win.document.title = ' ';
+    setTimeout(() => {
+      win.print();
+      setTimeout(() => win.close(), 1000);
+    }, 500);
   }
 
   // ─── Loading ───
@@ -471,7 +421,6 @@ ${experienceHTML}${educationHTML}${skillsHTML}${achievementsHTML}
   const rd = resumeData;
   const contact = rd.contact || {};
   const matched = keywordsMatched.length;
-  const contactParts = [contact.email, contact.phone, contact.location, contact.linkedin, contact.website].filter(Boolean);
 
   const tabs: { key: TabName; label: string }[] = [
     { key: 'contact', label: 'Contact' },
@@ -484,13 +433,6 @@ ${experienceHTML}${educationHTML}${skillsHTML}${achievementsHTML}
 
   const savedStatusColor = savedStatus === 'saved' ? '#057642' : savedStatus === 'saving' ? '#888' : '#E67E22';
   const savedStatusText = savedStatus === 'saved' ? 'Saved' : savedStatus === 'saving' ? 'Saving...' : 'Unsaved';
-
-  // Template-aware preview styles
-  const previewSectionHeader: React.CSSProperties = templateId === 'modern'
-    ? { fontSize: 11, fontWeight: 700, color: '#0A66C2', textTransform: 'uppercase', letterSpacing: 2, marginTop: 20, marginBottom: 8, paddingBottom: 4 }
-    : templateId === 'minimal'
-    ? { fontSize: 11, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 4, marginTop: 24, marginBottom: 10, paddingBottom: 4, borderBottom: '0.5px solid #E5E7EB' }
-    : sectionHeaderStyle; // classic
 
   // ─── Render ───
   return (
@@ -524,9 +466,9 @@ ${experienceHTML}${educationHTML}${skillsHTML}${achievementsHTML}
             onChange={e => setTemplateId(e.target.value)}
             style={{ padding: '6px 10px', border: '1px solid #D0D0D0', borderRadius: 6, fontSize: 13, outline: 'none' }}
           >
-            <option value="classic">Classic</option>
-            <option value="modern">Modern</option>
-            <option value="minimal">Minimal</option>
+            {TEMPLATES.map(t => (
+              <option key={t.id} value={t.id}>{t.name}</option>
+            ))}
           </select>
           <button
             onClick={handleDownloadPDF}
@@ -1041,138 +983,7 @@ ${experienceHTML}${educationHTML}${skillsHTML}${achievementsHTML}
           </div>
 
           {/* Resume Preview */}
-          <div style={{
-            maxWidth: 794, margin: '0 auto', background: '#fff',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)', padding: 40, minHeight: 1123, borderRadius: 4,
-            ...(templateId === 'modern' ? { borderLeft: '4px solid #0A66C2' } : {}),
-          }}>
-            {/* Header */}
-            <div style={{ textAlign: templateId === 'minimal' ? 'center' : 'left' }}>
-              <div style={{
-                fontSize: templateId === 'minimal' ? 24 : 28, fontWeight: 700,
-                color: templateId === 'modern' ? '#0A66C2' : '#111827',
-              }}>{contact.name || ''}</div>
-              {contactParts.length > 0 && (
-                <div style={{ fontSize: 11, color: '#555', marginTop: 4 }}>
-                  {contactParts.join(' \u2022 ')}
-                </div>
-              )}
-            </div>
-
-            <hr style={{
-              border: 'none',
-              borderTop: templateId === 'minimal' ? '0.5px solid #E5E7EB' : '1px solid #D1D5DB',
-              margin: templateId === 'minimal' ? '16px 0' : '12px 0',
-            }} />
-
-            {/* Professional Summary */}
-            {rd.summary && (
-              <>
-                <div style={previewSectionHeader}>PROFESSIONAL SUMMARY</div>
-                <div style={{ fontSize: 11, color: '#374151', lineHeight: 1.6 }}>{rd.summary}</div>
-              </>
-            )}
-
-            {/* Work Experience */}
-            {(rd.experience?.length ?? 0) > 0 && (
-              <>
-                <div style={previewSectionHeader}>WORK EXPERIENCE</div>
-                {rd.experience!.map((exp, i) => {
-                  const dateStr = exp.dates || [exp.startDate, exp.current ? 'Present' : exp.endDate].filter(Boolean).join(' - ');
-                  return (
-                    <div key={i} style={{ marginBottom: 12 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: '#111827' }}>
-                          {exp.role || exp.title || ''}{exp.company ? ` \u2014 ${exp.company}` : ''}
-                        </div>
-                        <div style={{ fontSize: 11, fontStyle: 'italic', color: '#666', whiteSpace: 'nowrap', marginLeft: 12 }}>
-                          {dateStr}
-                        </div>
-                      </div>
-                      {exp.location && <div style={{ fontSize: 11, color: '#888' }}>{exp.location}</div>}
-                      {(exp.bullets?.length ?? 0) > 0 && (
-                        <div style={{ paddingLeft: 16, marginTop: 4 }}>
-                          {exp.bullets!.map((b, j) => (
-                            <div key={j} style={{ fontSize: 11, color: '#374151', lineHeight: 1.5 }}>{'\u2022'} {b}</div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </>
-            )}
-
-            {/* Education */}
-            {(rd.education?.length ?? 0) > 0 && (
-              <>
-                <div style={previewSectionHeader}>EDUCATION</div>
-                {rd.education!.map((edu, i) => (
-                  <div key={i} style={{ marginBottom: 8 }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#111827' }}>
-                      {edu.degree || ''}{(edu.institution || edu.school) ? ` \u2014 ${edu.institution || edu.school}` : ''}
-                    </div>
-                    {(edu.field || edu.year || edu.dates) && (
-                      <div style={{ fontSize: 11, color: '#666' }}>
-                        {[edu.field, edu.year || edu.dates].filter(Boolean).join(' \u2022 ')}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </>
-            )}
-
-            {/* Skills */}
-            {(rd.skills?.length ?? 0) > 0 && (
-              <>
-                <div style={previewSectionHeader}>SKILLS</div>
-                {templateId === 'modern' ? (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                    {(typeof rd.skills![0] === 'string'
-                      ? (rd.skills! as string[])
-                      : (rd.skills! as SkillCategory[]).flatMap(s => s.skills || [])
-                    ).map((skill, i) => (
-                      <span key={i} style={{
-                        background: '#E8F0FE', color: '#0A66C2', borderRadius: 12,
-                        padding: '2px 10px', fontSize: 11, fontWeight: 500,
-                      }}>{skill}</span>
-                    ))}
-                  </div>
-                ) : (
-                  <div style={{ fontSize: 11, color: '#374151', lineHeight: 1.6 }}>
-                    {typeof rd.skills![0] === 'string'
-                      ? (rd.skills! as string[]).join(', ')
-                      : (rd.skills! as SkillCategory[]).map((s, i) => (
-                        <div key={i}><strong>{s.category}:</strong> {(s.skills || []).join(', ')}</div>
-                      ))
-                    }
-                  </div>
-                )}
-              </>
-            )}
-
-            {/* Achievements */}
-            {(rd.achievements?.length ?? 0) > 0 && (
-              <>
-                <div style={previewSectionHeader}>ACHIEVEMENTS</div>
-                <div style={{ paddingLeft: 16 }}>
-                  {rd.achievements!.map((a, i) => (
-                    <div key={i} style={{ fontSize: 11, color: '#374151', lineHeight: 1.5 }}>{'\u2022'} {a}</div>
-                  ))}
-                </div>
-              </>
-            )}
-
-            {/* Custom Sections */}
-            {(rd.customSections || []).map((cs, i) => (
-              cs.title ? (
-                <React.Fragment key={i}>
-                  <div style={previewSectionHeader}>{cs.title.toUpperCase()}</div>
-                  <div style={{ fontSize: 11, color: '#374151', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{cs.content || ''}</div>
-                </React.Fragment>
-              ) : null
-            ))}
-          </div>
+          {renderResumeHTML(resumeData, templateId)}
         </div>
       </div>
     </div>

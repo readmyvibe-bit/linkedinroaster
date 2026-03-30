@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import { TEMPLATES, renderResumeHTML, buildPrintHTML } from '../../../components/resume/ResumeTemplates';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -69,105 +70,6 @@ function getScoreColor(score: number): string {
   return '#CC1016';
 }
 
-// ─── Build Resume HTML for Print ───
-function buildPrintHTML(data: any, tmpl: string = 'classic'): string {
-  const c = data.contact || {};
-  const contactParts = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean);
-
-  let experienceHTML = '';
-  if (data.experience?.length) {
-    experienceHTML = `
-      <div class="section-header">WORK EXPERIENCE</div>
-      ${data.experience.map((exp: any) => `
-        <div style="margin-bottom:12px;">
-          <div style="display:flex;justify-content:space-between;align-items:baseline;">
-            <div style="font-size:12px;font-weight:700;color:#111827;">${exp.role || exp.title || ''}${exp.company ? ' — ' + exp.company : ''}</div>
-            <div style="font-size:11px;font-style:italic;color:#666;white-space:nowrap;margin-left:12px;">${exp.dates || (exp.start_date ? exp.start_date + (exp.end_date ? ' - ' + exp.end_date : ' - Present') : '')}</div>
-          </div>
-          ${exp.location ? `<div style="font-size:11px;color:#888;">${exp.location}</div>` : ''}
-          ${exp.bullets?.length ? `<div style="padding-left:16px;margin-top:4px;">${exp.bullets.map((b: any) => `<div style="font-size:11px;color:#374151;line-height:1.5;">• ${b}</div>`).join('')}</div>` : ''}
-        </div>
-      `).join('')}
-    `;
-  }
-
-  let educationHTML = '';
-  if (data.education?.length) {
-    educationHTML = `
-      <div class="section-header">EDUCATION</div>
-      ${data.education.map((edu: any) => `
-        <div style="margin-bottom:8px;">
-          <div style="font-size:12px;font-weight:700;color:#111827;">${edu.degree || ''}${edu.institution || edu.school ? ' — ' + (edu.institution || edu.school) : ''}</div>
-          <div style="font-size:11px;color:#666;">${[edu.field, edu.year || edu.dates].filter(Boolean).join(' • ')}</div>
-        </div>
-      `).join('')}
-    `;
-  }
-
-  let skillsHTML = '';
-  if (data.skills?.length) {
-    skillsHTML = `
-      <div class="section-header">SKILLS</div>
-      <div style="font-size:11px;color:#374151;line-height:1.6;">
-        ${Array.isArray(data.skills) && typeof data.skills[0] === 'string'
-          ? (data.skills as string[]).join(', ')
-          : (data.skills as any[]).map((s: any) => `<div><strong>${s.category || ''}:</strong> ${(s.skills || []).join(', ')}</div>`).join('')
-        }
-      </div>
-    `;
-  }
-
-  let achievementsHTML = '';
-  if (data.achievements?.length) {
-    achievementsHTML = `
-      <div class="section-header">ACHIEVEMENTS</div>
-      <div style="padding-left:16px;">
-        ${data.achievements.map((a: any) => `<div style="font-size:11px;color:#374151;line-height:1.5;">• ${a}</div>`).join('')}
-      </div>
-    `;
-  }
-
-  return `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<title> </title>
-<style>
-  @page { margin: 20mm; size: A4; }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: Arial, Helvetica, sans-serif; color: #111827; ${tmpl === 'modern' ? 'border-left: 4px solid #0A66C2;' : ''} }
-  .section-header {
-    font-size: ${tmpl === 'minimal' ? '10px' : tmpl === 'modern' ? '12px' : '11px'};
-    font-weight: 700;
-    color: ${tmpl === 'modern' ? '#0A66C2' : tmpl === 'minimal' ? '#9CA3AF' : '#374151'};
-    text-transform: uppercase;
-    letter-spacing: ${tmpl === 'minimal' ? '4px' : '2px'};
-    border-bottom: ${tmpl === 'modern' ? 'none' : tmpl === 'minimal' ? '0.5px solid #E5E7EB' : '1px solid #E5E7EB'};
-    margin-top: ${tmpl === 'minimal' ? '28px' : '20px'}; margin-bottom: 8px; padding-bottom: 4px;
-  }
-  @media print {
-    body { -webkit-print-color-adjust: exact; }
-    * { color: #000 !important; background: none !important; }
-  }
-  @page { margin: 20mm; }
-  @page { @top-left { content: none; } @top-right { content: none; } @bottom-left { content: none; } @bottom-right { content: none; } }
-</style>
-</head>
-<body style="padding:40px;">
-  <div style="text-align:${tmpl === 'minimal' ? 'center' : 'left'};">
-    <div style="font-size:${tmpl === 'minimal' ? '24' : '28'}px;font-weight:700;color:${tmpl === 'modern' ? '#0A66C2' : '#111827'};">${c.name || ''}</div>
-    ${contactParts.length ? `<div style="font-size:11px;color:#555;margin-top:4px;text-align:${tmpl === 'minimal' ? 'center' : 'left'};">${contactParts.join(tmpl === 'modern' ? ' | ' : ' • ')}</div>` : ''}
-  </div>
-  <hr style="border:none;border-top:1px solid #D1D5DB;margin:12px 0;">
-  ${data.summary ? `<div class="section-header">PROFESSIONAL SUMMARY</div><div style="font-size:11px;color:#374151;line-height:1.6;">${data.summary}</div>` : ''}
-  ${experienceHTML}
-  ${educationHTML}
-  ${skillsHTML}
-  ${achievementsHTML}
-</body>
-</html>`;
-}
-
 // ─── Main Page ───
 export default function ResumePreviewPage() {
   const params = useParams();
@@ -178,6 +80,7 @@ export default function ResumePreviewPage() {
   const [error, setError] = useState('');
   const [showKeywords, setShowKeywords] = useState(false);
   const [coverLetterCopied, setCoverLetterCopied] = useState(false);
+  const [templateId, setTemplateId] = useState('classic');
 
   useEffect(() => {
     if (!resumeId) return;
@@ -189,6 +92,7 @@ export default function ResumePreviewPage() {
       })
       .then(data => {
         setResume(data);
+        setTemplateId(data.template_id || 'classic');
         setLoading(false);
       })
       .catch(() => {
@@ -199,7 +103,7 @@ export default function ResumePreviewPage() {
 
   function handleDownloadPDF() {
     if (!resume) return;
-    const html = buildPrintHTML(resume.resume_data, resume.template_id || 'classic');
+    const html = buildPrintHTML(resume.resume_data, templateId);
     const win = window.open('', '_blank');
     if (!win) return;
     win.document.write(html);
@@ -293,32 +197,11 @@ export default function ResumePreviewPage() {
 
   // ─── Computed Values ───
   const rd = resume.resume_data;
-  const contact = rd.contact || {};
   const matched = resume.keywords_matched?.length || 0;
   const missing = resume.keywords_missing?.length || 0;
   const total = matched + missing;
   const matchRate = total > 0 ? Math.round((matched / total) * 100) : 0;
   const scoreColor = getScoreColor(resume.ats_score);
-  const contactParts = [contact.email, contact.phone, contact.location, contact.linkedin, contact.website].filter(Boolean);
-  const templateId = resume.template_id || 'classic';
-
-  // Template-specific styles
-  const sectionHeaderStyle: React.CSSProperties = {
-    fontSize: templateId === 'minimal' ? 10 : templateId === 'modern' ? 12 : 11,
-    fontWeight: 700,
-    color: templateId === 'modern' ? '#0A66C2' : templateId === 'minimal' ? '#9CA3AF' : '#374151',
-    textTransform: 'uppercase' as const,
-    letterSpacing: templateId === 'minimal' ? 4 : 2,
-    borderBottom: templateId === 'modern' ? 'none' : templateId === 'minimal' ? '0.5px solid #E5E7EB' : '1px solid #E5E7EB',
-    marginTop: templateId === 'minimal' ? 28 : 20,
-    marginBottom: 8,
-    paddingBottom: 4,
-  };
-
-  const skillTagStyle: React.CSSProperties = templateId === 'modern' ? {
-    display: 'inline-block', background: '#EFF6FF', color: '#1D4ED8', borderRadius: 4,
-    padding: '2px 8px', fontSize: 10, marginRight: 4, marginBottom: 4,
-  } : {};
 
   return (
     <div style={{ minHeight: '100vh', background: '#F3F2EF' }}>
@@ -464,110 +347,31 @@ export default function ResumePreviewPage() {
           </div>
         )}
 
-        {/* ─── RESUME PREVIEW ─── */}
+        {/* ─── TEMPLATE SWITCHER ─── */}
         <div style={{
-          background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          padding: 40, minHeight: 1123, borderRadius: 4,
-          borderLeft: templateId === 'modern' ? '4px solid #0A66C2' : 'none',
+          background: '#fff', borderRadius: 12, padding: '12px 16px', marginBottom: 16,
+          border: '1px solid #E0E0E0', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap',
         }}>
-          {/* Header */}
-          <div style={{ textAlign: templateId === 'minimal' ? 'center' : 'left' }}>
-            <div style={{ fontSize: templateId === 'minimal' ? 24 : 28, fontWeight: 700, color: templateId === 'modern' ? '#0A66C2' : '#111827' }}>{contact.name || ''}</div>
-            {contactParts.length > 0 && (
-              <div style={{ fontSize: 11, color: '#555', marginTop: 4, textAlign: templateId === 'minimal' ? 'center' : 'left' }}>
-                {contactParts.join(templateId === 'modern' ? ' | ' : ' \u2022 ')}
-              </div>
-            )}
-          </div>
-
-          {/* Divider */}
-          <hr style={{ border: 'none', borderTop: templateId === 'minimal' ? '0.5px solid #E5E7EB' : '1px solid #D1D5DB', margin: '12px 0' }} />
-
-          {/* Professional Summary */}
-          {rd.summary && (
-            <>
-              <div style={sectionHeaderStyle}>PROFESSIONAL SUMMARY</div>
-              <div style={{ fontSize: 11, color: '#374151', lineHeight: 1.6 }}>{rd.summary}</div>
-            </>
-          )}
-
-          {/* Work Experience */}
-          {(rd.experience?.length ?? 0) > 0 && (
-            <>
-              <div style={sectionHeaderStyle}>WORK EXPERIENCE</div>
-              {rd.experience!.map((exp, i) => (
-                <div key={i} style={{ marginBottom: 12 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#111827' }}>
-                      {exp.role || exp.title || ''}{exp.company ? ` \u2014 ${exp.company}` : ''}
-                    </div>
-                    <div style={{ fontSize: 11, fontStyle: 'italic', color: '#666', whiteSpace: 'nowrap', marginLeft: 12 }}>
-                      {(exp as any).dates || ((exp as any).start_date ? `${(exp as any).start_date}${(exp as any).end_date ? ' - ' + (exp as any).end_date : ' - Present'}` : '')}
-                    </div>
-                  </div>
-                  {exp.location && <div style={{ fontSize: 11, color: '#888' }}>{exp.location}</div>}
-                  {(exp.bullets?.length ?? 0) > 0 && (
-                    <div style={{ paddingLeft: 16, marginTop: 4 }}>
-                      {exp.bullets!.map((b, j) => (
-                        <div key={j} style={{ fontSize: 11, color: '#374151', lineHeight: 1.5 }}>{'\u2022'} {b}</div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </>
-          )}
-
-          {/* Education */}
-          {(rd.education?.length ?? 0) > 0 && (
-            <>
-              <div style={sectionHeaderStyle}>EDUCATION</div>
-              {rd.education!.map((edu, i) => (
-                <div key={i} style={{ marginBottom: 8 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#111827' }}>
-                    {edu.degree || ''}{(edu.institution || edu.school) ? ` \u2014 ${edu.institution || edu.school}` : ''}
-                  </div>
-                  {(edu.field || edu.year || edu.dates) && (
-                    <div style={{ fontSize: 11, color: '#666' }}>
-                      {[edu.field, edu.year || edu.dates].filter(Boolean).join(' \u2022 ')}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </>
-          )}
-
-          {/* Skills */}
-          {(rd.skills?.length ?? 0) > 0 && (
-            <>
-              <div style={sectionHeaderStyle}>SKILLS</div>
-              <div style={{ fontSize: 11, color: '#374151', lineHeight: 1.6, display: 'flex', flexWrap: 'wrap', gap: templateId === 'modern' ? 0 : undefined }}>
-                {typeof rd.skills![0] === 'string'
-                  ? templateId === 'modern'
-                    ? (rd.skills! as string[]).map((sk, i) => <span key={i} style={skillTagStyle}>{sk}</span>)
-                    : (rd.skills! as string[]).join(', ')
-                  : (rd.skills! as SkillCategory[]).map((s, i) => (
-                    templateId === 'modern'
-                      ? <div key={i} style={{ width: '100%', marginBottom: 6 }}><strong style={{ fontSize: 11, color: '#0A66C2' }}>{s.category}:</strong> {(s.skills || []).map((sk, j) => <span key={j} style={skillTagStyle}>{sk}</span>)}</div>
-                      : <div key={i}><strong>{s.category}:</strong> {(s.skills || []).join(', ')}</div>
-                  ))
-                }
-              </div>
-            </>
-          )}
-
-          {/* Achievements */}
-          {(rd.achievements?.length ?? 0) > 0 && (
-            <>
-              <div style={sectionHeaderStyle}>ACHIEVEMENTS</div>
-              <div style={{ paddingLeft: 16 }}>
-                {rd.achievements!.map((a, i) => (
-                  <div key={i} style={{ fontSize: 11, color: '#374151', lineHeight: 1.5 }}>{'\u2022'} {a}</div>
-                ))}
-              </div>
-            </>
-          )}
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#333', marginRight: 4 }}>Template:</span>
+          {TEMPLATES.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setTemplateId(t.id)}
+              style={{
+                padding: '4px 12px', borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                border: templateId === t.id ? '2px solid #0A66C2' : '1px solid #D0D0D0',
+                background: templateId === t.id ? '#E8F0FE' : '#fff',
+                color: templateId === t.id ? '#0A66C2' : '#666',
+                transition: 'all 0.15s',
+              }}
+            >
+              {t.name}
+            </button>
+          ))}
         </div>
+
+        {/* ─── RESUME PREVIEW ─── */}
+        {renderResumeHTML(rd, templateId)}
 
         {/* ─── COVER LETTER ─── */}
         {resume.cover_letter && (

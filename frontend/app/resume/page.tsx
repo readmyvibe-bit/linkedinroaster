@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { TEMPLATES } from '../../components/resume/ResumeTemplates';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -527,29 +528,38 @@ function ResumeFormContent() {
           <h2 style={sectionHeading}>Preferences</h2>
           <div style={{ marginBottom: 20 }}>
             <label style={{ ...labelStyle, marginBottom: 10 }}>Template</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-              {(['classic', 'modern', 'minimal'] as const).map((t) => (
-                <label
-                  key={t}
-                  style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    padding: '14px 12px', borderRadius: 8, cursor: 'pointer',
-                    border: template === t ? '2px solid #0A66C2' : '1px solid #CCC',
-                    background: template === t ? '#F0F7FF' : '#fff',
-                    fontWeight: template === t ? 700 : 500,
-                    fontSize: 14, color: template === t ? '#0A66C2' : '#191919',
-                    transition: 'all 0.15s',
-                  }}
-                >
-                  <input
-                    type="radio" name="template" value={t}
-                    checked={template === t}
-                    onChange={() => setTemplate(t)}
-                    style={{ display: 'none' }}
-                  />
-                  {t.charAt(0).toUpperCase() + t.slice(1)}
-                </label>
-              ))}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
+              {TEMPLATES.map((t) => {
+                const selected = template === t.id;
+                return (
+                  <label
+                    key={t.id}
+                    style={{
+                      display: 'flex', flexDirection: 'column', gap: 4,
+                      padding: 12, borderRadius: 8, cursor: 'pointer',
+                      border: selected ? '2px solid #0A66C2' : '1px solid #CCC',
+                      background: selected ? '#F0F7FF' : '#fff',
+                      transition: 'all 0.15s',
+                    }}
+                  >
+                    <input
+                      type="radio" name="template" value={t.id}
+                      checked={selected}
+                      onChange={() => setTemplate(t.id)}
+                      style={{ display: 'none' }}
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 14, fontWeight: selected ? 700 : 600, color: selected ? '#0A66C2' : '#191919' }}>{t.name}</span>
+                      <span style={{
+                        fontSize: 10, fontWeight: 600, padding: '2px 6px', borderRadius: 4,
+                        background: t.category === 'Standard' ? '#E8F0FE' : t.category === 'Professional' ? '#FEF3C7' : '#F0FDF4',
+                        color: t.category === 'Standard' ? '#0A66C2' : t.category === 'Professional' ? '#92400E' : '#057642',
+                      }}>{t.category}</span>
+                    </div>
+                    <span style={{ fontSize: 12, color: '#666', lineHeight: 1.4 }}>{t.description}</span>
+                  </label>
+                );
+              })}
             </div>
           </div>
 
