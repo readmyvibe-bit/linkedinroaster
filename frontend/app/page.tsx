@@ -201,6 +201,54 @@ function RewriteCardSmall({ name, location, before, after, score_before, score_a
   );
 }
 
+// ─── ResumeCardSmall (floating) ───
+function ResumeCardSmall({ name, role, atsScore, keywords }: {
+  name: string; role: string; atsScore: number; keywords: string[];
+}) {
+  const color = atsScore >= 80 ? '#057642' : atsScore >= 60 ? '#0A66C2' : '#E16B00';
+  return (
+    <div className="w-[260px] bg-white border border-[#e5e7eb] rounded-lg shadow-md overflow-hidden">
+      <div className="bg-[#004182] px-3 py-2 flex justify-between items-center">
+        <span className="text-[12px] font-bold text-white">ATS Resume</span>
+        <span className="text-[12px] font-bold px-2 py-0.5 rounded-full" style={{ background: color, color: 'white' }}>{atsScore}%</span>
+      </div>
+      <div className="px-4 pt-3 pb-1">
+        <div className="text-[14px] font-semibold text-[#191919]">{name}</div>
+        <div className="text-[11px] text-gray-500">{role}</div>
+      </div>
+      <div className="px-4 py-2">
+        <div className="text-[9px] font-bold text-[#374151] tracking-widest uppercase mb-1">Keywords Matched</div>
+        <div className="flex flex-wrap gap-1">
+          {keywords.map((kw, i) => (
+            <span key={i} className="text-[10px] font-semibold px-1.5 py-0.5 rounded" style={{ background: '#DCFCE7', color: '#057642' }}>{kw}</span>
+          ))}
+        </div>
+      </div>
+      <div className="px-4 pb-3">
+        <div className="h-1.5 rounded-full bg-gray-200">
+          <div className="h-1.5 rounded-full" style={{ width: `${atsScore}%`, background: color }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── FeatureCardSmall (floating) ───
+function FeatureCardSmall({ icon, title, stat, desc }: {
+  icon: string; title: string; stat: string; desc: string;
+}) {
+  return (
+    <div className="w-[220px] bg-white border border-[#e5e7eb] rounded-lg shadow-md p-4">
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-[18px]" dangerouslySetInnerHTML={{ __html: icon }} />
+        <span className="text-[13px] font-bold text-[#191919]">{title}</span>
+      </div>
+      <div className="text-[24px] font-extrabold mb-1" style={{ color: '#0A66C2' }}>{stat}</div>
+      <div className="text-[11px] text-gray-500 leading-snug">{desc}</div>
+    </div>
+  );
+}
+
 // ─── FloatingCards ───
 function FloatingCards() {
   return (
@@ -882,6 +930,64 @@ export default function Home() {
           />
         </section>
       )}
+
+      {/* ─── Section Floating Cards ─── */}
+      <div className="relative max-w-5xl mx-auto">
+        {/* Left — Resume ATS Card */}
+        <div className="hidden xl:block absolute top-[40px] left-[-140px] z-0 rotate-[-2deg] opacity-85 pointer-events-none transition-all duration-300 hover:opacity-100 hover:rotate-0 hover:scale-[1.03] hover:z-20 hover:pointer-events-auto">
+          <ResumeCardSmall
+            name="Priya M."
+            role="Software Engineer"
+            atsScore={87}
+            keywords={['React', 'Node.js', 'AWS', 'TypeScript']}
+          />
+        </div>
+        {/* Right — Feature Stat Card */}
+        <div className="hidden xl:block absolute top-[20px] right-[-120px] z-0 rotate-[2deg] opacity-85 pointer-events-none transition-all duration-300 hover:opacity-100 hover:rotate-0 hover:scale-[1.03] hover:z-20 hover:pointer-events-auto">
+          <FeatureCardSmall
+            icon="&#128200;"
+            title="Avg Improvement"
+            stat="+42 pts"
+            desc="Average score improvement after AI rewrite"
+          />
+        </div>
+        {/* Left — Feature Card (lower) */}
+        <div className="hidden xl:block absolute top-[380px] left-[-130px] z-0 rotate-[-1deg] opacity-85 pointer-events-none transition-all duration-300 hover:opacity-100 hover:rotate-0 hover:scale-[1.03] hover:z-20 hover:pointer-events-auto">
+          <FeatureCardSmall
+            icon="&#9997;&#65039;"
+            title="Resumes Built"
+            stat="60s"
+            desc="AI builds your ATS resume from LinkedIn in seconds"
+          />
+        </div>
+        {/* Right — Resume Card (lower) */}
+        <div className="hidden xl:block absolute top-[420px] right-[-140px] z-0 rotate-[1deg] opacity-85 pointer-events-none transition-all duration-300 hover:opacity-100 hover:rotate-0 hover:scale-[1.03] hover:z-20 hover:pointer-events-auto">
+          <ResumeCardSmall
+            name="Arjun T."
+            role="Business Development"
+            atsScore={91}
+            keywords={['B2B Sales', 'Pipeline', 'SaaS', 'CRM']}
+          />
+        </div>
+        {/* Left — Testimonial area card */}
+        <div className="hidden xl:block absolute top-[720px] left-[-120px] z-0 rotate-[-2deg] opacity-85 pointer-events-none transition-all duration-300 hover:opacity-100 hover:rotate-0 hover:scale-[1.03] hover:z-20 hover:pointer-events-auto">
+          <FeatureCardSmall
+            icon="&#128293;"
+            title="Profiles Roasted"
+            stat="500+"
+            desc="Professionals improved their LinkedIn this month"
+          />
+        </div>
+        {/* Right — Score card */}
+        <div className="hidden xl:block absolute top-[760px] right-[-130px] z-0 rotate-[2deg] opacity-85 pointer-events-none transition-all duration-300 hover:opacity-100 hover:rotate-0 hover:scale-[1.03] hover:z-20 hover:pointer-events-auto">
+          <FeatureCardSmall
+            icon="&#127919;"
+            title="ATS Match Rate"
+            stat="87%"
+            desc="Average keyword match after resume generation"
+          />
+        </div>
+      </div>
 
       {/* ─── What You Get — Full Feature Showcase ─── */}
       <section style={{ maxWidth: 700, margin: '40px auto 0', padding: '0 16px' }}>
