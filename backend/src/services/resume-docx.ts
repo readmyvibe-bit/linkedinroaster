@@ -20,21 +20,54 @@ interface ResumeData {
   achievements?: string[];
 }
 
-function buildSectionHeader(text: string): Paragraph {
+interface TemplateStyle {
+  nameSize: number;
+  nameColor: string;
+  nameAlign: typeof AlignmentType[keyof typeof AlignmentType];
+  headerColor: string;
+  headerSize: number;
+  headerBorder: boolean;
+  bodySize: number;
+  bodyColor: string;
+  accentColor: string;
+  font: string;
+}
+
+const TEMPLATE_STYLES: Record<string, TemplateStyle> = {
+  classic: { nameSize: 52, nameColor: '111827', nameAlign: AlignmentType.LEFT, headerColor: '374151', headerSize: 22, headerBorder: true, bodySize: 22, bodyColor: '374151', accentColor: '374151', font: 'Arial' },
+  modern: { nameSize: 56, nameColor: '0A66C2', nameAlign: AlignmentType.LEFT, headerColor: '0A66C2', headerSize: 24, headerBorder: false, bodySize: 22, bodyColor: '374151', accentColor: '0A66C2', font: 'Arial' },
+  minimal: { nameSize: 44, nameColor: '111827', nameAlign: AlignmentType.CENTER, headerColor: '9CA3AF', headerSize: 20, headerBorder: true, bodySize: 22, bodyColor: '374151', accentColor: '9CA3AF', font: 'Georgia' },
+  executive: { nameSize: 60, nameColor: '111827', nameAlign: AlignmentType.CENTER, headerColor: '374151', headerSize: 26, headerBorder: true, bodySize: 24, bodyColor: '374151', accentColor: 'D4A574', font: 'Georgia' },
+  compact: { nameSize: 40, nameColor: '111827', nameAlign: AlignmentType.LEFT, headerColor: '374151', headerSize: 20, headerBorder: true, bodySize: 20, bodyColor: '374151', accentColor: '374151', font: 'Arial' },
+  bold: { nameSize: 68, nameColor: '111827', nameAlign: AlignmentType.LEFT, headerColor: '057642', headerSize: 28, headerBorder: true, bodySize: 22, bodyColor: '374151', accentColor: '057642', font: 'Arial' },
+  elegant: { nameSize: 48, nameColor: '111827', nameAlign: AlignmentType.LEFT, headerColor: '666666', headerSize: 22, headerBorder: true, bodySize: 22, bodyColor: '374151', accentColor: '666666', font: 'Georgia' },
+  technical: { nameSize: 48, nameColor: '111827', nameAlign: AlignmentType.LEFT, headerColor: '0A66C2', headerSize: 22, headerBorder: false, bodySize: 22, bodyColor: '374151', accentColor: '0A66C2', font: 'Consolas' },
+  sidebar: { nameSize: 52, nameColor: '1E293B', nameAlign: AlignmentType.LEFT, headerColor: '1E293B', headerSize: 24, headerBorder: true, bodySize: 22, bodyColor: '374151', accentColor: '1E293B', font: 'Arial' },
+  splitmodern: { nameSize: 52, nameColor: '0F172A', nameAlign: AlignmentType.LEFT, headerColor: '0F172A', headerSize: 22, headerBorder: true, bodySize: 22, bodyColor: '374151', accentColor: '0A66C2', font: 'Arial' },
+  highlight: { nameSize: 56, nameColor: '004182', nameAlign: AlignmentType.LEFT, headerColor: '004182', headerSize: 24, headerBorder: true, bodySize: 22, bodyColor: '374151', accentColor: '004182', font: 'Arial' },
+  corporate: { nameSize: 56, nameColor: '0F172A', nameAlign: AlignmentType.LEFT, headerColor: '0F172A', headerSize: 24, headerBorder: true, bodySize: 22, bodyColor: '374151', accentColor: '004182', font: 'Arial' },
+};
+
+function getStyle(templateId?: string): TemplateStyle {
+  return TEMPLATE_STYLES[templateId || 'classic'] || TEMPLATE_STYLES.classic;
+}
+
+function buildSectionHeader(text: string, style: TemplateStyle): Paragraph {
+  const headerText = style === TEMPLATE_STYLES.technical ? `// ${text.toUpperCase()}` : text.toUpperCase();
   return new Paragraph({
     children: [
       new TextRun({
-        text: text.toUpperCase(),
+        text: headerText,
         bold: true,
-        size: 22, // 11pt
-        font: 'Arial',
-        color: '374151',
+        size: style.headerSize,
+        font: style.font,
+        color: style.headerColor,
       }),
     ],
     spacing: { before: 300, after: 100 },
-    border: {
-      bottom: { style: BorderStyle.SINGLE, size: 1, color: 'E5E7EB' },
-    },
+    border: style.headerBorder ? {
+      bottom: { style: BorderStyle.SINGLE, size: 1, color: style.accentColor },
+    } : undefined,
   });
 }
 
@@ -53,7 +86,8 @@ function buildBullet(text: string): Paragraph {
   });
 }
 
-export async function generateDocx(data: ResumeData): Promise<Buffer> {
+export async function generateDocx(data: ResumeData, templateId?: string): Promise<Buffer> {
+  const style = getStyle(templateId);
   const c = data.contact || {};
   const contactLine = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean).join('  |  ');
 
@@ -65,12 +99,12 @@ export async function generateDocx(data: ResumeData): Promise<Buffer> {
       new TextRun({
         text: c.name || '',
         bold: true,
-        size: 56, // 28pt
-        font: 'Arial',
-        color: '111827',
+        size: style.nameSize,
+        font: style.font,
+        color: style.nameColor,
       }),
     ],
-    alignment: AlignmentType.LEFT,
+    alignment: style.nameAlign,
     spacing: { after: 60 },
   }));
 
@@ -80,11 +114,12 @@ export async function generateDocx(data: ResumeData): Promise<Buffer> {
       children: [
         new TextRun({
           text: contactLine,
-          size: 20, // 10pt
-          font: 'Arial',
+          size: 20,
+          font: style.font,
           color: '555555',
         }),
       ],
+      alignment: style.nameAlign,
       spacing: { after: 120 },
     }));
   }
@@ -98,7 +133,7 @@ export async function generateDocx(data: ResumeData): Promise<Buffer> {
 
   // ── Professional Summary ──
   if (data.summary) {
-    children.push(buildSectionHeader('Professional Summary'));
+    children.push(buildSectionHeader('Professional Summary', style));
     children.push(new Paragraph({
       children: [
         new TextRun({
@@ -114,7 +149,7 @@ export async function generateDocx(data: ResumeData): Promise<Buffer> {
 
   // ── Work Experience ──
   if (data.experience?.length) {
-    children.push(buildSectionHeader('Work Experience'));
+    children.push(buildSectionHeader('Work Experience', style));
 
     for (const exp of data.experience) {
       const role = exp.role || exp.title || '';
@@ -173,7 +208,7 @@ export async function generateDocx(data: ResumeData): Promise<Buffer> {
 
   // ── Education ──
   if (data.education?.length) {
-    children.push(buildSectionHeader('Education'));
+    children.push(buildSectionHeader('Education', style));
 
     for (const edu of data.education) {
       const degree = edu.degree || '';
@@ -221,7 +256,7 @@ export async function generateDocx(data: ResumeData): Promise<Buffer> {
   // ── Skills ──
   const skills = data.skills;
   if (skills) {
-    children.push(buildSectionHeader('Skills'));
+    children.push(buildSectionHeader('Skills', style));
 
     if (Array.isArray(skills)) {
       if (typeof skills[0] === 'string') {
@@ -264,7 +299,7 @@ export async function generateDocx(data: ResumeData): Promise<Buffer> {
 
   // ── Achievements ──
   if (data.achievements?.length) {
-    children.push(buildSectionHeader('Achievements'));
+    children.push(buildSectionHeader('Achievements', style));
     for (const a of data.achievements) {
       children.push(buildBullet(a));
     }

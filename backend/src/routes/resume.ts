@@ -202,7 +202,7 @@ router.get('/:resumeId/download/docx', async (req: Request, res: Response) => {
     const name = (contact.name || 'resume').replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
     const role = (resume.target_role || 'resume').replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
 
-    const buffer = await generateDocx(data);
+    const buffer = await generateDocx(data, resume.template_id);
 
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
     res.setHeader('Content-Disposition', `attachment; filename="${name}-${role}-resume.docx"`);

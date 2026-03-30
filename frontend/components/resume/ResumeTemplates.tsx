@@ -1127,7 +1127,17 @@ function esc(s?: string): string {
 }
 
 function printPageWrapper(body: string): string {
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title></title><style>@page{size:A4;margin:20mm}*{margin:0;padding:0;box-sizing:border-box}@media print{.sidebar{break-inside:avoid}}</style></head><body>${body}</body></html>`;
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title> </title><style>
+@page{size:A4;margin:15mm}
+*{margin:0;padding:0;box-sizing:border-box}
+body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
+@media print{
+  body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  .sidebar{break-inside:avoid}
+  .no-break{break-inside:avoid}
+}
+</style></head><body style="-webkit-print-color-adjust:exact;print-color-adjust:exact">${body}</body></html>`;
 }
 
 // Helper: build experience HTML for single-column templates
