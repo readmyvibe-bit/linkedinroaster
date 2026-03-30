@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
@@ -81,7 +81,7 @@ const LOADING_STAGES = [
 ];
 
 // ─── Main Page ───
-export default function ResumeFormPage() {
+function ResumeFormContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const orderId = searchParams.get('orderId');
@@ -481,5 +481,13 @@ export default function ResumeFormPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function ResumeFormPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F3F2EF' }}><p style={{ color: '#666' }}>Loading...</p></div>}>
+      <ResumeFormContent />
+    </Suspense>
   );
 }
