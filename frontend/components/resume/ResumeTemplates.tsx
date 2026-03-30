@@ -1609,6 +1609,45 @@ function printCorporate(data: ResumeData): string {
 // ROUTER: buildPrintHTML
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// Single-column styled print for visual templates (reliable PDF)
+function printVisualAsStyled(data: ResumeData, accentColor: string, headerBg: string, headerText: string): string {
+  const c = data.contact || {};
+  const cp = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean).map(esc).join('  |  ');
+  const skillGroups = normalizeSkills(data.skills);
+  const hdr = (t: string) => `<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:${accentColor};border-bottom:2px solid ${accentColor};padding-bottom:3px;margin:20px 0 8px">${t}</div>`;
+
+  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5">`;
+  // Styled header
+  h += `<div style="background:${headerBg};padding:20px 32px;margin:-10mm -12mm 16px;width:calc(100% + 24mm)"><div style="font-size:24px;font-weight:700;color:${headerText}">${esc(c.name) || 'Your Name'}</div>`;
+  if (cp) h += `<div style="font-size:10px;color:${headerText === '#fff' ? 'rgba(255,255,255,0.7)' : '#666'};margin-top:4px">${cp}</div>`;
+  h += `</div>`;
+  // Summary
+  if (data.summary) h += `${hdr('Professional Summary')}<div style="color:#374151">${esc(data.summary)}</div>`;
+  // Experience
+  if (data.experience?.length) h += `${hdr('Work Experience')}${buildExpHTML(data, '&bull;', 'font-size:10px;color:#888;font-style:italic', 'color:#666;font-style:italic;font-size:10px', 'font-weight:700;color:#111')}`;
+  // Skills
+  if (skillGroups.length) {
+    h += hdr('Skills');
+    skillGroups.forEach(g => {
+      h += `<div style="margin-bottom:6px">`;
+      if (skillGroups.length > 1) h += `<span style="font-weight:700;color:${accentColor}">${esc(g.label)}: </span>`;
+      h += `<span style="color:#374151">${g.items.map(esc).join(', ')}</span></div>`;
+    });
+  }
+  // Education
+  if (data.education?.length) {
+    h += hdr('Education');
+    data.education.forEach(edu => {
+      h += `<div style="margin-bottom:8px"><div style="font-weight:700;color:#111">${esc(getEduDegree(edu))}${getEduSchool(edu) ? ' — ' + esc(getEduSchool(edu)) : ''}</div><div style="font-size:10px;color:#666">${esc(getEduDates(edu))}${edu.gpa ? ' | GPA: ' + esc(edu.gpa) : ''}</div></div>`;
+    });
+  }
+  // Achievements
+  const ach = buildAchievementsHTML(data, '&bull;');
+  if (ach) h += `${hdr('Achievements')}${ach}`;
+  h += `</div>`;
+  return printPageWrapper(h);
+}
+
 export function buildPrintHTML(data: ResumeData, templateId: string): string {
   switch (templateId) {
     case 'modern': return printModern(data);
@@ -1618,10 +1657,10 @@ export function buildPrintHTML(data: ResumeData, templateId: string): string {
     case 'bold': return printBold(data);
     case 'elegant': return printElegant(data);
     case 'technical': return printTechnical(data);
-    case 'sidebar': return printSidebar(data);
-    case 'splitmodern': return printSplitModern(data);
-    case 'highlight': return printHighlight(data);
-    case 'corporate': return printCorporate(data);
+    case 'sidebar': return printVisualAsStyled(data, '#1E293B', '#1E293B', '#fff');
+    case 'splitmodern': return printVisualAsStyled(data, '#0A66C2', '#F1F5F9', '#0F172A');
+    case 'highlight': return printVisualAsStyled(data, '#004182', '#004182', '#fff');
+    case 'corporate': return printVisualAsStyled(data, '#0F172A', '#0F172A', '#fff');
     case 'classic':
     default: return printClassic(data);
   }
