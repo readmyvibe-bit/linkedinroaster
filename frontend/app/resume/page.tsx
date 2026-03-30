@@ -171,10 +171,23 @@ function ResumeFormContent() {
     try {
       const body = {
         orderId,
-        fullName, email, phone, location, linkedinUrl, website,
-        targetRole, targetCompany, jobDescription,
-        keyAchievements, certifications, languages, totalExperience,
-        template, resumeLength,
+        userDetails: {
+          name: fullName,
+          email,
+          phone,
+          location,
+          linkedin: linkedinUrl,
+          website,
+        },
+        targetRole,
+        targetCompany,
+        jobDescription,
+        additionalAchievements: keyAchievements,
+        certifications,
+        languages,
+        experienceYears: totalExperience,
+        templateId: template,
+        pageCount: parseInt(resumeLength) || 2,
       };
       const res = await fetch(`${API_URL}/api/resume/generate`, {
         method: 'POST',
