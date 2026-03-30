@@ -883,6 +883,159 @@ export default function Home() {
         </section>
       )}
 
+      {/* ─── What You Get — Full Feature Showcase ─── */}
+      <section style={{ maxWidth: 700, margin: '40px auto 0', padding: '0 16px' }}>
+        <h2 style={{ fontSize: 24, fontWeight: 800, color: '#191919', textAlign: 'center', marginBottom: 8 }}>
+          What You Get
+        </h2>
+        <p style={{ fontSize: 14, color: '#888', textAlign: 'center', marginBottom: 24 }}>
+          One payment. No subscription. Results in 60 seconds.
+        </p>
+
+        {/* Standard vs Pro comparison */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          {/* Standard */}
+          <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, padding: 20, position: 'relative' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#888', letterSpacing: 2, marginBottom: 4 }}>STANDARD</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: '#191919', marginBottom: 12 }}>&#8377;299</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {['6-point brutal roast', 'Before/After score', 'Full headline rewrite', 'Full about rewrite', 'Experience rewrites', 'Shareable roast card'].map((f, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#374151' }}>
+                  <span style={{ color: '#057642', fontWeight: 700 }}>&#10003;</span> {f}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Pro */}
+          <div style={{ background: 'white', border: '2px solid #0A66C2', borderRadius: 12, padding: 20, position: 'relative' }}>
+            <div style={{ position: 'absolute', top: -10, right: 16, background: '#0A66C2', color: 'white', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 10 }}>MOST POPULAR</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#0A66C2', letterSpacing: 2, marginBottom: 4 }}>PRO</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: '#191919', marginBottom: 12 }}>&#8377;799</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {['Everything in Standard', 'ATS Resume Builder (3 JDs)', 'ATS score + keyword match', '5 headline variations', '15+ ATS keywords', 'Priority processing'].map((f, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#374151' }}>
+                  <span style={{ color: '#0A66C2', fontWeight: 700 }}>&#10003;</span> {f}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── ATS Resume Showcase ─── */}
+      <section style={{ maxWidth: 700, margin: '32px auto 0', padding: '0 16px' }}>
+        <div style={{
+          background: 'white', border: '1px solid #E0E0E0', borderRadius: 16,
+          overflow: 'hidden',
+        }}>
+          {/* Header */}
+          <div style={{ background: '#004182', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: 'white' }}>ATS Resume Builder</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 2 }}>Pro Plan Feature</div>
+            </div>
+            <div style={{ background: '#057642', color: 'white', fontSize: 20, fontWeight: 800, padding: '6px 16px', borderRadius: 20 }}>87%</div>
+          </div>
+
+          {/* Content */}
+          <div style={{ padding: '20px 24px' }}>
+            {/* Flow steps */}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
+              {[
+                { step: '1', text: 'Paste job description' },
+                { step: '2', text: 'AI builds your resume' },
+                { step: '3', text: 'Edit + download PDF' },
+              ].map((s, i) => (
+                <div key={i} style={{ flex: 1, minWidth: 140, display: 'flex', alignItems: 'center', gap: 8, background: '#F3F2EF', borderRadius: 8, padding: '10px 12px' }}>
+                  <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#0A66C2', color: 'white', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{s.step}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>{s.text}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Mock resume preview */}
+            <div style={{ border: '1px solid #E5E7EB', borderRadius: 8, padding: 16, background: '#FAFBFC' }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#111827', marginBottom: 4 }}>Priya Mehta</div>
+              <div style={{ fontSize: 10, color: '#888', marginBottom: 10 }}>priya@email.com &bull; +91 98765 43210 &bull; Mumbai</div>
+              <div style={{ height: 1, background: '#E5E7EB', marginBottom: 10 }} />
+              <div style={{ fontSize: 9, fontWeight: 700, color: '#374151', letterSpacing: 2, marginBottom: 6, textTransform: 'uppercase' as const }}>Professional Summary</div>
+              <div style={{ fontSize: 10, color: '#555', lineHeight: 1.5, marginBottom: 10 }}>Full-stack engineer with 5+ years building scalable React/Node applications. Led migration of monolith to microservices reducing deploy time by 73%...</div>
+              <div style={{ fontSize: 9, fontWeight: 700, color: '#374151', letterSpacing: 2, marginBottom: 6, textTransform: 'uppercase' as const }}>Work Experience</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: '#111' }}>Senior Software Engineer — TechCorp</div>
+                <div style={{ fontSize: 9, color: '#888', fontStyle: 'italic' }}>Jan 2021 - Present</div>
+              </div>
+              <div style={{ fontSize: 10, color: '#555', paddingLeft: 12 }}>
+                &bull; Built React component library used by 12 teams across 3 products<br />
+                &bull; Reduced API response time by 45% through query optimization
+              </div>
+            </div>
+
+            {/* ATS keywords preview */}
+            <div style={{ marginTop: 12, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+              {['React', 'Node.js', 'TypeScript', 'AWS', 'Microservices', 'CI/CD', 'REST API'].map((kw, i) => (
+                <span key={i} style={{ background: '#DCFCE7', color: '#057642', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 10 }}>{kw}</span>
+              ))}
+              <span style={{ background: '#FEE2E2', color: '#CC1016', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 10 }}>+5 missing</span>
+            </div>
+
+            <div style={{ fontSize: 12, color: '#888', marginTop: 12, textAlign: 'center' }}>
+              Your LinkedIn rewrite becomes an ATS resume in 60 seconds
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── How It Works ─── */}
+      <section style={{ maxWidth: 700, margin: '32px auto 0', padding: '0 16px' }}>
+        <h2 style={{ fontSize: 20, fontWeight: 800, color: '#191919', textAlign: 'center', marginBottom: 20 }}>
+          How It Works
+        </h2>
+        <div style={{ display: 'flex', gap: 0, position: 'relative' }}>
+          {[
+            { num: '1', icon: '&#128293;', title: 'Get Roasted', desc: 'Paste your headline. AI tells you exactly what is wrong.' },
+            { num: '2', icon: '&#9997;&#65039;', title: 'Get Rewritten', desc: 'AI rewrites your headline, about, and experience.' },
+            { num: '3', icon: '&#128200;', title: 'See Your Score', desc: 'Before/after score shows exactly how much you improved.' },
+            { num: '4', icon: '&#128196;', title: 'Build Resume', desc: 'Turn your rewrite into an ATS resume for any job. (Pro)' },
+          ].map((step, i) => (
+            <div key={i} style={{ flex: 1, textAlign: 'center', padding: '0 8px' }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#0A66C2', color: 'white', fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px' }}>{step.num}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#191919', marginBottom: 4 }}>{step.title}</div>
+              <div style={{ fontSize: 11, color: '#888', lineHeight: 1.4 }}>{step.desc}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ─── Testimonial/Social Proof ─── */}
+      <section style={{ maxWidth: 700, margin: '32px auto 0', padding: '0 16px' }}>
+        <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, padding: '20px 24px' }}>
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+            {[
+              { name: 'Arjun T.', role: 'BDM, Pune', quote: 'My score went from 31 to 78. Got 3 recruiter messages within a week of updating my profile.', score: '31 → 78' },
+              { name: 'Sneha R.', role: 'HR Executive, Mumbai', quote: 'The roast was painfully accurate. The rewrite was worth every rupee. Best ₹299 I spent on my career.', score: '38 → 84' },
+              { name: 'Rahul S.', role: 'MBA Graduate, Delhi', quote: 'Used the ATS resume builder for 3 different job applications. Got interview calls for 2 of them.', score: '22 → 71' },
+            ].map((t, i) => (
+              <div key={i} style={{ flex: 1, minWidth: 180 }}>
+                <div style={{ fontSize: 12, color: '#555', fontStyle: 'italic', lineHeight: 1.5, marginBottom: 8 }}>
+                  &ldquo;{t.quote}&rdquo;
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>
+                    {t.name.charAt(0)}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#191919' }}>{t.name}</div>
+                    <div style={{ fontSize: 10, color: '#888' }}>{t.role} &bull; <span style={{ color: '#057642', fontWeight: 700 }}>{t.score}</span></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ─── CHANGE 8 — Bottom Urgency Section ─── */}
       <section style={{ maxWidth: 700, margin: '32px auto', padding: '0 16px' }}>
         <div
