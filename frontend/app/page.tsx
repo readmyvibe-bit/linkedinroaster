@@ -892,12 +892,16 @@ export default function Home() {
               plan="Standard"
               price="&#8377;299"
               features={[
-                'Full 6-point roast with humor',
+                '6-point brutal AI roast',
                 'Before & After score breakdown',
-                'Complete profile rewrite',
-                '1 ATS Resume + Cover Letter',
-                '12 ATS-safe templates',
+                'Full headline + about + experience rewrite',
+                '1 ATS Resume + 1 Cover Letter',
+                '12 resume templates',
+                'ATS score + keyword analysis',
                 'Shareable roast card',
+                'PDF + DOCX download',
+                'Resume editor with live preview',
+                'Results recovery page',
               ]}
               onSelect={() => handlePlanSelect('standard')}
             />
@@ -906,12 +910,15 @@ export default function Home() {
               price="&#8377;799"
               highlighted
               features={[
-                'Everything in Standard',
+                'Everything in Standard, plus:',
                 '3 ATS Resumes + 3 Cover Letters',
-                'All 20 templates (incl. Visual)',
+                'All 20 premium templates',
+                '4 visual sidebar layouts',
                 '5 headline variations',
-                'Resume upload + auto-fill',
+                'Resume upload + auto-parse',
                 '15+ ATS keywords + JD matcher',
+                'Drag-reorder resume sections',
+                'Missing keyword quick-add',
                 'Priority processing',
               ]}
               onSelect={() => handlePlanSelect('pro')}
@@ -1005,7 +1012,7 @@ export default function Home() {
             <div style={{ fontSize: 11, fontWeight: 700, color: '#888', letterSpacing: 2, marginBottom: 4 }}>STANDARD</div>
             <div style={{ fontSize: 28, fontWeight: 800, color: '#191919', marginBottom: 12 }}>&#8377;299</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {['6-point brutal roast', 'Before/After score', 'Full profile rewrite', '1 ATS Resume + Cover Letter', '12 ATS-safe templates', 'Shareable roast card'].map((f, i) => (
+              {['6-point brutal AI roast', 'Before/After score', 'Full profile rewrite', '1 ATS Resume + Cover Letter', '12 resume templates', 'ATS score + keywords', 'PDF + DOCX download', 'Shareable roast card'].map((f, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#374151' }}>
                   <span style={{ color: '#057642', fontWeight: 700 }}>&#10003;</span> {f}
                 </div>
@@ -1028,7 +1035,7 @@ export default function Home() {
             <div style={{ fontSize: 11, fontWeight: 700, color: '#0A66C2', letterSpacing: 2, marginBottom: 4 }}>PRO</div>
             <div style={{ fontSize: 28, fontWeight: 800, color: '#191919', marginBottom: 12 }}>&#8377;799</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {['Everything in Standard', '3 Resumes + 3 Cover Letters', 'All 20 templates (incl. Visual)', 'Resume upload + auto-fill', '5 headline variations', '15+ ATS keywords + JD matcher'].map((f, i) => (
+              {['Everything in Standard', '3 Resumes + 3 Cover Letters', 'All 20 premium templates', '4 visual sidebar layouts', 'Resume upload + auto-parse', '5 headline variations', '15+ ATS keywords', 'Priority processing'].map((f, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#374151' }}>
                   <span style={{ color: '#0A66C2', fontWeight: 700 }}>&#10003;</span> {f}
                 </div>
