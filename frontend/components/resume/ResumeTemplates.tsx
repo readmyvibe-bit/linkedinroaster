@@ -1128,15 +1128,21 @@ function esc(s?: string): string {
 
 function printPageWrapper(body: string): string {
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><title> </title><style>
-@page{size:A4;margin:10mm 12mm}
+@page{size:A4;margin:0}
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:auto;overflow:visible}
+html,body{width:210mm;height:auto;overflow:visible;margin:0;padding:0}
 body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
+.resume-wrapper{width:210mm;min-height:297mm;position:relative;overflow:visible}
+.two-col{display:table;width:100%;table-layout:fixed;border-collapse:collapse}
+.two-col-left{display:table-cell;vertical-align:top}
+.two-col-right{display:table-cell;vertical-align:top}
 @media print{
-  body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
+  html,body{width:210mm;margin:0;padding:0}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-  .sidebar{break-inside:avoid}
-  .no-break{break-inside:avoid;page-break-inside:avoid}
+  .resume-wrapper{width:100%;page-break-inside:auto}
+  .two-col{page-break-inside:auto}
+  .two-col-left,.two-col-right{page-break-inside:auto}
+  .entry{page-break-inside:avoid}
 }
 </style></head><body style="-webkit-print-color-adjust:exact;print-color-adjust:exact">${body}</body></html>`;
 }
@@ -1422,20 +1428,20 @@ function printSidebar(data: ResumeData): string {
   const mainHdr = (t: string) => `<div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#1E293B;border-bottom:2px solid #1E293B;padding-bottom:3px;margin-bottom:8px">${t}</div>`;
   const sideHdr = (t: string) => `<div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.5);margin-bottom:8px">${t}</div>`;
 
-  let sidebar = `<div class="sidebar" style="display:table-cell;width:30%;background:#1E293B;color:#fff;padding:32px 20px;vertical-align:top">`;
-  sidebar += `<div style="font-size:20px;font-weight:700;margin-bottom:4px">${esc(c.name) || 'Your Name'}</div>`;
-  sidebar += `<div style="border-bottom:1px solid rgba(255,255,255,0.2);margin:12px 0"></div>`;
+  let sidebar = `<div class="two-col-left" style="width:30%;background:#1E293B;color:#fff;padding:24px 16px">`;
+  sidebar += `<div style="font-size:18px;font-weight:700;margin-bottom:4px">${esc(c.name) || 'Your Name'}</div>`;
+  sidebar += `<div style="border-bottom:1px solid rgba(255,255,255,0.2);margin:10px 0"></div>`;
   if (contactParts.length) {
-    sidebar += `<div style="margin-bottom:20px">${sideHdr('Contact')}`;
-    contactParts.forEach(p => { sidebar += `<div style="margin-bottom:6px;font-size:10px;color:rgba(255,255,255,0.7);word-break:break-all">${esc(p)}</div>`; });
+    sidebar += `<div style="margin-bottom:16px">${sideHdr('Contact')}`;
+    contactParts.forEach(p => { sidebar += `<div style="margin-bottom:4px;font-size:9px;color:rgba(255,255,255,0.7);word-break:break-all">${esc(p)}</div>`; });
     sidebar += `</div>`;
   }
   if (skillGroups.length) {
-    sidebar += `<div style="margin-bottom:20px">${sideHdr('Skills')}`;
+    sidebar += `<div style="margin-bottom:16px">${sideHdr('Skills')}`;
     skillGroups.forEach(g => {
-      sidebar += `<div style="margin-bottom:8px">`;
-      if (skillGroups.length > 1) sidebar += `<div style="font-size:9px;color:rgba(255,255,255,0.5);margin-bottom:2px">${esc(g.label)}</div>`;
-      g.items.forEach(s => { sidebar += `<div style="font-size:10px;color:rgba(255,255,255,0.85);margin-bottom:2px">&bull; ${esc(s)}</div>`; });
+      sidebar += `<div style="margin-bottom:6px">`;
+      if (skillGroups.length > 1) sidebar += `<div style="font-size:8px;color:rgba(255,255,255,0.5);margin-bottom:2px">${esc(g.label)}</div>`;
+      g.items.forEach(s => { sidebar += `<div style="font-size:9px;color:rgba(255,255,255,0.85);margin-bottom:1px">&bull; ${esc(s)}</div>`; });
       sidebar += `</div>`;
     });
     sidebar += `</div>`;
@@ -1443,20 +1449,20 @@ function printSidebar(data: ResumeData): string {
   if (data.education?.length) {
     sidebar += `<div>${sideHdr('Education')}`;
     data.education.forEach(edu => {
-      sidebar += `<div style="margin-bottom:10px"><div style="font-weight:700;font-size:10px;color:#fff">${esc(getEduDegree(edu))}</div><div style="font-size:10px;color:rgba(255,255,255,0.7)">${esc(getEduSchool(edu))}</div><div style="font-size:9px;color:rgba(255,255,255,0.5)">${esc(getEduDates(edu))}${edu.gpa ? ` &mdash; GPA: ${esc(edu.gpa)}` : ''}</div></div>`;
+      sidebar += `<div style="margin-bottom:8px"><div style="font-weight:700;font-size:9px;color:#fff">${esc(getEduDegree(edu))}</div><div style="font-size:9px;color:rgba(255,255,255,0.7)">${esc(getEduSchool(edu))}</div></div>`;
     });
     sidebar += `</div>`;
   }
   sidebar += `</div>`;
 
-  let main = `<div style="display:table-cell;width:70%;padding:32px 28px;color:#333;vertical-align:top">`;
-  if (data.summary) main += `<div style="margin-bottom:20px">${mainHdr('Summary')}<div>${esc(data.summary)}</div></div>`;
-  if (data.experience?.length) main += `<div style="margin-bottom:20px">${mainHdr('Experience')}${buildExpHTML(data, '&bull;', 'font-size:10px;color:#888;font-style:italic', 'color:#555;font-style:italic;font-size:10px', 'font-weight:700;color:#111')}</div>`;
+  let main = `<div class="two-col-right" style="width:70%;padding:24px 24px;color:#333">`;
+  if (data.summary) main += `<div style="margin-bottom:16px">${mainHdr('Summary')}<div style="font-size:10px">${esc(data.summary)}</div></div>`;
+  if (data.experience?.length) main += `<div style="margin-bottom:16px">${mainHdr('Experience')}${buildExpHTML(data, '&bull;', 'font-size:9px;color:#888;font-style:italic', 'color:#555;font-style:italic;font-size:9px', 'font-weight:700;color:#111;font-size:11px')}</div>`;
   const ach = buildAchievementsHTML(data, '&bull;');
-  if (ach) main += `<div style="margin-bottom:20px">${mainHdr('Achievements')}${ach}</div>`;
+  if (ach) main += `<div style="margin-bottom:16px">${mainHdr('Achievements')}${ach}</div>`;
   main += `</div>`;
 
-  return printPageWrapper(`<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;display:table;width:100%;table-layout:fixed">${sidebar}${main}</div>`);
+  return printPageWrapper(`<div class="resume-wrapper" style="font-family:Arial,Helvetica,sans-serif;font-size:10px;line-height:1.4"><div class="two-col">${sidebar}${main}</div></div>`);
 }
 
 // ─── Print: Split Modern ────────────────────────────────────────────────────
@@ -1468,12 +1474,12 @@ function printSplitModern(data: ResumeData): string {
   const mainHdr = (t: string) => `<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#0F172A;border-bottom:1px solid #E2E8F0;padding-bottom:3px;margin-bottom:8px">${t}</div>`;
   const sideHdr = (t: string) => `<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#64748B;letter-spacing:1px;margin-bottom:8px">${t}</div>`;
 
-  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;max-width:100%">`;
-  h += `<div style="padding:20px 28px 12px;border-bottom:2px solid #E2E8F0"><div style="font-size:24px;font-weight:700;color:#0F172A">${esc(c.name) || 'Your Name'}</div></div>`;
-  h += `<div style="display:table;width:100%;table-layout:fixed">`;
+  let h = `<div class="resume-wrapper" style="font-family:Arial,Helvetica,sans-serif;font-size:10px;line-height:1.4">`;
+  h += `<div style="padding:16px 24px 10px;border-bottom:2px solid #E2E8F0"><div style="font-size:22px;font-weight:700;color:#0F172A">${esc(c.name) || 'Your Name'}</div></div>`;
+  h += `<div class="two-col">`;
 
   // Left panel
-  h += `<div class="sidebar" style="display:table-cell;width:35%;background:#F1F5F9;padding:20px;vertical-align:top">`;
+  h += `<div class="two-col-left" style="width:35%;background:#F1F5F9;padding:16px">`;
   if (contactParts.length) {
     h += `<div style="margin-bottom:20px">${sideHdr('Contact')}`;
     contactParts.forEach(p => { h += `<div style="font-size:10px;color:#475569;margin-bottom:4px;word-break:break-all">${esc(p)}</div>`; });
@@ -1500,7 +1506,7 @@ function printSplitModern(data: ResumeData): string {
   h += `</div>`;
 
   // Right panel
-  h += `<div style="display:table-cell;width:65%;padding:20px 28px;color:#333;vertical-align:top">`;
+  h += `<div class="two-col-right" style="width:65%;padding:16px 24px;color:#333">`;
   if (data.summary) h += `<div style="margin-bottom:16px">${mainHdr('Summary')}<div>${esc(data.summary)}</div></div>`;
   if (data.experience?.length) h += `<div style="margin-bottom:16px">${mainHdr('Experience')}${buildExpHTML(data, '&bull;', 'font-size:10px;color:#888;font-style:italic', 'color:#64748B;font-style:italic;font-size:10px', 'font-weight:700;color:#111')}</div>`;
   const ach = buildAchievementsHTML(data, '&bull;');
@@ -1520,20 +1526,20 @@ function printHighlight(data: ResumeData): string {
   const mainHdr = (t: string) => `<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#004182;border-bottom:2px solid #004182;padding-bottom:3px;margin-bottom:8px">${t}</div>`;
   const sideHdr = (t: string) => `<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#004182;border-bottom:2px solid #004182;padding-bottom:3px;margin-bottom:8px">${t}</div>`;
 
-  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;max-width:100%">`;
+  let h = `<div class="resume-wrapper" style="font-family:Arial,Helvetica,sans-serif;font-size:10px;line-height:1.4">`;
   // Header
-  h += `<div style="background:#004182;padding:14px 28px"><div style="font-size:22px;font-weight:700;color:#fff;display:inline">${esc(c.name) || 'Your Name'}</div>`;
-  if (cp) h += `<div style="font-size:10px;color:rgba(255,255,255,0.7);margin-top:4px">${cp}</div>`;
+  h += `<div style="background:#004182;padding:12px 24px"><div style="font-size:20px;font-weight:700;color:#fff">${esc(c.name) || 'Your Name'}</div>`;
+  if (cp) h += `<div style="font-size:9px;color:rgba(255,255,255,0.7);margin-top:3px">${cp}</div>`;
   h += `</div>`;
   // Body
-  h += `<div style="display:table;width:100%;table-layout:fixed">`;
+  h += `<div class="two-col">`;
   // Left main
-  h += `<div style="display:table-cell;width:65%;padding:20px 20px 20px 28px;color:#333;vertical-align:top">`;
+  h += `<div class="two-col-left" style="width:65%;padding:16px 16px 16px 24px;color:#333">`;
   if (data.summary) h += `<div style="margin-bottom:18px">${mainHdr('Summary')}<div>${esc(data.summary)}</div></div>`;
   if (data.experience?.length) h += `<div style="margin-bottom:18px">${mainHdr('Experience')}${buildExpHTML(data, '&bull;', 'font-size:10px;color:#888;font-style:italic', 'color:#555;font-style:italic;font-size:10px', 'font-weight:700;color:#111')}</div>`;
   h += `</div>`;
   // Right panel
-  h += `<div class="sidebar" style="display:table-cell;width:35%;background:#F0F7FF;padding:20px;vertical-align:top">`;
+  h += `<div class="two-col-right" style="width:35%;background:#F0F7FF;padding:16px">`;
   if (skillGroups.length) {
     h += `<div style="margin-bottom:18px">${sideHdr('Skills')}`;
     skillGroups.forEach(g => {
@@ -1567,15 +1573,15 @@ function printCorporate(data: ResumeData): string {
   const mainHdr = (t: string) => `<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#0F172A;border-bottom:1px solid #CBD5E1;padding-bottom:3px;margin-bottom:8px">${t}</div>`;
   const sideHdr = (t: string) => `<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#0F172A;letter-spacing:1px;border-bottom:1px solid #CBD5E1;padding-bottom:3px;margin-bottom:8px">${t}</div>`;
 
-  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;max-width:100%">`;
+  let h = `<div class="resume-wrapper" style="font-family:Arial,Helvetica,sans-serif;font-size:10px;line-height:1.4">`;
   // Header band
-  h += `<div style="background:#0F172A;padding:14px 28px"><div style="font-size:22px;font-weight:700;color:#fff">${esc(c.name) || 'Your Name'}</div>`;
-  if (cp) h += `<div style="font-size:10px;color:rgba(255,255,255,0.6);margin-top:4px">${cp}</div>`;
+  h += `<div style="background:#0F172A;padding:12px 24px"><div style="font-size:20px;font-weight:700;color:#fff">${esc(c.name) || 'Your Name'}</div>`;
+  if (cp) h += `<div style="font-size:9px;color:rgba(255,255,255,0.6);margin-top:3px">${cp}</div>`;
   h += `</div>`;
   // Body
-  h += `<div style="display:table;width:100%;table-layout:fixed">`;
+  h += `<div class="two-col">`;
   // Left sidebar
-  h += `<div class="sidebar" style="display:table-cell;width:28%;background:#F8FAFC;padding:20px 18px;vertical-align:top;border-right:1px solid #E2E8F0">`;
+  h += `<div class="two-col-left" style="width:28%;background:#F8FAFC;padding:16px 14px;border-right:1px solid #E2E8F0">`;
   if (skillGroups.length) {
     h += `<div style="margin-bottom:20px">${sideHdr('Skills')}`;
     skillGroups.forEach(g => {
@@ -1595,7 +1601,7 @@ function printCorporate(data: ResumeData): string {
   }
   h += `</div>`;
   // Right main
-  h += `<div style="display:table-cell;width:72%;padding:20px 28px;color:#333;vertical-align:top">`;
+  h += `<div class="two-col-right" style="width:72%;padding:16px 24px;color:#333">`;
   if (data.summary) h += `<div style="margin-bottom:18px">${mainHdr('Summary')}<div>${esc(data.summary)}</div></div>`;
   if (data.experience?.length) h += `<div style="margin-bottom:18px">${mainHdr('Experience')}${buildExpHTML(data, '&bull;', 'font-size:10px;color:#888;font-style:italic', 'color:#64748B;font-style:italic;font-size:10px', 'font-weight:700;color:#111')}</div>`;
   const ach = buildAchievementsHTML(data, '&bull;');
@@ -1657,10 +1663,10 @@ export function buildPrintHTML(data: ResumeData, templateId: string): string {
     case 'bold': return printBold(data);
     case 'elegant': return printElegant(data);
     case 'technical': return printTechnical(data);
-    case 'sidebar': return printVisualAsStyled(data, '#1E293B', '#1E293B', '#fff');
-    case 'splitmodern': return printVisualAsStyled(data, '#0A66C2', '#F1F5F9', '#0F172A');
-    case 'highlight': return printVisualAsStyled(data, '#004182', '#004182', '#fff');
-    case 'corporate': return printVisualAsStyled(data, '#0F172A', '#0F172A', '#fff');
+    case 'sidebar': return printSidebar(data);
+    case 'splitmodern': return printSplitModern(data);
+    case 'highlight': return printHighlight(data);
+    case 'corporate': return printCorporate(data);
     case 'classic':
     default: return printClassic(data);
   }
