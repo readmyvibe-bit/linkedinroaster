@@ -279,6 +279,71 @@ function OverviewScreen() {
 }
 
 // ─── Order Detail Modal ───
+// ─── Admin Resume Section (inside order detail) ───
+function AdminResumeSection({ orderId, email, onToast }: { orderId: string; email: string; onToast: (msg: string, type: 'success' | 'error') => void }) {
+  const [resumes, setResumes] = useState<any[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    apiFetchJson(`/api/admin/resumes/${orderId}`).then(d => { setResumes(d.resumes || []); setLoaded(true); }).catch(() => setLoaded(true));
+  }, [orderId]);
+
+  if (!loaded) return null;
+
+  async function sendResumeEmail(resumeId: string) {
+    try {
+      const res = await apiFetch(`/api/admin/send-resume-email/${resumeId}`, { method: 'POST', body: JSON.stringify({ email }) });
+      if (res.ok) { onToast('Resume email sent!', 'success'); }
+      else { const b = await res.json().catch(() => ({})); onToast(b.error || 'Failed', 'error'); }
+    } catch { onToast('Failed to send', 'error'); }
+  }
+
+  async function deleteResume(resumeId: string) {
+    if (!confirm('Delete this resume?')) return;
+    try {
+      const res = await apiFetch(`/api/admin/resumes/${resumeId}`, { method: 'DELETE' });
+      if (res.ok) { setResumes(prev => prev.filter(r => r.id !== resumeId)); onToast('Resume deleted', 'success'); }
+      else { onToast('Failed to delete', 'error'); }
+    } catch { onToast('Failed', 'error'); }
+  }
+
+  return (
+    <div className="mb-4 p-3 rounded" style={{ background: '#F0F7FF', border: '1px solid #BFDBFE' }}>
+      <h4 className="font-semibold text-sm mb-2" style={{ color: '#1E40AF' }}>Resumes ({resumes.length})</h4>
+      {resumes.length === 0 ? (
+        <p className="text-xs" style={{ color: '#888' }}>No resumes generated yet</p>
+      ) : (
+        <div className="space-y-2">
+          {resumes.map((r: any) => (
+            <div key={r.id} className="flex items-center justify-between p-2 rounded text-sm" style={{ background: 'white', border: '1px solid #E0E0E0' }}>
+              <div>
+                <div className="font-semibold text-xs">{r.target_role || 'Resume'}{r.target_company ? ` — ${r.target_company}` : ''}</div>
+                <div className="text-xs" style={{ color: '#888' }}>
+                  ATS: <span style={{ color: r.ats_score >= 80 ? '#057642' : '#0A66C2', fontWeight: 700 }}>{r.ats_score}%</span>
+                  {' · '}{r.template_id || 'classic'}
+                  {' · '}{formatIST(r.created_at)}
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <a href={`https://profileroaster.in/resume/${r.id}`} target="_blank" rel="noopener noreferrer"
+                  className="text-xs font-semibold px-2 py-1 rounded" style={{ background: 'var(--li-gray)', color: 'var(--li-blue)', textDecoration: 'none' }}>View</a>
+                <button onClick={() => sendResumeEmail(r.id)}
+                  className="text-xs font-semibold px-2 py-1 rounded text-white border-none cursor-pointer" style={{ background: '#0A66C2' }}>Email</button>
+                <button onClick={() => deleteResume(r.id)}
+                  className="text-xs font-semibold px-2 py-1 rounded border-none cursor-pointer" style={{ background: '#FEE2E2', color: '#CC1016' }}>Delete</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      <a href={`https://profileroaster.in/resume?orderId=${orderId}`} target="_blank" rel="noopener noreferrer"
+        className="inline-block mt-2 text-xs font-semibold px-3 py-1.5 rounded-full text-white" style={{ background: '#057642', textDecoration: 'none' }}>
+        + Generate Resume for Client
+      </a>
+    </div>
+  );
+}
+
 function OrderDetailModal({
   order,
   onClose,
@@ -448,6 +513,9 @@ function OrderDetailModal({
             </a>
           </div>
         )}
+
+        {/* Resumes */}
+        {s.processing_status === 'done' && <AdminResumeSection orderId={s.id} email={s.email} onToast={onToast} />}
 
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-3 pt-3" style={{ borderTop: '1px solid var(--li-border)' }}>
