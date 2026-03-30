@@ -125,10 +125,46 @@ Return ONLY valid JSON with this exact structure:
   const atsAnalysis = resumeData.ats_analysis || { score: 0, keywords_matched: [], keywords_missing: [], recommendations: [] };
   delete resumeData.ats_analysis;
 
-  // 5. Save to DB
+  // 5. Generate cover letter
+  const coverLetterResponse = await anthropic.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 1500,
+    messages: [{
+      role: 'user',
+      content: `Write a professional cover letter for this job application.
+
+APPLICANT: ${input.userDetails.name}
+TARGET ROLE: ${input.targetRole}
+${input.targetCompany ? `TARGET COMPANY: ${input.targetCompany}` : ''}
+
+APPLICANT BACKGROUND (from LinkedIn):
+${rewrite.rewritten_headline || ''}
+${rewrite.rewritten_about || ''}
+
+JOB DESCRIPTION:
+${input.jobDescription}
+
+RULES:
+- 3-4 paragraphs: Opening hook → Why this role → Proof of impact → Call to action
+- Reference specific requirements from the JD
+- Include 2-3 measurable achievements from their background
+- Professional but confident tone — not generic
+- Do NOT start with "I am writing to apply for"
+- Do NOT use "Dear Hiring Manager" — use "Dear ${input.targetCompany || 'Hiring'} Team"
+- Maximum 350 words
+- End with a specific call to action
+
+Return ONLY the cover letter text. No JSON. No formatting markers.`,
+    }],
+    system: 'You are an expert career coach who writes compelling cover letters that get interviews. Be specific, not generic.',
+  });
+
+  const coverLetter = ((coverLetterResponse.content[0] as any).text || '').trim();
+
+  // 6. Save to DB
   const result = await query(
-    `INSERT INTO resumes (order_id, email, job_description, target_role, target_company, template_id, page_count, resume_data, ats_score, keywords_matched, keywords_missing, recommendations, status)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'generated')
+    `INSERT INTO resumes (order_id, email, job_description, target_role, target_company, template_id, page_count, resume_data, ats_score, keywords_matched, keywords_missing, recommendations, cover_letter, status)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, 'generated')
      RETURNING id`,
     [
       input.orderId, input.userDetails.email, input.jobDescription,
@@ -138,8 +174,56 @@ Return ONLY valid JSON with this exact structure:
       JSON.stringify(atsAnalysis.keywords_matched),
       JSON.stringify(atsAnalysis.keywords_missing),
       JSON.stringify(atsAnalysis.recommendations),
+      coverLetter,
     ],
   );
 
   return { resumeId: result.rows[0].id, ats_score: atsAnalysis.score };
+}
+
+// ─── Parse uploaded resume text into structured data ───
+export async function parseUploadedResume(text: string): Promise<any> {
+  const response = await anthropic.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 3000,
+    messages: [{
+      role: 'user',
+      content: `Extract structured data from this resume text. Return ONLY valid JSON.
+
+RESUME TEXT:
+${text.slice(0, 8000)}
+
+Return this exact JSON structure:
+{
+  "name": "",
+  "email": "",
+  "phone": "",
+  "location": "",
+  "linkedin": "",
+  "website": "",
+  "summary": "",
+  "experience": [
+    { "role": "", "company": "", "location": "", "start_date": "", "end_date": "", "bullets": [] }
+  ],
+  "education": [
+    { "institution": "", "degree": "", "field": "", "year": "" }
+  ],
+  "skills": [],
+  "certifications": [],
+  "languages": [],
+  "achievements": []
+}`,
+    }],
+    system: 'You are a resume parser. Extract all information accurately. Return ONLY valid JSON.',
+  });
+
+  let rText = ((response.content[0] as any).text || '').trim();
+  if (rText.startsWith('```')) {
+    rText = rText.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '');
+  }
+  try {
+    return JSON.parse(rText);
+  } catch {
+    return JSON.parse(jsonrepair(rText));
+  }
 }

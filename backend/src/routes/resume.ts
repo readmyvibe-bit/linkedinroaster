@@ -1,7 +1,10 @@
 import { Router, Request, Response } from 'express';
+import multer from 'multer';
 import { query } from '../db';
-import { generateResume } from '../services/resume-generator';
+import { generateResume, parseUploadedResume } from '../services/resume-generator';
 import { generateDocx } from '../services/resume-docx';
+
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
 const router = Router();
 
@@ -15,6 +18,44 @@ router.get('/by-order/:orderId', async (req: Request, res: Response) => {
     res.json({ resumes: result.rows, count: result.rows.length });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch resumes' });
+  }
+});
+
+// POST /api/resume/upload-parse — parse uploaded resume file
+router.post('/upload-parse', upload.single('file'), async (req: Request, res: Response) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+    const mime = req.file.mimetype;
+    let text = '';
+
+    if (mime === 'application/pdf') {
+      const pdfParse = require('pdf-parse');
+      const data = await pdfParse(req.file.buffer);
+      text = data.text;
+    } else if (mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || mime === 'application/msword') {
+      const mammoth = require('mammoth');
+      const result = await mammoth.extractRawText({ buffer: req.file.buffer });
+      text = result.value;
+    } else if (mime.startsWith('image/')) {
+      // For images, return error — OCR not supported yet
+      return res.status(400).json({ error: 'Image upload not supported yet. Please upload a PDF or DOCX file.' });
+    } else {
+      // Try as plain text
+      text = req.file.buffer.toString('utf-8');
+    }
+
+    if (!text || text.trim().length < 50) {
+      return res.status(400).json({ error: 'Could not extract enough text from the file. Please try a different format.' });
+    }
+
+    // Use AI to parse into structured data
+    const parsed = await parseUploadedResume(text);
+
+    res.json({ parsed, rawTextLength: text.length });
+  } catch (err: any) {
+    console.error('Upload parse error:', err.message);
+    res.status(500).json({ error: 'Failed to parse uploaded file' });
   }
 });
 
@@ -115,6 +156,21 @@ router.post('/:resumeId/ats-check', async (req: Request, res: Response) => {
     res.json({ score: Math.min(score, 100), keywords_matched: matched, keywords_missing: missing });
   } catch (err) {
     res.status(500).json({ error: 'ATS check failed' });
+  }
+});
+
+// GET /api/resume/:resumeId/cover-letter
+router.get('/:resumeId/cover-letter', async (req: Request, res: Response) => {
+  try {
+    const result = await query('SELECT cover_letter, target_role, target_company FROM resumes WHERE id=$1', [req.params.resumeId]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Resume not found' });
+    res.json({
+      cover_letter: result.rows[0].cover_letter || '',
+      target_role: result.rows[0].target_role,
+      target_company: result.rows[0].target_company,
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch cover letter' });
   }
 });
 

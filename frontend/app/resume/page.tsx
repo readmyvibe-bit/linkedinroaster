@@ -112,6 +112,15 @@ function ResumeFormContent() {
   // Additional section collapsed
   const [additionalOpen, setAdditionalOpen] = useState(false);
 
+  // Upload section
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // Submit state
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
@@ -206,6 +215,58 @@ function ResumeFormContent() {
     }
   }
 
+  // ─── Upload & Parse Resume ───
+  async function handleUploadParse() {
+    if (!uploadFile) return;
+    setUploading(true);
+    setUploadError('');
+    setUploadSuccess(false);
+    try {
+      const formData = new FormData();
+      formData.append('file', uploadFile);
+      const res = await fetch(`${API_URL}/api/resume/upload-parse`, {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to parse resume');
+      }
+      const data = await res.json();
+      const parsed = data.parsed || {};
+      if (parsed.name) setFullName(parsed.name);
+      if (parsed.email) setEmail(parsed.email);
+      if (parsed.phone) setPhone(parsed.phone);
+      if (parsed.location) setLocation(parsed.location);
+      if (parsed.linkedin) setLinkedinUrl(parsed.linkedin);
+      if (parsed.website) setWebsite(parsed.website);
+      if (parsed.certifications) setCertifications(parsed.certifications);
+      if (parsed.languages) setLanguages(parsed.languages);
+      if (parsed.summary) setKeyAchievements(parsed.summary);
+      setUploadSuccess(true);
+    } catch (err: unknown) {
+      setUploadError(err instanceof Error ? err.message : 'Failed to parse resume');
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function handleFileSelect(file: File | undefined) {
+    if (!file) return;
+    const validTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    if (!validTypes.includes(file.type) && !file.name.endsWith('.pdf') && !file.name.endsWith('.docx')) {
+      setUploadError('Please upload a PDF or DOCX file.');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadError('File must be under 10MB.');
+      return;
+    }
+    setUploadError('');
+    setUploadSuccess(false);
+    setUploadFile(file);
+  }
+
   // ─── Error / Loading states ───
   if (orderLoading) {
     return (
@@ -259,6 +320,94 @@ function ResumeFormContent() {
           background: '#fff', border: '1px solid #E0E0E0', borderTop: 'none',
           borderRadius: '0 0 12px 12px', padding: '28px',
         }}>
+
+          {/* UPLOAD SECTION - Optional Resume Upload */}
+          <div style={{ marginBottom: 28 }}>
+            <button
+              type="button"
+              onClick={() => setUploadOpen(!uploadOpen)}
+              style={{
+                ...sectionHeading,
+                width: '100%', textAlign: 'left', background: 'none', border: 'none',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '0 0 8px', margin: '0 0 0',
+              }}
+            >
+              <span>Upload Your Existing Resume (Optional)</span>
+              <span style={{ fontSize: 18, fontWeight: 400, transition: 'transform 0.2s', transform: uploadOpen ? 'rotate(180deg)' : 'rotate(0)' }}>
+                &#9660;
+              </span>
+            </button>
+
+            {uploadOpen && (
+              <div style={{ paddingTop: 16 }}>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.docx"
+                  style={{ display: 'none' }}
+                  onChange={(e) => handleFileSelect(e.target.files?.[0])}
+                />
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFileSelect(e.dataTransfer.files?.[0]); }}
+                  style={{
+                    border: `2px dashed ${dragOver ? '#0A66C2' : '#D1D5DB'}`,
+                    borderRadius: 12,
+                    padding: 32,
+                    textAlign: 'center',
+                    background: dragOver ? '#EFF6FF' : '#FAFBFC',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  <div style={{ fontSize: 32, marginBottom: 8, color: '#9CA3AF' }}>&#128196;</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#374151', marginBottom: 4 }}>
+                    {uploadFile ? uploadFile.name : 'Click or drag & drop your resume here'}
+                  </div>
+                  <div style={{ fontSize: 12, color: '#9CA3AF' }}>PDF or DOCX, max 10MB</div>
+                </div>
+
+                {uploadFile && (
+                  <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <button
+                      type="button"
+                      onClick={handleUploadParse}
+                      disabled={uploading}
+                      style={{
+                        padding: '10px 20px', background: uploading ? '#93C5FD' : '#0A66C2', color: '#fff',
+                        border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600,
+                        cursor: uploading ? 'not-allowed' : 'pointer', transition: 'background 0.2s',
+                      }}
+                    >
+                      {uploading ? 'Parsing your resume...' : 'Upload & Auto-Fill'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setUploadFile(null); setUploadSuccess(false); setUploadError(''); if (fileInputRef.current) fileInputRef.current.value = ''; }}
+                      style={{ background: 'none', border: 'none', color: '#999', cursor: 'pointer', fontSize: 13 }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
+
+                {uploadSuccess && (
+                  <div style={{ marginTop: 12, background: '#DCFCE7', border: '1px solid #86EFAC', borderRadius: 8, padding: '10px 14px' }}>
+                    <p style={{ margin: 0, color: '#057642', fontSize: 14 }}>Resume parsed! Fields auto-filled. Review and edit as needed.</p>
+                  </div>
+                )}
+
+                {uploadError && (
+                  <div style={{ marginTop: 12, background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, padding: '10px 14px' }}>
+                    <p style={{ margin: 0, color: '#CC1016', fontSize: 14 }}>{uploadError}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
           {/* SECTION 1 - Your Details */}
           <h2 style={sectionHeading}>Your Details</h2>

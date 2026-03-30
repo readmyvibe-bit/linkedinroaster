@@ -58,6 +58,7 @@ interface ResumeResponse {
   target_company: string;
   template_id: string;
   order_id: string;
+  cover_letter?: string;
 }
 
 // ─── Score Color Helper ───
@@ -176,6 +177,7 @@ export default function ResumePreviewPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showKeywords, setShowKeywords] = useState(false);
+  const [coverLetterCopied, setCoverLetterCopied] = useState(false);
 
   useEffect(() => {
     if (!resumeId) return;
@@ -209,6 +211,52 @@ export default function ResumePreviewPage() {
       // Close the window after print dialog
       setTimeout(() => win.close(), 1000);
     }, 500);
+  }
+
+  function handleDownloadCoverLetterPDF() {
+    if (!resume?.cover_letter) return;
+    const c = resume.resume_data.contact || {};
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title> </title>
+<style>
+  @page { margin: 25mm; size: A4; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Arial, Helvetica, sans-serif; color: #111827; line-height: 1.8; }
+  @media print {
+    body { -webkit-print-color-adjust: exact; }
+  }
+  @page { @top-left { content: none; } @top-right { content: none; } @bottom-left { content: none; } @bottom-right { content: none; } }
+</style>
+</head>
+<body style="padding:40px;">
+  <div style="margin-bottom:24px;">
+    <div style="font-size:20px;font-weight:700;color:#111827;">${c.name || ''}</div>
+    <div style="font-size:11px;color:#555;margin-top:4px;">${[c.email, c.phone, c.location].filter(Boolean).join(' | ')}</div>
+  </div>
+  <hr style="border:none;border-top:1px solid #D1D5DB;margin:0 0 24px;">
+  <div style="font-size:12px;color:#374151;line-height:1.8;white-space:pre-wrap;">${resume.cover_letter.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+</body>
+</html>`;
+    const win = window.open('', '_blank');
+    if (!win) return;
+    win.document.write(html);
+    win.document.close();
+    win.document.title = ' ';
+    setTimeout(() => {
+      win.print();
+      setTimeout(() => win.close(), 1000);
+    }, 500);
+  }
+
+  function handleCopyCoverLetter() {
+    if (!resume?.cover_letter) return;
+    navigator.clipboard.writeText(resume.cover_letter).then(() => {
+      setCoverLetterCopied(true);
+      setTimeout(() => setCoverLetterCopied(false), 2000);
+    });
   }
 
   // ─── Loading State ───
@@ -520,6 +568,32 @@ export default function ResumePreviewPage() {
             </>
           )}
         </div>
+
+        {/* ─── COVER LETTER ─── */}
+        {resume.cover_letter && (
+          <div style={{ maxWidth: 794, margin: '24px auto 0', background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', overflow: 'hidden' }}>
+            <div style={{ background: '#004182', padding: '12px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ color: 'white', fontSize: 15, fontWeight: 700 }}>Cover Letter</div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  onClick={handleCopyCoverLetter}
+                  style={{ background: 'white', color: '#004182', border: 'none', borderRadius: 16, padding: '4px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+                >
+                  {coverLetterCopied ? 'Copied!' : 'Copy'}
+                </button>
+                <button
+                  onClick={handleDownloadCoverLetterPDF}
+                  style={{ background: 'white', color: '#004182', border: 'none', borderRadius: 16, padding: '4px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+                >
+                  Download PDF
+                </button>
+              </div>
+            </div>
+            <div style={{ padding: '24px', fontSize: 14, color: '#374151', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
+              {resume.cover_letter}
+            </div>
+          </div>
+        )}
 
         {/* ─── BOTTOM ACTIONS ─── */}
         <div style={{ textAlign: 'center', marginTop: 24, display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
