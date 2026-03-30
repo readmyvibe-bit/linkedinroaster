@@ -929,12 +929,29 @@ export default function Home() {
 
       {/* ─── Profile Input Form (after plan selection) ─── */}
       {selectedPlan && (
-        <section ref={inputFormRef} className="max-w-2xl mx-auto px-4 pb-12">
-          <ProfileInputForm
-            plan={selectedPlan}
-            teaserId={teaser?.teaser_id || null}
-            email={email}
-          />
+        <section ref={inputFormRef} style={{ maxWidth: 1200, margin: '0 auto', padding: '0 16px 48px' }}>
+          <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+
+            {/* LEFT SIDE — Hinglish Roast Quotes */}
+            <div className="hidden lg:block" style={{ width: 260, flexShrink: 0 }}>
+              <RoastQuotesColumn />
+            </div>
+
+            {/* CENTER — Form */}
+            <div style={{ flex: 1, maxWidth: 672 }}>
+              <ProfileInputForm
+                plan={selectedPlan}
+                teaserId={teaser?.teaser_id || null}
+                email={email}
+              />
+            </div>
+
+            {/* RIGHT SIDE — Score Transformations */}
+            <div className="hidden lg:block" style={{ width: 260, flexShrink: 0 }}>
+              <ScoreTransformColumn />
+            </div>
+
+          </div>
         </section>
       )}
 
@@ -1241,6 +1258,93 @@ export default function Home() {
         </div>
       </section>
     </main>
+  );
+}
+
+// ─── Roast Quotes Column (Left side of form) ───
+function RoastQuotesColumn() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const quotes = [
+    { text: '"Passionate about growth" likhne se growth nahi hoti. Numbers dikha bhai.', emoji: '🔥', tag: 'Headline Roast' },
+    { text: 'HR ne tera profile dekha. 3 second mein scroll kar diya. Ab samjha kyu call nahi aati?', emoji: '👀', tag: 'Reality Check' },
+    { text: '"Open to work" badge laga diya but profile mein kuch kaam ka nahi likha. Classic move.', emoji: '💀', tag: 'Badge Roast' },
+    { text: 'Bhai "Results-driven" toh sabhi likhte hain. Konsa result? Kitna revenue? Kab?', emoji: '📊', tag: 'Buzzword Alert' },
+    { text: '"Team player" matlab kuch specific nahi hai bolne ko. Recruiter bhi yahi samajhta hai.', emoji: '🤷', tag: 'Generic Alert' },
+    { text: 'About section mein apni life story likh di. Recruiter ko novel nahi padna, impact chahiye.', emoji: '📖', tag: 'About Roast' },
+    { text: '47 skills add kiye but ek bhi project mention nahi. LinkedIn hai bhai, Quora nahi.', emoji: '🎯', tag: 'Skills Roast' },
+    { text: '"Aspiring Professional" — yeh LinkedIn ka "unemployed" bolne ka classy tarika hai.', emoji: '😅', tag: 'Headline Roast' },
+    { text: 'Experience section mein sirf company name aur date hai. Kya kiya waha? Secret mission tha kya?', emoji: '🕵️', tag: 'Experience Roast' },
+    { text: 'Profile photo mein shadi ka photo lagaya hai. Recruiter ko rishta nahi dena, job chahiye.', emoji: '📸', tag: 'Photo Roast' },
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => setActiveIndex(prev => (prev + 1) % quotes.length), 4000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, position: 'sticky', top: 80 }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: '#E16B00', marginBottom: 4 }}>AI Roast Highlights</div>
+      {quotes.slice(activeIndex, activeIndex + 3).concat(quotes.slice(0, Math.max(0, activeIndex + 3 - quotes.length))).map((q, i) => (
+        <div key={`${activeIndex}-${i}`} style={{
+          background: 'white', border: '1px solid #E0E0E0', borderLeft: '3px solid #E16B00',
+          borderRadius: '0 8px 8px 0', padding: '12px 14px',
+          animation: 'resultAppear 0.5s ease forwards',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: '#E16B00', letterSpacing: 1 }}>{q.tag.toUpperCase()}</span>
+            <span style={{ fontSize: 14 }}>{q.emoji}</span>
+          </div>
+          <div style={{ fontSize: 12, color: '#374151', lineHeight: 1.5, fontStyle: 'italic' }}>{q.text}</div>
+        </div>
+      ))}
+      <div style={{ fontSize: 10, color: '#aaa', textAlign: 'center', marginTop: 4 }}>Real AI roasts from ProfileRoaster</div>
+    </div>
+  );
+}
+
+// ─── Score Transform Column (Right side of form) ───
+function ScoreTransformColumn() {
+  const transforms = [
+    { name: 'Rahul S.', role: 'MBA Graduate, Delhi', before: 22, after: 71, comment: '3 recruiter messages in 1 week' },
+    { name: 'Priya M.', role: 'Software Engineer, Bangalore', before: 28, after: 76, comment: 'Got shortlisted at 2 MNCs' },
+    { name: 'Sneha R.', role: 'HR Executive, Mumbai', before: 38, after: 84, comment: 'Best ₹299 spent on my career' },
+    { name: 'Arjun T.', role: 'BDM, Pune', before: 31, after: 78, comment: 'Profile views jumped 4x' },
+    { name: 'Kavya N.', role: 'Data Analyst, Hyderabad', before: 25, after: 72, comment: 'Finally getting interview calls' },
+    { name: 'Amit K.', role: 'Product Manager, Gurgaon', before: 42, after: 85, comment: 'Landed dream job in 3 weeks' },
+  ];
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, position: 'sticky', top: 80 }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: '#057642', marginBottom: 4 }}>Score Transformations</div>
+      {transforms.map((t, i) => (
+        <div key={i} style={{
+          background: 'white', border: '1px solid #E0E0E0', borderRadius: 8, padding: '12px 14px',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#191919' }}>{t.name}</div>
+              <div style={{ fontSize: 10, color: '#888' }}>{t.role}</div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ fontSize: 16, fontWeight: 700, color: '#CC1016' }}>{t.before}</span>
+              <span style={{ fontSize: 11, color: '#ccc' }}>&rarr;</span>
+              <span style={{ fontSize: 18, fontWeight: 700, color: '#057642' }}>{t.after}</span>
+            </div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontSize: 10, color: '#057642', fontStyle: 'italic' }}>&ldquo;{t.comment}&rdquo;</div>
+            <span style={{ background: '#DCFCE7', color: '#057642', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10 }}>+{t.after - t.before} pts</span>
+          </div>
+        </div>
+      ))}
+      <div style={{
+        background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 8, padding: '10px 14px', textAlign: 'center',
+      }}>
+        <div style={{ fontSize: 22, fontWeight: 800, color: '#0A66C2' }}>500+</div>
+        <div style={{ fontSize: 11, color: '#666' }}>Professionals improved their LinkedIn</div>
+      </div>
+    </div>
   );
 }
 
