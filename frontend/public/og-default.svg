@@ -2,10 +2,10 @@
   <rect width="1200" height="630" fill="#004182"/>
   <rect x="0" y="0" width="1200" height="5" fill="#E16B00"/>
 
-  <!-- Flame — all layers centered on x=600 -->
-  <path d="M600 210c-24 0-44-20-44-44 0-16 7-28 17-37 4-4 7-8 10-12 3 4 6 8 10 12 10 9 17 21 17 37 0 24-20 44-44 44h34z" fill="#E16B00"/>
-  <path d="M600 198c-11 0-20-9-20-20 0-9 4.5-16.5 10-23 2-2 4-5 5.5-7.5 1.5 2.5 3.5 5.5 5.5 7.5 5.5 6.5 10 14 10 23 0 11-9 20-20 20h9z" fill="#F59E0B"/>
-  <path d="M600 186c-5.5 0-11-5-11-11 0-6 3-9 7-13 1-1 2-2.5 3-4 1 1.5 2 3 3 4 4 4 7 7 7 13 0 6-5.5 11-11 11h2z" fill="#FCD34D"/>
+  <!-- Flame — symmetric around x=600 -->
+  <path d="M600 110 C600 110 590 124 584 132 C572 148 556 164 556 182 C556 198 572 210 600 210 C628 210 644 198 644 182 C644 164 628 148 616 132 C610 124 600 110 600 110Z" fill="#E16B00"/>
+  <path d="M600 130 C600 130 593 140 589 146 C580 158 572 170 572 183 C572 195 583 205 600 205 C617 205 628 195 628 183 C628 170 620 158 611 146 C607 140 600 130 600 130Z" fill="#F59E0B"/>
+  <path d="M600 148 C600 148 595 155 593 159 C588 166 585 174 585 181 C585 190 591 198 600 198 C609 198 615 190 615 181 C615 174 612 166 607 159 C605 155 600 148 600 148Z" fill="#FCD34D"/>
 
   <!-- Brand name -->
   <text x="600" y="290" font-family="Inter, Helvetica, sans-serif" font-size="54" font-weight="600" text-anchor="middle" letter-spacing="-1">
@@ -20,6 +20,5 @@
 
   <!-- Bottom -->
   <text x="600" y="520" font-family="Inter, Helvetica, sans-serif" font-size="14" font-weight="500" fill="rgba(255,255,255,0.2)" text-anchor="middle">profileroaster.in</text>
-
   <rect x="0" y="624" width="1200" height="6" fill="#E16B00"/>
 </svg>
