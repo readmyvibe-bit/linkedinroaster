@@ -1,13 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 56" fill="none">
-  <!-- Flame icon — symmetric around x=20 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 52" fill="none">
+  <!-- Flame icon — symmetric around x=22, vertically centered -->
   <g transform="translate(4, 2)">
-    <!-- Outer -->
-    <path d="M20 4 C20 4 17.5 8.5 16 11 C12.5 16.5 8 21 8 27 C8 33 12.5 38 20 38 C27.5 38 32 33 32 27 C32 21 27.5 16.5 24 11 C22.5 8.5 20 4 20 4Z" fill="#E16B00"/>
-    <!-- Inner -->
-    <path d="M20 10 C20 10 18.2 13 17 15.5 C14.5 19 12 22 12 26 C12 30 15.5 33 20 33 C24.5 33 28 30 28 26 C28 22 25.5 19 23 15.5 C21.8 13 20 10 20 10Z" fill="#F59E0B"/>
-    <!-- Core -->
-    <path d="M20 16 C20 16 18.8 18 18 19.5 C16.5 22 15 24 15 26.5 C15 29 17.2 31 20 31 C22.8 31 25 29 25 26.5 C25 24 23.5 22 22 19.5 C21.2 18 20 16 20 16Z" fill="#FCD34D"/>
+    <path d="M22 4 C22 4 19.2 9 17.5 12 C14 17.5 9 22 9 28 C9 34 14 39 22 39 C30 39 35 34 35 28 C35 22 30 17.5 26.5 12 C24.8 9 22 4 22 4Z" fill="#E16B00"/>
+    <path d="M22 11 C22 11 20 14.5 18.8 16.5 C16 20.5 13 24 13 27.5 C13 31.5 17 35 22 35 C27 35 31 31.5 31 27.5 C31 24 28 20.5 25.2 16.5 C24 14.5 22 11 22 11Z" fill="#F59E0B"/>
+    <path d="M22 17 C22 17 20.5 19.5 19.8 21 C18 23.5 16.5 25.5 16.5 28 C16.5 30.5 18.8 32.5 22 32.5 C25.2 32.5 27.5 30.5 27.5 28 C27.5 25.5 26 23.5 24.2 21 C23.5 19.5 22 17 22 17Z" fill="#FCD34D"/>
   </g>
   <!-- Text: ProfileRoaster.in -->
-  <text x="52" y="38" font-family="Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="26" font-weight="600" fill="#004182" letter-spacing="-0.3">Profile<tspan font-weight="800" fill="#E16B00">Roaster</tspan><tspan font-weight="400" fill="#9CA3AF">.in</tspan></text>
+  <text x="52" y="36" font-family="Inter, -apple-system, Helvetica, Arial, sans-serif" font-size="28" font-weight="600" fill="#004182" letter-spacing="-0.3">Profile<tspan font-weight="800" fill="#E16B00">Roaster</tspan><tspan font-weight="400" fill="#9CA3AF">.in</tspan></text>
 </svg>

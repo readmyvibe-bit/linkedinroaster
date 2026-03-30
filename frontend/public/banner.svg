@@ -13,22 +13,23 @@
   <!-- Orange accent line at top -->
   <rect x="0" y="0" width="1200" height="6" fill="#E16B00"/>
 
-  <!-- FLAME — symmetric, all centered on x=600 -->
-  <!-- Outer flame: center=600, width=88 (44 each side), top=110, bottom=210 -->
-  <path d="M600 110 C600 110 590 124 584 132 C572 148 556 164 556 182 C556 198 572 210 600 210 C628 210 644 198 644 182 C644 164 628 148 616 132 C610 124 600 110 600 110Z" fill="#E16B00"/>
+  <!-- CENTERED ROW: Flame icon + ProfileRoaster.in -->
+  <!-- Flame icon — symmetric, left of text, centered at y=280 -->
+  <g transform="translate(340, 230)">
+    <!-- Outer flame -->
+    <path d="M40 0 C40 0 35 9 32.5 14 C27 23 19 31 19 42 C19 53 27 62 40 62 C53 62 61 53 61 42 C61 31 53 23 47.5 14 C45 9 40 0 40 0Z" fill="#E16B00"/>
+    <!-- Inner flame -->
+    <path d="M40 12 C40 12 37 18 35.5 21 C31 28 26 34 26 41 C26 49 32 55 40 55 C48 55 54 49 54 41 C54 34 49 28 44.5 21 C43 18 40 12 40 12Z" fill="#F59E0B"/>
+    <!-- Core flame -->
+    <path d="M40 22 C40 22 38 26 37 28 C34.5 32 32 36 32 40 C32 44.5 35.5 48 40 48 C44.5 48 48 44.5 48 40 C48 36 45.5 32 43 28 C42 26 40 22 40 22Z" fill="#FCD34D"/>
+  </g>
 
-  <!-- Inner flame: center=600, width=56 (28 each side), top=130, bottom=205 -->
-  <path d="M600 130 C600 130 593 140 589 146 C580 158 572 170 572 183 C572 195 583 205 600 205 C617 205 628 195 628 183 C628 170 620 158 611 146 C607 140 600 130 600 130Z" fill="#F59E0B"/>
-
-  <!-- Core flame: center=600, width=30 (15 each side), top=148, bottom=198 -->
-  <path d="M600 148 C600 148 595 155 593 159 C588 166 585 174 585 181 C585 190 591 198 600 198 C609 198 615 190 615 181 C615 174 612 166 607 159 C605 155 600 148 600 148Z" fill="#FCD34D"/>
-
-  <!-- Brand name centered -->
-  <text x="600" y="290" font-family="Inter, -apple-system, Helvetica, sans-serif" font-size="62" font-weight="600" text-anchor="middle" letter-spacing="-1.5">
+  <!-- Brand name — right of flame -->
+  <text x="440" y="278" font-family="Inter, -apple-system, Helvetica, sans-serif" font-size="62" font-weight="600" letter-spacing="-1.5">
     <tspan fill="white">Profile</tspan><tspan fill="#E16B00" font-weight="800">Roaster</tspan><tspan fill="rgba(255,255,255,0.35)" font-weight="400">.in</tspan>
   </text>
 
-  <!-- Tagline -->
+  <!-- Tagline centered -->
   <text x="600" y="340" font-family="Inter, -apple-system, Helvetica, sans-serif" font-size="20" font-weight="400" fill="rgba(255,255,255,0.45)" text-anchor="middle" letter-spacing="5">AI-POWERED LINKEDIN PROFILE ANALYSIS</text>
 
   <!-- Divider line -->
