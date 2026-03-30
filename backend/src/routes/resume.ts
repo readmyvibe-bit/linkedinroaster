@@ -143,22 +143,25 @@ router.post('/:resumeId/ats-check', async (req: Request, res: Response) => {
     const resumeText = JSON.stringify(resume.resume_data).toLowerCase();
     const jd = (resume.job_description || '').toLowerCase();
 
-    // Extract keywords from JD
-    const stopWords = new Set(['the', 'and', 'or', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might', 'shall', 'can', 'a', 'an', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from', 'as', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'between', 'out', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 'just', 'because', 'but', 'if', 'while', 'about', 'up', 'its', 'it', 'this', 'that', 'these', 'those', 'we', 'you', 'your', 'they', 'their', 'our', 'my', 'his', 'her', 'who', 'which', 'what', 'also', 'must', 'able', 'etc', 'including', 'well', 'within', 'across', 'role', 'work', 'working', 'experience', 'years', 'year', 'strong', 'good', 'team', 'new', 'required', 'preferred', 'minimum', 'plus']);
+    // Use AI to extract relevant skills/requirements from JD (not company names)
+    const Anthropic = require('@anthropic-ai/sdk').default;
+    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
+    const kwResponse = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 500,
+      messages: [{
+        role: 'user',
+        content: `Extract the top 25-30 SKILLS, TOOLS, and REQUIREMENTS from this job description. Only include skills, technologies, methodologies, certifications, and professional competencies. Do NOT include company names, locations, benefits, or generic words.\n\nJob Description:\n${jd.slice(0, 3000)}\n\nReturn ONLY a JSON array of lowercase strings. Example: ["customer success","crm","saas","retention","onboarding"]`,
+      }],
+      system: 'Return ONLY a valid JSON array. No explanation.',
+    });
+    let kwText = ((kwResponse.content[0] as any).text || '').trim();
+    if (kwText.startsWith('```')) kwText = kwText.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '');
+    let keywords: string[] = [];
+    try { keywords = JSON.parse(kwText); } catch { keywords = []; }
 
-    const jdWords = jd.match(/\b[a-z]{3,}\b/g) || [];
-    const wordFreq: Record<string, number> = {};
-    jdWords.forEach((w: string) => { if (!stopWords.has(w)) wordFreq[w] = (wordFreq[w] || 0) + 1; });
-
-    // Get top keywords (appear 2+ times or are technical terms)
-    const keywords = Object.entries(wordFreq)
-      .filter(([, count]) => count >= 2)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 40)
-      .map(([word]) => word);
-
-    const matched = keywords.filter(kw => resumeText.includes(kw));
-    const missing = keywords.filter(kw => !resumeText.includes(kw));
+    const matched = keywords.filter((kw: string) => resumeText.includes(kw.toLowerCase()));
+    const missing = keywords.filter((kw: string) => !resumeText.includes(kw.toLowerCase()));
     const score = keywords.length > 0 ? Math.round((matched.length / keywords.length) * 85) + 15 : 50;
 
     await query(

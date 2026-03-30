@@ -430,11 +430,11 @@ function ResumeFormContent() {
             </div>
             <div>
               <label style={labelStyle}>LinkedIn URL</label>
-              <input type="url" value={linkedinUrl} onChange={(e) => setLinkedinUrl(e.target.value)} style={inputStyle} />
+              <input type="text" value={linkedinUrl} onChange={(e) => setLinkedinUrl(e.target.value)} placeholder="linkedin.com/in/yourname" style={inputStyle} />
             </div>
             <div>
               <label style={labelStyle}>Website</label>
-              <input type="url" value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://" style={inputStyle} />
+              <input type="text" value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="yourwebsite.com" style={inputStyle} />
             </div>
           </div>
 

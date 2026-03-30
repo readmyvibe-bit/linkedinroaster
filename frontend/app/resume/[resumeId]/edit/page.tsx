@@ -804,8 +804,8 @@ ${experienceHTML}${educationHTML}${skillsHTML}${achievementsHTML}
                                 ⠿
                               </div>
                               <textarea
-                                rows={1}
-                                style={{ ...inputStyle, resize: 'vertical', minHeight: 32 }}
+                                rows={3}
+                                style={{ ...inputStyle, resize: 'vertical', minHeight: 60, lineHeight: '1.5' }}
                                 value={b}
                                 onChange={e => updateBullet(i, j, e.target.value)}
                               />
