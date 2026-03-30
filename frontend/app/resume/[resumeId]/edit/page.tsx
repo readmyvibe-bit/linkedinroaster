@@ -187,6 +187,8 @@ export default function ResumeEditorPage() {
   const [activeTab, setActiveTab] = useState<TabName>('contact');
   const [expandedJobs, setExpandedJobs] = useState<Record<number, boolean>>({});
   const [skillsParsed, setSkillsParsed] = useState({ technical: [] as string[], soft: [] as string[], languages: [] as string[], certifications: [] as string[] });
+  const [isMobile, setIsMobile] = useState(false);
+  const [mobileView, setMobileView] = useState<'edit' | 'preview'>('edit');
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isFirstRender = useRef(true);
@@ -215,6 +217,14 @@ export default function ResumeEditorPage() {
       .catch(() => { setError('Resume not found'); setLoading(false); });
   }, [resumeId]);
 
+  // ─── Mobile detection ───
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
   // ─── Auto-save ───
   useEffect(() => {
     if (isFirstRender.current) {
@@ -229,13 +239,13 @@ export default function ResumeEditorPage() {
       fetch(`${API_URL}/api/resume/${resumeId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resume_data: resumeData }),
+        body: JSON.stringify({ resume_data: resumeData, template_id: templateId }),
       })
         .then(res => { if (!res.ok) throw new Error('Save failed'); setSavedStatus('saved'); })
         .catch(() => setSavedStatus('unsaved'));
     }, 1000);
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
-  }, [resumeData, resumeId]);
+  }, [resumeData, resumeId, templateId]);
 
   // ─── Update helpers ───
   const updateContact = useCallback((field: keyof ContactInfo, value: string) => {
@@ -471,6 +481,13 @@ ${experienceHTML}${educationHTML}${skillsHTML}${achievementsHTML}
   const savedStatusColor = savedStatus === 'saved' ? '#057642' : savedStatus === 'saving' ? '#888' : '#E67E22';
   const savedStatusText = savedStatus === 'saved' ? 'Saved' : savedStatus === 'saving' ? 'Saving...' : 'Unsaved';
 
+  // Template-aware preview styles
+  const previewSectionHeader: React.CSSProperties = templateId === 'modern'
+    ? { fontSize: 11, fontWeight: 700, color: '#0A66C2', textTransform: 'uppercase', letterSpacing: 2, marginTop: 20, marginBottom: 8, paddingBottom: 4 }
+    : templateId === 'minimal'
+    ? { fontSize: 11, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 4, marginTop: 24, marginBottom: 10, paddingBottom: 4, borderBottom: '0.5px solid #E5E7EB' }
+    : sectionHeaderStyle; // classic
+
   // ─── Render ───
   return (
     <div style={{ height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
@@ -480,7 +497,23 @@ ${experienceHTML}${educationHTML}${skillsHTML}${achievementsHTML}
         padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: '#004182' }}>ProfileRoaster Resume Editor</div>
-        <div style={{ fontSize: 13, fontWeight: 600, color: savedStatusColor }}>{savedStatusText}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: savedStatusColor }}>{savedStatusText}</div>
+          {isMobile && (
+            <div style={{ display: 'flex', gap: 4, background: '#F3F2EF', borderRadius: 20, padding: 2 }}>
+              <button onClick={() => setMobileView('edit')} style={{
+                padding: '4px 14px', borderRadius: 18, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                background: mobileView === 'edit' ? '#0A66C2' : 'transparent',
+                color: mobileView === 'edit' ? '#fff' : '#666',
+              }}>Edit</button>
+              <button onClick={() => setMobileView('preview')} style={{
+                padding: '4px 14px', borderRadius: 18, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                background: mobileView === 'preview' ? '#0A66C2' : 'transparent',
+                color: mobileView === 'preview' ? '#fff' : '#666',
+              }}>Preview</button>
+            </div>
+          )}
+        </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <select
             value={templateId}
@@ -512,7 +545,7 @@ ${experienceHTML}${educationHTML}${skillsHTML}${achievementsHTML}
       {/* ─── TWO PANELS ─── */}
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         {/* ─── LEFT PANEL ─── */}
-        <div style={{ width: '45%', background: '#fff', overflowY: 'auto', height: 'calc(100vh - 56px)', padding: 16 }}>
+        <div style={{ width: isMobile ? '100%' : '45%', display: (!isMobile || mobileView === 'edit') ? 'block' : 'none', background: '#fff', overflowY: 'auto', height: 'calc(100vh - 56px)', padding: 16 }}>
           {/* Tab Bar */}
           <div style={{ display: 'flex', borderBottom: '1px solid #E0E0E0', marginBottom: 0 }}>
             {tabs.map(tab => (
@@ -773,6 +806,36 @@ ${experienceHTML}${educationHTML}${skillsHTML}${achievementsHTML}
                   <label style={labelStyle}>Certifications</label>
                   <TagInput tags={skillsParsed.certifications} onTagsChange={t => updateSkillCategory('certifications', t)} placeholder="Add certification + Enter" />
                 </div>
+
+                {/* Missing Keywords Quick-Add */}
+                {keywordsMissing.length > 0 && (
+                  <div style={{ marginTop: 24, padding: 16, background: '#FFF5F5', borderRadius: 8, border: '1px solid #FEE2E2' }}>
+                    <label style={{ ...labelStyle, fontSize: 13, color: '#CC1016', marginBottom: 10 }}>Missing Keywords</label>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                      {keywordsMissing.map((kw, i) => (
+                        <span key={i} style={{
+                          background: '#FEE2E2', color: '#CC1016', borderRadius: 12,
+                          padding: '2px 10px', fontSize: 12, display: 'inline-flex', alignItems: 'center',
+                        }}>
+                          {kw}
+                          <button
+                            onClick={() => {
+                              updateSkillCategory('technical', [...skillsParsed.technical, kw]);
+                              setKeywordsMissing(prev => prev.filter((_, j) => j !== i));
+                              setKeywordsMatched(prev => [...prev, kw]);
+                            }}
+                            style={{
+                              background: '#CC1016', color: '#fff', borderRadius: '50%', width: 18, height: 18,
+                              fontSize: 12, cursor: 'pointer', marginLeft: 4, border: 'none',
+                              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                              padding: 0, lineHeight: 1,
+                            }}
+                          >+</button>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -846,7 +909,7 @@ ${experienceHTML}${educationHTML}${skillsHTML}${achievementsHTML}
         </div>
 
         {/* ─── RIGHT PANEL ─── */}
-        <div style={{ width: '55%', background: '#F3F2EF', overflowY: 'auto', height: 'calc(100vh - 56px)', padding: 20 }}>
+        <div style={{ width: isMobile ? '100%' : '55%', display: (!isMobile || mobileView === 'preview') ? 'block' : 'none', background: '#F3F2EF', overflowY: 'auto', height: 'calc(100vh - 56px)', padding: 20 }}>
           {/* ATS Score Mini Widget */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
             <span style={{
@@ -862,10 +925,14 @@ ${experienceHTML}${educationHTML}${skillsHTML}${achievementsHTML}
           <div style={{
             maxWidth: 794, margin: '0 auto', background: '#fff',
             boxShadow: '0 2px 8px rgba(0,0,0,0.1)', padding: 40, minHeight: 1123, borderRadius: 4,
+            ...(templateId === 'modern' ? { borderLeft: '4px solid #0A66C2' } : {}),
           }}>
             {/* Header */}
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 28, fontWeight: 700, color: '#111827' }}>{contact.name || ''}</div>
+            <div style={{ textAlign: templateId === 'minimal' ? 'center' : 'left' }}>
+              <div style={{
+                fontSize: templateId === 'minimal' ? 24 : 28, fontWeight: 700,
+                color: templateId === 'modern' ? '#0A66C2' : '#111827',
+              }}>{contact.name || ''}</div>
               {contactParts.length > 0 && (
                 <div style={{ fontSize: 11, color: '#555', marginTop: 4 }}>
                   {contactParts.join(' \u2022 ')}
@@ -873,12 +940,16 @@ ${experienceHTML}${educationHTML}${skillsHTML}${achievementsHTML}
               )}
             </div>
 
-            <hr style={{ border: 'none', borderTop: '1px solid #D1D5DB', margin: '12px 0' }} />
+            <hr style={{
+              border: 'none',
+              borderTop: templateId === 'minimal' ? '0.5px solid #E5E7EB' : '1px solid #D1D5DB',
+              margin: templateId === 'minimal' ? '16px 0' : '12px 0',
+            }} />
 
             {/* Professional Summary */}
             {rd.summary && (
               <>
-                <div style={sectionHeaderStyle}>PROFESSIONAL SUMMARY</div>
+                <div style={previewSectionHeader}>PROFESSIONAL SUMMARY</div>
                 <div style={{ fontSize: 11, color: '#374151', lineHeight: 1.6 }}>{rd.summary}</div>
               </>
             )}
@@ -886,7 +957,7 @@ ${experienceHTML}${educationHTML}${skillsHTML}${achievementsHTML}
             {/* Work Experience */}
             {(rd.experience?.length ?? 0) > 0 && (
               <>
-                <div style={sectionHeaderStyle}>WORK EXPERIENCE</div>
+                <div style={previewSectionHeader}>WORK EXPERIENCE</div>
                 {rd.experience!.map((exp, i) => {
                   const dateStr = exp.dates || [exp.startDate, exp.current ? 'Present' : exp.endDate].filter(Boolean).join(' - ');
                   return (
@@ -916,7 +987,7 @@ ${experienceHTML}${educationHTML}${skillsHTML}${achievementsHTML}
             {/* Education */}
             {(rd.education?.length ?? 0) > 0 && (
               <>
-                <div style={sectionHeaderStyle}>EDUCATION</div>
+                <div style={previewSectionHeader}>EDUCATION</div>
                 {rd.education!.map((edu, i) => (
                   <div key={i} style={{ marginBottom: 8 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: '#111827' }}>
@@ -935,22 +1006,36 @@ ${experienceHTML}${educationHTML}${skillsHTML}${achievementsHTML}
             {/* Skills */}
             {(rd.skills?.length ?? 0) > 0 && (
               <>
-                <div style={sectionHeaderStyle}>SKILLS</div>
-                <div style={{ fontSize: 11, color: '#374151', lineHeight: 1.6 }}>
-                  {typeof rd.skills![0] === 'string'
-                    ? (rd.skills! as string[]).join(', ')
-                    : (rd.skills! as SkillCategory[]).map((s, i) => (
-                      <div key={i}><strong>{s.category}:</strong> {(s.skills || []).join(', ')}</div>
-                    ))
-                  }
-                </div>
+                <div style={previewSectionHeader}>SKILLS</div>
+                {templateId === 'modern' ? (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {(typeof rd.skills![0] === 'string'
+                      ? (rd.skills! as string[])
+                      : (rd.skills! as SkillCategory[]).flatMap(s => s.skills || [])
+                    ).map((skill, i) => (
+                      <span key={i} style={{
+                        background: '#E8F0FE', color: '#0A66C2', borderRadius: 12,
+                        padding: '2px 10px', fontSize: 11, fontWeight: 500,
+                      }}>{skill}</span>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 11, color: '#374151', lineHeight: 1.6 }}>
+                    {typeof rd.skills![0] === 'string'
+                      ? (rd.skills! as string[]).join(', ')
+                      : (rd.skills! as SkillCategory[]).map((s, i) => (
+                        <div key={i}><strong>{s.category}:</strong> {(s.skills || []).join(', ')}</div>
+                      ))
+                    }
+                  </div>
+                )}
               </>
             )}
 
             {/* Achievements */}
             {(rd.achievements?.length ?? 0) > 0 && (
               <>
-                <div style={sectionHeaderStyle}>ACHIEVEMENTS</div>
+                <div style={previewSectionHeader}>ACHIEVEMENTS</div>
                 <div style={{ paddingLeft: 16 }}>
                   {rd.achievements!.map((a, i) => (
                     <div key={i} style={{ fontSize: 11, color: '#374151', lineHeight: 1.5 }}>{'\u2022'} {a}</div>
@@ -963,7 +1048,7 @@ ${experienceHTML}${educationHTML}${skillsHTML}${achievementsHTML}
             {(rd.customSections || []).map((cs, i) => (
               cs.title ? (
                 <React.Fragment key={i}>
-                  <div style={sectionHeaderStyle}>{cs.title.toUpperCase()}</div>
+                  <div style={previewSectionHeader}>{cs.title.toUpperCase()}</div>
                   <div style={{ fontSize: 11, color: '#374151', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{cs.content || ''}</div>
                 </React.Fragment>
               ) : null

@@ -1794,7 +1794,7 @@ function UpsellBanner({ orderId }: { orderId: string }) {
         borderRadius: 'var(--li-radius)',
       }}
     >
-      <p className="text-white text-sm font-bold mb-1">Upgrade to Pro for ₹300</p>
+      <p className="text-white text-sm font-bold mb-1">Upgrade to Pro for ₹500</p>
       <p className="text-white/80 text-xs mb-3">
         Get 5 headline variants, ATS keywords, JD matcher & cover letter
       </p>

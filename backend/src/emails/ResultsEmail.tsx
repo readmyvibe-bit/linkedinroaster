@@ -173,7 +173,7 @@ export default function ResultsEmail({
           {/* Upsell for Standard */}
           {plan === 'standard' && (
             <Section style={upsellSection}>
-              <Text style={upsellTitle}>Upgrade to Pro — ₹300</Text>
+              <Text style={upsellTitle}>Upgrade to Pro — ₹500</Text>
               <Text style={upsellDesc}>
                 Get 5 headline variations, ATS keywords, job description matcher & custom cover letter.
               </Text>

@@ -855,15 +855,15 @@ export default function Home() {
             />
             <PricingCard
               plan="Pro"
-              price="&#8377;599"
+              price="&#8377;799"
               highlighted
               features={[
                 'Everything in Standard',
+                'ATS Resume Builder (3 resumes)',
                 '5 headline variations',
-                '10-15 ATS-optimized keywords',
+                '15+ ATS-optimized keywords',
                 'Job description matcher',
-                'Custom cover letter',
-                'Shareable roast card image',
+                'ATS score with keyword analysis',
                 'Priority processing',
               ]}
               onSelect={() => handlePlanSelect('pro')}
@@ -1049,7 +1049,7 @@ function ProfileInputForm({
         Paste Your LinkedIn Profile
       </h3>
       <p className="text-xs mb-1" style={{ color: 'var(--li-text-secondary)' }}>
-        {plan === 'pro' ? 'Pro Plan — \u20b9599' : 'Standard Plan — \u20b9299'}
+        {plan === 'pro' ? 'Pro Plan — \u20b9799' : 'Standard Plan — \u20b9299'}
         {teaserId && <span className="ml-2 opacity-60">(teaser linked)</span>}
       </p>
       <p className="text-xs mb-4" style={{ color: 'var(--li-text-secondary)' }}>
@@ -1095,7 +1095,7 @@ function ProfileInputForm({
           className="w-full py-3 rounded-full text-white font-semibold text-base cursor-pointer disabled:opacity-50"
           style={{ background: 'var(--li-blue)', minHeight: '48px' }}
         >
-          {submitting ? 'Creating order...' : `Pay \u20b9${plan === 'pro' ? '599' : '299'} & Get Roasted`}
+          {submitting ? 'Creating order...' : `Pay \u20b9${plan === 'pro' ? '799' : '299'} & Get Roasted`}
         </button>
       </div>
     </div>

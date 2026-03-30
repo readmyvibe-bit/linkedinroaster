@@ -280,7 +280,7 @@ app.post('/api/orders', async (req: Request, res: Response) => {
         return res.status(400).json({ error: 'Invalid referral code' });
     }
 
-    const amounts: Record<string, number> = { standard: 29900, pro: 59900 };
+    const amounts: Record<string, number> = { standard: 29900, pro: 79900 };
     const rzpOrder = await razorpay.orders.create({
       amount: amounts[plan],
       currency: 'INR',
@@ -417,7 +417,7 @@ app.post('/api/orders/:id/upgrade', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Already Pro' });
 
     const rzpOrder = await razorpay.orders.create({
-      amount: 30000,
+      amount: 50000,
       currency: 'INR',
       receipt: `upg_${req.params.id.slice(0, 32)}`,
       notes: { original_order_id: req.params.id, type: 'upgrade' } as any,
@@ -426,7 +426,7 @@ app.post('/api/orders/:id/upgrade', async (req: Request, res: Response) => {
     res.json({
       razorpay_order_id: rzpOrder.id,
       razorpay_key: process.env.RAZORPAY_KEY_ID,
-      amount: 30000,
+      amount: 50000,
       currency: 'INR',
     });
   } catch (err) {
