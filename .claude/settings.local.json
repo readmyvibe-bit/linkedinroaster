@@ -3,7 +3,10 @@
     "allow": [
       "Bash(node --require ts-node/register -e \":*)",
       "Bash(npx tsc:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(railway up:*)",
+      "Bash(railway service:*)",
+      "Bash(railway link:*)"
     ]
   }
 }

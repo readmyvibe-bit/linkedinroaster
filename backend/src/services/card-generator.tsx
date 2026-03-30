@@ -331,7 +331,7 @@ export async function generateAndUploadRoastSheet(data: RoastSheetData): Promise
       ],
     });
 
-    const resvg = new Resvg(svg, { fitTo: { mode: 'zoom', value: 2 } });
+    const resvg = new Resvg(svg, { fitTo: { mode: 'zoom', value: 3 } });
     const png = resvg.render().asPng();
     const filePath = `sheets/${data.orderId}.png`;
 
