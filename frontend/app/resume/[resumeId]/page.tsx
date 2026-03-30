@@ -112,13 +112,54 @@ export default function ResumePreviewPage() {
       alert(`"${currentTemplate?.name}" is a Pro template. Upgrade to Pro for ₹500 to unlock all 20 templates.`);
       return;
     }
-    const html = buildPrintHTML(resume.resume_data, templateId, resume.page_count || 2);
-    const win = window.open('', '_blank');
-    if (!win) return;
-    win.document.write(html);
-    win.document.close();
-    win.document.title = ' ';
-    setTimeout(() => { win.print(); }, 800);
+    const html = buildPrintHTML(resume.resume_data, templateId);
+
+    // Smart auto-fit: measure in hidden iframe, adjust if overflows 1 page
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;height:1123px;border:none;visibility:hidden';
+    document.body.appendChild(iframe);
+    const iDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!iDoc) { document.body.removeChild(iframe); return; }
+    iDoc.open(); iDoc.write(html); iDoc.close();
+
+    setTimeout(() => {
+      const PAGE_HEIGHT = 1123; // A4 at 96dpi
+      const body = iDoc.body;
+      const contentHeight = body.scrollHeight;
+      const overflow = contentHeight - PAGE_HEIGHT;
+
+      let adjustedHtml = html;
+
+      // If overflow is small (1-5 lines, roughly < 120px), shrink to fit
+      if (overflow > 0 && overflow < 150) {
+        // Reduce spacing and line-height to fit
+        const shrinkCSS = `
+          body{line-height:1.3!important}
+          div,p,span{line-height:1.3!important}
+          .entry{margin-bottom:6px!important}
+          [style*="margin-bottom"]{margin-bottom:4px!important}
+          [style*="padding"]{padding-top:2px!important;padding-bottom:2px!important}
+          [style*="margin-top: 20"],[style*="margin-top:20"]{margin-top:12px!important}
+          [style*="margin-top: 28"],[style*="margin-top:28"]{margin-top:16px!important}
+          [style*="margin-bottom: 16"],[style*="margin-bottom:16"]{margin-bottom:8px!important}
+          [style*="margin-bottom: 18"],[style*="margin-bottom:18"]{margin-bottom:10px!important}
+          [style*="padding: 24"],[style*="padding:24"]{padding:16px!important}
+          [style*="padding: 32"],[style*="padding:32"]{padding:20px!important}
+        `;
+        adjustedHtml = html.replace('</style>', shrinkCSS + '</style>');
+      }
+      // If overflow is large (>150px), let it flow to page 2 naturally
+      // No adjustment needed — proper @page margins handle it
+
+      document.body.removeChild(iframe);
+
+      const win = window.open('', '_blank');
+      if (!win) return;
+      win.document.write(adjustedHtml);
+      win.document.close();
+      win.document.title = ' ';
+      setTimeout(() => { win.print(); }, 600);
+    }, 300);
   }
 
   function handleDownloadCoverLetterPDF() {

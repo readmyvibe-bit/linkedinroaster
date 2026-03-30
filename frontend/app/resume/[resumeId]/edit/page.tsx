@@ -386,12 +386,29 @@ export default function ResumeEditorPage() {
   function handleDownloadPDF() {
     if (!resumeData) return;
     const html = buildPrintHTML(resumeData, templateId);
-    const win = window.open('', '_blank');
-    if (!win) return;
-    win.document.write(html);
-    win.document.close();
-    win.document.title = ' ';
-    setTimeout(() => { win.print(); }, 600);
+
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;height:1123px;border:none;visibility:hidden';
+    document.body.appendChild(iframe);
+    const iDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!iDoc) { document.body.removeChild(iframe); return; }
+    iDoc.open(); iDoc.write(html); iDoc.close();
+
+    setTimeout(() => {
+      const overflow = iDoc.body.scrollHeight - 1123;
+      let adjustedHtml = html;
+      if (overflow > 0 && overflow < 150) {
+        const shrinkCSS = `body{line-height:1.3!important}div,p,span{line-height:1.3!important}[style*="margin-bottom"]{margin-bottom:4px!important}[style*="margin-top: 20"],[style*="margin-top:20"]{margin-top:12px!important}[style*="padding: 24"],[style*="padding:24"]{padding:16px!important}`;
+        adjustedHtml = html.replace('</style>', shrinkCSS + '</style>');
+      }
+      document.body.removeChild(iframe);
+      const win = window.open('', '_blank');
+      if (!win) return;
+      win.document.write(adjustedHtml);
+      win.document.close();
+      win.document.title = ' ';
+      setTimeout(() => { win.print(); }, 600);
+    }, 300);
   }
 
   // ─── Loading ───
@@ -682,19 +699,50 @@ export default function ResumeEditorPage() {
                             <label style={labelStyle}>Location</label>
                             <input style={inputStyle} value={exp.location || ''} onChange={e => updateExperience(i, 'location', e.target.value)} />
                           </div>
-                          <div style={{ display: 'flex', gap: 12, ...fieldGap }}>
-                            <div style={{ flex: 1 }}>
-                              <label style={labelStyle}>Start Date</label>
-                              <input style={inputStyle} value={exp.startDate || (exp.dates ? exp.dates.split(' - ')[0] || '' : '')} onChange={e => updateExperience(i, 'startDate', e.target.value)} />
+                          <div style={{ display: 'flex', gap: 8, ...fieldGap, flexWrap: 'wrap' }}>
+                            <div style={{ flex: 1, minWidth: 120 }}>
+                              <label style={labelStyle}>Start Month</label>
+                              <select style={inputStyle} value={(exp.startDate || (exp.dates ? exp.dates.split(' - ')[0] || '' : '')).replace(/\s*\d{4}$/, '').trim()} onChange={e => {
+                                const yr = (exp.startDate || '').match(/\d{4}/)?.[0] || '';
+                                updateExperience(i, 'startDate', `${e.target.value} ${yr}`.trim());
+                              }}>
+                                <option value="">Month</option>
+                                {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map(m => <option key={m} value={m}>{m}</option>)}
+                              </select>
                             </div>
-                            <div style={{ flex: 1 }}>
-                              <label style={labelStyle}>End Date</label>
-                              <input
-                                style={inputStyle}
-                                value={exp.current ? 'Present' : (exp.endDate || (exp.dates ? exp.dates.split(' - ')[1] || '' : ''))}
-                                disabled={!!exp.current}
-                                onChange={e => updateExperience(i, 'endDate', e.target.value)}
-                              />
+                            <div style={{ flex: 1, minWidth: 80 }}>
+                              <label style={labelStyle}>Start Year</label>
+                              <select style={inputStyle} value={(exp.startDate || (exp.dates ? exp.dates.split(' - ')[0] || '' : '')).match(/\d{4}/)?.[0] || ''} onChange={e => {
+                                const mon = (exp.startDate || '').replace(/\d{4}/, '').trim() || '';
+                                updateExperience(i, 'startDate', `${mon} ${e.target.value}`.trim());
+                              }}>
+                                <option value="">Year</option>
+                                {Array.from({ length: 30 }, (_, j) => 2026 - j).map(y => <option key={y} value={y}>{y}</option>)}
+                              </select>
+                            </div>
+                            <div style={{ flex: 1, minWidth: 120 }}>
+                              <label style={labelStyle}>End Month</label>
+                              <select style={inputStyle} disabled={!!exp.current} value={exp.current ? '' : ((exp.endDate || (exp.dates ? exp.dates.split(' - ')[1] || '' : '')).replace(/\s*\d{4}$/, '').replace('Present', '').trim())} onChange={e => {
+                                const yr = (exp.endDate || '').match(/\d{4}/)?.[0] || '';
+                                updateExperience(i, 'endDate', `${e.target.value} ${yr}`.trim());
+                              }}>
+                                <option value="">Month</option>
+                                {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map(m => <option key={m} value={m}>{m}</option>)}
+                              </select>
+                            </div>
+                            <div style={{ flex: 1, minWidth: 80 }}>
+                              <label style={labelStyle}>End Year</label>
+                              <select style={inputStyle} disabled={!!exp.current} value={exp.current ? '' : ((exp.endDate || (exp.dates ? exp.dates.split(' - ')[1] || '' : '')).match(/\d{4}/)?.[0] || '')} onChange={e => {
+                                const mon = (exp.endDate || '').replace(/\d{4}/, '').trim() || '';
+                                updateExperience(i, 'endDate', `${mon} ${e.target.value}`.trim());
+                              }}>
+                                <option value="">Year</option>
+                                {Array.from({ length: 30 }, (_, j) => 2026 - j).map(y => <option key={y} value={y}>{y}</option>)}
+                              </select>
+                            </div>
+                          </div>
+                          <div style={fieldGap}>
+                            <div>
                               <label style={{ fontSize: 12, color: '#666', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
                                 <input
                                   type="checkbox"
