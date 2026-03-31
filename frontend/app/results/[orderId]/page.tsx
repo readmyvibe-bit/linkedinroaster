@@ -1440,6 +1440,8 @@ function ResumeBuilderSection({ orderId, maxResumes = 3, plan = 'standard' }: { 
               <a
                 key={r.id}
                 href={`/resume/${r.id}`}
+                target="_blank"
+                rel="noreferrer"
                 style={{
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                   background: 'white', border: '1px solid #E0E0E0', borderRadius: 8,
