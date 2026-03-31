@@ -93,15 +93,19 @@ export default function BuildResultsPage() {
 
   useEffect(() => {
     fetchResults();
-    const interval = setInterval(() => {
-      fetchResults().then(() => {
-        if (data?.processing_status === 'done' || data?.processing_status === 'failed') {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/build/results/${orderId}`);
+        if (!res.ok) return;
+        const result = await res.json();
+        setData(result);
+        if (result.processing_status === 'done' || result.processing_status === 'failed') {
           clearInterval(interval);
         }
-      });
+      } catch {}
     }, 3000);
     return () => clearInterval(interval);
-  }, [fetchResults, data?.processing_status]);
+  }, [orderId]);
 
   function toggleStep(step: number) {
     setExpandedGuideStep(expandedGuideStep === step ? null : step);
@@ -377,8 +381,8 @@ export default function BuildResultsPage() {
             <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', margin: '0 0 14px' }}>
               Upgrade to get resume + cover letter built from your LinkedIn profile data.
             </p>
-            <a href="/build?upgrade=true" style={{ display: 'inline-block', background: 'white', color: '#0A66C2', padding: '10px 24px', borderRadius: 50, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
-              See Upgrade Options
+            <a href="/build#pricing" style={{ display: 'inline-block', background: 'white', color: '#0A66C2', padding: '10px 24px', borderRadius: 50, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+              See Plans &rarr;
             </a>
           </div>
         )}

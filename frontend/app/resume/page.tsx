@@ -141,31 +141,54 @@ function ResumeFormContent() {
     }
     (async () => {
       try {
+        // Try roast orders first, then build orders
+        let data: any = null;
+        let source: 'roast' | 'build' = 'roast';
         const res = await fetch(`${API_URL}/api/orders/${orderId}`);
-        if (!res.ok) throw new Error('Failed to load order');
-        const data = await res.json();
-        setOrderData(data);
+        if (res.ok) {
+          data = await res.json();
+          source = 'roast';
+        } else {
+          const buildRes = await fetch(`${API_URL}/api/build/results/${orderId}`);
+          if (buildRes.ok) {
+            data = await buildRes.json();
+            source = 'build';
+          }
+        }
+        if (!data) throw new Error('Order not found');
+
+        setOrderData({ ...data, _source: source });
         setOrderPlan(data.plan || '');
 
         // Pre-fill from order data
         if (data.email) setEmail(data.email);
-        if (data.parsed_profile?.name) setFullName(data.parsed_profile.name);
-        if (data.parsed_profile?.location) setLocation(data.parsed_profile.location);
-        if (data.linkedin_url) setLinkedinUrl(data.linkedin_url);
+        if (source === 'roast') {
+          if (data.parsed_profile?.name) setFullName(data.parsed_profile.name);
+          if (data.parsed_profile?.location) setLocation(data.parsed_profile.location);
+          if (data.linkedin_url) setLinkedinUrl(data.linkedin_url);
+        } else {
+          if (data.form_input?.full_name) setFullName(data.form_input.full_name);
+          if (data.form_input?.location) setLocation(data.form_input.location);
+        }
 
         // Check resume quota
-        const maxResumes = data.plan === 'pro' ? 3 : 1;
-        try {
-          const resumeRes = await fetch(`${API_URL}/api/resume/by-order/${orderId}`);
-          if (resumeRes.ok) {
-            const resumeData = await resumeRes.json();
-            const resumes = resumeData.resumes || [];
-            setExistingResumes(resumes);
-            if (resumes.length >= maxResumes) {
-              setQuotaUsed(true);
+        const maxResumes = source === 'build'
+          ? (data.plan === 'pro' ? 3 : data.plan === 'plus' ? 1 : 0)
+          : (data.plan === 'pro' ? 3 : 1);
+        if (maxResumes === 0) { setQuotaUsed(true); }
+        else {
+          try {
+            const resumeRes = await fetch(`${API_URL}/api/resume/by-order/${orderId}`);
+            if (resumeRes.ok) {
+              const resumeData = await resumeRes.json();
+              const resumes = resumeData.resumes || [];
+              setExistingResumes(resumes);
+              if (resumes.length >= maxResumes) {
+                setQuotaUsed(true);
+              }
             }
-          }
-        } catch {}
+          } catch {}
+        }
       } catch {
         setOrderError('Please access this page from your results.');
       } finally {
@@ -317,27 +340,12 @@ function ResumeFormContent() {
   // Quota full — redirect back to results page (resume section)
   if (quotaUsed) {
     if (typeof window !== 'undefined') {
-      window.location.href = `/results/${orderId}#resume-section`;
+      const isBuild = (orderData as any)?._source === 'build';
+      window.location.href = isBuild ? `/build/results/${orderId}` : `/results/${orderId}#resume-section`;
     }
     return (
       <div style={{ minHeight: '100vh', background: '#F3F2EF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <p style={{ color: '#666', fontSize: 15 }}>Redirecting to your results...</p>
-      </div>
-    );
-  }
-
-  if (false) { // Resume builder available for all plans
-    return (
-      <div style={{ minHeight: '100vh', background: '#F3F2EF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ background: '#fff', border: '1px solid #E0E0E0', borderRadius: 12, padding: 32, maxWidth: 440, textAlign: 'center' }}>
-          <p style={{ color: '#191919', fontSize: 15, margin: '0 0 16px' }}>Resume builder is available for Pro plan users.</p>
-          <a
-            href={`/results/${orderId}`}
-            style={{ color: '#0A66C2', fontWeight: 600, fontSize: 14, textDecoration: 'none' }}
-          >
-            &larr; Back to results
-          </a>
-        </div>
       </div>
     );
   }

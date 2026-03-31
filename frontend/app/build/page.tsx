@@ -125,7 +125,7 @@ export default function BuildLandingPage() {
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
           <h2 style={{ fontSize: 24, fontWeight: 800, color: '#191919', textAlign: 'center', marginBottom: 8 }}>See the Transformation</h2>
           <p style={{ fontSize: 14, color: '#666', textAlign: 'center', marginBottom: 32 }}>From raw details to recruiter-ready profile</p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
             {/* Before */}
             <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 14, padding: 24 }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: '#CC1016', letterSpacing: 2, marginBottom: 12 }}>WHAT YOU TELL US</div>
@@ -157,7 +157,7 @@ export default function BuildLandingPage() {
       <section style={{ background: 'white', padding: '48px 20px', borderTop: '1px solid #E8E8E8' }}>
         <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
           <h2 style={{ fontSize: 24, fontWeight: 800, color: '#191919', marginBottom: 32 }}>How It Works</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 24 }}>
             {steps.map((s) => (
               <div key={s.num} style={{ textAlign: 'center' }}>
                 <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#0A66C2', color: 'white', fontSize: 20, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>{s.num}</div>
@@ -189,7 +189,7 @@ export default function BuildLandingPage() {
           <p style={{ fontSize: 14, color: '#666', marginBottom: 32 }}>One-time payment. No subscription. Results in 60 seconds.</p>
 
           {!selectedPlan ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, maxWidth: 900, margin: '0 auto' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 20, maxWidth: 900, margin: '0 auto' }}>
               {plans.map((p) => (
                 <div
                   key={p.id}

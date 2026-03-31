@@ -10,28 +10,22 @@ const redis = new Redis(process.env.UPSTASH_REDIS_URL!);
 const resend = new Resend(process.env.RESEND_API_KEY || 'dummy_key');
 const FROM = `Profile Roaster <${process.env.FROM_EMAIL || 'support@profileroaster.in'}>`;
 
-// Session storage: token → { email, userId }
-const sessions = new Map<string, { email: string; userId: string; createdAt: number }>();
-const SESSION_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
+const SESSION_TTL = 7 * 24 * 60 * 60; // 7 days in seconds
 
-function cleanSessions() {
-  for (const [k, v] of sessions) {
-    if (Date.now() - v.createdAt > SESSION_TTL) sessions.delete(k);
-  }
-}
-
-// Auth middleware
-function dashAuth(req: Request, res: Response, next: Function) {
+// Auth middleware — sessions stored in Redis for persistence across deploys
+async function dashAuth(req: Request, res: Response, next: Function) {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Not logged in' });
-  const session = sessions.get(token);
-  if (!session || Date.now() - session.createdAt > SESSION_TTL) {
-    sessions.delete(token || '');
+  try {
+    const sessionData = await redis.get(`dash-session:${token}`);
+    if (!sessionData) return res.status(401).json({ error: 'Session expired' });
+    const session = JSON.parse(sessionData);
+    (req as any).userEmail = session.email;
+    (req as any).userId = session.userId;
+    next();
+  } catch {
     return res.status(401).json({ error: 'Session expired' });
   }
-  (req as any).userEmail = session.email;
-  (req as any).userId = session.userId;
-  next();
 }
 
 // POST /api/dashboard/send-otp
@@ -100,10 +94,9 @@ router.post('/verify-otp', async (req: Request, res: Response) => {
     );
     const userId = result.rows[0].id;
 
-    // Create session
-    cleanSessions();
+    // Create session in Redis
     const token = crypto.randomBytes(32).toString('hex');
-    sessions.set(token, { email, userId, createdAt: Date.now() });
+    await redis.setex(`dash-session:${token}`, SESSION_TTL, JSON.stringify({ email, userId }));
 
     res.json({ token, email, userId });
   } catch (err: any) {
@@ -144,13 +137,16 @@ router.get('/data', dashAuth, async (req: Request, res: Response) => {
       [email],
     );
 
-    // Resumes
+    // Resumes — from both roast and build orders
     const resumes = await query(
       `SELECT r.id, r.order_id, r.target_role, r.target_company, r.template_id,
               r.ats_score, r.created_at
        FROM resumes r
-       JOIN orders o ON r.order_id = o.id
-       WHERE o.email=$1
+       WHERE r.order_id IN (
+         SELECT id FROM orders WHERE email=$1
+         UNION
+         SELECT id FROM build_orders WHERE email=$1
+       )
        ORDER BY r.created_at DESC`,
       [email],
     );

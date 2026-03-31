@@ -23,27 +23,67 @@ export interface ResumeInput {
 }
 
 export async function generateResume(input: ResumeInput): Promise<{ resumeId: string; ats_score: number }> {
-  // 1. Fetch order data
-  const orderResult = await query('SELECT * FROM orders WHERE id=$1', [input.orderId]);
-  if (!orderResult.rows.length) throw new Error('Order not found');
-  const order = orderResult.rows[0];
+  // 1. Fetch order data — check both orders and build_orders tables
+  let order: any = null;
+  let orderSource: 'roast' | 'build' = 'roast';
 
-  // Standard: 1 resume, Pro: 3 resumes
-  const maxResumes = order.plan === 'pro' ? 3 : 1;
+  const orderResult = await query('SELECT * FROM orders WHERE id=$1', [input.orderId]);
+  if (orderResult.rows.length) {
+    order = orderResult.rows[0];
+    orderSource = 'roast';
+  } else {
+    const buildResult = await query('SELECT * FROM build_orders WHERE id=$1', [input.orderId]);
+    if (buildResult.rows.length) {
+      order = buildResult.rows[0];
+      orderSource = 'build';
+    }
+  }
+  if (!order) throw new Error('Order not found');
+
+  // Quota: starter=0 resumes, plus=1, pro=3 (build) | standard=1, pro=3 (roast)
+  const maxResumes = orderSource === 'build'
+    ? (order.plan === 'pro' ? 3 : order.plan === 'plus' ? 1 : 0)
+    : (order.plan === 'pro' ? 3 : 1);
+  if (maxResumes === 0) {
+    throw new Error('Resume not included in Starter plan. Upgrade to Plus or Pro.');
+  }
   const existingCount = await query('SELECT COUNT(*)::int AS cnt FROM resumes WHERE order_id=$1', [input.orderId]);
   if (existingCount.rows[0].cnt >= maxResumes) {
-    throw new Error(order.plan === 'pro'
-      ? 'Maximum 3 resumes per Pro order.'
-      : 'Standard plan includes 1 resume. Upgrade to Pro for 3 resumes.');
+    throw new Error('Resume limit reached. Upgrade for more resumes.');
   }
   if (order.processing_status !== 'done') throw new Error('Order not completed');
 
-  const rewrite = order.rewrite;
-  const analysis = order.analysis;
-  if (!rewrite) throw new Error('No rewrite data found');
+  // For build orders, construct rewrite-like data from generated_profile
+  let rewrite: any;
+  let analysis: any;
+  if (orderSource === 'build') {
+    const profile = order.generated_profile;
+    if (!profile) throw new Error('Profile not generated yet');
+    rewrite = {
+      rewritten_headline: profile.headline_variations?.[0]?.text || '',
+      rewritten_about: profile.about || '',
+      rewritten_experience: (profile.experience || []).map((e: any) => ({
+        title: e.role, company: e.company, bullets: e.bullets || [], changes_made: e.changes_made || '',
+      })),
+      ats_keywords: [...(profile.skills?.technical || []), ...(profile.skills?.tools || [])],
+    };
+    analysis = {};
+  } else {
+    rewrite = order.rewrite;
+    analysis = order.analysis;
+    if (!rewrite) throw new Error('No rewrite data found');
+  }
 
   // 2. Gather all data sources
-  const parsed = order.parsed_profile || {};
+  const parsed = orderSource === 'build'
+    ? {
+        experience: (order.generated_profile?.experience || []).map((e: any) => ({
+          title: e.role, company: e.company, duration: e.duration, description: e.bullets?.join('. ') || '',
+        })),
+        education: order.form_input?.education || [],
+        skills: [...(order.generated_profile?.skills?.technical || []), ...(order.generated_profile?.skills?.soft || [])],
+      }
+    : (order.parsed_profile || {});
   // Check for uploaded resume data in the resumes table (previous upload)
   const uploadedCheck = await query(
     'SELECT uploaded_resume_text FROM resumes WHERE order_id=$1 AND uploaded_resume_text IS NOT NULL ORDER BY created_at DESC LIMIT 1',

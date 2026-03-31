@@ -115,7 +115,7 @@ async function updateBuildStatus(orderId: string, status: string, error?: string
 // ═══════════════════════════════════════════
 // STAGE 1: Profile Generation (Claude Sonnet)
 // ═══════════════════════════════════════════
-export async function stage1_generateProfile(formInput: BuildFormInput): Promise<BuildResult> {
+export async function stage1_generateProfile(formInput: BuildFormInput, revisionInstructions?: string): Promise<BuildResult> {
   const educationText = formInput.education.map(e =>
     `${e.degree} in ${e.field} from ${e.institution} (${e.year})${e.gpa ? `, GPA: ${e.gpa}` : ''}${e.coursework ? `, Coursework: ${e.coursework}` : ''}`
   ).join('\n');
@@ -236,10 +236,14 @@ Return ONLY valid JSON:
   ]
 }`;
 
+  const fullPrompt = revisionInstructions
+    ? `${prompt}\n\n═══ REVISION REQUIRED ═══\nA quality check found issues with a previous attempt. Fix these specific problems:\n${revisionInstructions}`
+    : prompt;
+
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-20250514',
     max_tokens: 4000,
-    messages: [{ role: 'user', content: prompt }],
+    messages: [{ role: 'user', content: fullPrompt }],
   });
 
   const text = (response.content[0] as any).text || '';
@@ -308,12 +312,13 @@ export async function runBuildPipeline(orderId: string): Promise<void> {
     let profile: BuildResult;
     let attempts = 0;
     const maxAttempts = 3;
+    let revisionInstructions = '';
 
     while (true) {
       attempts++;
       console.log(`[BUILD] Stage 1 attempt ${attempts}/${maxAttempts} for ${orderId}`);
 
-      profile = await stage1_generateProfile(formInput);
+      profile = await stage1_generateProfile(formInput, revisionInstructions);
 
       // Stage 2: Quality check
       await updateBuildStatus(orderId, 'checking');
@@ -322,7 +327,6 @@ export async function runBuildPipeline(orderId: string): Promise<void> {
       console.log(`[BUILD] QC verdict: ${qc.verdict}, score: ${qc.score}, issues: ${qc.issues.length}`);
 
       if (qc.verdict === 'APPROVE' || attempts >= maxAttempts) {
-        // Save results
         await query(
           `UPDATE build_orders SET generated_profile=$1, quality_check=$2,
            processing_status='done', processing_done_at=NOW(), updated_at=NOW()
@@ -332,8 +336,9 @@ export async function runBuildPipeline(orderId: string): Promise<void> {
         break;
       }
 
-      // REVISE: retry with revision instructions
-      console.log(`[BUILD] Revision needed: ${qc.revision_instructions}`);
+      // REVISE: pass revision instructions to next attempt
+      revisionInstructions = qc.revision_instructions || qc.issues.join('. ');
+      console.log(`[BUILD] Revision needed: ${revisionInstructions}`);
     }
 
     // Send results email

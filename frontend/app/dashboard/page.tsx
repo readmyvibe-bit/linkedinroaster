@@ -122,18 +122,20 @@ function LoginForm({ onLogin }: { onLogin: (email: string) => void }) {
 function DashboardContent({ email, onLogout }: { email: string; onLogout: () => void }) {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [tab, setTab] = useState<'all' | 'roasts' | 'builds' | 'resumes'>('all');
 
   const load = useCallback(async () => {
     try {
       const d = await dashFetch('/api/dashboard/data');
       setData(d);
+      setLoadError(false);
     } catch {
-      onLogout();
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
-  }, [onLogout]);
+  }, []);
 
   useEffect(() => { load(); }, [load]);
 
@@ -141,6 +143,18 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
     return (
       <div style={{ minHeight: '100vh', background: '#F3F2EF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <p style={{ color: '#666' }}>Loading your dashboard...</p>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#F3F2EF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ background: 'white', borderRadius: 14, padding: 32, textAlign: 'center', maxWidth: 400, border: '1px solid #E0E0E0' }}>
+          <p style={{ color: '#CC1016', fontSize: 15, fontWeight: 600, marginBottom: 12 }}>Failed to load dashboard</p>
+          <button onClick={() => { setLoading(true); setLoadError(false); load(); }} style={{ padding: '8px 20px', background: '#0A66C2', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', marginRight: 8 }}>Retry</button>
+          <button onClick={onLogout} style={{ padding: '8px 20px', background: '#F3F4F6', color: '#666', border: 'none', borderRadius: 8, cursor: 'pointer' }}>Logout</button>
+        </div>
       </div>
     );
   }
@@ -284,7 +298,7 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
                     <span style={{ fontSize: 11, color: '#888' }}>{new Date(r.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
                   </div>
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: r.atsScore >= 80 ? '#057642' : r.atsScore >= 60 ? '#0A66C2' : '#E16B00' }}>ATS: {r.atsScore}%</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: (r.atsScore || 0) >= 80 ? '#057642' : (r.atsScore || 0) >= 60 ? '#0A66C2' : '#E16B00' }}>ATS: {r.atsScore ?? '—'}%</span>
                     <div style={{ display: 'flex', gap: 6 }}>
                       <a href={`/resume/${r.id}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize: 12, color: '#0A66C2', fontWeight: 600, textDecoration: 'none' }}>View</a>
                       <a href={`/resume/${r.id}/edit`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize: 12, color: '#057642', fontWeight: 600, textDecoration: 'none' }}>Edit</a>

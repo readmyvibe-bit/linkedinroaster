@@ -158,7 +158,7 @@ export default function ResumePreviewPage() {
       win.document.write(adjustedHtml);
       win.document.close();
       win.document.title = ' ';
-      setTimeout(() => { win.print(); }, 600);
+      setTimeout(() => { win.print(); setTimeout(() => { win.close(); }, 1000); }, 600);
     }, 300);
   }
 

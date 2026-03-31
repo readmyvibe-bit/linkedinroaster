@@ -218,9 +218,9 @@ app.post('/api/webhooks/razorpay', async (req: Request, res: Response) => {
     }
 
     if (body.event === 'payment.failed') {
-      await query(
-        'UPDATE orders SET payment_status=$1 WHERE razorpay_order_id=$2',
-        ['failed', body.payload.payment.entity.order_id]);
+      const failedOrderId = body.payload.payment.entity.order_id;
+      await query('UPDATE orders SET payment_status=$1 WHERE razorpay_order_id=$2', ['failed', failedOrderId]);
+      await query('UPDATE build_orders SET payment_status=$1 WHERE razorpay_order_id=$2', ['failed', failedOrderId]);
     }
 
     res.json({ status: 'ok' });

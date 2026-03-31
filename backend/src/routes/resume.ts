@@ -95,8 +95,8 @@ router.post('/generate', async (req: Request, res: Response) => {
     res.json(result);
   } catch (err: any) {
     console.error('Resume generate error:', err.message);
-    const status = err.message.includes('Pro plan') ? 403
-      : err.message.includes('not found') ? 404 : 500;
+    const status = err.message.includes('limit reached') || err.message.includes('Upgrade') || err.message.includes('not included') ? 403
+      : err.message.includes('not found') || err.message.includes('not completed') ? 404 : 500;
     res.status(status).json({ error: err.message });
   }
 });
@@ -107,8 +107,11 @@ router.get('/:resumeId', async (req: Request, res: Response) => {
     const result = await query('SELECT * FROM resumes WHERE id=$1', [req.params.resumeId]);
     if (!result.rows.length) return res.status(404).json({ error: 'Resume not found' });
     const resume = result.rows[0];
-    // Add plan info from order
-    const orderResult = await query('SELECT plan FROM orders WHERE id=$1', [resume.order_id]);
+    // Add plan info from order — check both orders and build_orders
+    let orderResult = await query('SELECT plan FROM orders WHERE id=$1', [resume.order_id]);
+    if (!orderResult.rows.length) {
+      orderResult = await query('SELECT plan FROM build_orders WHERE id=$1', [resume.order_id]);
+    }
     resume.order_plan = orderResult.rows[0]?.plan || 'standard';
     res.json(resume);
   } catch (err) {
@@ -196,6 +199,17 @@ router.get('/:resumeId/download/docx', async (req: Request, res: Response) => {
     if (!result.rows.length) return res.status(404).json({ error: 'Resume not found' });
 
     const resume = result.rows[0];
+
+    // Check Pro template access
+    const PRO_TEMPLATES = ['impact', 'luxe', 'nordic', 'sidebar', 'metro', 'chronicle', 'cascade', 'zenith'];
+    if (PRO_TEMPLATES.includes(resume.template_id)) {
+      let orderPlan = await query('SELECT plan FROM orders WHERE id=$1', [resume.order_id]);
+      if (!orderPlan.rows.length) orderPlan = await query('SELECT plan FROM build_orders WHERE id=$1', [resume.order_id]);
+      if (orderPlan.rows[0]?.plan !== 'pro') {
+        return res.status(403).json({ error: 'Pro template requires Pro plan' });
+      }
+    }
+
     const data = resume.resume_data;
     const contact = data.contact || {};
     const name = (contact.name || 'resume').replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();

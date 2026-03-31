@@ -694,11 +694,13 @@ function RoastReportSection({
   roast,
   scores,
   rewrite,
+  plan,
 }: {
   orderId: string;
   roast: OrderResults['results']['roast'];
   scores: { before: ScoreBreakdown; after: ScoreBreakdown };
   rewrite: OrderResults['results']['rewrite'];
+  plan: string;
 }) {
   const [downloading, setDownloading] = useState(false);
   const [downloadToast, setDownloadToast] = useState(false);
@@ -715,7 +717,7 @@ My worst roast point:
 
 Score went from ${scores.before.overall} to ${scores.after.overall} (+${improvement} points)
 
-Best \u20B9299 I spent on my career.
+Best \u20B9${plan === 'pro' ? '799' : '299'} I spent on my career.
 
 Get yours: profileroaster.in
 
@@ -1824,7 +1826,9 @@ function UpsellBanner({ orderId }: { orderId: string }) {
           },
           modal: {
             ondismiss: function () {
-              alert('Upgrade cancelled.');
+              document.body.style.overflow = '';
+              document.body.style.position = '';
+              document.documentElement.style.overflow = '';
             },
           },
         };
@@ -2421,6 +2425,7 @@ export default function ResultsPage() {
             roast={roast}
             scores={scores}
             rewrite={rewrite}
+            plan={plan}
           />
         </SafeRender>
 
