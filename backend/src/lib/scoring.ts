@@ -83,11 +83,11 @@ export function calculateScore(profile: any, ai: any): ScoreBreakdown {
   else if (qPct >= 20) ats += 5;
   const atsScore = Math.min(ats, 100);
 
-  const overall = Math.round(
+  const overall = Math.min(100, Math.round(
     headlineScore * 0.23 + aboutScore * 0.32 +
     experienceScore * 0.27 + completenessScore * 0.08 +
     atsScore * 0.10
-  );
+  ));
 
   return { headline: headlineScore, about: aboutScore,
     experience: experienceScore, completeness: completenessScore,
@@ -106,6 +106,7 @@ export function capAfterScore(beforeScore: number, rawAfterScore: number): numbe
 
   const capped = Math.min(rawAfterScore, maxScore, maxFromGap) + variance;
 
-  // Guarantee at least 10-point improvement (rewrite always helps)
-  return Math.max(beforeScore + 10, Math.min(capped, 97));
+  // Guarantee at least a small improvement, but NEVER exceed 97 or 100
+  const minImprovement = Math.min(beforeScore + 10, 97);
+  return Math.min(Math.max(minImprovement, Math.min(capped, 97)), 97);
 }
