@@ -2570,11 +2570,14 @@ export default function ResultsPage() {
                   </div>
                   <CopyBtn text={formatBulletsForCopy(exp.bullets)} field={`exp-${i}`} />
                 </div>
-                <ul style={{ margin: 0, padding: '0 0 0 16px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {exp.bullets.map((b, j) => (
-                    <li key={j} style={{ fontSize: 14, color: '#333', lineHeight: 1.7, marginBottom: 3 }} dangerouslySetInnerHTML={{ __html: highlightPowerVerbs(highlightPlaceholders(b)) }} />
+                    <div key={j} style={{ display: 'flex', gap: 8, fontSize: 14, color: '#333', lineHeight: 1.7 }}>
+                      <span style={{ color: '#0A66C2', fontWeight: 700, flexShrink: 0 }}>&bull;</span>
+                      <span dangerouslySetInnerHTML={{ __html: highlightPowerVerbs(highlightPlaceholders(b)) }} />
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             ))}
           </div>
