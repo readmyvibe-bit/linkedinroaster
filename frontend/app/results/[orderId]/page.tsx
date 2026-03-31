@@ -2382,7 +2382,49 @@ export default function ResultsPage() {
   function handleShareLinkedIn() { window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://profileroaster.in')}`, '_blank'); }
   function handleShareWhatsApp() { window.open(`https://wa.me/?text=${encodeURIComponent(`My LinkedIn profile went from ${scores.before.overall} to ${scores.after.overall}! Get yours roasted: profileroaster.in`)}`, '_blank'); }
   function handleDownloadCard() {
-    if (results.card_image_url) window.open(results.card_image_url, '_blank');
+    // Generate roast card with 3 roasts in T-layout
+    const r = top3Roasts;
+    const html = `<!DOCTYPE html><html><head><style>
+      * { margin:0; padding:0; box-sizing:border-box; }
+      body { width:1080px; height:1080px; font-family:Inter,system-ui,sans-serif; background:linear-gradient(135deg,#0A0A0A,#1a1a2e); color:white; padding:60px; display:flex; flex-direction:column; justify-content:space-between; }
+      .header { display:flex; justify-content:space-between; align-items:center; }
+      .brand { font-size:22px; font-weight:800; color:#0A66C2; }
+      .score { display:flex; align-items:center; gap:12px; }
+      .score .before { font-size:48px; font-weight:800; color:#CC1016; }
+      .score .arrow { font-size:24px; color:#666; }
+      .score .after { font-size:56px; font-weight:800; color:#057642; }
+      .badge { background:#DCFCE7; color:#057642; font-size:16px; font-weight:700; padding:6px 16px; border-radius:20px; }
+      .cards { display:flex; flex-direction:column; gap:16px; flex:1; justify-content:center; }
+      .top-row { display:flex; gap:16px; }
+      .card { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:16px; padding:24px; flex:1; }
+      .card-section { font-size:12px; font-weight:700; color:#0A66C2; text-transform:uppercase; letter-spacing:2px; margin-bottom:8px; }
+      .card-text { font-size:15px; font-weight:600; line-height:1.5; color:rgba(255,255,255,0.9); }
+      .bottom-row { display:flex; justify-content:center; }
+      .bottom-row .card { max-width:55%; }
+      .footer { font-size:18px; font-weight:700; color:#0A66C2; text-align:center; }
+    </style></head><body>
+      <div class="header">
+        <div class="brand">ProfileRoaster.in</div>
+        <div class="score">
+          <span class="before">${scores.before.overall}</span>
+          <span class="arrow">&rarr;</span>
+          <span class="after">${scores.after.overall}</span>
+          <span class="badge">+${improvement}</span>
+        </div>
+      </div>
+      <div class="cards">
+        <div class="top-row">
+          ${r.slice(0,2).map(p => `<div class="card"><div class="card-section">${p.section_targeted}</div><div class="card-text">${p.roast}</div></div>`).join('')}
+        </div>
+        ${r[2] ? `<div class="bottom-row"><div class="card"><div class="card-section">${r[2].section_targeted}</div><div class="card-text">${r[2].roast}</div></div></div>` : ''}
+      </div>
+      <div class="footer">Get YOUR roast &rarr; profileroaster.in</div>
+    </body></html>`;
+    const win = window.open('', '_blank');
+    if (!win) return;
+    win.document.write(html);
+    win.document.close();
+    // User can right-click > Save as image or screenshot
   }
 
   return (
@@ -2449,11 +2491,14 @@ export default function ResultsPage() {
           </div>
         </div>
 
-        {/* SECTION 2: Top 3 Roast Cards */}
+        {/* SECTION 2: Top 3 Roast Cards (T-layout: 2 top + 1 center bottom) */}
         <div style={{ marginBottom: 20 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 800, color: '#191919', marginBottom: 12 }}>What{"'"}s Wrong With Your Profile</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-            {top3Roasts.map((p, i) => (
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: '#191919', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span>&#128293;</span> AI Roasted Your Profile
+          </h2>
+          {/* T-layout: 2 cards on top row */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+            {top3Roasts.slice(0, 2).map((p, i) => (
               <div key={i} style={{ background: 'white', borderRadius: 14, border: '1px solid #E0E0E0', padding: '20px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span style={{ fontSize: 20 }}>{sectionIcon(p.section_targeted)}</span>
@@ -2468,26 +2513,22 @@ export default function ResultsPage() {
               </div>
             ))}
           </div>
-          {remaining3.length > 0 && (
-            <>
-              <button onClick={() => setShowAllRoasts(!showAllRoasts)} style={{ display: 'block', margin: '12px auto 0', background: 'none', border: 'none', color: '#0A66C2', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-                {showAllRoasts ? 'Show less ▲' : `See all ${roast.roast_points.length} roast points ▼`}
-              </button>
-              {showAllRoasts && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
-                  {remaining3.map((p, i) => (
-                    <div key={i} style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '16px 18px', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                      <span style={{ fontSize: 18 }}>{sectionIcon(p.section_targeted)}</span>
-                      <div>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: '#0A66C2', marginBottom: 4 }}>{p.section_targeted}</div>
-                        <div style={{ fontSize: 14, color: '#191919', lineHeight: 1.5 }}>{p.roast}</div>
-                        <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>{p.underlying_issue}</div>
-                      </div>
-                    </div>
-                  ))}
+          {/* 1 card centered below */}
+          {top3Roasts[2] && (
+            <div style={{ maxWidth: '60%', margin: '0 auto' }}>
+              <div style={{ background: 'white', borderRadius: 14, border: '1px solid #E0E0E0', padding: '20px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 20 }}>{sectionIcon(top3Roasts[2].section_targeted)}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#0A66C2', textTransform: 'uppercase', letterSpacing: 1 }}>{top3Roasts[2].section_targeted}</span>
                 </div>
-              )}
-            </>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#191919', lineHeight: 1.5 }}>{top3Roasts[2].roast}</div>
+                {getFixPreview(top3Roasts[2].section_targeted) && (
+                  <div style={{ fontSize: 12, color: '#057642', background: '#F0FDF4', borderRadius: 6, padding: '6px 10px' }}>
+                    Fix: {getFixPreview(top3Roasts[2].section_targeted)}
+                  </div>
+                )}
+              </div>
+            </div>
           )}
         </div>
 
@@ -2603,7 +2644,7 @@ export default function ResultsPage() {
           <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
             <button onClick={handleShareLinkedIn} style={{ flex: 1, padding: '10px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 10, fontSize: 13, fontWeight: 600, color: '#0A66C2', cursor: 'pointer' }}>Share on LinkedIn</button>
             <button onClick={handleShareWhatsApp} style={{ flex: 1, padding: '10px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 10, fontSize: 13, fontWeight: 600, color: '#057642', cursor: 'pointer' }}>WhatsApp</button>
-            <button onClick={handleDownloadCard} style={{ flex: 1, padding: '10px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 10, fontSize: 13, fontWeight: 600, color: '#666', cursor: 'pointer' }}>Download Card</button>
+            <button onClick={handleDownloadCard} style={{ flex: 1, padding: '10px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 10, fontSize: 13, fontWeight: 600, color: '#666', cursor: 'pointer' }}>Roast Card</button>
           </div>
         </div>
 
@@ -2639,7 +2680,7 @@ export default function ResultsPage() {
                   &#128279; Share Roast
                 </button>
                 <button onClick={handleDownloadCard} style={{ width: '100%', padding: '8px 12px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'left' }}>
-                  &#11015; Download Card
+                  &#128293; Roast Card
                 </button>
               </div>
             </div>

@@ -108,10 +108,19 @@ export default function ResumePreviewPage() {
   const currentTemplate = TEMPLATES.find(t => t.id === templateId);
   const isTemplateLocked = orderPlan !== 'pro' && (currentTemplate as any)?.proOnly;
 
+  const isMobile = typeof window !== 'undefined' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
   function handleDownloadPDF() {
     if (!resume) return;
     if (isTemplateLocked) {
       alert(`"${currentTemplate?.name}" is a Pro template. Upgrade to Pro for ₹500 to unlock all 20 templates.`);
+      return;
+    }
+    if (isMobile) {
+      // Mobile browsers can't print-to-PDF reliably — redirect to DOCX download
+      if (confirm('PDF download works best on laptop/desktop.\n\nWould you like to download as DOCX instead? (Works on all devices)')) {
+        window.open(`${API_URL}/api/resume/${resume.id}/download/docx`, '_blank');
+      }
       return;
     }
     const html = buildPrintHTML(resume.resume_data, templateId);

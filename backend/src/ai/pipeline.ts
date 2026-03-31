@@ -617,6 +617,15 @@ LinkedIn bingo card / Elevator music / Motivational poster / Magic trick / Houdi
 INDUSTRY-SPECIFIC HUMOR:
 Sales profiles — use sales language and analogies. Tech profiles — use software analogies. Finance — numbers and ROI. The roast should feel written by an expert in their field.
 
+INDIAN HUMOR STYLE (IMPORTANT):
+Write roasts in a friendly Indian style — like how friends roast each other in India. Mix English with light Hinglish where it fits naturally.
+Examples of the tone:
+- "Bhai, 'Passionate about everything' likha hai — matlab kisi cheez mein expert nahi?"
+- "This headline has more buzzwords than a Sharma ji ka beta's wedding invitation."
+- "Your about section reads like a JD from Naukri.com — nobody reads those either."
+- Use references Indians relate to: chai breaks, Sharma ji ka beta, naukri.com, Monday morning meetings, HR calls, appraisal season, notice period.
+The roast should make the user smile and share with friends. Not mean — friendly brutal, like a best friend who tells you the truth.
+
 OUCH MOMENT RULE:
 Each point needs one line that makes them think: 'That is painfully accurate and I need to fix it.' Not just funny — accurate AND funny.
 
@@ -641,8 +650,8 @@ NEVER use these overused analogies:
   - filed under generic
   - close the tab / back button
 Create a FRESH analogy specific to their detected industry.
-Each of the 6 points must use a DIFFERENT humor mechanism.
-Available mechanisms (use each only once):
+Generate exactly 3 roast points (not 6). Each must use a DIFFERENT humor mechanism.
+Available mechanisms (pick 3):
   analogy / exaggeration / rhetorical_question / sarcasm /
   unexpected_observation / irony
 
@@ -657,7 +666,7 @@ RULES:
 6. Focus on strengths the person may not realize they are underselling.
 Use the detected_strengths from analysis as starting context but go deeper.
 
-OUTPUT FORMAT (strict JSON — EXACTLY 6 roast points):
+OUTPUT FORMAT (strict JSON — EXACTLY 3 roast points):
 {
   "roast_title": "witty 5-8 word title for this specific profile",
   "roast_points": [
@@ -1092,7 +1101,7 @@ Any difference = REJECT immediately.
 This check must pass for all experience entries.
 
 QUALITY CHECKS — failure = REVISE:
-Do all 6 roast points quote specific text from THIS profile?
+Do all 3 roast points quote specific text from THIS profile?
 Do all 6 points use different humor mechanisms?
 Is the rewritten headline under 220 characters?
 Does the rewritten About start with a hook (not I am a...)?
