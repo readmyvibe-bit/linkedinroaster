@@ -2302,306 +2302,369 @@ export default function ResultsPage() {
   const { scores, roast, rewrite, analysis } = results;
   const isPro = plan === 'pro';
 
+  // Pick top 3 roast points: one each from Headline/About/Experience, fill by order
+  const top3Roasts = (() => {
+    const points = roast.roast_points || [];
+    const picked: RoastPoint[] = [];
+    const sections = ['headline', 'about', 'experience'];
+    for (const sec of sections) {
+      const match = points.find(p => p.section_targeted.toLowerCase().includes(sec) && !picked.includes(p));
+      if (match) picked.push(match);
+    }
+    for (const p of points) { if (picked.length >= 3) break; if (!picked.includes(p)) picked.push(p); }
+    return picked.slice(0, 3);
+  })();
+  const remaining3 = (roast.roast_points || []).filter(p => !top3Roasts.includes(p));
+
+  // Ranking
+  const afterScore = scores.after.overall;
+  const rankLabel = afterScore >= 80 ? 'Top 10%' : afterScore >= 70 ? 'Top 20%' : afterScore >= 60 ? 'Top 35%' : afterScore >= 50 ? 'Top 50%' : 'Improving';
+  const improvement = scores.after.overall - scores.before.overall;
+
+  // Section icon mapping for roast cards
+  const sectionIcon = (s: string) => {
+    const sl = s.toLowerCase();
+    if (sl.includes('headline')) return '🎯';
+    if (sl.includes('about')) return '📝';
+    if (sl.includes('experience')) return '💼';
+    if (sl.includes('skill')) return '🛠️';
+    return '🔍';
+  };
+
+  // Rewrite fix preview for roast cards
+  const getFixPreview = (section: string) => {
+    const sl = section.toLowerCase();
+    if (sl.includes('headline')) return rewrite.rewritten_headline?.slice(0, 60) + '...';
+    if (sl.includes('about')) return rewrite.rewritten_about?.slice(0, 60) + '...';
+    if (sl.includes('experience') && rewrite.rewritten_experience?.[0]) return rewrite.rewritten_experience[0].bullets?.[0]?.slice(0, 60) + '...';
+    return '';
+  };
+
+  // Copy handlers
+  const [copiedField, setCopiedField] = useState('');
+  function handleCopy(text: string, field: string) { copyToClipboard(text); setCopiedField(field); setTimeout(() => setCopiedField(''), 2000); }
+  function CopyBtn({ text, field }: { text: string; field: string }) {
+    return <button onClick={() => handleCopy(text, field)} style={{ padding: '4px 14px', background: copiedField === field ? '#057642' : '#E8F0FE', color: copiedField === field ? 'white' : '#0A66C2', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>{copiedField === field ? 'Copied!' : 'Copy'}</button>;
+  }
+
+  // Upgrade handler for sidebar
+  async function handleUpgrade() {
+    try {
+      const res = await fetch(`${API_URL}/api/orders/${orderId}/upgrade`, { method: 'POST' });
+      const d = await res.json();
+      if (d.razorpay_order_id) {
+        const rzp = new (window as any).Razorpay({
+          key: d.razorpay_key, amount: d.amount, currency: d.currency,
+          order_id: d.razorpay_order_id, name: 'ProfileRoaster', description: 'Upgrade to Pro',
+          theme: { color: '#0A66C2' },
+          handler: () => { window.location.reload(); },
+          modal: { ondismiss: () => { document.body.style.overflow = ''; } },
+        });
+        rzp.open();
+      }
+    } catch { alert('Could not reach server'); }
+  }
+
+  // Resume CTA handler
+  function handleResumeCTA() {
+    const maxR = isPro ? 3 : 1;
+    fetch(`${API_URL}/api/resume/by-order/${orderId}`).then(r => r.json()).then(d => {
+      if ((d.resumes?.length || 0) < maxR) window.location.href = `/resume?orderId=${orderId}`;
+      else document.getElementById('resume-section')?.scrollIntoView({ behavior: 'smooth' });
+    }).catch(() => { document.getElementById('resume-section')?.scrollIntoView({ behavior: 'smooth' }); });
+  }
+
+  // Share handlers
+  function handleShareLinkedIn() { window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://profileroaster.in')}`, '_blank'); }
+  function handleShareWhatsApp() { window.open(`https://wa.me/?text=${encodeURIComponent(`My LinkedIn profile went from ${scores.before.overall} to ${scores.after.overall}! Get yours roasted: profileroaster.in`)}`, '_blank'); }
+  function handleDownloadCard() {
+    if (results.card_image_url) window.open(results.card_image_url, '_blank');
+  }
+
+  // Expanded roast state
+  const [showAllRoasts, setShowAllRoasts] = useState(false);
+  // Pro headline tab
+  const [headlineTab, setHeadlineTab] = useState(0);
+
   return (
-    <main className="min-h-screen pb-16">
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 16px' }}>
-        {/* Dashboard link */}
-        <div className="pt-4 pb-0" style={{ maxWidth: 672, margin: '0 auto' }}>
-          <a href="/dashboard" style={{ fontSize: 13, color: '#0A66C2', textDecoration: 'none', fontWeight: 600 }}>&larr; My Dashboard</a>
-        </div>
-
-        {/* Header stays full width above */}
-        <div className="pt-4 pb-4 text-center" style={{ maxWidth: 672, margin: '0 auto' }}>
-          <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--li-text-primary)' }}>
-            {roast.roast_title}
-          </h1>
-          <p className="text-sm" style={{ color: 'var(--li-text-secondary)' }}>
-            {roast.overall_verdict}
-          </p>
-        </div>
-
-        <div style={{ display: 'flex', gap: 20, alignItems: 'stretch', justifyContent: 'center' }}>
-          {/* LEFT — Navigation */}
-          <div className="hidden xl:block" style={{ width: 220, flexShrink: 0 }}>
-            <ResultsNavColumn />
+    <main style={{ fontFamily: "'Inter', system-ui, sans-serif", background: '#F3F2EF', minHeight: '100vh', paddingBottom: 40 }}>
+      {/* Header */}
+      <header style={{ background: 'white', borderBottom: '1px solid #E0E0E0', padding: '12px 20px' }}>
+        <div style={{ maxWidth: 1080, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <a href="/dashboard" style={{ fontSize: 13, color: '#0A66C2', textDecoration: 'none', fontWeight: 600 }}>&larr; My Dashboard</a>
+            <span style={{ color: '#E0E0E0' }}>|</span>
+            <a href="/" style={{ textDecoration: 'none' }}>
+              <span style={{ fontSize: 16, fontWeight: 800, color: '#0A66C2' }}>Profile</span>
+              <span style={{ fontSize: 16, fontWeight: 800, color: '#191919' }}>Roaster</span>
+            </a>
           </div>
-
-          {/* CENTER — Results (keep max-w-2xl) */}
-          <div style={{ flex: 1, maxWidth: 672, minWidth: 0 }}>
-        {/* VIRAL 1 — Top Share Block */}
-        <div style={{
-          background: 'linear-gradient(135deg, #004182, #0A66C2)',
-          borderRadius: 14,
-          padding: '20px 24px',
-          marginBottom: 24,
-          textAlign: 'center',
-        }}>
-          <p style={{ fontSize: 20, fontWeight: 900, color: 'white', margin: '0 0 4px' }}>
-            Your profile improved +{scores.after.overall - scores.before.overall} points.
-          </p>
-          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', margin: '0 0 16px' }}>
-            Now challenge your network to beat this
-          </p>
-          <div>
-            <button
-              onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://profileroaster.in')}`, '_blank')}
-              style={{
-                background: 'white',
-                color: '#0A66C2',
-                fontSize: 14,
-                fontWeight: 700,
-                padding: '10px 24px',
-                borderRadius: 50,
-                border: 'none',
-                cursor: 'pointer',
-                marginRight: 8,
-              }}
-            >
-              Share on LinkedIn
-            </button>
-            <button
-              onClick={async () => {
-                const text = `I just improved my LinkedIn profile by ${scores.after.overall - scores.before.overall} points with AI!\n\nThink you can beat this?\nTry: ${referral_url || 'https://profileroaster.in'}`;
-                const cUrl = results.card_image_url;
-                if (typeof navigator !== 'undefined' && navigator.share && navigator.canShare && cUrl) {
-                  try {
-                    const r = await fetch(`${cUrl}?t=${Date.now()}`);
-                    const blob = await r.blob();
-                    const file = new File([blob], 'linkedin-roast.png', { type: 'image/png' });
-                    if (navigator.canShare({ files: [file] })) { await navigator.share({ title: 'LinkedIn Roast Challenge', text, files: [file] }); return; }
-                  } catch {}
-                }
-                const fallback = cUrl ? `${text}\n\nSee my card: ${cUrl}` : text;
-                window.open(`https://wa.me/?text=${encodeURIComponent(fallback)}`, '_blank');
-              }}
-              style={{
-                background: 'transparent',
-                color: 'white',
-                fontSize: 14,
-                fontWeight: 700,
-                padding: '10px 24px',
-                borderRadius: 50,
-                border: '1px solid rgba(255,255,255,0.5)',
-                cursor: 'pointer',
-              }}
-            >
-              Challenge a Friend
-            </button>
-          </div>
+          {isPro && <span style={{ fontSize: 11, fontWeight: 700, color: 'white', background: '#0A66C2', padding: '3px 10px', borderRadius: 12 }}>PRO</span>}
         </div>
+      </header>
 
-        {/* Score Reveal */}
-        <div id="score-section">
-        <ScoreReveal before={scores.before} after={scores.after} />
-        </div>
+      <div style={{ maxWidth: 1080, margin: '0 auto', padding: '24px 20px 0' }}>
+        <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
 
-        {/* Roast Section */}
-        <div id="roast-section">
-        <h2 className="text-lg font-bold mb-3" style={{ color: 'var(--li-text-primary)' }}>
-          Your Roast 🔥
-        </h2>
-        {roast.roast_points.map((point, i) => (
-          <RoastCard
-            key={i}
-            point={point}
-            pointNumber={i + 1}
-            totalPoints={roast.roast_points.length}
-          />
-        ))}
-        </div>
+          {/* ═══ LEFT COLUMN ═══ */}
+          <div style={{ flex: 1, minWidth: 0 }}>
 
-        {/* Closing compliment */}
-        <div id="strength-section">
-        <div className="li-card p-4 mb-6">
-          <p className="text-sm italic" style={{ color: 'var(--li-green)' }}>
-            {roast.closing_compliment}
-          </p>
-        </div>
-
-        {/* ── Your Complete Roast Report ── */}
-        <SafeRender name="RoastReport">
-          <RoastReportSection
-            orderId={orderId}
-            roast={roast}
-            scores={scores}
-            rewrite={rewrite}
-            plan={plan}
-          />
-        </SafeRender>
-
-        {/* Hidden Strengths */}
-        {roast.hidden_strengths && roast.hidden_strengths.length > 0 && (
-          <HiddenStrengths strengths={roast.hidden_strengths} />
-        )}
-        </div>
-
-        {/* Personalization Note */}
-        {rewrite?.personalization_note && (
-          <SafeRender name="PersonalizationNote">
-            <div
-              className="li-card p-4 mb-4"
-              style={{ borderLeft: '4px solid var(--li-blue)' }}
-            >
-              <span className="text-xs font-bold block mb-1" style={{ color: 'var(--li-blue)', letterSpacing: '1px' }}>
-                ABOUT YOUR REWRITE
-              </span>
-              <p className="text-sm italic" style={{ color: 'var(--li-text-primary)', lineHeight: '1.6' }}>
-                {rewrite.personalization_note}
-              </p>
+        {/* SECTION 1: Score Hero */}
+        <div style={{ background: 'white', borderRadius: 16, padding: '32px', marginBottom: 20, border: '1px solid #E0E0E0' }}>
+          <div style={{ textAlign: 'center', marginBottom: 24 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 48, fontWeight: 800, color: '#CC1016' }}>{scores.before.overall}</div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#CC1016', textTransform: 'uppercase', letterSpacing: 1 }}>Before</div>
+              </div>
+              <div style={{ fontSize: 28, color: '#ccc' }}>&rarr;</div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 56, fontWeight: 800, color: '#057642' }}>{scores.after.overall}</div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#057642', textTransform: 'uppercase', letterSpacing: 1 }}>After</div>
+              </div>
+              <div style={{ background: '#DCFCE7', color: '#057642', fontSize: 16, fontWeight: 800, padding: '6px 16px', borderRadius: 20, marginLeft: 8 }}>+{improvement}</div>
             </div>
-          </SafeRender>
-        )}
+          </div>
+          {/* Dimension bars */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {[
+              { label: 'Headline', b: scores.before.headline, a: scores.after.headline },
+              { label: 'About', b: scores.before.about, a: scores.after.about },
+              { label: 'Experience', b: scores.before.experience, a: scores.after.experience },
+              { label: 'Completeness', b: scores.before.completeness, a: scores.after.completeness },
+              { label: 'ATS', b: scores.before.ats || 0, a: scores.after.ats || 0 },
+            ].map(s => (
+              <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ width: 100, fontSize: 13, color: '#666', textAlign: 'right' }}>{s.label}</span>
+                <div style={{ flex: 1, height: 8, background: '#F3F4F6', borderRadius: 4 }}>
+                  <div style={{ width: `${s.a}%`, height: '100%', background: '#0A66C2', borderRadius: 4, transition: 'width 1s' }} />
+                </div>
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#057642', width: 40 }}>+{s.a - s.b}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ textAlign: 'center', marginTop: 16 }}>
+            <span style={{ background: afterScore >= 70 ? '#DCFCE7' : '#FEF3C7', color: afterScore >= 70 ? '#057642' : '#92400E', fontSize: 13, fontWeight: 700, padding: '6px 16px', borderRadius: 20, display: 'inline-block' }}>
+              After rewrite: {rankLabel} of LinkedIn profiles
+            </span>
+          </div>
+        </div>
 
-        {/* Rewrite Section */}
-        <div id="rewrite-section">
-        <SafeRender name="RewriteSections">
-          <h2 className="text-lg font-bold mb-3" style={{ color: 'var(--li-text-primary)' }}>
-            Your Rewrite ✍️
-          </h2>
+        {/* SECTION 2: Top 3 Roast Cards */}
+        <div style={{ marginBottom: 20 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: '#191919', marginBottom: 12 }}>What{"'"}s Wrong With Your Profile</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+            {top3Roasts.map((p, i) => (
+              <div key={i} style={{ background: 'white', borderRadius: 14, border: '1px solid #E0E0E0', padding: '20px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 20 }}>{sectionIcon(p.section_targeted)}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#0A66C2', textTransform: 'uppercase', letterSpacing: 1 }}>{p.section_targeted}</span>
+                </div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#191919', lineHeight: 1.5, flex: 1 }}>{p.roast}</div>
+                {getFixPreview(p.section_targeted) && (
+                  <div style={{ fontSize: 12, color: '#057642', background: '#F0FDF4', borderRadius: 6, padding: '6px 10px' }}>
+                    Fix: {getFixPreview(p.section_targeted)}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          {remaining3.length > 0 && (
+            <>
+              <button onClick={() => setShowAllRoasts(!showAllRoasts)} style={{ display: 'block', margin: '12px auto 0', background: 'none', border: 'none', color: '#0A66C2', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                {showAllRoasts ? 'Show less ▲' : `See all ${roast.roast_points.length} roast points ▼`}
+              </button>
+              {showAllRoasts && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 12 }}>
+                  {remaining3.map((p, i) => (
+                    <div key={i} style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '16px 18px', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                      <span style={{ fontSize: 18 }}>{sectionIcon(p.section_targeted)}</span>
+                      <div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: '#0A66C2', marginBottom: 4 }}>{p.section_targeted}</div>
+                        <div style={{ fontSize: 14, color: '#191919', lineHeight: 1.5 }}>{p.roast}</div>
+                        <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>{p.underlying_issue}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
 
-          <RewriteSection
-            title="Headline"
-            before={scores.before.headline < 50 ? '(Original headline scored low)' : ''}
-            after={rewrite.rewritten_headline}
-            atsKeywords={rewrite.ats_keywords}
-          />
+        {/* SECTION 3: Your New Profile */}
+        <div style={{ background: 'white', borderRadius: 16, padding: '28px 32px', marginBottom: 20, border: '1px solid #E0E0E0' }} id="rewrite-section">
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: '#191919', marginBottom: 20 }}>Your New Profile</h2>
 
-          <RewriteSection
-            title="About"
-            before=""
-            after={rewrite.rewritten_about}
-            copyText={formatAboutForCopy(rewrite.rewritten_about)}
-            atsKeywords={rewrite.ats_keywords}
-          />
+          {/* Headline */}
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#0A66C2', textTransform: 'uppercase', letterSpacing: 1 }}>Headline</span>
+              <CopyBtn text={isPro && rewrite.headline_variations?.length ? rewrite.headline_variations[headlineTab]?.headline : rewrite.rewritten_headline} field="headline" />
+            </div>
+            {isPro && rewrite.headline_variations && rewrite.headline_variations.length > 1 ? (
+              <>
+                <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
+                  {rewrite.headline_variations.map((v, i) => (
+                    <button key={i} onClick={() => setHeadlineTab(i)} style={{ padding: '4px 12px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, background: headlineTab === i ? '#0A66C2' : '#F3F4F6', color: headlineTab === i ? 'white' : '#666' }}>
+                      {i + 1}. {v.style}
+                    </button>
+                  ))}
+                </div>
+                <div style={{ background: '#F0F7FF', borderRadius: 10, padding: '14px 18px', fontSize: 16, fontWeight: 600, color: '#191919', lineHeight: 1.5 }}>
+                  {rewrite.headline_variations[headlineTab]?.headline}
+                </div>
+              </>
+            ) : (
+              <div style={{ background: '#F0F7FF', borderRadius: 10, padding: '14px 18px', fontSize: 16, fontWeight: 600, color: '#191919', lineHeight: 1.5 }}>
+                {rewrite.rewritten_headline}
+              </div>
+            )}
+          </div>
 
-          {rewrite.rewritten_experience?.map((exp, i) => (
-            <RewriteSection
-              key={i}
-              title={`${exp.title} at ${exp.company}`}
-              before={exp.changes_made}
-              after={formatBulletsForCopy(exp.bullets || [])}
-              copyText={formatBulletsForCopy(exp.bullets || [])}
-              atsKeywords={rewrite.ats_keywords}
+          {/* About */}
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#0A66C2', textTransform: 'uppercase', letterSpacing: 1 }}>About</span>
+              <CopyBtn text={rewrite.rewritten_about} field="about" />
+            </div>
+            <div style={{ background: '#F9FAFB', borderRadius: 10, padding: '16px 18px', fontSize: 14, color: '#333', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}
+              dangerouslySetInnerHTML={{ __html: highlightPlaceholders(highlightATSKeywords(rewrite.rewritten_about, rewrite.ats_keywords || [])) }}
             />
-          ))}
+            {isPro && rewrite.ats_keywords && rewrite.ats_keywords.length > 0 && (
+              <details style={{ marginTop: 8 }}>
+                <summary style={{ fontSize: 12, color: '#0A66C2', fontWeight: 600, cursor: 'pointer' }}>ATS Keywords ({rewrite.ats_keywords.length})</summary>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                  {rewrite.ats_keywords.map((k, i) => <span key={i} style={{ background: '#E8F0FE', color: '#0A66C2', padding: '3px 10px', borderRadius: 12, fontSize: 12, fontWeight: 500 }}>{k}</span>)}
+                </div>
+              </details>
+            )}
+          </div>
 
-          {/* VIRAL 6 — Rescore Loop */}
-          <div style={{
-            background: '#F0FDF4',
-            border: '1px solid #057642',
-            borderRadius: 10,
-            padding: '14px 18px',
-            marginTop: 16,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-          }}>
-            <span style={{ fontSize: 20 }}>💡</span>
+          {/* Experience */}
+          <div style={{ marginBottom: 24 }}>
+            <span style={{ fontSize: 14, fontWeight: 700, color: '#0A66C2', textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 12 }}>Experience</span>
+            {rewrite.rewritten_experience?.map((exp, i) => (
+              <div key={i} style={{ background: '#F9FAFB', borderRadius: 10, padding: '16px 18px', marginBottom: 10 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                  <div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#191919' }}>{exp.title}</div>
+                    <div style={{ fontSize: 13, color: '#666' }}>{exp.company}</div>
+                  </div>
+                  <CopyBtn text={formatBulletsForCopy(exp.bullets)} field={`exp-${i}`} />
+                </div>
+                <ul style={{ margin: 0, padding: '0 0 0 16px' }}>
+                  {exp.bullets.map((b, j) => (
+                    <li key={j} style={{ fontSize: 14, color: '#333', lineHeight: 1.7, marginBottom: 3 }} dangerouslySetInnerHTML={{ __html: highlightPowerVerbs(highlightPlaceholders(b)) }} />
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          {/* Skills */}
+          {rewrite.suggested_skills?.length > 0 && (
             <div>
-              <p style={{ fontSize: 13, fontWeight: 700, color: '#057642', margin: 0 }}>
-                After updating LinkedIn
-              </p>
-              <p style={{ fontSize: 12, color: '#444', margin: '4px 0 0' }}>
-                Come back and paste your new headline. Can you hit 90+ points?
-              </p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#0A66C2', textTransform: 'uppercase', letterSpacing: 1 }}>Skills</span>
+                <CopyBtn text={rewrite.suggested_skills.map(s => s.skill).join(', ')} field="skills" />
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {rewrite.suggested_skills.map((s, i) => (
+                  <span key={i} style={{ background: '#F3F4F6', color: '#191919', padding: '4px 12px', borderRadius: 16, fontSize: 13 }}>{s.skill}</span>
+                ))}
+              </div>
             </div>
+          )}
+        </div>
+
+        {/* SECTION 4: What AI Loved */}
+        <div style={{ background: '#F0FDF4', borderRadius: 16, padding: '24px 28px', marginBottom: 20, border: '1px solid #BBF7D0' }}>
+          <h2 style={{ fontSize: 16, fontWeight: 800, color: '#057642', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span>&#128154;</span> What AI Loved About Your Profile
+          </h2>
+          <p style={{ fontSize: 15, color: '#333', lineHeight: 1.7, marginBottom: 16 }}>{roast.closing_compliment}</p>
+          {roast.hidden_strengths && roast.hidden_strengths.length > 0 && (
+            <div style={{ background: 'white', borderRadius: 10, padding: '16px 18px', border: '1px solid #BBF7D0' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#057642', marginBottom: 6 }}>Hidden Strength: {roast.hidden_strengths[0].strength}</div>
+              <div style={{ fontSize: 13, color: '#555', lineHeight: 1.6, marginBottom: 6 }}>Evidence: {roast.hidden_strengths[0].evidence}</div>
+              <div style={{ fontSize: 13, color: '#057642', fontWeight: 600 }}>How to leverage: {roast.hidden_strengths[0].how_to_show_it}</div>
+            </div>
+          )}
+        </div>
+
+        {/* SECTION 5: Action Bar */}
+        <div style={{ marginBottom: 20 }}>
+          <button onClick={handleResumeCTA} style={{ width: '100%', padding: '14px', background: '#0A66C2', color: 'white', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: 'pointer', marginBottom: 10 }}>
+            Build ATS Resume &rarr;
+          </button>
+          <div id="resume-section">
+            <ResumeBuilderSection orderId={orderId} maxResumes={isPro ? 3 : 1} plan={plan} />
           </div>
-        </SafeRender>
-
-        {/* Pro-only sections */}
-        <SafeRender name="ProSections">
-          {isPro && rewrite.headline_variations && (
-            <HeadlineVariants variations={rewrite.headline_variations} />
-          )}
-
-          {/* ATS Keywords — shown for ALL plans */}
-          {rewrite?.ats_keywords && (
-            <ATSSection keywords={rewrite.ats_keywords} />
-          )}
-
-          {isPro && rewrite.jd_analysis && (
-            <JDAnalysis analysis={rewrite.jd_analysis} />
-          )}
-
-          {isPro && rewrite.cover_letter && (
-            <CoverLetterSection coverLetter={rewrite.cover_letter} />
-          )}
-        </SafeRender>
-
-        {/* Placeholder Guide */}
-        <PlaceholderGuide placeholders={rewrite.placeholders_to_fill} />
-        </div>
-
-        {/* Resume Builder CTA — available for all plans */}
-        <div id="resume-section">
-        <ResumeBuilderSection orderId={orderId} maxResumes={isPro ? 3 : 1} plan={plan} />
-        </div>
-
-        {/* End CTA in center column */}
-        <div style={{ background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 12, padding: '16px 20px', margin: '16px 0', textAlign: 'center' }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#1E40AF', marginBottom: 4 }}>What{"'"}s next?</div>
-          <div style={{ fontSize: 12, color: '#666', marginBottom: 10 }}>Update your LinkedIn, build your resume, share your results</div>
-          <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button onClick={() => document.getElementById('rewrite-section')?.scrollIntoView({ behavior: 'smooth' })} style={{ padding: '6px 14px', background: '#0A66C2', color: 'white', border: 'none', borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Copy Rewrite</button>
-            <button onClick={() => {
-              const maxR = isPro ? 3 : 1;
-              fetch(`${API_URL}/api/resume/by-order/${orderId}`).then(r => r.json()).then(d => {
-                if ((d.resumes?.length || 0) < maxR) { window.location.href = `/resume?orderId=${orderId}`; }
-                else { document.getElementById('resume-section')?.scrollIntoView({ behavior: 'smooth' }); }
-              }).catch(() => { document.getElementById('resume-section')?.scrollIntoView({ behavior: 'smooth' }); });
-            }} style={{ padding: '6px 14px', background: '#057642', color: 'white', borderRadius: 16, fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer' }}>Build Resume</button>
+          <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+            <button onClick={handleShareLinkedIn} style={{ flex: 1, padding: '10px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 10, fontSize: 13, fontWeight: 600, color: '#0A66C2', cursor: 'pointer' }}>Share on LinkedIn</button>
+            <button onClick={handleShareWhatsApp} style={{ flex: 1, padding: '10px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 10, fontSize: 13, fontWeight: 600, color: '#057642', cursor: 'pointer' }}>WhatsApp</button>
+            <button onClick={handleDownloadCard} style={{ flex: 1, padding: '10px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 10, fontSize: 13, fontWeight: 600, color: '#666', cursor: 'pointer' }}>Download Card</button>
           </div>
         </div>
 
-          </div>
-
-          {/* RIGHT — Context Cards */}
-          <div className="hidden xl:block" style={{ width: 240, flexShrink: 0 }}>
-            <ResultsContextColumn scores={scores} isPro={isPro} orderId={orderId} />
-          </div>
+        {/* SECTION 6: Feedback */}
+        <div style={{ background: 'white', borderRadius: 16, padding: '24px 28px', marginBottom: 20, border: '1px solid #E0E0E0' }}>
+          <FeedbackWidget orderId={orderId} />
         </div>
-      </div>
-
-      {/* ═══ FULL-WIDTH BOTTOM SECTIONS (outside 3-column layout) ═══ */}
-      <div className="max-w-2xl mx-auto px-4" style={{ marginTop: 24 }}>
-        {/* Share */}
-        <div id="share-section">
-        <ShareButtons
-          caption={roast.linkedin_caption}
-          cardUrl={results.card_image_url ? `${results.card_image_url}?t=${Date.now()}` : null}
-          orderId={orderId}
-          beforeScore={scores.before.overall}
-          afterScore={scores.after.overall}
-          referralUrl={referral_url || `https://profileroaster.in?ref=${referral_code || ''}`}
-        />
-        </div>
-
-        {/* Feedback */}
-        <FeedbackWidget orderId={orderId} />
-
-        {/* Referral */}
-        {referral_code && <ReferralWidget code={referral_code} url={referral_url} cardUrl={results.card_image_url ? `${results.card_image_url}?t=${Date.now()}` : null} />}
-
-        {/* Upsell for Standard */}
-        {!isPro && <UpsellBanner orderId={orderId} />}
 
         {/* AI Disclaimer */}
-        <div style={{
-          background: '#FFFBEB', border: '1px solid #F59E0B', borderLeft: '4px solid #F59E0B',
-          borderRadius: 8, padding: '14px 18px', margin: '24px 0',
-          display: 'flex', alignItems: 'flex-start', gap: 10,
-        }}>
-          <span style={{ fontSize: 20, color: '#D97706', flexShrink: 0 }}>&#x26A0;</span>
-          <div>
-            <p style={{ fontSize: 13, fontWeight: 700, color: '#92400E', marginBottom: 6 }}>
-              AI-Generated Content — Please Review Before Using
-            </p>
-            <p style={{ fontSize: 12, color: '#78350F', lineHeight: 1.7, margin: 0 }}>
-              Everything on this page was generated by AI. Please verify company names, dates, metrics, and skills before updating your LinkedIn profile.
-            </p>
+        <div style={{ background: '#FFFBEB', border: '1px solid #F59E0B', borderRadius: 10, padding: '12px 16px', fontSize: 12, color: '#78350F', lineHeight: 1.6 }}>
+          <strong>AI-Generated Content:</strong> Please review all content for accuracy before publishing. Verify company names, job titles, dates, and metrics are factually correct.
+        </div>
+
           </div>
+
+          {/* ═══ RIGHT SIDEBAR (sticky) ═══ */}
+          <div className="hidden lg:block" style={{ width: 300, flexShrink: 0, position: 'sticky', top: 16, alignSelf: 'flex-start' }}>
+
+            {/* Quick Actions */}
+            <div style={{ background: 'white', borderRadius: 14, padding: '20px', border: '1px solid #E0E0E0', marginBottom: 12 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#191919', marginBottom: 12 }}>Quick Actions</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <button onClick={() => handleCopy(rewrite.rewritten_headline, 'sidebar-headline')} style={{ width: '100%', padding: '8px 12px', background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'left' }}>
+                  {copiedField === 'sidebar-headline' ? '✓ Copied!' : '📋 Copy Headline'}
+                </button>
+                <button onClick={() => handleCopy(rewrite.rewritten_about, 'sidebar-about')} style={{ width: '100%', padding: '8px 12px', background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'left' }}>
+                  {copiedField === 'sidebar-about' ? '✓ Copied!' : '📋 Copy About'}
+                </button>
+                <button onClick={handleResumeCTA} style={{ width: '100%', padding: '8px 12px', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#057642', cursor: 'pointer', textAlign: 'left' }}>
+                  &#128196; Build Resume
+                </button>
+                <button onClick={handleShareLinkedIn} style={{ width: '100%', padding: '8px 12px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'left' }}>
+                  &#128279; Share Roast
+                </button>
+                <button onClick={handleDownloadCard} style={{ width: '100%', padding: '8px 12px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'left' }}>
+                  &#11015; Download Card
+                </button>
+              </div>
+            </div>
+
+            {/* Upgrade (Standard only) */}
+            {!isPro && (
+              <div style={{ background: 'linear-gradient(135deg, #004182, #0A66C2)', borderRadius: 14, padding: '20px', marginBottom: 12 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 6 }}>Upgrade to Pro</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5, marginBottom: 12 }}>
+                  {'\u2022'} 5 headline variations{'\n'}
+                  {'\u2022'} 3 ATS resumes + cover letters{'\n'}
+                  {'\u2022'} All 21 templates{'\n'}
+                  {'\u2022'} ATS keyword optimization
+                </div>
+                <button onClick={handleUpgrade} style={{ width: '100%', padding: '10px', background: 'white', color: '#0A66C2', border: 'none', borderRadius: 50, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                  Upgrade &#8377;500 &rarr;
+                </button>
+              </div>
+            )}
+          </div>
+
         </div>
       </div>
     </main>
   );
 }
+
