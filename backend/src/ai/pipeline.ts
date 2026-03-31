@@ -1272,6 +1272,7 @@ async function postProcess(orderId: string): Promise<void> {
       secondRoast: order.roast?.roast_points?.[1]?.roast || '',
       hiddenStrength: firstStrength ? { strength: firstStrength.strength, evidence: firstStrength.evidence || '', how_to_show_it: firstStrength.how_to_show_it } : null,
       closingCompliment: order.roast?.closing_compliment || '',
+      rewrittenHeadline: order.rewrite?.rewritten_headline || '',
       industry: order.parsed_profile?.detected_industry || 'Technology',
     });
 

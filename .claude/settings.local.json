@@ -29,7 +29,8 @@
       "Bash(railway logs:*)",
       "Bash(printf \"Senior Software Engineer with 10 years experience\")",
       "Bash(printf 'Senior Software Engineer with 10 years of experience building scalable distributed systems at Fortune 500 companies. Expert in Python Java AWS Docker Kubernetes React and Node.js. Led a team of 15 engineers to deliver a microservices migration that reduced deploy time by 73 percent. Education: Bachelor of Computer Science from IIT Delhi 2014. Skills: Python Java JavaScript TypeScript React Node.js AWS Docker Kubernetes PostgreSQL MongoDB Redis')",
-      "Bash(npx next:*)"
+      "Bash(npx next:*)",
+      "Bash(npx ts-node -e \":*)"
     ]
   }
 }

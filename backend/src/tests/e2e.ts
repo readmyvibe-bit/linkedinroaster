@@ -131,6 +131,7 @@ async function testInfrastructure() {
       secondRoast: 'Your about section reads like a cover letter from 2011.',
       hiddenStrength: { strength: 'Cross-functional versatility', evidence: 'Worked across engineering, product, and sales teams', how_to_show_it: 'Add a dedicated Skills section highlighting both technical and business capabilities.' },
       closingCompliment: 'Your cross-functional experience is genuinely rare and worth showcasing.',
+      rewrittenHeadline: 'Senior Engineer | Built 3 Products from 0→1 | 50K+ Users | React & Node.js',
       industry: 'Technology',
     });
     assert(!!url, `Card generated: ${url?.substring(0, 60)}`);

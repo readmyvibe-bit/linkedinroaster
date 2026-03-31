@@ -37,6 +37,7 @@ export interface CardData {
   secondRoast: string;
   hiddenStrength: { strength: string; evidence: string; how_to_show_it: string } | null;
   closingCompliment: string;
+  rewrittenHeadline: string;
   industry: string;
 }
 
@@ -48,14 +49,28 @@ function ScoreBar({ width, color }: { width: number; color: string }) {
   );
 }
 
-function CardDesign({ beforeScore, afterScore, topRoast, closingCompliment }: Omit<CardData, 'orderId'>) {
+function CardDesign({ beforeScore, afterScore, topRoast, closingCompliment, rewrittenHeadline }: Omit<CardData, 'orderId'>) {
   const improvement = afterScore - beforeScore;
-  const truncateAtWord = (text: string, limit: number): string => {
-    if (!text || text.length <= limit) return text || '';
-    const truncated = text.slice(0, limit);
-    const lastSpace = truncated.lastIndexOf(' ');
-    return truncated.slice(0, lastSpace > 0 ? lastSpace : limit) + '...';
-  };
+
+  // Extract punchiest roast sentence (40-120 chars ideal)
+  function extractRoastHook(roast: string): string {
+    if (!roast) return '';
+    const sentences = roast.split(/[.!?—]/).map(s => s.replace(/^["'\s]+/, '').trim()).filter(s => s.length > 30);
+    if (!sentences.length) return roast.slice(0, 120);
+    const sorted = [...sentences].sort((a, b) => a.length - b.length);
+    const best = sorted.find(s => s.length >= 40 && s.length <= 120) || sentences[0];
+    return best.length > 140 ? best.slice(0, 137) + '...' : best;
+  }
+
+  // Format headline for display (max 18 words)
+  function formatHeadline(headline: string): string {
+    if (!headline) return '';
+    if (headline.length <= 120) return headline;
+    return headline.split(' ').slice(0, 18).join(' ') + '...';
+  }
+
+  const roastHook = extractRoastHook(topRoast);
+  const afterHeadline = formatHeadline(rewrittenHeadline || closingCompliment || '');
 
   return (
     <div style={{ width: 1200, height: 630, display: 'flex', flexDirection: 'column', background: '#F3F2EF', fontFamily: 'Inter' }}>
@@ -117,13 +132,13 @@ function CardDesign({ beforeScore, afterScore, topRoast, closingCompliment }: Om
           {/* Roast box */}
           <div style={{ background: 'white', borderLeft: '5px solid #E16B00', borderRadius: '0 12px 12px 0', padding: '14px 20px', display: 'flex', flexDirection: 'column' }}>
             <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: '#E16B00', marginBottom: 9, display: 'flex' }}>AI SAID THIS</div>
-            <div style={{ fontSize: 16, fontStyle: 'italic', color: '#191919', lineHeight: 1.7, fontWeight: 500, display: 'flex' }}>{truncateAtWord(topRoast, 180)}</div>
+            <div style={{ fontSize: 17, fontStyle: 'italic', color: '#191919', lineHeight: 1.6, fontWeight: 500, display: 'flex' }}>{roastHook}</div>
           </div>
 
-          {/* Fix box */}
+          {/* After rewrite box */}
           <div style={{ background: 'white', borderLeft: '5px solid #057642', borderRadius: '0 12px 12px 0', padding: '13px 20px', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: '#057642', marginBottom: 8, display: 'flex' }}>THE FIX</div>
-            <div style={{ fontSize: 15, color: '#444', lineHeight: 1.65, display: 'flex' }}>{truncateAtWord(closingCompliment, 160)}</div>
+            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: '#057642', marginBottom: 8, display: 'flex' }}>AFTER REWRITE</div>
+            <div style={{ fontSize: 15, color: '#057642', lineHeight: 1.55, fontWeight: 700, display: 'flex' }}>{afterHeadline}</div>
           </div>
 
           {/* Social proof */}
@@ -168,6 +183,7 @@ export async function generateAndUploadCard(data: CardData): Promise<string | nu
         secondRoast: data.secondRoast,
         hiddenStrength: data.hiddenStrength,
         closingCompliment: data.closingCompliment,
+        rewrittenHeadline: data.rewrittenHeadline,
         industry: data.industry,
       }),
       {
