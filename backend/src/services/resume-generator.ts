@@ -145,11 +145,14 @@ STRICT ATS RULES:
 7. Summary is 3-4 sentences maximum
 8. Skills grouped by category
 9. PAGE LENGTH RULES (CRITICAL):
-   - 2 or fewer jobs: MUST fit on 1 page. Use 3-4 bullets per job max. Keep summary to 2 sentences. Be concise.
-   - 3 jobs: Try to fit on 1 page. Use 3 bullets per job. If it won't fit, use 2 pages.
-   - 4+ jobs: Use 2 pages. Older roles get 2 bullets max.
+   - 2 or fewer jobs: MUST fit on 1 page. Use 3 bullets per job max. Summary: 2 sentences. Be very concise.
+   - 3 jobs: MUST fit on 1 page. Use 3 bullets per job. Summary: 2-3 sentences. Cut older role to 2 bullets if needed.
+   - 4+ jobs: Use 2 pages. Most recent 2 roles: 4 bullets. Older roles: 2 bullets max.
    - NEVER let 1-3 lines spill to a second page. Either cut content to fit 1 page or add enough for a proper 2nd page.
    - Skills section: comma-separated on 1-2 lines, not one skill per line.
+   - WORD LIMIT: For 1-page resumes, target 500-650 words total. Hard cap 750 words. Count everything: summary, bullets, skills, education.
+   - Each bullet: max 1.5 lines when printed (roughly 15-20 words). No 3-line bullets.
+   - Education: 1 line per entry (degree — institution — year). No descriptions unless PhD/research.
 10. Use exact company names and job titles from the LinkedIn data
 
 KEYWORD ANALYSIS:

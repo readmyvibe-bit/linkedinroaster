@@ -115,56 +115,106 @@ export default function ResumePreviewPage() {
       return;
     }
     const html = buildPrintHTML(resume.resume_data, templateId);
+    const PAGE_HEIGHT = 1123; // A4 at 96dpi
 
-    // Smart auto-fit: measure in hidden iframe, adjust if overflows 1 page
-    const iframe = document.createElement('iframe');
-    iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;height:1123px;border:none;visibility:hidden';
-    document.body.appendChild(iframe);
-    const iDoc = iframe.contentDocument || iframe.contentWindow?.document;
-    if (!iDoc) { document.body.removeChild(iframe); return; }
-    iDoc.open(); iDoc.write(html); iDoc.close();
+    // Measure content height in hidden iframe
+    function measure(testHtml: string): Promise<number> {
+      return new Promise(resolve => {
+        const f = document.createElement('iframe');
+        f.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;height:1123px;border:none;visibility:hidden';
+        document.body.appendChild(f);
+        const d = f.contentDocument || f.contentWindow?.document;
+        if (!d) { document.body.removeChild(f); resolve(0); return; }
+        d.open(); d.write(testHtml); d.close();
+        setTimeout(() => {
+          const h = d.body.scrollHeight;
+          document.body.removeChild(f);
+          resolve(h);
+        }, 200);
+      });
+    }
 
-    setTimeout(() => {
-      const PAGE_HEIGHT = 1123; // A4 at 96dpi
-      const body = iDoc.body;
-      const contentHeight = body.scrollHeight;
-      const overflow = contentHeight - PAGE_HEIGHT;
+    (async () => {
+      // Pass 1: measure original
+      const height1 = await measure(html);
+      const overflow1 = height1 - PAGE_HEIGHT;
 
-      let adjustedHtml = html;
-
-      // If overflow is small (1-5 lines, roughly < 120px), shrink to fit
-      if (overflow > 0 && overflow < 150) {
-        // Reduce spacing and line-height to fit
-        const shrinkCSS = `
-          body{line-height:1.3!important}
-          div,p,span{line-height:1.3!important}
-          .entry{margin-bottom:6px!important}
-          [style*="margin-bottom"]{margin-bottom:4px!important}
-          [style*="padding"]{padding-top:2px!important;padding-bottom:2px!important}
-          [style*="margin-top: 20"],[style*="margin-top:20"]{margin-top:12px!important}
-          [style*="margin-top: 28"],[style*="margin-top:28"]{margin-top:16px!important}
-          [style*="margin-bottom: 16"],[style*="margin-bottom:16"]{margin-bottom:8px!important}
-          [style*="margin-bottom: 18"],[style*="margin-bottom:18"]{margin-bottom:10px!important}
-          [style*="padding: 24"],[style*="padding:24"]{padding:16px!important}
-          [style*="padding: 32"],[style*="padding:32"]{padding:20px!important}
-        `;
-        adjustedHtml = html.replace('</style>', shrinkCSS + '</style>');
+      // If fits or intentionally 2 pages (large overflow), use as-is
+      if (overflow1 <= 0 || overflow1 > 250) {
+        const win = window.open('', '_blank');
+        if (!win) { alert('Please allow popups to download PDF.'); return; }
+        win.document.write(html);
+        win.document.close();
+        win.document.title = ' ';
+        setTimeout(() => win.print(), 600);
+        return;
       }
-      // If overflow is large (>150px), let it flow to page 2 naturally
-      // No adjustment needed — proper @page margins handle it
 
-      document.body.removeChild(iframe);
+      // Pass 2: tiered shrink based on overflow amount
+      let shrinkCSS = '';
+      if (overflow1 <= 80) {
+        // Light shrink (1-3 lines overflow)
+        shrinkCSS = `
+          body,div,p,span,li{line-height:1.35!important}
+          [style*="margin-bottom"]{margin-bottom:3px!important}
+          [style*="margin-top: 2"],[style*="margin-top:2"]{margin-top:12px!important}
+          [style*="padding: 24"],[style*="padding:24"]{padding:16px!important}
+          [style*="padding: 32"],[style*="padding:32"]{padding:22px!important}
+        `;
+      } else if (overflow1 <= 160) {
+        // Medium shrink (3-6 lines overflow)
+        shrinkCSS = `
+          body,div,p,span,li{line-height:1.25!important}
+          [style*="margin-bottom"]{margin-bottom:2px!important}
+          [style*="margin-top"]{margin-top:4px!important}
+          [style*="padding: 24"],[style*="padding:24"]{padding:12px!important}
+          [style*="padding: 32"],[style*="padding:32"]{padding:16px!important}
+          [style*="padding: 20"],[style*="padding:20"]{padding:12px!important}
+          [style*="gap: 1"],[style*="gap:1"]{gap:4px!important}
+          h1,h2,h3{margin-bottom:2px!important;margin-top:4px!important}
+        `;
+      } else {
+        // Aggressive shrink (6-8 lines overflow)
+        shrinkCSS = `
+          body,div,p,span,li{line-height:1.2!important;font-size:calc(1em - 0.3px)!important}
+          [style*="margin-bottom"]{margin-bottom:1px!important}
+          [style*="margin-top"]{margin-top:2px!important}
+          [style*="padding: 24"],[style*="padding:24"]{padding:8px!important}
+          [style*="padding: 32"],[style*="padding:32"]{padding:10px!important}
+          [style*="padding: 20"],[style*="padding:20"]{padding:8px!important}
+          [style*="gap"]{gap:2px!important}
+          h1,h2,h3{margin-bottom:1px!important;margin-top:2px!important}
+          ul,ol{margin:0!important;padding-left:14px!important}
+        `;
+      }
 
-      // Open in new tab for print-to-PDF
+      let adjustedHtml = html.replace('</style>', shrinkCSS + '</style>');
+
+      // Pass 3: re-measure after shrink
+      const height2 = await measure(adjustedHtml);
+      const overflow2 = height2 - PAGE_HEIGHT;
+
+      // If still overflows after shrink, apply nuclear pass
+      if (overflow2 > 0 && overflow2 <= 120) {
+        const nuclearCSS = `
+          body,div,p,span,li{line-height:1.15!important}
+          [style*="margin"]{margin:1px 0!important}
+          [style*="padding"]{padding:4px!important}
+          [style*="gap"]{gap:1px!important}
+          h1,h2,h3{margin:0!important}
+          ul,ol{margin:0!important;padding-left:12px!important}
+        `;
+        adjustedHtml = adjustedHtml.replace('</style>', nuclearCSS + '</style>');
+      }
+      // If still > 120px overflow after nuclear, let it be 2 pages — content is genuinely long
+
       const win = window.open('', '_blank');
       if (!win) { alert('Please allow popups to download PDF.'); return; }
       win.document.write(adjustedHtml);
       win.document.close();
       win.document.title = ' ';
-      setTimeout(() => {
-        win.print();
-      }, 600);
-    }, 300);
+      setTimeout(() => win.print(), 600);
+    })();
   }
 
   function handleDownloadCoverLetterPDF() {
