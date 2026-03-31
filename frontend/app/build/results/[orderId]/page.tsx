@@ -172,6 +172,11 @@ export default function BuildResultsPage() {
   return (
     <main style={{ fontFamily: "'Inter', system-ui, sans-serif", background: '#F3F2EF', minHeight: '100vh', padding: '20px' }}>
       <div style={{ maxWidth: 760, margin: '0 auto' }}>
+        {/* Dashboard link */}
+        <div style={{ marginBottom: 12 }}>
+          <a href="/dashboard" style={{ fontSize: 13, color: '#0A66C2', textDecoration: 'none', fontWeight: 600 }}>&larr; My Dashboard</a>
+        </div>
+
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <a href="/build" style={{ textDecoration: 'none' }}>

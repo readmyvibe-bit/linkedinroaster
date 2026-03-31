@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -120,7 +120,6 @@ function LoginForm({ onLogin }: { onLogin: (email: string) => void }) {
 
 // ─── Dashboard Content ───
 function DashboardContent({ email, onLogout }: { email: string; onLogout: () => void }) {
-  const router = useRouter();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<'all' | 'roasts' | 'builds' | 'resumes'>('all');
@@ -216,7 +215,7 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
             {tab === 'all' && <h2 style={{ fontSize: 16, fontWeight: 700, color: '#191919', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><span>&#128293;</span> LinkedIn Roasts</h2>}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 }}>
               {roasts.map((o: any) => (
-                <div key={o.id} onClick={() => router.push(`/results/${o.id}`)}
+                <div key={o.id} onClick={() => window.open(`/results/${o.id}`, '_blank')}
                   style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, padding: '18px 20px', cursor: 'pointer', transition: 'box-shadow 0.2s' }}
                   onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)')}
                   onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}>
@@ -250,7 +249,7 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
             {tab === 'all' && <h2 style={{ fontSize: 16, fontWeight: 700, color: '#191919', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><span>&#128187;</span> LinkedIn Profile Builds</h2>}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 }}>
               {builds.map((o: any) => (
-                <div key={o.id} onClick={() => router.push(`/build/results/${o.id}`)}
+                <div key={o.id} onClick={() => window.open(`/build/results/${o.id}`, '_blank')}
                   style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, padding: '18px 20px', cursor: 'pointer', transition: 'box-shadow 0.2s' }}
                   onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)')}
                   onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}>
@@ -287,8 +286,8 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'space-between' }}>
                     <span style={{ fontSize: 13, fontWeight: 700, color: r.atsScore >= 80 ? '#057642' : r.atsScore >= 60 ? '#0A66C2' : '#E16B00' }}>ATS: {r.atsScore}%</span>
                     <div style={{ display: 'flex', gap: 6 }}>
-                      <a href={`/resume/${r.id}`} onClick={e => e.stopPropagation()} style={{ fontSize: 12, color: '#0A66C2', fontWeight: 600, textDecoration: 'none' }}>View</a>
-                      <a href={`/resume/${r.id}/edit`} onClick={e => e.stopPropagation()} style={{ fontSize: 12, color: '#057642', fontWeight: 600, textDecoration: 'none' }}>Edit</a>
+                      <a href={`/resume/${r.id}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize: 12, color: '#0A66C2', fontWeight: 600, textDecoration: 'none' }}>View</a>
+                      <a href={`/resume/${r.id}/edit`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize: 12, color: '#057642', fontWeight: 600, textDecoration: 'none' }}>Edit</a>
                     </div>
                   </div>
                 </div>

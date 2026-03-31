@@ -512,6 +512,15 @@ export default function ResumePreviewPage() {
           >
             Back to Results
           </a>
+          <a
+            href="/dashboard"
+            style={{
+              display: 'inline-block', padding: '10px 24px', background: '#0A66C2', color: 'white',
+              borderRadius: 24, fontSize: 14, fontWeight: 600, textDecoration: 'none',
+            }}
+          >
+            My Dashboard
+          </a>
         </div>
       </div>
     </div>

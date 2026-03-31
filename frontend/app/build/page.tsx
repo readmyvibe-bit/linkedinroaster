@@ -68,9 +68,14 @@ export default function BuildLandingPage() {
             <span style={{ fontSize: 20, fontWeight: 800, color: '#0A66C2' }}>Profile</span>
             <span style={{ fontSize: 20, fontWeight: 800, color: '#191919' }}>Roaster</span>
           </a>
-          <a href="/" style={{ fontSize: 13, color: '#0A66C2', textDecoration: 'none', fontWeight: 600 }}>
-            Already have LinkedIn? Get Roasted &rarr;
-          </a>
+          <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+            <a href="/" target="_blank" rel="noreferrer" style={{ fontSize: 13, color: '#0A66C2', textDecoration: 'none', fontWeight: 600 }}>
+              Get Roasted &rarr;
+            </a>
+            <a href="/dashboard" style={{ fontSize: 13, color: '#666', textDecoration: 'none', fontWeight: 600 }}>
+              Dashboard
+            </a>
+          </div>
         </div>
       </header>
 

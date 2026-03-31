@@ -2301,8 +2301,13 @@ export default function ResultsPage() {
   return (
     <main className="min-h-screen pb-16">
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 16px' }}>
+        {/* Dashboard link */}
+        <div className="pt-4 pb-0" style={{ maxWidth: 672, margin: '0 auto' }}>
+          <a href="/dashboard" style={{ fontSize: 13, color: '#0A66C2', textDecoration: 'none', fontWeight: 600 }}>&larr; My Dashboard</a>
+        </div>
+
         {/* Header stays full width above */}
-        <div className="pt-8 pb-4 text-center" style={{ maxWidth: 672, margin: '0 auto' }}>
+        <div className="pt-4 pb-4 text-center" style={{ maxWidth: 672, margin: '0 auto' }}>
           <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--li-text-primary)' }}>
             {roast.roast_title}
           </h1>
