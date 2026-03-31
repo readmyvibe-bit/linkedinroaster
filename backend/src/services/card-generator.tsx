@@ -77,7 +77,7 @@ function CardDesign({ beforeScore, afterScore, topRoast, closingCompliment, rewr
 
       {/* ── Header 64px ── */}
       <div style={{ height: 64, background: '#004182', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 44px' }}>
-        <div style={{ fontSize: 17, fontWeight: 700, color: 'white', letterSpacing: 1, display: 'flex' }}>WHY THIS PROFILE GETS IGNORED</div>
+        <div style={{ fontSize: 17, fontWeight: 700, color: 'white', letterSpacing: 1, display: 'flex' }}>LINKEDIN PROFILE TRANSFORMATION</div>
         <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', display: 'flex' }}>profileroaster.in</div>
       </div>
 
@@ -126,31 +126,31 @@ function CardDesign({ beforeScore, afterScore, topRoast, closingCompliment, rewr
           </div>
         </div>
 
-        {/* RIGHT PANEL — 64% */}
+        {/* RIGHT PANEL — 64% — Compliment only */}
         <div style={{ width: '64%', background: '#F3F2EF', padding: '18px 30px', display: 'flex', flexDirection: 'column', gap: 10, justifyContent: 'center' }}>
 
-          {/* Roast box */}
-          <div style={{ background: 'white', borderLeft: '5px solid #E16B00', borderRadius: '0 12px 12px 0', padding: '14px 20px', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: '#E16B00', marginBottom: 9, display: 'flex' }}>AI SAID THIS</div>
-            <div style={{ fontSize: 17, fontStyle: 'italic', color: '#191919', lineHeight: 1.6, fontWeight: 500, display: 'flex' }}>{roastHook}</div>
+          {/* Compliment box */}
+          <div style={{ background: 'white', borderLeft: '5px solid #057642', borderRadius: '0 12px 12px 0', padding: '18px 24px', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: '#057642', marginBottom: 10, display: 'flex' }}>WHAT AI LOVED ABOUT THIS PROFILE</div>
+            <div style={{ fontSize: 18, color: '#191919', lineHeight: 1.6, fontWeight: 600, display: 'flex' }}>{closingCompliment}</div>
           </div>
 
-          {/* After rewrite box */}
-          <div style={{ background: 'white', borderLeft: '5px solid #057642', borderRadius: '0 12px 12px 0', padding: '13px 20px', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: '#057642', marginBottom: 8, display: 'flex' }}>AFTER REWRITE</div>
-            <div style={{ fontSize: 15, color: '#057642', lineHeight: 1.55, fontWeight: 700, display: 'flex' }}>{afterHeadline}</div>
+          {/* Rewritten headline */}
+          <div style={{ background: 'white', borderLeft: '5px solid #0A66C2', borderRadius: '0 12px 12px 0', padding: '14px 20px', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: '#0A66C2', marginBottom: 8, display: 'flex' }}>NEW HEADLINE</div>
+            <div style={{ fontSize: 15, color: '#0A66C2', lineHeight: 1.55, fontWeight: 700, display: 'flex' }}>{afterHeadline}</div>
           </div>
 
           {/* Social proof */}
-          <div style={{ background: '#FEF9F0', border: '1.5px solid #F59E0B', borderRadius: 8, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ background: '#F0FDF4', border: '1.5px solid #BBF7D0', borderRadius: 8, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E', display: 'flex' }} />
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#111827', display: 'flex' }}>500+ professionals improved their LinkedIn this week</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#057642', display: 'flex' }}>500+ professionals improved their LinkedIn this week</div>
           </div>
 
           {/* CTA box */}
           <div style={{ background: '#0A66C2', borderRadius: 10, padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: 'white', display: 'flex' }}>Check your LinkedIn score</div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: 'white', display: 'flex' }}>Get your LinkedIn score</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 2, display: 'flex' }}>profileroaster.in</div>
             </div>
             <div style={{ fontSize: 30, color: 'white', display: 'flex' }}>{'\u2192'}</div>
@@ -160,7 +160,7 @@ function CardDesign({ beforeScore, afterScore, topRoast, closingCompliment, rewr
 
       {/* ── Footer 48px ── */}
       <div style={{ height: 48, background: '#004182', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 44px' }}>
-        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', fontWeight: 700, display: 'flex' }}>This is why recruiters finally started replying</div>
+        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', fontWeight: 700, display: 'flex' }}>AI-powered LinkedIn optimization</div>
         <div style={{ fontSize: 16, fontWeight: 700, color: 'white', display: 'flex' }}>profileroaster.in</div>
         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', display: 'flex' }}>#LinkedInRoast</div>
       </div>

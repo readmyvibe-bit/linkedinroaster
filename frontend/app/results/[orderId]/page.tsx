@@ -2382,9 +2382,10 @@ export default function ResultsPage() {
   function handleShareLinkedIn() { window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://profileroaster.in')}`, '_blank'); }
   function handleShareWhatsApp() { window.open(`https://wa.me/?text=${encodeURIComponent(`My LinkedIn profile went from ${scores.before.overall} to ${scores.after.overall}! Get yours roasted: profileroaster.in`)}`, '_blank'); }
   function handleDownloadCard() {
-    // Download roast card PNG (3 roasts + closing compliment) from server
-    const url = `${API_URL}/api/roast-card/${orderId}`;
-    fetch(url)
+    const cardUrl = results.card_image_url;
+    if (!cardUrl) { alert('Card not ready yet. Please try again in a moment.'); return; }
+    // Download existing shareable card PNG
+    fetch(cardUrl, { mode: 'cors' })
       .then(r => {
         if (!r.ok) throw new Error('Failed');
         return r.blob();
@@ -2393,13 +2394,16 @@ export default function ResultsPage() {
         const blobUrl = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = blobUrl;
-        a.download = `roast-card-${scores.before.overall}-to-${scores.after.overall}.png`;
+        a.download = `profileroaster-${scores.before.overall}-to-${scores.after.overall}.png`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(blobUrl);
       })
-      .catch(() => { alert('Could not generate roast card. Please try again.'); });
+      .catch(() => {
+        // Fallback: open in new tab for manual save
+        window.open(cardUrl, '_blank');
+      });
   }
 
   return (
@@ -2619,7 +2623,7 @@ export default function ResultsPage() {
           <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
             <button onClick={handleShareLinkedIn} style={{ flex: 1, padding: '10px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 10, fontSize: 13, fontWeight: 600, color: '#0A66C2', cursor: 'pointer' }}>Share on LinkedIn</button>
             <button onClick={handleShareWhatsApp} style={{ flex: 1, padding: '10px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 10, fontSize: 13, fontWeight: 600, color: '#057642', cursor: 'pointer' }}>WhatsApp</button>
-            <button onClick={handleDownloadCard} style={{ flex: 1, padding: '10px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 10, fontSize: 13, fontWeight: 600, color: '#666', cursor: 'pointer' }}>Roast Card</button>
+            <button onClick={handleDownloadCard} style={{ flex: 1, padding: '10px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 10, fontSize: 13, fontWeight: 600, color: '#666', cursor: 'pointer' }}>Download Card</button>
           </div>
         </div>
 
@@ -2655,7 +2659,7 @@ export default function ResultsPage() {
                   &#128279; Share Roast
                 </button>
                 <button onClick={handleDownloadCard} style={{ width: '100%', padding: '8px 12px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'left' }}>
-                  &#128293; Roast Card
+                  &#11015; Download Card
                 </button>
               </div>
             </div>
