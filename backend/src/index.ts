@@ -230,6 +230,33 @@ app.post('/api/webhooks/razorpay', async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/roast-card/:orderId — generate roast card PNG on the fly
+app.get('/api/roast-card/:orderId', async (req: Request, res: Response) => {
+  try {
+    const { generateRoastCardPng } = require('./services/card-generator');
+    const result = await query('SELECT roast, before_score, after_score FROM orders WHERE id=$1', [req.params.orderId]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Order not found' });
+    const order = result.rows[0];
+    if (!order.roast) return res.status(400).json({ error: 'No roast data' });
+
+    const points = (order.roast.roast_points || []).slice(0, 3);
+    const roasts = points.map((p: any) => ({ section: p.section_targeted, text: p.roast }));
+    const png = await generateRoastCardPng(
+      order.before_score?.overall || 0,
+      order.after_score?.overall || 0,
+      roasts,
+      order.roast.closing_compliment || '',
+    );
+
+    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Content-Disposition', `attachment; filename="roast-card-${req.params.orderId.slice(0, 8)}.png"`);
+    res.send(png);
+  } catch (err: any) {
+    console.error('Roast card error:', err.message);
+    res.status(500).json({ error: 'Failed to generate roast card' });
+  }
+});
+
 // GET /api/health
 app.get('/api/health', async (_req: Request, res: Response) => {
   try {

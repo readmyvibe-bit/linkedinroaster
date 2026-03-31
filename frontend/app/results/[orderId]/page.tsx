@@ -2382,23 +2382,24 @@ export default function ResultsPage() {
   function handleShareLinkedIn() { window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://profileroaster.in')}`, '_blank'); }
   function handleShareWhatsApp() { window.open(`https://wa.me/?text=${encodeURIComponent(`My LinkedIn profile went from ${scores.before.overall} to ${scores.after.overall}! Get yours roasted: profileroaster.in`)}`, '_blank'); }
   function handleDownloadCard() {
-    // Download the existing shareable card PNG (has 1 roast + closing compliment)
-    const cardUrl = results.card_image_url;
-    if (!cardUrl) { alert('Card not generated yet. Please try again later.'); return; }
-    // Force download via fetch + blob
-    fetch(cardUrl)
-      .then(r => r.blob())
+    // Download roast card PNG (3 roasts + closing compliment) from server
+    const url = `${API_URL}/api/roast-card/${orderId}`;
+    fetch(url)
+      .then(r => {
+        if (!r.ok) throw new Error('Failed');
+        return r.blob();
+      })
       .then(blob => {
-        const url = URL.createObjectURL(blob);
+        const blobUrl = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url;
-        a.download = `linkedin-roast-${scores.before.overall}-to-${scores.after.overall}.png`;
+        a.href = blobUrl;
+        a.download = `roast-card-${scores.before.overall}-to-${scores.after.overall}.png`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        URL.revokeObjectURL(blobUrl);
       })
-      .catch(() => { window.open(cardUrl, '_blank'); });
+      .catch(() => { alert('Could not generate roast card. Please try again.'); });
   }
 
   return (

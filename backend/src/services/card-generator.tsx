@@ -371,3 +371,64 @@ export async function generateAndUploadRoastSheet(data: RoastSheetData): Promise
     return null;
   }
 }
+
+// ═══════════════════════════════════════════
+// Roast Card — 3 roasts + closing compliment PNG
+// ═══════════════════════════════════════════
+export async function generateRoastCardPng(
+  beforeScore: number, afterScore: number,
+  roasts: Array<{ section: string; text: string }>,
+  closingCompliment: string,
+): Promise<Buffer> {
+  const fonts = await getFonts();
+  const h = React.createElement;
+  const improvement = afterScore - beforeScore;
+  const trunc = (t: string, max: number) => t.length > max ? t.slice(0, max - 3) + '...' : t;
+
+  const element = h('div', { style: { width: 1200, height: 630, display: 'flex', flexDirection: 'column', fontFamily: 'Inter' } },
+    h('div', { style: { height: 56, background: '#004182', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px' } },
+      h('div', { style: { fontSize: 16, fontWeight: 700, color: 'white', letterSpacing: 1, display: 'flex' } }, 'AI ROASTED THIS PROFILE'),
+      h('div', { style: { fontSize: 12, color: 'rgba(255,255,255,0.4)', display: 'flex' } }, 'profileroaster.in'),
+    ),
+    h('div', { style: { height: 4, background: '#E16B00', display: 'flex' } }),
+    h('div', { style: { flex: 1, display: 'flex' } },
+      h('div', { style: { width: '28%', background: 'white', borderRight: '1px solid #E0E0E0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '16px' } },
+        h('div', { style: { fontSize: 9, fontWeight: 700, letterSpacing: 3, color: '#9CA3AF', display: 'flex' } }, 'PROFILE SCORE'),
+        h('div', { style: { fontSize: 42, fontWeight: 700, color: '#CC1016', lineHeight: 1, display: 'flex' } }, String(beforeScore)),
+        h('div', { style: { fontSize: 9, fontWeight: 700, color: '#CC1016', letterSpacing: 2, display: 'flex' } }, 'BEFORE'),
+        h('div', { style: { fontSize: 18, color: '#DDD', display: 'flex' } }, '\u2193'),
+        h('div', { style: { fontSize: 70, fontWeight: 700, color: '#057642', lineHeight: 1, display: 'flex' } }, String(afterScore)),
+        h('div', { style: { fontSize: 9, fontWeight: 700, color: '#057642', letterSpacing: 2, display: 'flex' } }, 'AFTER'),
+        h('div', { style: { background: '#16A34A', color: 'white', fontSize: 18, fontWeight: 700, padding: '6px 20px', borderRadius: 50, marginTop: 4, display: 'flex' } }, `+${improvement} pts`),
+      ),
+      h('div', { style: { width: '72%', background: '#F3F2EF', padding: '14px 28px', display: 'flex', flexDirection: 'column', gap: 7, justifyContent: 'center' } },
+        ...roasts.slice(0, 3).map((r, i) =>
+          h('div', { key: String(i), style: { background: 'white', borderLeft: '4px solid #E16B00', borderRadius: '0 10px 10px 0', padding: '10px 16px', display: 'flex', flexDirection: 'column' } },
+            h('div', { style: { fontSize: 8, fontWeight: 700, letterSpacing: 2, color: '#E16B00', marginBottom: 4, display: 'flex' } }, `ROAST #${i + 1} \u2014 ${r.section.toUpperCase()}`),
+            h('div', { style: { fontSize: 13, fontStyle: 'italic', color: '#191919', lineHeight: 1.5, fontWeight: 500, display: 'flex' } }, `"${trunc(r.text, 130)}"`),
+          )
+        ),
+        h('div', { style: { background: 'white', borderLeft: '4px solid #057642', borderRadius: '0 10px 10px 0', padding: '10px 16px', display: 'flex', flexDirection: 'column' } },
+          h('div', { style: { fontSize: 8, fontWeight: 700, letterSpacing: 2, color: '#057642', marginBottom: 4, display: 'flex' } }, 'BUT HONESTLY...'),
+          h('div', { style: { fontSize: 13, color: '#057642', lineHeight: 1.5, fontWeight: 600, display: 'flex' } }, trunc(closingCompliment, 140)),
+        ),
+      ),
+    ),
+    h('div', { style: { height: 44, background: '#004182', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px' } },
+      h('div', { style: { fontSize: 12, color: 'rgba(255,255,255,0.7)', fontWeight: 700, display: 'flex' } }, 'Get YOUR LinkedIn roasted in 60 seconds'),
+      h('div', { style: { fontSize: 14, fontWeight: 700, color: 'white', display: 'flex' } }, 'profileroaster.in'),
+      h('div', { style: { fontSize: 10, color: 'rgba(255,255,255,0.35)', display: 'flex' } }, '#LinkedInRoast'),
+    ),
+  );
+
+  const svg = await satori(element, {
+    width: 1200, height: 630,
+    fonts: [
+      { name: 'Inter', data: fonts.regular, weight: 400, style: 'normal' },
+      { name: 'Inter', data: fonts.bold, weight: 700, style: 'normal' },
+    ],
+  });
+
+  const resvg = new Resvg(svg, { fitTo: { mode: 'zoom', value: 3 } });
+  return Buffer.from(resvg.render().asPng());
+}
