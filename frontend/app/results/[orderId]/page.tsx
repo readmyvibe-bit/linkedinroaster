@@ -1873,39 +1873,76 @@ function ErrorState({ type, onRetry }: { type: string; onRetry?: () => void }) {
 // ═══════════════════════════════════════════
 
 function ResultsNavColumn() {
-  return (
-    <div style={{ position: 'sticky', top: 80, display: 'flex', flexDirection: 'column', gap: 0 }}>
-      <div style={{ fontSize: 10, fontWeight: 700, color: '#999', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>YOUR RESULTS</div>
-      {[
-        { id: 'score-section', label: 'Score', icon: '📊' },
-        { id: 'roast-section', label: 'Roast (6 pts)', icon: '🔥' },
-        { id: 'strength-section', label: 'Your Strength', icon: '💪' },
-        { id: 'rewrite-section', label: 'Rewrite', icon: '✍️' },
-        { id: 'resume-section', label: 'Resume Builder', icon: '📄' },
-        { id: 'share-section', label: 'Share & Earn', icon: '🎁' },
-      ].map((item) => (
-        <button
-          key={item.id}
-          onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            padding: '8px 12px', border: 'none', background: 'transparent',
-            cursor: 'pointer', borderRadius: 8, textAlign: 'left', width: '100%',
-            fontSize: 13, color: '#555', fontWeight: 500,
-            transition: 'all 0.15s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = '#F0F7FF'; e.currentTarget.style.color = '#0A66C2'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#555'; }}
-        >
-          <span style={{ fontSize: 14 }}>{item.icon}</span>
-          {item.label}
-        </button>
-      ))}
+  const navItems = [
+    { id: 'score-section', label: 'Score', icon: '📊' },
+    { id: 'roast-section', label: 'Roast (6 pts)', icon: '🔥' },
+    { id: 'strength-section', label: 'Your Strength', icon: '💪' },
+    { id: 'rewrite-section', label: 'Rewrite', icon: '✍️' },
+    { id: 'resume-section', label: 'Resume Builder', icon: '📄' },
+    { id: 'share-section', label: 'Share & Earn', icon: '🎁' },
+  ];
 
-      {/* Quick tip card below nav */}
-      <div style={{ marginTop: 16, background: 'white', borderRadius: 12, padding: '14px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-        <div style={{ fontSize: 10, fontWeight: 700, color: '#999', letterSpacing: 1, marginBottom: 6 }}>PRO TIP</div>
-        <div style={{ fontSize: 12, color: '#555', lineHeight: 1.5 }}>Copy your new headline first — it makes the biggest difference in recruiter views.</div>
+  const tips = [
+    { title: 'PRO TIP', text: 'Copy your new headline first — it makes the biggest difference in recruiter views.', color: '#0A66C2' },
+    { title: 'DID YOU KNOW', text: 'Recruiters spend 7.4 seconds on your profile. A strong headline buys you 3 more seconds.', color: '#057642' },
+    { title: 'LINKEDIN HACK', text: 'Profiles with numbers in the headline get 40% more clicks. Your rewrite has numbers.', color: '#E16B00' },
+    { title: 'CAREER TIP', text: '85% of jobs are filled through networking. Your LinkedIn IS your first impression.', color: '#0A66C2' },
+    { title: 'ROAST WISDOM', text: '"Results-driven" is LinkedIn for "I had no real numbers to share." Your rewrite fixes that.', color: '#E16B00' },
+    { title: 'ATS INSIGHT', text: 'ATS systems scan for exact keyword matches. Your rewrite includes industry-specific keywords.', color: '#057642' },
+  ];
+
+  const roastQuotes = [
+    { text: 'HR be like: "Culture fit nahi hai." Translation: Profile boring tha.', persona: 'HR Department' },
+    { text: 'Manager: "Yeh banda 5 saal se same headline use kar raha hai."', persona: 'Hiring Manager' },
+    { text: '"Dynamic professional" padh ke recruiter ne chai break le liya.', persona: 'The Recruiter' },
+    { text: 'Jab tak headline mein number nahi, recruiter ko interest nahi.', persona: 'Career Coach' },
+    { text: 'LinkedIn pe 500+ connections but 0 profile views. Sochne wali baat hai.', persona: 'Reality Check' },
+    { text: '"Looking for new opportunities" — bhai, opportunity bhi tujhe dhundh nahi pa rahi.', persona: 'The AI Roaster' },
+  ];
+
+  return (
+    <div>
+      {/* Sticky nav */}
+      <div style={{ position: 'sticky', top: 80, zIndex: 5 }}>
+        <div style={{ background: 'rgba(243,242,239,0.95)', backdropFilter: 'blur(8px)', borderRadius: 12, padding: '12px 8px' }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: '#999', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8, paddingLeft: 12 }}>YOUR RESULTS</div>
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                padding: '7px 12px', border: 'none', background: 'transparent',
+                cursor: 'pointer', borderRadius: 8, textAlign: 'left', width: '100%',
+                fontSize: 12, color: '#555', fontWeight: 500, transition: 'all 0.15s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#F0F7FF'; e.currentTarget.style.color = '#0A66C2'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#555'; }}
+            >
+              <span style={{ fontSize: 13 }}>{item.icon}</span>
+              {item.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Scrollable content below nav */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 16 }}>
+        {tips.map((tip, i) => (
+          <div key={i} style={{ background: 'white', borderRadius: 12, padding: '14px 16px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: tip.color, letterSpacing: 1, marginBottom: 5 }}>{tip.title}</div>
+            <div style={{ fontSize: 11, color: '#555', lineHeight: 1.55 }}>{tip.text}</div>
+          </div>
+        ))}
+
+        <div style={{ height: 1, background: '#E5E7EB', margin: '4px 0' }} />
+
+        {roastQuotes.map((q, i) => (
+          <div key={i} style={{ background: 'white', borderLeft: '3px solid #E16B00', borderRadius: '0 10px 10px 0', padding: '12px 14px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: '#E16B00', letterSpacing: 1, marginBottom: 4 }}>{q.persona.toUpperCase()}</div>
+            <div style={{ fontSize: 11, color: '#374151', lineHeight: 1.5, fontStyle: 'italic' }}>{q.text}</div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -1933,39 +1970,95 @@ function HinglishWisdomCard() {
 
 function ResultsContextColumn({ scores, isPro, orderId }: { scores: any; isPro: boolean; orderId: string }) {
   const improvement = scores.after.overall - scores.before.overall;
-
-  // Ranking
   const afterScore = scores.after.overall;
   const ranking = afterScore >= 80 ? 'Top 10%' : afterScore >= 70 ? 'Top 20%' : afterScore >= 60 ? 'Top 35%' : afterScore >= 50 ? 'Top 50%' : 'Improving';
 
+  const socialProof = [
+    { name: 'Rahul S.', role: 'MBA, Delhi', before: 22, after: 71, quote: '3 recruiter messages in 1 week' },
+    { name: 'Priya M.', role: 'Engineer, Bangalore', before: 28, after: 76, quote: 'Shortlisted at 2 MNCs' },
+    { name: 'Sneha R.', role: 'HR, Mumbai', before: 38, after: 84, quote: 'Best ₹299 on my career' },
+  ];
+
+  const facts = [
+    { stat: '7.4s', text: 'Avg time recruiter spends on a profile' },
+    { stat: '40%', text: 'More views with a strong headline' },
+    { stat: '6x', text: 'More messages with a complete profile' },
+    { stat: '85%', text: 'Jobs filled through LinkedIn networking' },
+  ];
+
   return (
-    <div style={{ position: 'sticky', top: 80, display: 'flex', flexDirection: 'column', gap: 14 }}>
-      {/* Score card */}
-      <div style={{ background: 'white', borderRadius: 14, padding: '18px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)', textAlign: 'center' }}>
-        <div style={{ fontSize: 10, fontWeight: 700, color: '#999', letterSpacing: 2, marginBottom: 8 }}>YOUR IMPROVEMENT</div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-          <span style={{ fontSize: 24, fontWeight: 800, color: '#CC1016' }}>{scores.before.overall}</span>
-          <span style={{ fontSize: 16, color: '#ccc' }}>→</span>
-          <span style={{ fontSize: 32, fontWeight: 800, color: '#057642' }}>{scores.after.overall}</span>
+    <div>
+      {/* Sticky top section */}
+      <div style={{ position: 'sticky', top: 80, zIndex: 5 }}>
+        <div style={{ background: 'rgba(243,242,239,0.95)', backdropFilter: 'blur(8px)', borderRadius: 14, padding: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Score */}
+          <div style={{ background: 'white', borderRadius: 12, padding: '14px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', textAlign: 'center' }}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: '#999', letterSpacing: 2, marginBottom: 6 }}>YOUR IMPROVEMENT</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              <span style={{ fontSize: 22, fontWeight: 800, color: '#CC1016' }}>{scores.before.overall}</span>
+              <span style={{ fontSize: 14, color: '#ccc' }}>&rarr;</span>
+              <span style={{ fontSize: 28, fontWeight: 800, color: '#057642' }}>{scores.after.overall}</span>
+            </div>
+            <div style={{ background: '#DCFCE7', color: '#057642', fontSize: 13, fontWeight: 800, padding: '3px 14px', borderRadius: 16, display: 'inline-block', marginTop: 6 }}>+{improvement} pts</div>
+          </div>
+          {/* Ranking */}
+          <div style={{ background: afterScore >= 70 ? '#F0FDF4' : '#FEF9F0', border: `1px solid ${afterScore >= 70 ? '#BBF7D0' : '#FDE8CD'}`, borderRadius: 10, padding: '10px 14px', textAlign: 'center' }}>
+            <div style={{ fontSize: 16, fontWeight: 800, color: afterScore >= 70 ? '#057642' : '#E16B00' }}>{ranking}</div>
+            <div style={{ fontSize: 10, color: '#888' }}>of LinkedIn profiles</div>
+          </div>
+          {/* Quick actions */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+            <a href={`/resume?orderId=${orderId}`} style={{ display: 'block', padding: '8px', background: '#0A66C2', borderRadius: 8, fontSize: 12, fontWeight: 600, color: 'white', textDecoration: 'none', textAlign: 'center' }}>Build ATS Resume</a>
+            <button onClick={() => document.getElementById('share-section')?.scrollIntoView({ behavior: 'smooth' })} style={{ padding: '8px', background: '#F0FDF4', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#057642', border: 'none', cursor: 'pointer' }}>Share &amp; Earn &#8377;50</button>
+          </div>
         </div>
-        <div style={{ background: '#DCFCE7', color: '#057642', fontSize: 14, fontWeight: 800, padding: '4px 16px', borderRadius: 20, display: 'inline-block', marginTop: 8 }}>+{improvement} pts</div>
       </div>
 
-      {/* Ranking badge */}
-      <div style={{ background: afterScore >= 70 ? '#F0FDF4' : '#FEF9F0', border: `1px solid ${afterScore >= 70 ? '#BBF7D0' : '#FDE8CD'}`, borderRadius: 12, padding: '12px 16px', textAlign: 'center' }}>
-        <div style={{ fontSize: 18, fontWeight: 800, color: afterScore >= 70 ? '#057642' : '#E16B00' }}>{ranking}</div>
-        <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>of LinkedIn profiles after rewrite</div>
-      </div>
+      {/* Scrollable content below */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 16 }}>
+        {/* Hinglish quote */}
+        <HinglishWisdomCard />
 
-      {/* Hinglish wisdom cards - rotate */}
-      <HinglishWisdomCard />
+        {/* Social proof cards */}
+        <div style={{ fontSize: 9, fontWeight: 700, color: '#999', letterSpacing: 2, textTransform: 'uppercase' }}>RECENT RESULTS</div>
+        {socialProof.map((p, i) => (
+          <div key={i} style={{ background: 'white', borderRadius: 12, padding: '14px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+              <div style={{ width: 30, height: 30, borderRadius: '50%', background: '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: '#666' }}>{p.name.charAt(0)}</div>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#191919' }}>{p.name}</div>
+                <div style={{ fontSize: 9, color: '#888' }}>{p.role}</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+              <span style={{ fontSize: 18, fontWeight: 800, color: '#CC1016' }}>{p.before}</span>
+              <span style={{ color: '#ddd' }}>&rarr;</span>
+              <span style={{ fontSize: 22, fontWeight: 800, color: '#057642' }}>{p.after}</span>
+              <span style={{ marginLeft: 'auto', background: '#DCFCE7', color: '#057642', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10 }}>+{p.after - p.before}</span>
+            </div>
+            <div style={{ fontSize: 10, color: '#666', fontStyle: 'italic', borderTop: '1px solid #F0F0F0', paddingTop: 6 }}>&ldquo;{p.quote}&rdquo;</div>
+          </div>
+        ))}
 
-      {/* Quick actions */}
-      <div style={{ background: 'white', borderRadius: 14, padding: '14px 16px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
-        <div style={{ fontSize: 10, fontWeight: 700, color: '#999', letterSpacing: 1, marginBottom: 8 }}>QUICK ACTIONS</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <a href={`/resume?orderId=${orderId}`} style={{ display: 'block', padding: '8px 12px', background: '#F0F7FF', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', textDecoration: 'none', textAlign: 'center' }}>Build ATS Resume</a>
-          <button onClick={() => document.getElementById('share-section')?.scrollIntoView({ behavior: 'smooth' })} style={{ padding: '8px 12px', background: '#F0FDF4', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#057642', border: 'none', cursor: 'pointer' }}>Share & Earn ₹50</button>
+        <div style={{ height: 1, background: '#E5E7EB', margin: '4px 0' }} />
+
+        {/* Did you know facts */}
+        <div style={{ fontSize: 9, fontWeight: 700, color: '#999', letterSpacing: 2, textTransform: 'uppercase' }}>DID YOU KNOW</div>
+        {facts.map((f, i) => (
+          <div key={i} style={{ background: 'white', borderRadius: 12, padding: '14px 16px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', textAlign: 'center' }}>
+            <div style={{ fontSize: 24, fontWeight: 800, color: '#0A66C2', lineHeight: 1 }}>{f.stat}</div>
+            <div style={{ fontSize: 10, color: '#666', marginTop: 4, lineHeight: 1.4 }}>{f.text}</div>
+          </div>
+        ))}
+
+        {/* 500+ stat */}
+        <div style={{ background: 'white', borderRadius: 12, padding: '14px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', textAlign: 'center' }}>
+          <div style={{ fontSize: 26, fontWeight: 800, color: '#0A66C2' }}>500+</div>
+          <div style={{ fontSize: 10, color: '#888' }}>Professionals improved their LinkedIn</div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 3, marginTop: 6 }}>
+            {[1,2,3,4,5].map(i => <div key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: i <= 4 ? '#057642' : '#E0E0E0' }} />)}
+          </div>
+          <div style={{ fontSize: 9, color: '#057642', fontWeight: 600, marginTop: 3 }}>4.8 avg rating</div>
         </div>
       </div>
     </div>
