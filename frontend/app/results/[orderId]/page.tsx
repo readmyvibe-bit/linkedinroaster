@@ -2181,6 +2181,11 @@ export default function ResultsPage() {
   const pollStartRef = useRef(Date.now());
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Hooks for results view (must be before any early returns)
+  const [copiedField, setCopiedField] = useState('');
+  const [showAllRoasts, setShowAllRoasts] = useState(false);
+  const [headlineTab, setHeadlineTab] = useState(0);
+
   const fetchOrder = useCallback(async () => {
     try {
       const res = await fetch(`${API_URL}/api/orders/${orderId}`);
@@ -2341,7 +2346,6 @@ export default function ResultsPage() {
   };
 
   // Copy handlers
-  const [copiedField, setCopiedField] = useState('');
   function handleCopy(text: string, field: string) { copyToClipboard(text); setCopiedField(field); setTimeout(() => setCopiedField(''), 2000); }
   function CopyBtn({ text, field }: { text: string; field: string }) {
     return <button onClick={() => handleCopy(text, field)} style={{ padding: '4px 14px', background: copiedField === field ? '#057642' : '#E8F0FE', color: copiedField === field ? 'white' : '#0A66C2', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>{copiedField === field ? 'Copied!' : 'Copy'}</button>;
@@ -2380,11 +2384,6 @@ export default function ResultsPage() {
   function handleDownloadCard() {
     if (results.card_image_url) window.open(results.card_image_url, '_blank');
   }
-
-  // Expanded roast state
-  const [showAllRoasts, setShowAllRoasts] = useState(false);
-  // Pro headline tab
-  const [headlineTab, setHeadlineTab] = useState(0);
 
   return (
     <main style={{ fontFamily: "'Inter', system-ui, sans-serif", background: '#F3F2EF', minHeight: '100vh', paddingBottom: 40 }}>
