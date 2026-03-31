@@ -289,20 +289,22 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
                   style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, padding: '18px 20px', transition: 'box-shadow 0.2s' }}
                   onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)')}
                   onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: '#191919', marginBottom: 4 }}>
-                    {r.targetRole}{r.targetCompany ? ` at ${r.targetCompany}` : ''}
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#191919', marginBottom: 2 }}>
+                    {r.targetRole}
                   </div>
-                  <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', marginBottom: 8 }}>
-                    <span style={{ fontSize: 11, color: '#888' }}>{r.templateId}</span>
-                    <span style={{ fontSize: 11, color: '#888' }}>&bull;</span>
+                  {r.targetCompany && (
+                    <div style={{ fontSize: 13, color: '#0A66C2', fontWeight: 600, marginBottom: 6 }}>{r.targetCompany.trim()}</div>
+                  )}
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', marginBottom: 10 }}>
                     <span style={{ fontSize: 11, color: '#888' }}>{new Date(r.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                    <span style={{ fontSize: 10, fontWeight: 600, color: '#666', background: '#F3F4F6', padding: '1px 6px', borderRadius: 4 }}>{r.templateId} template</span>
                     {r.hasCoverLetter && (
                       <span style={{ fontSize: 10, fontWeight: 600, color: '#057642', background: '#DCFCE7', padding: '1px 6px', borderRadius: 4 }}>Cover Letter</span>
                     )}
                   </div>
                   {r.jobDescription && (
-                    <div style={{ fontSize: 12, color: '#666', lineHeight: 1.5, marginBottom: 8, background: '#F9FAFB', borderRadius: 6, padding: '8px 10px', borderLeft: '3px solid #0A66C2' }}>
-                      <div style={{ fontSize: 10, fontWeight: 600, color: '#0A66C2', marginBottom: 2 }}>JOB DESCRIPTION</div>
+                    <div style={{ fontSize: 12, color: '#555', lineHeight: 1.5, marginBottom: 10, background: '#F9FAFB', borderRadius: 8, padding: '10px 12px', borderLeft: '3px solid #0A66C2' }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: '#0A66C2', marginBottom: 4, letterSpacing: 1 }}>JOB DESCRIPTION</div>
                       {r.jobDescription}{r.jobDescription.length >= 200 ? '...' : ''}
                     </div>
                   )}
