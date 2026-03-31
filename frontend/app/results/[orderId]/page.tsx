@@ -2382,79 +2382,23 @@ export default function ResultsPage() {
   function handleShareLinkedIn() { window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://profileroaster.in')}`, '_blank'); }
   function handleShareWhatsApp() { window.open(`https://wa.me/?text=${encodeURIComponent(`My LinkedIn profile went from ${scores.before.overall} to ${scores.after.overall}! Get yours roasted: profileroaster.in`)}`, '_blank'); }
   function handleDownloadCard() {
-    // Generate roast card matching the existing card theme
-    const r = top3Roasts;
-    const roastTexts = r.map(p => p.roast.length > 120 ? p.roast.slice(0, 117) + '...' : p.roast);
-    const html = `<!DOCTYPE html><html><head><style>
-      * { margin:0; padding:0; box-sizing:border-box; }
-      body { width:1200px; height:630px; font-family:Inter,system-ui,-apple-system,sans-serif; display:flex; flex-direction:column; }
-      .header { height:56px; background:#004182; display:flex; align-items:center; justify-content:space-between; padding:0 40px; }
-      .header-left { font-size:16px; font-weight:700; color:white; letter-spacing:1px; }
-      .header-right { font-size:12px; color:rgba(255,255,255,0.4); }
-      .accent { height:4px; background:#E16B00; }
-      .content { flex:1; display:flex; }
-      .left { width:30%; background:white; border-right:1px solid #E0E0E0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; gap:6px; }
-      .score-label { font-size:9px; font-weight:700; letter-spacing:3px; color:#9CA3AF; }
-      .before-score { font-size:44px; font-weight:700; color:#CC1016; line-height:1; }
-      .before-label { font-size:9px; font-weight:700; color:#CC1016; letter-spacing:2px; }
-      .arrow { font-size:18px; color:#DDD; }
-      .after-score { font-size:72px; font-weight:700; color:#057642; line-height:1; }
-      .after-label { font-size:9px; font-weight:700; color:#057642; letter-spacing:2px; }
-      .badge { background:#16A34A; color:white; font-size:20px; font-weight:700; padding:8px 24px; border-radius:50px; margin-top:4px; }
-      .right { width:70%; background:#F3F2EF; padding:16px 28px; display:flex; flex-direction:column; gap:8px; justify-content:center; }
-      .roast-card { background:white; border-left:4px solid #E16B00; border-radius:0 10px 10px 0; padding:12px 18px; }
-      .roast-label { font-size:9px; font-weight:700; letter-spacing:2px; color:#E16B00; margin-bottom:6px; }
-      .roast-text { font-size:14px; font-style:italic; color:#191919; line-height:1.5; font-weight:500; }
-      .cta { background:#0A66C2; border-radius:10px; padding:10px 18px; display:flex; align-items:center; justify-content:space-between; }
-      .cta-text { font-size:16px; font-weight:700; color:white; }
-      .cta-sub { font-size:11px; color:rgba(255,255,255,0.6); margin-top:2px; }
-      .cta-arrow { font-size:26px; color:white; }
-      .footer { height:44px; background:#004182; display:flex; align-items:center; justify-content:space-between; padding:0 40px; }
-      .footer-text { font-size:12px; color:rgba(255,255,255,0.7); font-weight:700; }
-      .footer-brand { font-size:14px; font-weight:700; color:white; }
-      .footer-tag { font-size:10px; color:rgba(255,255,255,0.35); }
-    </style></head><body>
-      <div class="header">
-        <div class="header-left">AI ROASTED THIS PROFILE</div>
-        <div class="header-right">profileroaster.in</div>
-      </div>
-      <div class="accent"></div>
-      <div class="content">
-        <div class="left">
-          <div class="score-label">PROFILE SCORE</div>
-          <div class="before-score">${scores.before.overall}</div>
-          <div class="before-label">BEFORE</div>
-          <div class="arrow">&#8595;</div>
-          <div class="after-score">${scores.after.overall}</div>
-          <div class="after-label">AFTER</div>
-          <div class="badge">+${improvement} pts</div>
-        </div>
-        <div class="right">
-          ${roastTexts.map((text, i) => `
-          <div class="roast-card">
-            <div class="roast-label">ROAST #${i + 1} — ${r[i].section_targeted.toUpperCase()}</div>
-            <div class="roast-text">"${text}"</div>
-          </div>`).join('')}
-          <div class="cta">
-            <div>
-              <div class="cta-text">Get YOUR LinkedIn roasted</div>
-              <div class="cta-sub">profileroaster.in</div>
-            </div>
-            <div class="cta-arrow">&#8594;</div>
-          </div>
-        </div>
-      </div>
-      <div class="footer">
-        <div class="footer-text">This is why recruiters finally started replying</div>
-        <div class="footer-brand">profileroaster.in</div>
-        <div class="footer-tag">#LinkedInRoast</div>
-      </div>
-    </body></html>`;
-    const win = window.open('', '_blank');
-    if (!win) return;
-    win.document.write(html);
-    win.document.close();
-    win.document.title = 'Roast Card — Right-click and Save Image';
+    // Download the existing shareable card PNG (has 1 roast + closing compliment)
+    const cardUrl = results.card_image_url;
+    if (!cardUrl) { alert('Card not generated yet. Please try again later.'); return; }
+    // Force download via fetch + blob
+    fetch(cardUrl)
+      .then(r => r.blob())
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `linkedin-roast-${scores.before.overall}-to-${scores.after.overall}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      })
+      .catch(() => { window.open(cardUrl, '_blank'); });
   }
 
   return (

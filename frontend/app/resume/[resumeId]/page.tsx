@@ -155,14 +155,28 @@ export default function ResumePreviewPage() {
 
       document.body.removeChild(iframe);
 
-      const win = window.open('', '_blank');
-      if (!win) return;
-      win.document.write(adjustedHtml);
-      win.document.close();
-      win.document.title = ' ';
+      // Use a visible iframe for printing — works on mobile and desktop
+      const printFrame = document.createElement('iframe');
+      printFrame.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:99999;background:white;';
+      document.body.appendChild(printFrame);
+      const pDoc = printFrame.contentDocument || printFrame.contentWindow?.document;
+      if (!pDoc) { document.body.removeChild(printFrame); return; }
+      pDoc.open();
+      pDoc.write(adjustedHtml);
+      pDoc.close();
+
       setTimeout(() => {
-        win.onafterprint = () => { win.close(); };
-        win.print();
+        try {
+          printFrame.contentWindow?.print();
+        } catch {
+          // Fallback: open in new tab if iframe print fails
+          const win = window.open('', '_blank');
+          if (win) { win.document.write(adjustedHtml); win.document.close(); win.document.title = ' '; setTimeout(() => win.print(), 600); }
+        }
+        // Remove iframe after print dialog closes
+        setTimeout(() => {
+          try { document.body.removeChild(printFrame); } catch {}
+        }, 2000);
       }, 600);
     }, 300);
   }
