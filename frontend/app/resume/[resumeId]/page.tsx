@@ -103,6 +103,8 @@ export default function ResumePreviewPage() {
   }, [resumeId]);
 
   const orderPlan = (resume as any)?.order_plan || 'standard';
+  const orderSource = (resume as any)?.order_source || 'roast';
+  const resultsUrl = orderSource === 'build' ? `/build/results/${resume?.order_id}` : `/results/${resume?.order_id}`;
   const currentTemplate = TEMPLATES.find(t => t.id === templateId);
   const isTemplateLocked = orderPlan !== 'pro' && (currentTemplate as any)?.proOnly;
 
@@ -291,7 +293,7 @@ export default function ResumePreviewPage() {
             Edit
           </a>
           <a
-            href={`/results/${resume.order_id}`}
+            href={resultsUrl}
             style={{
               padding: '6px 14px', background: '#fff', color: '#666', border: '1px solid #ccc',
               borderRadius: 16, fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
@@ -507,7 +509,7 @@ export default function ResumePreviewPage() {
             Generate Another Resume
           </a>
           <a
-            href={`/results/${resume.order_id}`}
+            href={resultsUrl}
             style={{
               display: 'inline-block', padding: '10px 24px', background: '#fff', color: '#666',
               border: '1px solid #999', borderRadius: 24, fontSize: 14, fontWeight: 600, textDecoration: 'none',

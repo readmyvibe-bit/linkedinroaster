@@ -263,7 +263,11 @@ router.get('/resumes/:orderId', async (req: Request, res: Response) => {
 // POST /api/admin/send-resume-email/:resumeId — send resume + cover letter via email
 router.post('/send-resume-email/:resumeId', async (req: Request, res: Response) => {
   try {
-    const result = await query('SELECT r.*, o.email as order_email FROM resumes r JOIN orders o ON r.order_id = o.id WHERE r.id=$1', [req.params.resumeId]);
+    // Check both orders and build_orders for the email
+    let result = await query('SELECT r.*, o.email as order_email FROM resumes r JOIN orders o ON r.order_id = o.id WHERE r.id=$1', [req.params.resumeId]);
+    if (!result.rows.length) {
+      result = await query('SELECT r.*, b.email as order_email FROM resumes r JOIN build_orders b ON r.order_id = b.id WHERE r.id=$1', [req.params.resumeId]);
+    }
     if (!result.rows.length) return res.status(404).json({ error: 'Resume not found' });
 
     const resume = result.rows[0];

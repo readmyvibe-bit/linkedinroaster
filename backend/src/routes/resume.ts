@@ -109,10 +109,14 @@ router.get('/:resumeId', async (req: Request, res: Response) => {
     const resume = result.rows[0];
     // Add plan info from order — check both orders and build_orders
     let orderResult = await query('SELECT plan FROM orders WHERE id=$1', [resume.order_id]);
-    if (!orderResult.rows.length) {
+    if (orderResult.rows.length) {
+      resume.order_plan = orderResult.rows[0].plan;
+      resume.order_source = 'roast';
+    } else {
       orderResult = await query('SELECT plan FROM build_orders WHERE id=$1', [resume.order_id]);
+      resume.order_plan = orderResult.rows[0]?.plan || 'standard';
+      resume.order_source = 'build';
     }
-    resume.order_plan = orderResult.rows[0]?.plan || 'standard';
     res.json(resume);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch resume' });
