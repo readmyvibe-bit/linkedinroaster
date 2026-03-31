@@ -582,6 +582,14 @@ export default function Home() {
               </p>
             )}
           </div>
+
+          {/* Don't have LinkedIn CTA */}
+          <div style={{ textAlign: 'center', marginTop: 14 }}>
+            <a href="/build" style={{ fontSize: 13, color: '#0A66C2', fontWeight: 600, textDecoration: 'none' }}>
+              Don{"'"}t have a LinkedIn profile yet? Build one from scratch &rarr;
+            </a>
+          </div>
+
           {rateLimited && (
             <div className="mt-3 p-4 rounded-lg text-sm" style={{ background: '#FEF3C7', border: '1px solid #F59E0B' }}>
               <p className="font-semibold mb-1" style={{ color: '#92400E' }}>

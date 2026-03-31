@@ -13,6 +13,7 @@ import { trackPaymentInitiated, trackPaymentCompleted, trackUpgradeCompleted } f
 import { startAllCrons } from './cron';
 import adminRouter from './routes/admin';
 import resumeRouter from './routes/resume';
+import buildRouter from './routes/build';
 import { generateAndUploadRoastSheet } from './services/card-generator';
 dotenv.config();
 
@@ -22,6 +23,7 @@ if (process.env.SENTRY_DSN) {
 }
 
 import { profileQueue, upgradeQueue } from './queue';
+import { buildQueue } from './queue/build-queue';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -104,6 +106,7 @@ function stripHtml(text: string | undefined): string | undefined {
 // --- Admin routes ---
 app.use('/api/admin', adminRouter);
 app.use('/api/resume', resumeRouter);
+app.use('/api/build', buildRouter);
 
 // ==================== ROUTES ====================
 
@@ -145,6 +148,23 @@ app.post('/api/webhooks/razorpay', async (req: Request, res: Response) => {
         await upgradeQueue.add('job', { order_id: originalOrderId });
         trackUpgradeCompleted(payment.notes?.email || 'unknown', originalOrderId);
         return res.json({ status: 'upgrade_queued' });
+      }
+
+      // ── BUILD ORDER PAYMENT ──
+      if (paymentType === 'build') {
+        const buildCheck = await query(
+          'SELECT payment_status FROM build_orders WHERE razorpay_order_id=$1',
+          [payment.order_id]);
+        if (buildCheck.rows[0]?.payment_status === 'paid')
+          return res.json({ status: 'already_processed' });
+
+        await query(
+          `UPDATE build_orders SET payment_status='paid', razorpay_payment_id=$1,
+           paid_at=NOW(), processing_status='queued' WHERE razorpay_order_id=$2`,
+          [payment.id, payment.order_id]);
+
+        await buildQueue.add('job', { razorpay_order_id: payment.order_id });
+        return res.json({ status: 'build_queued' });
       }
 
       // ── NEW ORDER PAYMENT ──
