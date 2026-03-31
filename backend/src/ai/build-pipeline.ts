@@ -252,7 +252,7 @@ export async function stage2_qualityCheck(
   formInput: BuildFormInput,
   profile: BuildResult,
 ): Promise<BuildQCResult> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
   const prompt = `You are a quality checker for AI-generated LinkedIn profiles.
 
