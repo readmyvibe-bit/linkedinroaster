@@ -1,0 +1,182 @@
+import { Router, Request, Response } from 'express';
+import crypto from 'crypto';
+import Redis from 'ioredis';
+import { Resend } from 'resend';
+import { query } from '../db';
+import { validateEmail } from '../lib/validation';
+
+const router = Router();
+const redis = new Redis(process.env.UPSTASH_REDIS_URL!);
+const resend = new Resend(process.env.RESEND_API_KEY || 'dummy_key');
+const FROM = `Profile Roaster <${process.env.FROM_EMAIL || 'support@profileroaster.in'}>`;
+
+// Session storage: token → { email, userId }
+const sessions = new Map<string, { email: string; userId: string; createdAt: number }>();
+const SESSION_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+function cleanSessions() {
+  for (const [k, v] of sessions) {
+    if (Date.now() - v.createdAt > SESSION_TTL) sessions.delete(k);
+  }
+}
+
+// Auth middleware
+function dashAuth(req: Request, res: Response, next: Function) {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Not logged in' });
+  const session = sessions.get(token);
+  if (!session || Date.now() - session.createdAt > SESSION_TTL) {
+    sessions.delete(token || '');
+    return res.status(401).json({ error: 'Session expired' });
+  }
+  (req as any).userEmail = session.email;
+  (req as any).userId = session.userId;
+  next();
+}
+
+// POST /api/dashboard/send-otp
+router.post('/send-otp', async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    if (!email || !validateEmail(email))
+      return res.status(400).json({ error: 'Invalid email' });
+
+    // Check if user has any orders
+    const hasOrders = await query(
+      `SELECT EXISTS(
+        SELECT 1 FROM orders WHERE email=$1 AND payment_status='paid'
+        UNION
+        SELECT 1 FROM build_orders WHERE email=$1 AND payment_status='paid'
+      ) as found`,
+      [email],
+    );
+    if (!hasOrders.rows[0].found)
+      return res.json({ found: false });
+
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    await redis.setex(`dash-otp:${email}`, 600, otp); // 10 min
+
+    // Send OTP email
+    await resend.emails.send({
+      from: FROM,
+      to: email,
+      subject: `Your login code: ${otp}`,
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:400px;margin:0 auto;padding:20px;text-align:center">
+          <h2 style="color:#191919;margin-bottom:8px">Dashboard Login</h2>
+          <p style="color:#666;font-size:14px;margin-bottom:20px">Your verification code is:</p>
+          <div style="font-size:32px;font-weight:700;letter-spacing:6px;color:#004182;margin-bottom:20px">${otp}</div>
+          <p style="color:#999;font-size:12px">Code expires in 10 minutes. Do not share this code.</p>
+        </div>
+      `,
+    });
+
+    res.json({ found: true });
+  } catch (err: any) {
+    console.error('Dashboard send-otp error:', err.message);
+    res.status(500).json({ error: 'Failed to send code' });
+  }
+});
+
+// POST /api/dashboard/verify-otp
+router.post('/verify-otp', async (req: Request, res: Response) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) return res.status(400).json({ error: 'Missing email or code' });
+
+    const stored = await redis.get(`dash-otp:${email}`);
+    if (!stored || stored !== otp)
+      return res.status(401).json({ error: 'Invalid or expired code' });
+
+    await redis.del(`dash-otp:${email}`);
+
+    // Upsert user
+    const result = await query(
+      `INSERT INTO users (email, last_login) VALUES ($1, NOW())
+       ON CONFLICT (email) DO UPDATE SET last_login=NOW()
+       RETURNING id`,
+      [email],
+    );
+    const userId = result.rows[0].id;
+
+    // Create session
+    cleanSessions();
+    const token = crypto.randomBytes(32).toString('hex');
+    sessions.set(token, { email, userId, createdAt: Date.now() });
+
+    res.json({ token, email, userId });
+  } catch (err: any) {
+    console.error('Dashboard verify-otp error:', err.message);
+    res.status(500).json({ error: 'Verification failed' });
+  }
+});
+
+// GET /api/dashboard/me — check session
+router.get('/me', dashAuth, (req: Request, res: Response) => {
+  res.json({ email: (req as any).userEmail, userId: (req as any).userId });
+});
+
+// GET /api/dashboard/data — all user data
+router.get('/data', dashAuth, async (req: Request, res: Response) => {
+  try {
+    const email = (req as any).userEmail;
+
+    // Roast orders
+    const roastOrders = await query(
+      `SELECT id, plan, payment_status, processing_status,
+              before_score->'overall' as before_score,
+              after_score->'overall' as after_score,
+              roast->'roast_title' as roast_title,
+              card_image_url, user_rating, created_at, processing_done_at
+       FROM orders WHERE email=$1 AND payment_status='paid'
+       ORDER BY created_at DESC`,
+      [email],
+    );
+
+    // Build orders
+    const buildOrders = await query(
+      `SELECT id, plan, payment_status, processing_status,
+              generated_profile->'headline_variations'->0->>'text' as headline,
+              user_rating, created_at, processing_done_at
+       FROM build_orders WHERE email=$1 AND payment_status='paid'
+       ORDER BY created_at DESC`,
+      [email],
+    );
+
+    // Resumes
+    const resumes = await query(
+      `SELECT r.id, r.order_id, r.target_role, r.target_company, r.template_id,
+              r.ats_score, r.created_at
+       FROM resumes r
+       JOIN orders o ON r.order_id = o.id
+       WHERE o.email=$1
+       ORDER BY r.created_at DESC`,
+      [email],
+    );
+
+    res.json({
+      roastOrders: roastOrders.rows.map((o: any) => ({
+        id: o.id, plan: o.plan, status: o.processing_status,
+        beforeScore: o.before_score, afterScore: o.after_score,
+        roastTitle: o.roast_title, cardImageUrl: o.card_image_url,
+        rating: o.user_rating, createdAt: o.created_at, completedAt: o.processing_done_at,
+      })),
+      buildOrders: buildOrders.rows.map((o: any) => ({
+        id: o.id, plan: o.plan, status: o.processing_status,
+        headline: o.headline, rating: o.user_rating,
+        createdAt: o.created_at, completedAt: o.processing_done_at,
+      })),
+      resumes: resumes.rows.map((r: any) => ({
+        id: r.id, orderId: r.order_id, targetRole: r.target_role,
+        targetCompany: r.target_company, templateId: r.template_id,
+        atsScore: r.ats_score, createdAt: r.created_at,
+      })),
+    });
+  } catch (err: any) {
+    console.error('Dashboard data error:', err.message);
+    res.status(500).json({ error: 'Failed to load dashboard' });
+  }
+});
+
+export default router;

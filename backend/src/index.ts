@@ -14,6 +14,7 @@ import { startAllCrons } from './cron';
 import adminRouter from './routes/admin';
 import resumeRouter from './routes/resume';
 import buildRouter from './routes/build';
+import dashboardRouter from './routes/dashboard';
 import { generateAndUploadRoastSheet } from './services/card-generator';
 dotenv.config();
 
@@ -107,6 +108,7 @@ function stripHtml(text: string | undefined): string | undefined {
 app.use('/api/admin', adminRouter);
 app.use('/api/resume', resumeRouter);
 app.use('/api/build', buildRouter);
+app.use('/api/dashboard', dashboardRouter);
 
 // ==================== ROUTES ====================
 
