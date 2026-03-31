@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import Razorpay from 'razorpay';
+import { jsonrepair } from 'jsonrepair';
 import { query } from '../db';
 import { validateEmail } from '../lib/validation';
 import { buildQueue } from '../queue/build-queue';
@@ -113,11 +114,12 @@ router.post('/upload-resume', upload.single('file'), async (req: Request, res: R
       return res.status(400).json({ error: 'Could not extract enough text. Please try a different file.' });
 
     // Use Claude to parse into structured form data
-    const Anthropic = require('@anthropic-ai/sdk').default;
-    const anthropicClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
-    const parseResponse = await anthropicClient.messages.create({
+    const Anthropic2 = require('@anthropic-ai/sdk').default;
+    const anthropicClient2 = new Anthropic2({ apiKey: process.env.ANTHROPIC_API_KEY! });
+    const parseResponse = await anthropicClient2.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 3000,
+      system: 'You are a resume parser. Extract all information accurately. Return ONLY valid JSON, no markdown fences, no commentary.',
       messages: [{
         role: 'user',
         content: `Parse this resume text into structured data. Return ONLY valid JSON:
@@ -138,10 +140,16 @@ ${text.slice(0, 5000)}`,
       }],
     });
 
-    const parsed = JSON.parse(
-      ((parseResponse.content[0] as any).text || '{}')
-        .replace(/```json\s*/gi, '').replace(/```\s*/gi, '').trim()
-    );
+    let rText = ((parseResponse.content[0] as any).text || '{}').trim();
+    if (rText.startsWith('```')) {
+      rText = rText.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '');
+    }
+    let parsed;
+    try {
+      parsed = JSON.parse(rText);
+    } catch {
+      parsed = JSON.parse(jsonrepair(rText));
+    }
 
     res.json({ parsed, rawTextLength: text.length });
   } catch (err: any) {
