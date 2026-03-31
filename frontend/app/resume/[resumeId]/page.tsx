@@ -158,7 +158,10 @@ export default function ResumePreviewPage() {
       win.document.write(adjustedHtml);
       win.document.close();
       win.document.title = ' ';
-      setTimeout(() => { win.print(); setTimeout(() => { win.close(); }, 1000); }, 600);
+      setTimeout(() => {
+        win.onafterprint = () => { win.close(); };
+        win.print();
+      }, 600);
     }, 300);
   }
 
@@ -195,8 +198,8 @@ export default function ResumePreviewPage() {
     win.document.close();
     win.document.title = ' ';
     setTimeout(() => {
+      win.onafterprint = () => { win.close(); };
       win.print();
-      setTimeout(() => win.close(), 1000);
     }, 500);
   }
 

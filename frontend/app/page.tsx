@@ -31,12 +31,12 @@ function ScoreBadge({ score }: { score: number }) {
 function LiveCounter() {
   const [count, setCount] = useState<number | null>(null);
 
-  useState(() => {
+  useEffect(() => {
     fetch(`${API_URL}/api/stats`)
       .then(r => r.json())
       .then(d => setCount(d.total ?? 0))
       .catch(() => setCount(0));
-  });
+  }, []);
 
   if (count === null) return null;
 

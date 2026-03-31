@@ -105,7 +105,7 @@ export default function BuildResultsPage() {
       } catch {}
     }, 3000);
     return () => clearInterval(interval);
-  }, [orderId]);
+  }, [orderId, fetchResults]);
 
   function toggleStep(step: number) {
     setExpandedGuideStep(expandedGuideStep === step ? null : step);
@@ -170,8 +170,21 @@ export default function BuildResultsPage() {
     );
   }
 
-  const profile = data.generated_profile!;
+  const profile = data.generated_profile;
   const plan = data.plan;
+
+  if (!profile) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#F3F2EF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Inter', sans-serif" }}>
+        <div style={{ background: 'white', borderRadius: 14, padding: 32, textAlign: 'center', maxWidth: 400 }}>
+          <div style={{ fontSize: 36, marginBottom: 12 }}>&#9888;&#65039;</div>
+          <h2 style={{ fontSize: 18, fontWeight: 700, color: '#CC1016', margin: '0 0 8px' }}>Profile data missing</h2>
+          <p style={{ fontSize: 14, color: '#666' }}>Please contact support@profileroaster.in with your order ID.</p>
+          <p style={{ fontSize: 12, color: '#999', marginTop: 8 }}>{orderId}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <main style={{ fontFamily: "'Inter', system-ui, sans-serif", background: '#F3F2EF', minHeight: '100vh', padding: '20px' }}>

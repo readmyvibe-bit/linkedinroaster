@@ -25,6 +25,8 @@ export default function RecoverPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [notFound, setNotFound] = useState(false);
+  const [deleteMode, setDeleteMode] = useState(false);
+  const [deleteOtp, setDeleteOtp] = useState('');
 
   async function handleSendOtp() {
     if (!email.trim()) return;
@@ -86,30 +88,43 @@ export default function RecoverPage() {
     }
   }
 
-  async function handleDelete() {
-    if (!confirm('Are you sure you want to delete all your results? This cannot be undone.')) return;
+  async function handleDeleteStart() {
     setLoading(true);
+    setError('');
     try {
       await fetch(`${API_URL}/api/recover/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim() }),
       });
-      const deleteOtp = prompt('Enter the new code sent to your email to confirm deletion:');
-      if (!deleteOtp) return;
+      setDeleteMode(true);
+      setDeleteOtp('');
+    } catch {
+      setError('Could not send verification code.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleDeleteConfirm() {
+    if (deleteOtp.length !== 6) return;
+    setLoading(true);
+    setError('');
+    try {
       const res = await fetch(`${API_URL}/api/recover/delete`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), otp: deleteOtp }),
+        body: JSON.stringify({ email: email.trim(), otp: deleteOtp.trim() }),
       });
       if (res.ok) {
-        alert('Your results have been deleted.');
         setStep('email');
         setOrders([]);
         setEmail('');
         setOtp('');
+        setDeleteMode(false);
+        setDeleteOtp('');
       } else {
-        setError('Deletion failed. Please try again.');
+        setError('Invalid code or deletion failed.');
       }
     } catch {
       setError('Could not reach the server.');
@@ -218,13 +233,36 @@ export default function RecoverPage() {
             </div>
           )}
 
+          {/* Delete confirmation */}
+          {deleteMode && (
+            <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 12, padding: '18px 20px', marginTop: 16, textAlign: 'center' }}>
+              <p style={{ fontSize: 14, fontWeight: 600, color: '#991B1B', margin: '0 0 8px' }}>Confirm deletion</p>
+              <p style={{ fontSize: 13, color: '#666', margin: '0 0 12px' }}>Enter the 6-digit code sent to {email}</p>
+              <input type="text" value={deleteOtp} onChange={e => setDeleteOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                placeholder="000000" maxLength={6}
+                style={{ width: 160, padding: 10, border: '1px solid #E0E0E0', borderRadius: 8, fontSize: 20, textAlign: 'center', letterSpacing: 6, fontWeight: 700, marginBottom: 10 }} />
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+                <button onClick={handleDeleteConfirm} disabled={loading || deleteOtp.length !== 6}
+                  style={{ padding: '8px 20px', background: '#CC1016', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: loading ? 0.6 : 1 }}>
+                  {loading ? 'Deleting...' : 'Delete All Data'}
+                </button>
+                <button onClick={() => { setDeleteMode(false); setDeleteOtp(''); }}
+                  style={{ padding: '8px 20px', background: '#F3F4F6', color: '#666', border: 'none', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}>Cancel</button>
+              </div>
+            </div>
+          )}
+
           {/* Actions */}
           <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 16 }}>
             <a href="/" style={{ fontSize: 13, color: '#0A66C2', textDecoration: 'none', fontWeight: 600 }}>Get another roast</a>
             <span style={{ color: '#ccc' }}>|</span>
             <a href="/build" style={{ fontSize: 13, color: '#0A66C2', textDecoration: 'none', fontWeight: 600 }}>Build new LinkedIn profile</a>
-            <span style={{ color: '#ccc' }}>|</span>
-            <button onClick={handleDelete} style={{ fontSize: 13, color: '#999', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Delete my data</button>
+            {!deleteMode && (
+              <>
+                <span style={{ color: '#ccc' }}>|</span>
+                <button onClick={handleDeleteStart} disabled={loading} style={{ fontSize: 13, color: '#999', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Delete my data</button>
+              </>
+            )}
           </div>
         </div>
       </div>
