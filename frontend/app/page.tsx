@@ -941,6 +941,28 @@ export default function Home() {
       )}
 
 
+      {/* ─── Section Floating Cards (sides) ─── */}
+      <div className="relative max-w-5xl mx-auto" style={{ overflow: 'hidden' }}>
+        <div className="hidden 2xl:block absolute top-[40px] left-[0px] z-0 rotate-[-2deg] opacity-80" style={{ pointerEvents: 'none' }}>
+          <ResumeCardSmall name="Priya M." role="Software Engineer" atsScore={87} keywords={['React', 'Node.js', 'AWS', 'TypeScript']} />
+        </div>
+        <div className="hidden 2xl:block absolute top-[20px] right-[0px] z-0 rotate-[2deg] opacity-80" style={{ pointerEvents: 'none' }}>
+          <FeatureCardSmall icon="&#128200;" title="Avg Improvement" stat="+42 pts" desc="Average score improvement after AI rewrite" />
+        </div>
+        <div className="hidden 2xl:block absolute top-[320px] left-[0px] z-0 rotate-[-1deg] opacity-80" style={{ pointerEvents: 'none' }}>
+          <FeatureCardSmall icon="&#9997;&#65039;" title="Resumes Built" stat="60s" desc="AI builds your ATS resume from LinkedIn in seconds" />
+        </div>
+        <div className="hidden 2xl:block absolute top-[340px] right-[0px] z-0 rotate-[1deg] opacity-80" style={{ pointerEvents: 'none' }}>
+          <ResumeCardSmall name="Arjun T." role="Business Development" atsScore={91} keywords={['B2B Sales', 'Pipeline', 'SaaS', 'CRM']} />
+        </div>
+        <div className="hidden 2xl:block absolute top-[600px] left-[0px] z-0 rotate-[-2deg] opacity-80" style={{ pointerEvents: 'none' }}>
+          <FeatureCardSmall icon="&#128293;" title="Profiles Roasted" stat="500+" desc="Professionals improved their LinkedIn this month" />
+        </div>
+        <div className="hidden 2xl:block absolute top-[620px] right-[0px] z-0 rotate-[2deg] opacity-80" style={{ pointerEvents: 'none' }}>
+          <FeatureCardSmall icon="&#127919;" title="ATS Match Rate" stat="87%" desc="Average keyword match after resume generation" />
+        </div>
+      </div>
+
       {/* Duplicate pricing removed — single pricing section above */}
 
       {/* ─── ATS Resume Showcase ─── */}
