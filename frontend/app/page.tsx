@@ -371,16 +371,6 @@ export default function Home() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [submitted, setSubmitted] = useState(false);
 
-  // Live activity indicator — initialize on client only to avoid hydration mismatch
-  const [recentCount, setRecentCount] = useState(12);
-  useEffect(() => {
-    setRecentCount(Math.floor(Math.random() * 8) + 8);
-    const interval = setInterval(() => {
-      setRecentCount(Math.floor(Math.random() * 8) + 8);
-    }, 60000);
-    return () => clearInterval(interval);
-  }, []);
-
   const [rateLimited, setRateLimited] = useState(false);
 
   // Auto-resize textarea based on content
@@ -525,7 +515,7 @@ export default function Home() {
           <div ref={heroInputRef}>
             {/* CHANGE 3 — Label above composer */}
             <div style={{ fontSize: 18, fontWeight: 700, color: '#0A66C2', marginBottom: 10, textAlign: 'left' }}>
-              Step 1 — Paste your LinkedIn headline
+              Step 1 of 2 — Paste your LinkedIn headline (free preview)
             </div>
             <div
               className="flex items-start gap-3 p-6 rounded-xl text-left bg-white shadow-lg"
@@ -621,8 +611,8 @@ export default function Home() {
           {!submitted && <LiveCounter />}
 
           {!submitted && (
-            <p className="text-[13px] font-medium text-[#E16B00] text-center mt-1">
-              &#128293; {recentCount} people got roasted in the last 10 minutes
+            <p className="text-[13px] text-center mt-1" style={{ color: '#888' }}>
+              Free check &bull; ~60 seconds &bull; No LinkedIn login required
             </p>
           )}
 
@@ -924,7 +914,7 @@ export default function Home() {
               features={[
                 'Everything in Standard, plus:',
                 '3 ATS Resumes + 3 Cover Letters',
-                'All 20 premium templates',
+                'All 21 premium templates',
                 '4 visual sidebar layouts',
                 '5 headline variations',
                 'Resume upload + auto-parse',
@@ -1025,63 +1015,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ─── What You Get — Full Feature Showcase ─── */}
-      <section style={{ maxWidth: 700, margin: '40px auto 0', padding: '0 16px' }}>
-        <h2 style={{ fontSize: 24, fontWeight: 800, color: '#191919', textAlign: 'center', marginBottom: 8 }}>
-          What You Get
-        </h2>
-        <p style={{ fontSize: 14, color: '#888', textAlign: 'center', marginBottom: 24 }}>
-          One payment. No subscription. Results in 60 seconds.
-        </p>
-
-        {/* Standard vs Pro comparison */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          {/* Standard */}
-          <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, padding: 20, position: 'relative' }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#888', letterSpacing: 2, marginBottom: 4 }}>STANDARD</div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: '#191919', marginBottom: 12 }}>&#8377;299</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {['6-point brutal AI roast', 'Before/After score', 'Full profile rewrite', '1 ATS Resume + Cover Letter', '12 resume templates', 'ATS score + keywords', 'PDF + DOCX download', 'Shareable roast card'].map((f, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#374151' }}>
-                  <span style={{ color: '#057642', fontWeight: 700 }}>&#10003;</span> {f}
-                </div>
-              ))}
-            </div>
-            <button
-              onClick={() => { handlePlanSelect('standard'); }}
-              style={{
-                width: '100%', marginTop: 16, padding: '12px', background: '#E16B00', color: 'white',
-                border: 'none', borderRadius: 50, fontSize: 15, fontWeight: 700, cursor: 'pointer',
-              }}
-            >
-              Roast My Profile &#8594;
-            </button>
-          </div>
-
-          {/* Pro */}
-          <div style={{ background: 'white', border: '2px solid #0A66C2', borderRadius: 12, padding: 20, position: 'relative' }}>
-            <div style={{ position: 'absolute', top: -10, right: 16, background: '#0A66C2', color: 'white', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 10 }}>MOST POPULAR</div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#0A66C2', letterSpacing: 2, marginBottom: 4 }}>PRO</div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: '#191919', marginBottom: 12 }}>&#8377;799</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {['Everything in Standard', '3 Resumes + 3 Cover Letters', 'All 20 premium templates', '4 visual sidebar layouts', 'Resume upload + auto-parse', '5 headline variations', '15+ ATS keywords', 'Priority processing'].map((f, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#374151' }}>
-                  <span style={{ color: '#0A66C2', fontWeight: 700 }}>&#10003;</span> {f}
-                </div>
-              ))}
-            </div>
-            <button
-              onClick={() => { handlePlanSelect('pro'); }}
-              style={{
-                width: '100%', marginTop: 16, padding: '12px', background: '#0A66C2', color: 'white',
-                border: 'none', borderRadius: 50, fontSize: 15, fontWeight: 700, cursor: 'pointer',
-              }}
-            >
-              Roast + Build My Resume &#8594;
-            </button>
-          </div>
-        </div>
-      </section>
+      {/* Duplicate pricing removed — single pricing section above */}
 
       {/* ─── ATS Resume Showcase ─── */}
       <section style={{ maxWidth: 700, margin: '32px auto 0', padding: '0 16px' }}>

@@ -45,7 +45,7 @@ export default function BuildLandingPage() {
         'Everything in LinkedIn + Resume',
         '3 ATS resumes for different roles',
         '3 tailored cover letters',
-        'All 20 premium resume templates',
+        'All 21 premium resume templates',
         'Priority AI processing',
         'Multiple job targeting',
       ],
@@ -86,15 +86,15 @@ export default function BuildLandingPage() {
             No LinkedIn? No Problem.
           </div>
           <h1 style={{ fontSize: 38, fontWeight: 800, lineHeight: 1.2, margin: '0 0 16px' }}>
-            Build a Job-Winning LinkedIn<br />Profile in 60 Seconds
+            Build a Complete LinkedIn<br />Profile From Scratch
           </h1>
           <p style={{ fontSize: 17, opacity: 0.9, lineHeight: 1.6, maxWidth: 600, margin: '0 auto 28px' }}>
-            AI builds your complete LinkedIn profile from scratch — headline, about section, experience bullets — ready to copy-paste. Optimized for Indian recruiters.
+            Fill a 5-minute form. AI generates your headline, about section, and experience bullets in ~60 seconds. Paste into LinkedIn using our step-by-step guide.
           </p>
           <a href="#pricing" style={{ display: 'inline-block', background: 'white', color: '#0A66C2', padding: '14px 36px', borderRadius: 50, fontSize: 16, fontWeight: 700, textDecoration: 'none' }}>
-            Build My Profile &rarr;
+            See Plans &amp; Build My Profile &rarr;
           </a>
-          <p style={{ fontSize: 13, opacity: 0.7, marginTop: 12 }}>500+ profiles built &bull; Takes 5 minutes &bull; No LinkedIn login needed</p>
+          <p style={{ fontSize: 13, opacity: 0.7, marginTop: 12 }}>500+ profiles built &bull; One-time payment &bull; No LinkedIn login needed</p>
         </div>
       </section>
 
@@ -186,7 +186,14 @@ export default function BuildLandingPage() {
       <section id="pricing" style={{ padding: '48px 20px 60px', background: 'white', borderTop: '1px solid #E8E8E8' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto', textAlign: 'center' }}>
           <h2 style={{ fontSize: 24, fontWeight: 800, color: '#191919', marginBottom: 8 }}>Choose Your Plan</h2>
-          <p style={{ fontSize: 14, color: '#666', marginBottom: 32 }}>One-time payment. No subscription. Results in 60 seconds.</p>
+          <p style={{ fontSize: 14, color: '#666', marginBottom: 12 }}>One-time payment. No subscription. AI generates in ~60 seconds after form submission.</p>
+          <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 28, fontSize: 13, color: '#666' }}>
+            <span>&#128274; Secure UPI/Card payment via Razorpay</span>
+            <span>&bull;</span>
+            <a href="/refund" style={{ color: '#0A66C2', textDecoration: 'none', fontWeight: 600 }}>Refund policy</a>
+            <span>&bull;</span>
+            <span>Your data is never shared</span>
+          </div>
 
           {!selectedPlan ? (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 20, maxWidth: 900, margin: '0 auto' }}>
