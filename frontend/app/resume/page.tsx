@@ -92,6 +92,8 @@ function ResumeFormContent() {
   const [orderError, setOrderError] = useState('');
   const [orderPlan, setOrderPlan] = useState('');
   const [orderData, setOrderData] = useState<Record<string, unknown> | null>(null);
+  const [quotaUsed, setQuotaUsed] = useState(false);
+  const [existingResumes, setExistingResumes] = useState<any[]>([]);
 
   // Form fields
   const [fullName, setFullName] = useState('');
@@ -150,6 +152,20 @@ function ResumeFormContent() {
         if (data.parsed_profile?.name) setFullName(data.parsed_profile.name);
         if (data.parsed_profile?.location) setLocation(data.parsed_profile.location);
         if (data.linkedin_url) setLinkedinUrl(data.linkedin_url);
+
+        // Check resume quota
+        const maxResumes = data.plan === 'pro' ? 3 : 1;
+        try {
+          const resumeRes = await fetch(`${API_URL}/api/resume/by-order/${orderId}`);
+          if (resumeRes.ok) {
+            const resumeData = await resumeRes.json();
+            const resumes = resumeData.resumes || [];
+            setExistingResumes(resumes);
+            if (resumes.length >= maxResumes) {
+              setQuotaUsed(true);
+            }
+          }
+        } catch {}
       } catch {
         setOrderError('Please access this page from your results.');
       } finally {
@@ -294,6 +310,18 @@ function ResumeFormContent() {
         <div style={{ background: '#fff', border: '1px solid #E0E0E0', borderRadius: 12, padding: 32, maxWidth: 440, textAlign: 'center' }}>
           <p style={{ color: '#CC1016', fontSize: 15, margin: 0 }}>{orderError}</p>
         </div>
+      </div>
+    );
+  }
+
+  // Quota full — redirect back to results page (resume section)
+  if (quotaUsed) {
+    if (typeof window !== 'undefined') {
+      window.location.href = `/results/${orderId}#resume-section`;
+    }
+    return (
+      <div style={{ minHeight: '100vh', background: '#F3F2EF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ color: '#666', fontSize: 15 }}>Redirecting to your results...</p>
       </div>
     );
   }
@@ -609,7 +637,7 @@ function ResumeFormContent() {
           {submitError && (
             <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, padding: '14px 16px', marginBottom: 16 }}>
               <p style={{ margin: 0, color: '#CC1016', fontSize: 14 }}>{submitError}</p>
-              {submitError.includes('Pro template') && orderId && (
+              {(submitError.includes('Pro template') || submitError.includes('Upgrade to Pro')) && orderId && (
                 <button
                   onClick={async () => {
                     try {

@@ -1406,10 +1406,30 @@ function ResumeBuilderSection({ orderId, maxResumes = 3, plan = 'standard' }: { 
 
   if (!loaded) return null;
 
+  const quotaFull = resumes.length >= maxResumes;
+
+  async function handleUpgrade() {
+    try {
+      const res = await fetch(`${API_URL}/api/orders/${orderId}/upgrade`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+      const data = await res.json();
+      if (data.razorpay_order_id) {
+        const opts = {
+          key: data.razorpay_key, amount: data.amount, currency: data.currency,
+          order_id: data.razorpay_order_id, name: 'ProfileRoaster',
+          description: 'Upgrade to Pro', theme: { color: '#0A66C2' },
+          handler: () => { window.location.reload(); },
+          modal: { ondismiss: () => { document.body.style.overflow = ''; document.body.style.position = ''; document.documentElement.style.overflow = ''; } },
+        };
+        const rzp = new (window as any).Razorpay(opts); rzp.open();
+      } else { alert(data.error || 'Failed to create upgrade order'); }
+    } catch { alert('Failed to initiate upgrade. Please try again.'); }
+  }
+
   return (
     <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderLeft: '4px solid #0A66C2', borderRadius: 12, padding: '20px 24px', marginTop: 24, marginBottom: 24 }}>
       <h3 style={{ fontSize: 18, fontWeight: 800, color: '#1E40AF', marginBottom: 8 }}>ATS Resume Builder</h3>
 
+      {/* Show existing resumes */}
       {resumes.length > 0 && (
         <div style={{ marginBottom: 16 }}>
           <p style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 8 }}>Your Resumes ({resumes.length}/{maxResumes})</p>
@@ -1445,7 +1465,8 @@ function ResumeBuilderSection({ orderId, maxResumes = 3, plan = 'standard' }: { 
         </div>
       )}
 
-      {resumes.length < maxResumes ? (
+      {/* Quota NOT full — show build button */}
+      {!quotaFull && (
         <>
           <p style={{ fontSize: 14, color: '#444', lineHeight: 1.6, marginBottom: 12 }}>
             {resumes.length > 0
@@ -1455,17 +1476,37 @@ function ResumeBuilderSection({ orderId, maxResumes = 3, plan = 'standard' }: { 
           <a href={`/resume?orderId=${orderId}`} style={{ display: 'inline-block', background: '#0A66C2', color: 'white', padding: '10px 24px', borderRadius: 50, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
             {resumes.length > 0 ? 'Build Another Resume' : 'Build My Resume'} &rarr;
           </a>
-          {plan === 'standard' && resumes.length >= 1 && (
-            <p style={{ fontSize: 12, color: '#0A66C2', marginTop: 8, fontWeight: 600 }}>Upgrade to Pro for 2 more resumes + all 20 templates</p>
-          )}
         </>
-      ) : (
-        <>
-          <p style={{ fontSize: 13, color: '#888' }}>You{"'"}ve used {plan === 'standard' ? 'your 1 resume slot' : 'all 3 resume slots'}.</p>
-          {plan === 'standard' && (
-            <p style={{ fontSize: 12, color: '#0A66C2', marginTop: 4, fontWeight: 600 }}>Upgrade to Pro for 3 resumes, 3 cover letters + all 20 templates</p>
-          )}
-        </>
+      )}
+
+      {/* Quota full — Standard user: show upgrade */}
+      {quotaFull && plan === 'standard' && (
+        <div style={{ background: 'linear-gradient(135deg, #004182, #0A66C2)', borderRadius: 10, padding: '16px 20px', marginTop: 4 }}>
+          <p style={{ fontSize: 14, fontWeight: 700, color: 'white', margin: '0 0 4px' }}>Want more resumes?</p>
+          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', margin: '0 0 12px', lineHeight: 1.5 }}>
+            Upgrade to Pro for 3 resumes, cover letters + all 20 templates
+          </p>
+          <button
+            onClick={handleUpgrade}
+            style={{
+              display: 'inline-block', padding: '10px 24px',
+              background: 'white', color: '#0A66C2', borderRadius: 50, border: 'none',
+              fontSize: 14, fontWeight: 700, cursor: 'pointer',
+            }}
+          >
+            Upgrade to Pro — &#8377;500 &rarr;
+          </button>
+          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', margin: '6px 0 0' }}>You paid &#8377;299 — only &#8377;500 more</p>
+        </div>
+      )}
+
+      {/* Quota full — Pro user: friendly message */}
+      {quotaFull && plan === 'pro' && (
+        <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 10, padding: '14px 18px', marginTop: 4 }}>
+          <p style={{ fontSize: 14, fontWeight: 600, color: '#057642', margin: 0 }}>
+            You{"'"}re on the Pro plan — all 3 resume slots used. View or edit your resumes above.
+          </p>
+        </div>
       )}
 
       <p style={{ fontSize: 12, color: '#888', marginTop: 8 }}>Included in your {plan === 'pro' ? 'Pro' : 'Standard'} plan</p>
@@ -2003,7 +2044,7 @@ function ResultsContextColumn({ scores, isPro, orderId }: { scores: any; isPro: 
       {/* Quick actions */}
       <div style={{ background: 'white', borderRadius: 12, padding: '14px', boxShadow: '0 1px 8px rgba(0,0,0,0.05)' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <a href={`/resume?orderId=${orderId}`} style={{ display: 'block', padding: '8px', background: '#0A66C2', borderRadius: 8, fontSize: 12, fontWeight: 600, color: 'white', textDecoration: 'none', textAlign: 'center' }}>Build ATS Resume</a>
+          <button onClick={() => document.getElementById('resume-section')?.scrollIntoView({ behavior: 'smooth' })} style={{ display: 'block', width: '100%', padding: '8px', background: '#0A66C2', borderRadius: 8, fontSize: 12, fontWeight: 600, color: 'white', border: 'none', cursor: 'pointer', textAlign: 'center' }}>Build ATS Resume</button>
           <button onClick={() => document.getElementById('share-section')?.scrollIntoView({ behavior: 'smooth' })} style={{ padding: '8px', background: '#F0FDF4', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#057642', border: 'none', cursor: 'pointer' }}>Share &amp; Earn &#8377;50</button>
         </div>
       </div>
@@ -2091,7 +2132,7 @@ function ResultsContextColumn({ scores, isPro, orderId }: { scores: any; isPro: 
       <div style={{ background: '#F0FDF4', borderRadius: 12, padding: '16px', textAlign: 'center', border: '1px solid #BBF7D0' }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: '#057642', marginBottom: 6 }}>Ready for the next step?</div>
         <div style={{ fontSize: 11, color: '#666', marginBottom: 10 }}>Turn your rewrite into an ATS resume</div>
-        <a href={`/resume?orderId=${orderId}`} style={{ display: 'inline-block', padding: '8px 16px', background: '#057642', color: 'white', borderRadius: 16, fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>Build Resume &rarr;</a>
+        <button onClick={() => document.getElementById('resume-section')?.scrollIntoView({ behavior: 'smooth' })} style={{ display: 'inline-block', padding: '8px 16px', background: '#057642', color: 'white', borderRadius: 16, fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer' }}>Build Resume &rarr;</button>
       </div>
     </div>
   );
@@ -2470,7 +2511,7 @@ export default function ResultsPage() {
           <div style={{ fontSize: 12, color: '#666', marginBottom: 10 }}>Update your LinkedIn, build your resume, share your results</div>
           <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
             <button onClick={() => document.getElementById('rewrite-section')?.scrollIntoView({ behavior: 'smooth' })} style={{ padding: '6px 14px', background: '#0A66C2', color: 'white', border: 'none', borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Copy Rewrite</button>
-            <a href={`/resume?orderId=${orderId}`} style={{ padding: '6px 14px', background: '#057642', color: 'white', borderRadius: 16, fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>Build Resume</a>
+            <button onClick={() => document.getElementById('resume-section')?.scrollIntoView({ behavior: 'smooth' })} style={{ padding: '6px 14px', background: '#057642', color: 'white', borderRadius: 16, fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer' }}>Build Resume</button>
           </div>
         </div>
 
