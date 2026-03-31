@@ -1882,40 +1882,35 @@ function ResultsNavColumn() {
     { id: 'share-section', label: 'Share & Earn', icon: '🎁' },
   ];
 
-  const tips = [
-    { title: 'PRO TIP', text: 'Copy your new headline first — it makes the biggest difference in recruiter views.', color: '#0A66C2' },
-    { title: 'DID YOU KNOW', text: 'Recruiters spend 7.4 seconds on your profile. A strong headline buys you 3 more seconds.', color: '#057642' },
-    { title: 'LINKEDIN HACK', text: 'Profiles with numbers in the headline get 40% more clicks. Your rewrite has numbers.', color: '#E16B00' },
-    { title: 'CAREER TIP', text: '85% of jobs are filled through networking. Your LinkedIn IS your first impression.', color: '#0A66C2' },
-    { title: 'ROAST WISDOM', text: '"Results-driven" is LinkedIn for "I had no real numbers to share." Your rewrite fixes that.', color: '#E16B00' },
-    { title: 'ATS INSIGHT', text: 'ATS systems scan for exact keyword matches. Your rewrite includes industry-specific keywords.', color: '#057642' },
-    { title: 'RESUME TIP', text: 'An ATS resume with JD-matched keywords gets 3x more interview calls than a generic one.', color: '#0A66C2' },
-    { title: 'HEADLINE HACK', text: 'Adding your key achievement in the headline (like "₹6.5Cr Revenue") gets 5x more clicks.', color: '#E16B00' },
-    { title: 'ABOUT SECTION', text: 'Start your About with a hook, not "I am a..." — recruiters decide in 2 seconds to read more.', color: '#057642' },
-    { title: 'EXPERIENCE TIP', text: 'Bullets that start with "Managed" or "Led" are 60% more likely to catch a recruiter\'s eye.', color: '#0A66C2' },
-    { title: 'NETWORK HACK', text: 'Commenting on 5 posts/day for a week gets more profile views than 100 connection requests.', color: '#E16B00' },
-    { title: 'PHOTO TIP', text: 'Professional headshots get 14x more profile views. No selfies, no group crops.', color: '#057642' },
-  ];
-
-  const roastQuotes = [
-    { text: 'HR be like: "Culture fit nahi hai." Translation: Profile boring tha.', persona: 'HR Department' },
-    { text: 'Manager: "Yeh banda 5 saal se same headline use kar raha hai."', persona: 'Hiring Manager' },
-    { text: '"Dynamic professional" padh ke recruiter ne chai break le liya.', persona: 'The Recruiter' },
-    { text: 'Jab tak headline mein number nahi, recruiter ko interest nahi.', persona: 'Career Coach' },
-    { text: 'LinkedIn pe 500+ connections but 0 profile views. Sochne wali baat hai.', persona: 'Reality Check' },
-    { text: '"Looking for new opportunities" — bhai, opportunity bhi tujhe dhundh nahi pa rahi.', persona: 'The AI Roaster' },
-    { text: 'Interview ke baad "We will let you know" — matlab delete ho gaye ho bhai.', persona: 'HR Department' },
-    { text: 'About section padh ke laga Wikipedia article hai. Recruiter ko summary chahiye, thesis nahi.', persona: 'The Recruiter' },
-    { text: '"Passionate about everything" — matlab kisi cheez mein expert nahi.', persona: 'Career Coach' },
-    { text: 'Profile photo mein sunglasses laga ke LinkedIn pe aaye ho? Beach party nahi hai yeh.', persona: 'The AI Roaster' },
-    { text: 'Skills section mein "Microsoft Word" add kiya hai. Bhai, 2026 hai. Everybody knows Word.', persona: 'Reality Check' },
-    { text: 'Experience mein "Responsible for" likha hai. Kya responsible the? Kya achieve kiya?', persona: 'Hiring Manager' },
+  const allCards = [
+    { type: 'tip', title: 'PRO TIP', text: 'Copy your new headline first — it makes the biggest difference in recruiter views.', color: '#0A66C2' },
+    { type: 'roast', text: 'HR be like: "Culture fit nahi hai." Translation: Profile boring tha.', persona: 'HR Department' },
+    { type: 'tip', title: 'DID YOU KNOW', text: 'Recruiters spend 7.4 seconds on your profile. A strong headline buys you 3 more seconds.', color: '#057642' },
+    { type: 'roast', text: 'Manager: "Yeh banda 5 saal se same headline use kar raha hai."', persona: 'Hiring Manager' },
+    { type: 'tip', title: 'LINKEDIN HACK', text: 'Profiles with numbers in the headline get 40% more clicks. Your rewrite has numbers.', color: '#E16B00' },
+    { type: 'roast', text: '"Dynamic professional" padh ke recruiter ne chai break le liya.', persona: 'The Recruiter' },
+    { type: 'tip', title: 'CAREER TIP', text: '85% of jobs are filled through networking. Your LinkedIn IS your first impression.', color: '#0A66C2' },
+    { type: 'roast', text: 'Jab tak headline mein number nahi, recruiter ko interest nahi.', persona: 'Career Coach' },
+    { type: 'tip', title: 'ATS INSIGHT', text: 'ATS systems scan for exact keyword matches. Your rewrite includes industry-specific keywords.', color: '#057642' },
+    { type: 'roast', text: 'LinkedIn pe 500+ connections but 0 profile views. Sochne wali baat hai.', persona: 'Reality Check' },
+    { type: 'tip', title: 'RESUME TIP', text: 'An ATS resume with JD-matched keywords gets 3x more interview calls.', color: '#0A66C2' },
+    { type: 'roast', text: '"Looking for new opportunities" — bhai, opportunity bhi tujhe dhundh nahi pa rahi.', persona: 'AI Roaster' },
+    { type: 'tip', title: 'HEADLINE HACK', text: 'Adding your key achievement in the headline gets 5x more clicks.', color: '#E16B00' },
+    { type: 'roast', text: 'About section padh ke laga Wikipedia article hai. Summary chahiye, thesis nahi.', persona: 'The Recruiter' },
+    { type: 'tip', title: 'ABOUT SECTION', text: 'Start your About with a hook, not "I am a..." — recruiters decide in 2 seconds.', color: '#057642' },
+    { type: 'roast', text: '"Passionate about everything" — matlab kisi cheez mein expert nahi.', persona: 'Career Coach' },
+    { type: 'tip', title: 'EXPERIENCE TIP', text: 'Bullets starting with "Managed" or "Led" are 60% more likely to catch a recruiter\'s eye.', color: '#0A66C2' },
+    { type: 'roast', text: 'Skills mein "Microsoft Word" add kiya hai. Bhai 2026 hai.', persona: 'Reality Check' },
+    { type: 'tip', title: 'NETWORK HACK', text: 'Commenting on 5 posts/day gets more profile views than 100 connection requests.', color: '#E16B00' },
+    { type: 'roast', text: 'Experience mein "Responsible for" likha hai. Kya achieve kiya batao.', persona: 'Hiring Manager' },
+    { type: 'tip', title: 'PHOTO TIP', text: 'Professional headshots get 14x more profile views. No selfies, no group crops.', color: '#057642' },
+    { type: 'roast', text: 'Profile photo mein sunglasses laga ke aaye ho? Beach party nahi hai yeh.', persona: 'AI Roaster' },
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', gap: 0 }}>
       {/* Navigation */}
-      <div style={{ background: 'white', borderRadius: 12, padding: '12px 8px', boxShadow: '0 1px 8px rgba(0,0,0,0.05)' }}>
+      <div style={{ background: 'white', borderRadius: 12, padding: '12px 8px', boxShadow: '0 1px 8px rgba(0,0,0,0.05)', marginBottom: 10 }}>
         <div style={{ fontSize: 10, fontWeight: 700, color: '#999', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8, paddingLeft: 12 }}>YOUR RESULTS</div>
         {navItems.map((item) => (
           <button
@@ -1936,29 +1931,27 @@ function ResultsNavColumn() {
         ))}
       </div>
 
-      {/* Tips and content */}
-      {tips.map((tip, i) => (
-          <div key={i} style={{ background: 'white', borderRadius: 12, padding: '14px 16px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
-            <div style={{ fontSize: 9, fontWeight: 700, color: tip.color, letterSpacing: 1, marginBottom: 5 }}>{tip.title}</div>
-            <div style={{ fontSize: 11, color: '#555', lineHeight: 1.55 }}>{tip.text}</div>
+      {/* Interleaved tips + roasts — spread evenly */}
+      {allCards.map((card, i) => (
+        card.type === 'tip' ? (
+          <div key={i} style={{ background: 'white', borderRadius: 12, padding: '13px 15px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', marginBottom: 0 }}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: (card as any).color || '#0A66C2', letterSpacing: 1, marginBottom: 4 }}>{(card as any).title}</div>
+            <div style={{ fontSize: 11, color: '#555', lineHeight: 1.5 }}>{card.text}</div>
           </div>
-        ))}
-
-        <div style={{ height: 1, background: '#E5E7EB', margin: '4px 0' }} />
-
-        {roastQuotes.map((q, i) => (
-          <div key={i} style={{ background: 'white', borderLeft: '3px solid #E16B00', borderRadius: '0 10px 10px 0', padding: '12px 14px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
-            <div style={{ fontSize: 9, fontWeight: 700, color: '#E16B00', letterSpacing: 1, marginBottom: 4 }}>{q.persona.toUpperCase()}</div>
-            <div style={{ fontSize: 11, color: '#374151', lineHeight: 1.5, fontStyle: 'italic' }}>{q.text}</div>
+        ) : (
+          <div key={i} style={{ background: 'white', borderLeft: '3px solid #E16B00', borderRadius: '0 10px 10px 0', padding: '12px 14px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', marginBottom: 0 }}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: '#E16B00', letterSpacing: 1, marginBottom: 3 }}>{((card as any).persona || '').toUpperCase()}</div>
+            <div style={{ fontSize: 11, color: '#374151', lineHeight: 1.5, fontStyle: 'italic' }}>{card.text}</div>
           </div>
-        ))}
+        )
+      ))}
 
-        {/* Final CTA */}
-        <div style={{ background: '#F0F7FF', borderRadius: 12, padding: '16px', textAlign: 'center', border: '1px solid #BFDBFE' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#1E40AF', marginBottom: 6 }}>Found this helpful?</div>
-          <div style={{ fontSize: 11, color: '#666', marginBottom: 10 }}>Share with a friend who needs a LinkedIn upgrade</div>
-          <button onClick={() => document.getElementById('share-section')?.scrollIntoView({ behavior: 'smooth' })} style={{ padding: '8px 16px', background: '#0A66C2', color: 'white', border: 'none', borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Share &amp; Earn &#8377;50</button>
-        </div>
+      {/* Final CTA */}
+      <div style={{ background: '#F0F7FF', borderRadius: 12, padding: '16px', textAlign: 'center', border: '1px solid #BFDBFE' }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: '#1E40AF', marginBottom: 6 }}>Found this helpful?</div>
+        <div style={{ fontSize: 11, color: '#666', marginBottom: 10 }}>Share with a friend</div>
+        <button onClick={() => document.getElementById('share-section')?.scrollIntoView({ behavior: 'smooth' })} style={{ padding: '8px 16px', background: '#0A66C2', color: 'white', border: 'none', borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Share &amp; Earn &#8377;50</button>
+      </div>
     </div>
   );
 }
@@ -1989,7 +1982,7 @@ function ResultsContextColumn({ scores, isPro, orderId }: { scores: any; isPro: 
   const ranking = afterScore >= 80 ? 'Top 10%' : afterScore >= 70 ? 'Top 20%' : afterScore >= 60 ? 'Top 35%' : afterScore >= 50 ? 'Top 50%' : 'Improving';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', gap: 0 }}>
       {/* Score */}
       <div style={{ background: 'white', borderRadius: 14, padding: '18px', boxShadow: '0 1px 8px rgba(0,0,0,0.05)', textAlign: 'center' }}>
         <div style={{ fontSize: 9, fontWeight: 700, color: '#999', letterSpacing: 2, marginBottom: 6 }}>YOUR IMPROVEMENT</div>
@@ -2230,7 +2223,7 @@ export default function ResultsPage() {
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: 20, alignItems: 'stretch', justifyContent: 'center' }}>
           {/* LEFT — Navigation */}
           <div className="hidden xl:block" style={{ width: 220, flexShrink: 0 }}>
             <ResultsNavColumn />
