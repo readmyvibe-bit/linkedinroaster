@@ -603,4 +603,52 @@ router.get('/build-orders/:id', async (req: Request, res: Response) => {
   }
 });
 
+// POST /api/admin/build-orders/:id/approve — Mark as paid + queue processing
+router.post('/build-orders/:id/approve', async (req: Request, res: Response) => {
+  try {
+    const { buildQueue } = require('../queue/build-queue');
+    const order = await query('SELECT * FROM build_orders WHERE id=$1', [req.params.id]);
+    if (!order.rows.length) return res.status(404).json({ error: 'Build order not found' });
+
+    await query(
+      `UPDATE build_orders SET payment_status='paid', paid_at=NOW(), processing_status='queued' WHERE id=$1`,
+      [req.params.id],
+    );
+    await buildQueue.add('job', { razorpay_order_id: order.rows[0].razorpay_order_id });
+    res.json({ success: true, message: 'Order approved and queued for processing' });
+  } catch (err: any) {
+    console.error('Admin approve build order error:', err.message);
+    res.status(500).json({ error: 'Failed to approve order' });
+  }
+});
+
+// POST /api/admin/build-orders/:id/cancel — Cancel order
+router.post('/build-orders/:id/cancel', async (req: Request, res: Response) => {
+  try {
+    await query(
+      `UPDATE build_orders SET payment_status='refunded', processing_status='failed', processing_error='Cancelled by admin' WHERE id=$1`,
+      [req.params.id],
+    );
+    res.json({ success: true, message: 'Order cancelled' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to cancel order' });
+  }
+});
+
+// POST /api/admin/build-orders/:id/send-email — Send results email
+router.post('/build-orders/:id/send-email', async (req: Request, res: Response) => {
+  try {
+    const { sendBuildResultsEmail } = require('../services/email');
+    const order = await query('SELECT * FROM build_orders WHERE id=$1', [req.params.id]);
+    if (!order.rows.length) return res.status(404).json({ error: 'Build order not found' });
+    if (!order.rows[0].generated_profile) return res.status(400).json({ error: 'No results generated yet' });
+
+    await sendBuildResultsEmail(order.rows[0]);
+    res.json({ success: true, message: `Email sent to ${order.rows[0].email}` });
+  } catch (err: any) {
+    console.error('Admin send build email error:', err.message);
+    res.status(500).json({ error: 'Failed to send email' });
+  }
+});
+
 export default router;

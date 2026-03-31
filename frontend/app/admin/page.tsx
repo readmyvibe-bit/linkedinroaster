@@ -1119,6 +1119,7 @@ function BuildOrdersScreen() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<any>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -1137,6 +1138,14 @@ function BuildOrdersScreen() {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-bold">Build Orders ({total})</h2>
       </div>
+
+      {/* Toast */}
+      {toast && (
+        <div className="mb-3 p-3 rounded-lg text-sm font-semibold" style={{ background: toast.type === 'success' ? '#DCFCE7' : '#FEF2F2', color: toast.type === 'success' ? '#057642' : '#CC1016' }}>
+          {toast.message}
+          <button onClick={() => setToast(null)} className="ml-2 font-bold cursor-pointer border-none" style={{ background: 'none', color: 'inherit' }}>&times;</button>
+        </div>
+      )}
 
       {/* Selected order detail */}
       {selected && (
@@ -1180,8 +1189,47 @@ function BuildOrdersScreen() {
               </div>
             </div>
           )}
-          <div className="mt-2">
-            <a href={`/build/results/${selected.id}`} target="_blank" rel="noreferrer" className="text-xs font-semibold" style={{ color: 'var(--li-blue)' }}>View Results Page &rarr;</a>
+          {/* Actions */}
+          <div className="mt-3 flex gap-2 flex-wrap">
+            <a href={`/build/results/${selected.id}`} target="_blank" rel="noreferrer"
+              className="text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: 'var(--li-gray)', color: 'var(--li-blue)', textDecoration: 'none' }}>View Results</a>
+            {selected.generated_profile && (
+              <button onClick={async () => {
+                try {
+                  const d = await apiFetchJson(`/api/admin/build-orders/${selected.id}/send-email`, { method: 'POST' });
+                  setToast({ message: d.message || 'Email sent', type: 'success' });
+                } catch { setToast({ message: 'Failed to send email', type: 'error' }); }
+              }} className="text-xs font-semibold px-3 py-1.5 rounded-full border-none cursor-pointer" style={{ background: '#0A66C2', color: 'white' }}>
+                Send Email
+              </button>
+            )}
+            {selected.payment_status !== 'paid' && (
+              <button onClick={async () => {
+                try {
+                  const d = await apiFetchJson(`/api/admin/build-orders/${selected.id}/approve`, { method: 'POST' });
+                  setToast({ message: d.message || 'Approved', type: 'success' });
+                  const updated = await apiFetchJson(`/api/admin/build-orders/${selected.id}`);
+                  setSelected(updated);
+                  load();
+                } catch { setToast({ message: 'Failed to approve', type: 'error' }); }
+              }} className="text-xs font-semibold px-3 py-1.5 rounded-full border-none cursor-pointer" style={{ background: '#057642', color: 'white' }}>
+                Approve Order
+              </button>
+            )}
+            {selected.processing_status !== 'failed' && selected.payment_status !== 'refunded' && (
+              <button onClick={async () => {
+                if (!confirm('Cancel this build order?')) return;
+                try {
+                  const d = await apiFetchJson(`/api/admin/build-orders/${selected.id}/cancel`, { method: 'POST' });
+                  setToast({ message: d.message || 'Cancelled', type: 'success' });
+                  const updated = await apiFetchJson(`/api/admin/build-orders/${selected.id}`);
+                  setSelected(updated);
+                  load();
+                } catch { setToast({ message: 'Failed to cancel', type: 'error' }); }
+              }} className="text-xs font-semibold px-3 py-1.5 rounded-full border-none cursor-pointer" style={{ background: '#FEF2F2', color: '#CC1016' }}>
+                Cancel Order
+              </button>
+            )}
           </div>
         </div>
       )}
