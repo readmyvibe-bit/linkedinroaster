@@ -524,7 +524,7 @@ export default function Home() {
           {/* ─── LinkedIn-style composer ─── */}
           <div ref={heroInputRef}>
             {/* CHANGE 3 — Label above composer */}
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#0A66C2', letterSpacing: 1, textTransform: 'uppercase' as const, marginBottom: 8, textAlign: 'left' }}>
+            <div style={{ fontSize: 18, fontWeight: 700, color: '#0A66C2', marginBottom: 10, textAlign: 'left' }}>
               Step 1 — Paste your LinkedIn headline
             </div>
             <div
