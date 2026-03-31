@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy — Profile Roaster',
-  description: 'Privacy policy for Profile Roaster LinkedIn analysis service. How we collect, use, and protect your data.',
+  description: 'Privacy policy for Profile Roaster — LinkedIn profile analysis, profile building, and resume services.',
 };
 
 export default function PrivacyPage() {
@@ -17,7 +17,7 @@ export default function PrivacyPage() {
           Privacy Policy
         </h1>
         <p className="text-sm mb-8" style={{ color: 'var(--li-text-secondary)' }}>
-          Last updated: March 29, 2026
+          Last updated: March 31, 2026
         </p>
 
         <div className="space-y-8 text-sm leading-relaxed" style={{ color: 'var(--li-text-primary)' }}>
@@ -27,7 +27,7 @@ export default function PrivacyPage() {
             <p>
               Profile Roaster (&ldquo;profileroaster.in&rdquo;, &ldquo;the Service&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;)
               is committed to protecting your privacy. This Privacy Policy explains how we collect, use, store, share, and protect your personal
-              information when you use our Service.
+              information when you use our Service, including the LinkedIn Roast &amp; Rewrite, Build My LinkedIn, ATS Resume Builder, and User Dashboard features.
             </p>
             <p className="mt-2">
               By using the Service, you consent to the data practices described in this policy. If you do not agree with any part of this
@@ -40,19 +40,26 @@ export default function PrivacyPage() {
 
             <h3 className="font-semibold mt-4 mb-2">2.1 Information You Provide Directly</h3>
             <ul className="list-disc pl-6 space-y-1">
-              <li><strong>Email address:</strong> Required for order creation and delivery of results</li>
+              <li><strong>Email address:</strong> Required for order creation, delivery of results, dashboard login, and OTP verification</li>
               <li><strong>LinkedIn headline:</strong> Submitted for free teaser analysis</li>
-              <li><strong>LinkedIn profile data:</strong> Raw text pasted from your LinkedIn profile page including headline, about section, experience, education, skills, and certifications</li>
-              <li><strong>Job description:</strong> Optionally submitted by Pro plan users for job matching analysis</li>
-              <li><strong>Feedback and ratings:</strong> Optional feedback you provide after receiving results</li>
+              <li><strong>LinkedIn profile data:</strong> Raw text pasted from your LinkedIn profile including headline, about section, experience, education, skills, and certifications (Roast &amp; Rewrite)</li>
+              <li><strong>Personal details:</strong> Full name, phone number, location, career stage, target role, target industry (Build My LinkedIn)</li>
+              <li><strong>Education data:</strong> Institution, degree, field of study, year, GPA (Build My LinkedIn)</li>
+              <li><strong>Experience data:</strong> Company names, roles, dates, descriptions (Build My LinkedIn)</li>
+              <li><strong>Skills and certifications:</strong> Technical skills, soft skills, professional certifications</li>
+              <li><strong>Resume uploads:</strong> PDF or DOCX files uploaded for auto-fill or reference (ATS Resume Builder)</li>
+              <li><strong>Job description:</strong> Target job descriptions submitted for resume targeting and JD matching</li>
+              <li><strong>Feedback and ratings:</strong> Optional feedback and 1&ndash;5 star ratings you provide after receiving results</li>
             </ul>
 
             <h3 className="font-semibold mt-4 mb-2">2.2 Information Collected Automatically</h3>
             <ul className="list-disc pl-6 space-y-1">
-              <li><strong>Order metadata:</strong> Order ID, plan type, payment status, timestamps</li>
+              <li><strong>Order metadata:</strong> Order ID, plan type, payment status, processing status, timestamps</li>
               <li><strong>Payment information:</strong> Razorpay order ID and payment ID (we do NOT store card numbers, UPI IDs, or banking credentials)</li>
+              <li><strong>Session tokens:</strong> Encrypted session identifiers stored in Redis for dashboard authentication (7-day expiry)</li>
+              <li><strong>IP address:</strong> Collected for rate limiting and fraud prevention only; not used for profiling or tracking</li>
               <li><strong>Referral data:</strong> Referral codes and conversion tracking</li>
-              <li><strong>Usage data:</strong> Page views, teaser attempts, and conversion events for analytics</li>
+              <li><strong>Usage data:</strong> Page views, teaser attempts, and conversion events for internal analytics</li>
             </ul>
 
             <h3 className="font-semibold mt-4 mb-2">2.3 Information We Do NOT Collect</h3>
@@ -61,8 +68,8 @@ export default function PrivacyPage() {
               <li>We do NOT require LinkedIn login or OAuth authentication</li>
               <li>We do NOT scrape or crawl LinkedIn profiles</li>
               <li>We do NOT store credit card, debit card, or banking credentials</li>
+              <li>We do NOT store passwords (authentication is OTP-based only)</li>
               <li>We do NOT use cookies for advertising or third-party tracking</li>
-              <li>We do NOT collect your IP address for profiling purposes</li>
             </ul>
           </section>
 
@@ -70,13 +77,14 @@ export default function PrivacyPage() {
             <h2 className="text-lg font-bold mb-3">3. How We Use Your Information</h2>
             <p>We use the information we collect for the following purposes:</p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
-              <li><strong>Service delivery:</strong> To parse, analyze, roast, rewrite, and score your LinkedIn profile</li>
-              <li><strong>Result delivery:</strong> To send you a unique results URL and optional email notifications</li>
-              <li><strong>Card generation:</strong> To create a shareable roast card image from your scores and top roast</li>
+              <li><strong>Service delivery:</strong> To parse, analyse, roast, rewrite, and score your LinkedIn profile; to generate LinkedIn profiles from scratch; to build ATS-optimized resumes and cover letters</li>
+              <li><strong>Result delivery:</strong> To send you unique results URLs, email notifications, and downloadable documents</li>
+              <li><strong>Dashboard access:</strong> To authenticate you via OTP and display your order history, results, and resumes</li>
+              <li><strong>Card generation:</strong> To create shareable roast card images from your scores and top roast</li>
               <li><strong>Payment processing:</strong> To create and verify Razorpay payment orders</li>
-              <li><strong>Quality improvement:</strong> To monitor AI output quality and improve our prompts and scoring algorithms</li>
+              <li><strong>Quality improvement:</strong> To monitor AI output quality and improve our prompts, scoring algorithms, and resume templates</li>
               <li><strong>Customer support:</strong> To respond to your inquiries, feedback, or refund requests</li>
-              <li><strong>Fraud prevention:</strong> To detect and prevent fraudulent orders or abuse of the referral program</li>
+              <li><strong>Fraud prevention:</strong> To detect and prevent fraudulent orders, rate limit abuse, or referral programme abuse</li>
               <li><strong>Analytics:</strong> To understand usage patterns, conversion rates, and improve the Service (aggregated, non-personal data)</li>
             </ul>
           </section>
@@ -84,20 +92,20 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-lg font-bold mb-3">4. Data Processing by AI</h2>
             <p>
-              Your LinkedIn profile data is processed by the following AI services to generate your results:
+              Your data is processed by the following AI services:
             </p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
-              <li><strong>Google Gemini:</strong> Used for initial profile parsing (Stage 1) to extract structured data from raw text</li>
-              <li><strong>Anthropic Claude:</strong> Used for profile analysis (Stage 2), roast generation (Stage 3), profile rewrite (Stage 4), and quality checking (Stage 5)</li>
+              <li><strong>Google Gemini:</strong> Used for profile parsing (extracting structured data from raw text), analysis scoring, and quality checking</li>
+              <li><strong>Anthropic Claude:</strong> Used for roast generation, profile rewriting, LinkedIn profile building from scratch, resume generation, and cover letter creation</li>
             </ul>
             <p className="mt-2">
-              Your profile data is sent to these AI providers via their APIs for processing. Both Anthropic and Google have data
+              Your data is sent to these AI providers via their APIs for processing. Both Anthropic and Google have data
               processing agreements in place. Your data is used solely for generating your results and is not used to train AI models,
               as per the API terms of both providers.
             </p>
             <p className="mt-2">
-              We do not send any identifying information (such as your name or email) to AI providers. Only the profile text content
-              is transmitted for analysis.
+              For the Build My LinkedIn service, personal details such as name, education, and experience are sent to the AI
+              as they are necessary for generating the LinkedIn profile. For Roast &amp; Rewrite, only profile text content is transmitted.
             </p>
           </section>
 
@@ -108,7 +116,9 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-6 space-y-1">
               <li><strong>Database:</strong> Supabase (PostgreSQL) hosted on AWS ap-south-1 (Mumbai, India)</li>
               <li><strong>Card images:</strong> Supabase Storage (S3-compatible object storage)</li>
-              <li><strong>Queue system:</strong> Upstash Redis for job processing</li>
+              <li><strong>Queue and sessions:</strong> Upstash Redis for job processing and dashboard session management</li>
+              <li><strong>Backend server:</strong> Railway (cloud hosting)</li>
+              <li><strong>Frontend:</strong> Vercel (global CDN)</li>
             </ul>
 
             <h3 className="font-semibold mt-4 mb-2">5.2 Security Measures</h3>
@@ -117,21 +127,31 @@ export default function PrivacyPage() {
               <li>Database connections use SSL encryption</li>
               <li>Payment processing is handled by PCI-DSS compliant Razorpay</li>
               <li>API keys and secrets are stored as environment variables, never in source code</li>
+              <li>Dashboard authentication uses cryptographically secure OTP codes with 10-minute expiry</li>
+              <li>Session tokens are stored in Redis with 7-day TTL and are cryptographically random (256-bit)</li>
+              <li>Razorpay webhooks are verified using HMAC-SHA256 signature verification</li>
               <li>Error monitoring via Sentry with personal data scrubbing enabled</li>
               <li>No human reads your profile data during normal operations &mdash; processing is fully automated by AI</li>
             </ul>
 
             <h3 className="font-semibold mt-4 mb-2">5.3 Data Retention</h3>
             <ul className="list-disc pl-6 space-y-1">
-              <li><strong>Profile data (raw paste):</strong> Deleted after 30 days via automated daily cleanup</li>
-              <li><strong>Parsed profile data:</strong> Deleted after 30 days</li>
-              <li><strong>Results (roast, rewrite, scores):</strong> Retained for up to 90 days to allow user access</li>
+              <li><strong>Profile data (raw paste / form input):</strong> Retained for 30 days, then deleted via automated daily cleanup</li>
+              <li><strong>Generated results (roast, rewrite, profiles):</strong> Retained for up to 90 days to allow user access via dashboard</li>
+              <li><strong>Resumes and cover letters:</strong> Retained indefinitely until deleted by user or admin</li>
+              <li><strong>Uploaded resume files:</strong> Text extracted for processing; original files are not stored permanently</li>
               <li><strong>Card images:</strong> Retained indefinitely (public shareable images)</li>
-              <li><strong>Email addresses:</strong> Retained for customer support and communication purposes</li>
-              <li><strong>Payment records:</strong> Retained as required by Indian tax and accounting regulations (minimum 7 years for financial records)</li>
+              <li><strong>Email addresses:</strong> Retained for customer support, dashboard access, and communication purposes</li>
+              <li><strong>Payment records:</strong> Retained as required by Indian tax and accounting regulations (minimum 7 years)</li>
+              <li><strong>Dashboard sessions:</strong> Automatically expire after 7 days</li>
+              <li><strong>OTP codes:</strong> Automatically expire after 10 minutes</li>
               <li><strong>Teaser data (headline only):</strong> Deleted after 30 days for non-converted users</li>
-              <li><strong>Result recovery:</strong> Profile analysis results are stored for 30 days to allow result recovery. Users can delete their results at any time by visiting <a href="https://profileroaster.in/recover" className="text-blue-600 underline">profileroaster.in/recover</a> and clicking Delete My Results.</li>
             </ul>
+            <p className="mt-2">
+              Users can delete their results at any time by visiting{' '}
+              <a href="https://profileroaster.in/recover" className="text-blue-600 underline">profileroaster.in/recover</a>{' '}
+              and using the &ldquo;Delete my data&rdquo; option after OTP verification.
+            </p>
           </section>
 
           <section>
@@ -139,11 +159,12 @@ export default function PrivacyPage() {
             <p>We do NOT sell, rent, or trade your personal information. We share data only with:</p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li><strong>Razorpay:</strong> Email address and order amount for payment processing</li>
-              <li><strong>Anthropic:</strong> Profile text content (anonymized) for AI analysis and generation</li>
-              <li><strong>Google:</strong> Profile text content (anonymized) for AI parsing</li>
+              <li><strong>Anthropic:</strong> Profile text, form data, and resume data for AI generation</li>
+              <li><strong>Google:</strong> Profile text content for AI parsing and quality checking</li>
               <li><strong>Supabase:</strong> All order data for database storage</li>
+              <li><strong>Resend:</strong> Email address for transactional email delivery (results, OTP, follow-ups)</li>
               <li><strong>Sentry:</strong> Error data with personal information scrubbed</li>
-              <li><strong>Upstash:</strong> Order IDs for job queue processing</li>
+              <li><strong>Upstash:</strong> Order IDs and session tokens for queue processing and authentication</li>
             </ul>
             <p className="mt-2">
               We may disclose your information if required by law, court order, or government request, or to protect the rights,
@@ -157,7 +178,7 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li><strong>Right to access:</strong> Request a copy of all personal data we hold about you</li>
               <li><strong>Right to correction:</strong> Request correction of inaccurate personal data</li>
-              <li><strong>Right to deletion:</strong> Request deletion of your personal data (subject to legal retention requirements)</li>
+              <li><strong>Right to deletion:</strong> Request deletion of your personal data (subject to legal retention requirements). Use the /recover page or contact support.</li>
               <li><strong>Right to data portability:</strong> Request your data in a structured, machine-readable format</li>
               <li><strong>Right to withdraw consent:</strong> Withdraw your consent for data processing at any time</li>
               <li><strong>Right to object:</strong> Object to the processing of your personal data for specific purposes</li>
@@ -169,13 +190,15 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold mb-3">8. Cookies and Tracking</h2>
+            <h2 className="text-lg font-bold mb-3">8. Cookies and Local Storage</h2>
             <p>
-              The Service uses minimal cookies and does not use third-party advertising trackers.
+              The Service uses minimal cookies and local storage:
             </p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
-              <li><strong>Essential cookies:</strong> Used by Next.js framework for page routing and session management</li>
+              <li><strong>Essential cookies:</strong> Used by Next.js framework for page routing</li>
               <li><strong>Razorpay cookies:</strong> Set by Razorpay during payment processing for security and fraud prevention</li>
+              <li><strong>Dashboard session:</strong> Authentication token stored in browser localStorage (7-day expiry)</li>
+              <li><strong>Rate limiting:</strong> Teaser attempt count stored in localStorage to prevent abuse</li>
               <li><strong>No advertising cookies:</strong> We do not use Google Analytics, Facebook Pixel, or any ad tracking cookies</li>
               <li><strong>No cross-site tracking:</strong> We do not track your activity on other websites</li>
             </ul>
@@ -193,7 +216,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-lg font-bold mb-3">10. International Data Transfers</h2>
             <p>
-              Your data is primarily stored and processed in India (AWS Mumbai region). However, AI processing may involve
+              Your data is primarily stored and processed in India (AWS Mumbai region). However, AI processing involves
               data transfer to servers operated by Anthropic (United States) and Google (global infrastructure) via their APIs.
             </p>
             <p className="mt-2">
@@ -210,7 +233,7 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li>Notify affected users via email within 72 hours of becoming aware of the breach</li>
               <li>Provide details about the nature of the breach, the data affected, and steps taken to mitigate it</li>
-              <li>Report the breach to relevant authorities as required by applicable law</li>
+              <li>Report the breach to relevant authorities as required by applicable law including CERT-In</li>
               <li>Take immediate steps to contain and remediate the breach</li>
             </ul>
           </section>
@@ -219,8 +242,7 @@ export default function PrivacyPage() {
             <h2 className="text-lg font-bold mb-3">12. Changes to This Policy</h2>
             <p>
               We may update this Privacy Policy from time to time. We will notify users of material changes by posting a notice
-              on the website and updating the &ldquo;Last updated&rdquo; date at the top of this page. We encourage you to review
-              this policy periodically.
+              on the website and updating the &ldquo;Last updated&rdquo; date at the top of this page.
             </p>
           </section>
 
