@@ -2012,7 +2012,10 @@ function ResultsContextColumn({ scores, isPro, orderId }: { scores: any; isPro: 
       <HinglishWisdomCard />
 
       {/* Social proof */}
-      <div style={{ fontSize: 9, fontWeight: 700, color: '#999', letterSpacing: 2 }}>RECENT RESULTS</div>
+      <div style={{ background: 'white', borderRadius: 10, padding: '10px 14px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', textAlign: 'center' }}>
+        <div style={{ fontSize: 9, fontWeight: 700, color: '#999', letterSpacing: 2 }}>RECENT RESULTS</div>
+        <div style={{ fontSize: 10, color: '#888', marginTop: 2 }}>Real transformations from this week</div>
+      </div>
       {[
         { name: 'Rahul S.', role: 'MBA, Delhi', before: 22, after: 71, quote: '3 recruiter messages in 1 week' },
         { name: 'Priya M.', role: 'Engineer, Bangalore', before: 28, after: 76, quote: 'Shortlisted at 2 MNCs' },
@@ -2035,7 +2038,10 @@ function ResultsContextColumn({ scores, isPro, orderId }: { scores: any; isPro: 
       ))}
 
       {/* Career insights */}
-      <div style={{ fontSize: 9, fontWeight: 700, color: '#999', letterSpacing: 2 }}>CAREER INSIGHTS</div>
+      <div style={{ background: 'white', borderRadius: 10, padding: '10px 14px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', textAlign: 'center' }}>
+        <div style={{ fontSize: 9, fontWeight: 700, color: '#999', letterSpacing: 2 }}>CAREER INSIGHTS</div>
+        <div style={{ fontSize: 10, color: '#888', marginTop: 2 }}>What top professionals know about LinkedIn</div>
+      </div>
       {[
         { title: 'The Hidden Job Market', text: '70% of jobs are never posted publicly. A strong LinkedIn profile gets you found by recruiters who have unpublished roles.', color: '#004182' },
         { title: 'First Impressions Matter', text: 'Your LinkedIn headline is seen 5x more than any other section. Recruiters scan headlines before clicking profiles.', color: '#057642' },
@@ -2051,7 +2057,10 @@ function ResultsContextColumn({ scores, isPro, orderId }: { scores: any; isPro: 
       ))}
 
       {/* Facts */}
-      <div style={{ fontSize: 9, fontWeight: 700, color: '#999', letterSpacing: 2 }}>DID YOU KNOW</div>
+      <div style={{ background: 'white', borderRadius: 10, padding: '10px 14px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', textAlign: 'center' }}>
+        <div style={{ fontSize: 9, fontWeight: 700, color: '#999', letterSpacing: 2 }}>DID YOU KNOW</div>
+        <div style={{ fontSize: 10, color: '#888', marginTop: 2 }}>LinkedIn statistics that matter</div>
+      </div>
       {[
         { stat: '7.4s', text: 'Avg recruiter time on a profile' },
         { stat: '40%', text: 'More views with strong headline' },
