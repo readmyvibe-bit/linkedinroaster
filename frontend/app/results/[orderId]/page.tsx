@@ -2027,6 +2027,23 @@ function ResultsContextColumn({ scores, isPro, orderId }: { scores: any; isPro: 
   const afterScore = scores.after.overall;
   const ranking = afterScore >= 80 ? 'Top 10%' : afterScore >= 70 ? 'Top 20%' : afterScore >= 60 ? 'Top 35%' : afterScore >= 50 ? 'Top 50%' : 'Improving';
 
+  function handleResumeCTA() {
+    const maxResumes = isPro ? 3 : 1;
+    fetch(`${API_URL}/api/resume/by-order/${orderId}`)
+      .then(r => r.json())
+      .then(d => {
+        const count = d.resumes?.length || 0;
+        if (count < maxResumes) {
+          window.location.href = `/resume?orderId=${orderId}`;
+        } else {
+          document.getElementById('resume-section')?.scrollIntoView({ behavior: 'smooth' });
+        }
+      })
+      .catch(() => {
+        document.getElementById('resume-section')?.scrollIntoView({ behavior: 'smooth' });
+      });
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', gap: 0 }}>
       {/* Score */}
@@ -2049,7 +2066,7 @@ function ResultsContextColumn({ scores, isPro, orderId }: { scores: any; isPro: 
       {/* Quick actions */}
       <div style={{ background: 'white', borderRadius: 12, padding: '14px', boxShadow: '0 1px 8px rgba(0,0,0,0.05)' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <button onClick={() => document.getElementById('resume-section')?.scrollIntoView({ behavior: 'smooth' })} style={{ display: 'block', width: '100%', padding: '8px', background: '#0A66C2', borderRadius: 8, fontSize: 12, fontWeight: 600, color: 'white', border: 'none', cursor: 'pointer', textAlign: 'center' }}>Build ATS Resume</button>
+          <button onClick={handleResumeCTA} style={{ display: 'block', width: '100%', padding: '8px', background: '#0A66C2', borderRadius: 8, fontSize: 12, fontWeight: 600, color: 'white', border: 'none', cursor: 'pointer', textAlign: 'center' }}>Build ATS Resume</button>
           <button onClick={() => document.getElementById('share-section')?.scrollIntoView({ behavior: 'smooth' })} style={{ padding: '8px', background: '#F0FDF4', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#057642', border: 'none', cursor: 'pointer' }}>Share &amp; Earn &#8377;50</button>
         </div>
       </div>
@@ -2137,7 +2154,7 @@ function ResultsContextColumn({ scores, isPro, orderId }: { scores: any; isPro: 
       <div style={{ background: '#F0FDF4', borderRadius: 12, padding: '16px', textAlign: 'center', border: '1px solid #BBF7D0' }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: '#057642', marginBottom: 6 }}>Ready for the next step?</div>
         <div style={{ fontSize: 11, color: '#666', marginBottom: 10 }}>Turn your rewrite into an ATS resume</div>
-        <button onClick={() => document.getElementById('resume-section')?.scrollIntoView({ behavior: 'smooth' })} style={{ display: 'inline-block', padding: '8px 16px', background: '#057642', color: 'white', borderRadius: 16, fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer' }}>Build Resume &rarr;</button>
+        <button onClick={handleResumeCTA} style={{ display: 'inline-block', padding: '8px 16px', background: '#057642', color: 'white', borderRadius: 16, fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer' }}>Build Resume &rarr;</button>
       </div>
     </div>
   );
@@ -2516,7 +2533,13 @@ export default function ResultsPage() {
           <div style={{ fontSize: 12, color: '#666', marginBottom: 10 }}>Update your LinkedIn, build your resume, share your results</div>
           <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
             <button onClick={() => document.getElementById('rewrite-section')?.scrollIntoView({ behavior: 'smooth' })} style={{ padding: '6px 14px', background: '#0A66C2', color: 'white', border: 'none', borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Copy Rewrite</button>
-            <button onClick={() => document.getElementById('resume-section')?.scrollIntoView({ behavior: 'smooth' })} style={{ padding: '6px 14px', background: '#057642', color: 'white', borderRadius: 16, fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer' }}>Build Resume</button>
+            <button onClick={() => {
+              const maxR = isPro ? 3 : 1;
+              fetch(`${API_URL}/api/resume/by-order/${orderId}`).then(r => r.json()).then(d => {
+                if ((d.resumes?.length || 0) < maxR) { window.location.href = `/resume?orderId=${orderId}`; }
+                else { document.getElementById('resume-section')?.scrollIntoView({ behavior: 'smooth' }); }
+              }).catch(() => { document.getElementById('resume-section')?.scrollIntoView({ behavior: 'smooth' }); });
+            }} style={{ padding: '6px 14px', background: '#057642', color: 'white', borderRadius: 16, fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer' }}>Build Resume</button>
           </div>
         </div>
 
