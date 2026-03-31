@@ -931,29 +931,12 @@ export default function Home() {
 
       {/* ─── Profile Input Form (after plan selection) ─── */}
       {selectedPlan && (
-        <section ref={inputFormRef} style={{ maxWidth: 1200, margin: '0 auto', padding: '0 16px 48px' }}>
-          <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', justifyContent: 'center' }}>
-
-            {/* LEFT SIDE — Conversational Roast Cards */}
-            <div className="hidden lg:block" style={{ width: 280, flexShrink: 0 }}>
-              <RoastQuotesColumn />
-            </div>
-
-            {/* CENTER — Form */}
-            <div style={{ flex: 1, maxWidth: 672, minWidth: 0 }}>
+        <section ref={inputFormRef} style={{ maxWidth: 720, margin: '0 auto', padding: '0 16px 48px' }}>
               <ProfileInputForm
                 plan={selectedPlan}
                 teaserId={teaser?.teaser_id || null}
                 email={email}
               />
-            </div>
-
-            {/* RIGHT SIDE — Profile Cards */}
-            <div className="hidden lg:block" style={{ width: 280, flexShrink: 0 }}>
-              <ScoreTransformColumn />
-            </div>
-
-          </div>
         </section>
       )}
 
@@ -1105,13 +1088,13 @@ export default function Home() {
       {/* ─── Testimonial/Social Proof ─── */}
       <section style={{ maxWidth: 900, margin: '32px auto 0', padding: '0 16px' }}>
         <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, padding: '20px 24px' }}>
-          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
             {[
               { name: 'Arjun T.', role: 'BDM, Pune', quote: 'My score went from 31 to 78. Got 3 recruiter messages within a week of updating my profile.', score: '31 → 78' },
               { name: 'Sneha R.', role: 'HR Executive, Mumbai', quote: 'The roast was painfully accurate. The rewrite was worth every rupee. Best ₹299 I spent on my career.', score: '38 → 84' },
               { name: 'Rahul S.', role: 'MBA Graduate, Delhi', quote: 'Used the ATS resume builder for 3 different job applications. Got interview calls for 2 of them.', score: '22 → 71' },
             ].map((t, i) => (
-              <div key={i} style={{ flex: 1, minWidth: 180 }}>
+              <div key={i}>
                 <div style={{ fontSize: 12, color: '#555', fontStyle: 'italic', lineHeight: 1.5, marginBottom: 8 }}>
                   &ldquo;{t.quote}&rdquo;
                 </div>
