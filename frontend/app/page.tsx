@@ -489,9 +489,12 @@ export default function Home() {
   return (
     <main className="min-h-screen pb-16">
       {/* ─── Top Bar ─── */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 24px', maxWidth: 1200, margin: '0 auto' }}>
-        <a href="/recover" style={{ fontSize: 13, color: '#0A66C2', textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
-          Already got roasted? Find your burn report &rarr;
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 24px', maxWidth: 1200, margin: '0 auto' }}>
+        <a href="/dashboard" style={{ fontSize: 14, color: '#0A66C2', textDecoration: 'none', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+          &#128202; My Dashboard
+        </a>
+        <a href="/recover" style={{ fontSize: 13, color: '#666', textDecoration: 'none', fontWeight: 500 }}>
+          Lost your results? Recover &rarr;
         </a>
       </div>
       {/* ─── Hero with Floating Cards ─── */}
@@ -590,12 +593,6 @@ export default function Home() {
             </a>
           </div>
 
-          {/* Dashboard link */}
-          <div style={{ textAlign: 'center', marginTop: 10 }}>
-            <a href="/dashboard" style={{ fontSize: 13, color: '#666', textDecoration: 'none' }}>
-              Already a customer? <span style={{ color: '#0A66C2', fontWeight: 600 }}>Go to Dashboard</span>
-            </a>
-          </div>
 
           {rateLimited && (
             <div className="mt-3 p-4 rounded-lg text-sm" style={{ background: '#FEF3C7', border: '1px solid #F59E0B' }}>
