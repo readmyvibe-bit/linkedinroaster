@@ -286,22 +286,34 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 }}>
               {resumes.map((r: any) => (
                 <div key={r.id}
-                  style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, padding: '18px 20px', cursor: 'pointer', transition: 'box-shadow 0.2s' }}
+                  style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, padding: '18px 20px', transition: 'box-shadow 0.2s' }}
                   onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)')}
                   onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#191919', marginBottom: 4 }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#191919', marginBottom: 4 }}>
                     {r.targetRole}{r.targetCompany ? ` at ${r.targetCompany}` : ''}
                   </div>
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', marginBottom: 8 }}>
                     <span style={{ fontSize: 11, color: '#888' }}>{r.templateId}</span>
                     <span style={{ fontSize: 11, color: '#888' }}>&bull;</span>
-                    <span style={{ fontSize: 11, color: '#888' }}>{new Date(r.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
+                    <span style={{ fontSize: 11, color: '#888' }}>{new Date(r.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                    {r.hasCoverLetter && (
+                      <span style={{ fontSize: 10, fontWeight: 600, color: '#057642', background: '#DCFCE7', padding: '1px 6px', borderRadius: 4 }}>Cover Letter</span>
+                    )}
                   </div>
+                  {r.jobDescription && (
+                    <div style={{ fontSize: 12, color: '#666', lineHeight: 1.5, marginBottom: 8, background: '#F9FAFB', borderRadius: 6, padding: '8px 10px', borderLeft: '3px solid #0A66C2' }}>
+                      <div style={{ fontSize: 10, fontWeight: 600, color: '#0A66C2', marginBottom: 2 }}>JOB DESCRIPTION</div>
+                      {r.jobDescription}{r.jobDescription.length >= 200 ? '...' : ''}
+                    </div>
+                  )}
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'space-between' }}>
                     <span style={{ fontSize: 13, fontWeight: 700, color: (r.atsScore || 0) >= 80 ? '#057642' : (r.atsScore || 0) >= 60 ? '#0A66C2' : '#E16B00' }}>ATS: {r.atsScore ?? '—'}%</span>
-                    <div style={{ display: 'flex', gap: 6 }}>
+                    <div style={{ display: 'flex', gap: 8 }}>
                       <a href={`/resume/${r.id}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize: 12, color: '#0A66C2', fontWeight: 600, textDecoration: 'none' }}>View</a>
                       <a href={`/resume/${r.id}/edit`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize: 12, color: '#057642', fontWeight: 600, textDecoration: 'none' }}>Edit</a>
+                      {r.hasCoverLetter && (
+                        <a href={`/resume/${r.id}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize: 12, color: '#E16B00', fontWeight: 600, textDecoration: 'none' }}>Cover Letter</a>
+                      )}
                     </div>
                   </div>
                 </div>

@@ -140,7 +140,8 @@ router.get('/data', dashAuth, async (req: Request, res: Response) => {
     // Resumes — from both roast and build orders
     const resumes = await query(
       `SELECT r.id, r.order_id, r.target_role, r.target_company, r.template_id,
-              r.ats_score, r.created_at
+              r.ats_score, r.job_description, r.cover_letter IS NOT NULL as has_cover_letter,
+              r.created_at
        FROM resumes r
        WHERE r.order_id IN (
          SELECT id FROM orders WHERE email=$1
@@ -166,7 +167,9 @@ router.get('/data', dashAuth, async (req: Request, res: Response) => {
       resumes: resumes.rows.map((r: any) => ({
         id: r.id, orderId: r.order_id, targetRole: r.target_role,
         targetCompany: r.target_company, templateId: r.template_id,
-        atsScore: r.ats_score, createdAt: r.created_at,
+        atsScore: r.ats_score, hasCoverLetter: r.has_cover_letter,
+        jobDescription: r.job_description?.slice(0, 200) || '',
+        createdAt: r.created_at,
       })),
     });
   } catch (err: any) {
