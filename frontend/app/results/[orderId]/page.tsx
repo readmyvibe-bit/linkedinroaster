@@ -2034,6 +2034,22 @@ function ResultsContextColumn({ scores, isPro, orderId }: { scores: any; isPro: 
         </div>
       ))}
 
+      {/* Career insights */}
+      <div style={{ fontSize: 9, fontWeight: 700, color: '#999', letterSpacing: 2 }}>CAREER INSIGHTS</div>
+      {[
+        { title: 'The Hidden Job Market', text: '70% of jobs are never posted publicly. A strong LinkedIn profile gets you found by recruiters who have unpublished roles.', color: '#004182' },
+        { title: 'First Impressions Matter', text: 'Your LinkedIn headline is seen 5x more than any other section. Recruiters scan headlines before clicking profiles.', color: '#057642' },
+        { title: 'The About Section Secret', text: 'Profiles with a compelling About section get 30% more connection requests. Most people leave it blank.', color: '#E16B00' },
+        { title: 'ATS Reality Check', text: '75% of resumes are rejected by ATS before a human sees them. Keyword matching is everything.', color: '#004182' },
+        { title: 'The Referral Advantage', text: 'Referred candidates are 4x more likely to be hired. Your LinkedIn network is your referral pipeline.', color: '#057642' },
+        { title: 'Salary Negotiation', text: 'Candidates with strong LinkedIn profiles negotiate 10-20% higher salaries because they have competing offers.', color: '#E16B00' },
+      ].map((insight, i) => (
+        <div key={i} style={{ background: 'white', borderRadius: 12, padding: '14px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', borderLeft: `3px solid ${insight.color}` }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: insight.color, marginBottom: 4 }}>{insight.title}</div>
+          <div style={{ fontSize: 10, color: '#555', lineHeight: 1.5 }}>{insight.text}</div>
+        </div>
+      ))}
+
       {/* Facts */}
       <div style={{ fontSize: 9, fontWeight: 700, color: '#999', letterSpacing: 2 }}>DID YOU KNOW</div>
       {[
