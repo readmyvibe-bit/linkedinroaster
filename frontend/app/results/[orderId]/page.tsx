@@ -1889,6 +1889,12 @@ function ResultsNavColumn() {
     { title: 'CAREER TIP', text: '85% of jobs are filled through networking. Your LinkedIn IS your first impression.', color: '#0A66C2' },
     { title: 'ROAST WISDOM', text: '"Results-driven" is LinkedIn for "I had no real numbers to share." Your rewrite fixes that.', color: '#E16B00' },
     { title: 'ATS INSIGHT', text: 'ATS systems scan for exact keyword matches. Your rewrite includes industry-specific keywords.', color: '#057642' },
+    { title: 'RESUME TIP', text: 'An ATS resume with JD-matched keywords gets 3x more interview calls than a generic one.', color: '#0A66C2' },
+    { title: 'HEADLINE HACK', text: 'Adding your key achievement in the headline (like "₹6.5Cr Revenue") gets 5x more clicks.', color: '#E16B00' },
+    { title: 'ABOUT SECTION', text: 'Start your About with a hook, not "I am a..." — recruiters decide in 2 seconds to read more.', color: '#057642' },
+    { title: 'EXPERIENCE TIP', text: 'Bullets that start with "Managed" or "Led" are 60% more likely to catch a recruiter\'s eye.', color: '#0A66C2' },
+    { title: 'NETWORK HACK', text: 'Commenting on 5 posts/day for a week gets more profile views than 100 connection requests.', color: '#E16B00' },
+    { title: 'PHOTO TIP', text: 'Professional headshots get 14x more profile views. No selfies, no group crops.', color: '#057642' },
   ];
 
   const roastQuotes = [
@@ -1898,6 +1904,12 @@ function ResultsNavColumn() {
     { text: 'Jab tak headline mein number nahi, recruiter ko interest nahi.', persona: 'Career Coach' },
     { text: 'LinkedIn pe 500+ connections but 0 profile views. Sochne wali baat hai.', persona: 'Reality Check' },
     { text: '"Looking for new opportunities" — bhai, opportunity bhi tujhe dhundh nahi pa rahi.', persona: 'The AI Roaster' },
+    { text: 'Interview ke baad "We will let you know" — matlab delete ho gaye ho bhai.', persona: 'HR Department' },
+    { text: 'About section padh ke laga Wikipedia article hai. Recruiter ko summary chahiye, thesis nahi.', persona: 'The Recruiter' },
+    { text: '"Passionate about everything" — matlab kisi cheez mein expert nahi.', persona: 'Career Coach' },
+    { text: 'Profile photo mein sunglasses laga ke LinkedIn pe aaye ho? Beach party nahi hai yeh.', persona: 'The AI Roaster' },
+    { text: 'Skills section mein "Microsoft Word" add kiya hai. Bhai, 2026 hai. Everybody knows Word.', persona: 'Reality Check' },
+    { text: 'Experience mein "Responsible for" likha hai. Kya responsible the? Kya achieve kiya?', persona: 'Hiring Manager' },
   ];
 
   return (
@@ -2012,6 +2024,9 @@ function ResultsContextColumn({ scores, isPro, orderId }: { scores: any; isPro: 
         { name: 'Rahul S.', role: 'MBA, Delhi', before: 22, after: 71, quote: '3 recruiter messages in 1 week' },
         { name: 'Priya M.', role: 'Engineer, Bangalore', before: 28, after: 76, quote: 'Shortlisted at 2 MNCs' },
         { name: 'Sneha R.', role: 'HR, Mumbai', before: 38, after: 84, quote: 'Best ₹299 on my career' },
+        { name: 'Arjun T.', role: 'BDM, Pune', before: 31, after: 78, quote: 'Profile views jumped 4x' },
+        { name: 'Kavya N.', role: 'Analyst, Hyderabad', before: 25, after: 72, quote: 'Finally getting interview calls' },
+        { name: 'Amit K.', role: 'PM, Gurgaon', before: 42, after: 85, quote: 'Landed dream job in 3 weeks' },
       ].map((p, i) => (
         <div key={i} style={{ background: 'white', borderRadius: 12, padding: '14px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
@@ -2033,6 +2048,10 @@ function ResultsContextColumn({ scores, isPro, orderId }: { scores: any; isPro: 
         { stat: '40%', text: 'More views with strong headline' },
         { stat: '6x', text: 'More messages with complete profile' },
         { stat: '85%', text: 'Jobs filled via LinkedIn networking' },
+        { stat: '71%', text: 'Recruiters reject in under 10 seconds' },
+        { stat: '3x', text: 'More callbacks with ATS-optimized resume' },
+        { stat: '14x', text: 'More views with professional headshot' },
+        { stat: '50%', text: 'Profiles never viewed by any recruiter' },
       ].map((f, i) => (
         <div key={i} style={{ background: 'white', borderRadius: 12, padding: '12px 14px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', textAlign: 'center' }}>
           <div style={{ fontSize: 22, fontWeight: 800, color: '#0A66C2', lineHeight: 1 }}>{f.stat}</div>
