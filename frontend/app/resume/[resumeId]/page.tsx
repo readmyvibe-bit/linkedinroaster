@@ -150,63 +150,55 @@ export default function ResumePreviewPage() {
         return;
       }
 
-      // Pass 2: tiered shrink based on overflow amount
+      // Pass 2: tiered shrink — reduce @page margin + content spacing
       let shrinkCSS = '';
+      let pageMarginCSS = '';
       if (overflow1 <= 80) {
-        // Light shrink (1-3 lines overflow)
+        // Light shrink (1-3 lines overflow) — reduce page margin + light content shrink
+        pageMarginCSS = '@page{margin:8mm 10mm 8mm 10mm!important}';
         shrinkCSS = `
-          body,div,p,span,li{line-height:1.35!important}
-          [style*="margin-bottom"]{margin-bottom:3px!important}
-          [style*="margin-top: 2"],[style*="margin-top:2"]{margin-top:12px!important}
-          [style*="padding: 24"],[style*="padding:24"]{padding:16px!important}
-          [style*="padding: 32"],[style*="padding:32"]{padding:22px!important}
+          body,body *{line-height:1.35!important}
+          body div,body p,body span{margin-bottom:3px!important}
         `;
       } else if (overflow1 <= 160) {
         // Medium shrink (3-6 lines overflow)
+        pageMarginCSS = '@page{margin:6mm 8mm 6mm 8mm!important}';
         shrinkCSS = `
-          body,div,p,span,li{line-height:1.25!important}
-          [style*="margin-bottom"]{margin-bottom:2px!important}
-          [style*="margin-top"]{margin-top:4px!important}
-          [style*="padding: 24"],[style*="padding:24"]{padding:12px!important}
-          [style*="padding: 32"],[style*="padding:32"]{padding:16px!important}
-          [style*="padding: 20"],[style*="padding:20"]{padding:12px!important}
-          [style*="gap: 1"],[style*="gap:1"]{gap:4px!important}
-          h1,h2,h3{margin-bottom:2px!important;margin-top:4px!important}
+          body,body *{line-height:1.25!important}
+          body div,body p{margin-top:3px!important;margin-bottom:2px!important}
+          body h1,body h2,body h3{margin-top:4px!important;margin-bottom:2px!important}
         `;
       } else {
         // Aggressive shrink (6-8 lines overflow)
+        pageMarginCSS = '@page{margin:5mm 8mm 5mm 8mm!important}';
         shrinkCSS = `
-          body,div,p,span,li{line-height:1.2!important;font-size:calc(1em - 0.3px)!important}
-          [style*="margin-bottom"]{margin-bottom:1px!important}
-          [style*="margin-top"]{margin-top:2px!important}
-          [style*="padding: 24"],[style*="padding:24"]{padding:8px!important}
-          [style*="padding: 32"],[style*="padding:32"]{padding:10px!important}
-          [style*="padding: 20"],[style*="padding:20"]{padding:8px!important}
-          [style*="gap"]{gap:2px!important}
-          h1,h2,h3{margin-bottom:1px!important;margin-top:2px!important}
-          ul,ol{margin:0!important;padding-left:14px!important}
+          body,body *{line-height:1.2!important}
+          body div,body p,body span{margin-top:1px!important;margin-bottom:1px!important}
+          body h1,body h2,body h3{margin-top:2px!important;margin-bottom:1px!important}
         `;
       }
 
-      let adjustedHtml = html.replace('</style>', shrinkCSS + '</style>');
+      let adjustedHtml = html
+        .replace(/@page\s*\{[^}]*\}/, pageMarginCSS)
+        .replace('</style>', shrinkCSS + '</style>');
 
       // Pass 3: re-measure after shrink
       const height2 = await measure(adjustedHtml);
       const overflow2 = height2 - PAGE_HEIGHT;
 
-      // If still overflows after shrink, apply nuclear pass
-      if (overflow2 > 0 && overflow2 <= 120) {
+      // If still overflows, apply nuclear pass — minimal margins + tighter line-height
+      if (overflow2 > 0 && overflow2 <= 150) {
+        const nuclearPageCSS = '@page{margin:4mm 6mm 4mm 6mm!important}';
         const nuclearCSS = `
-          body,div,p,span,li{line-height:1.15!important}
-          [style*="margin"]{margin:1px 0!important}
-          [style*="padding"]{padding:4px!important}
-          [style*="gap"]{gap:1px!important}
-          h1,h2,h3{margin:0!important}
-          ul,ol{margin:0!important;padding-left:12px!important}
+          body,body *{line-height:1.15!important}
+          body div,body p,body span{margin-top:0!important;margin-bottom:0!important;padding-top:0!important;padding-bottom:0!important}
+          body h1,body h2,body h3{margin:0!important}
         `;
-        adjustedHtml = adjustedHtml.replace('</style>', nuclearCSS + '</style>');
+        adjustedHtml = adjustedHtml
+          .replace(/@page\s*\{[^}]*\}/, nuclearPageCSS)
+          .replace('</style>', nuclearCSS + '</style>');
       }
-      // If still > 120px overflow after nuclear, let it be 2 pages — content is genuinely long
+      // If > 150px after nuclear, genuinely 2 pages — let it be
 
       const win = window.open('', '_blank');
       if (!win) { alert('Please allow popups to download PDF.'); return; }
