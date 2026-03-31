@@ -116,9 +116,9 @@ ${uploadedResumeText ? uploadedResumeText.slice(0, 4000) : 'No uploaded resume.'
 2. EXPERIENCE: Use AI-rewritten bullets from Source 1 for top roles. For older roles not in Source 1, use Source 2 or Source 3 data.
 3. INCLUDE ALL JOBS: If Source 3 has more jobs than Source 1, include them all. Do not skip any employment.
 4. PERSONAL INFO: Use Source 3 for name, phone, email if available. Fall back to user-provided details.
-5. SKILLS: Merge skills from all 3 sources. Remove duplicates.
+5. SKILLS: ONLY include skills that the user actually has — from Source 1, Source 2, or Source 3. NEVER add skills from the job description that the user has not listed. If the JD mentions "API Management" but the user has never listed it, do NOT add it. This is critical — fabricating skills the user doesn't have is dishonest and will fail in interviews.
 6. ACHIEVEMENTS: Include achievements from Source 3 that aren't already in experience bullets.
-7. NEVER FABRICATE: Do not invent any degree, institution, company, achievement, or certification not explicitly stated in any source. If no certifications exist in any source, return an empty certifications array. Do NOT guess or generate certifications.
+7. NEVER FABRICATE: Do not invent any degree, institution, company, achievement, certification, or SKILL not explicitly stated in any source. If no certifications exist in any source, return an empty certifications array. Do NOT guess or generate certifications. Do NOT add technical skills from the JD that the user doesn't have.
 
 CONTACT INFO:
 Name: ${input.userDetails.name}
@@ -141,7 +141,7 @@ STRICT ATS RULES:
 3. All dates in MMM YYYY format (e.g., Jan 2020 - Present)
 4. Every bullet starts with a strong action verb
 5. Every bullet must include a metric, number, or measurable outcome
-6. Keywords from JD must appear naturally in summary, bullets, and skills
+6. Keywords from JD may appear naturally in summary and bullets WHERE the user has relevant experience — but NEVER add JD keywords as skills the user doesn't actually have. Only match JD keywords to skills the user already listed.
 7. Summary is 3-4 sentences maximum
 8. Skills grouped by category
 9. PAGE LENGTH RULES (CRITICAL):
