@@ -1869,6 +1869,110 @@ function ErrorState({ type, onRetry }: { type: string; onRetry?: () => void }) {
 }
 
 // ═══════════════════════════════════════════
+// Side Column Components
+// ═══════════════════════════════════════════
+
+function ResultsNavColumn() {
+  return (
+    <div style={{ position: 'sticky', top: 80, display: 'flex', flexDirection: 'column', gap: 0 }}>
+      <div style={{ fontSize: 10, fontWeight: 700, color: '#999', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>YOUR RESULTS</div>
+      {[
+        { id: 'score-section', label: 'Score', icon: '📊' },
+        { id: 'roast-section', label: 'Roast (6 pts)', icon: '🔥' },
+        { id: 'strength-section', label: 'Your Strength', icon: '💪' },
+        { id: 'rewrite-section', label: 'Rewrite', icon: '✍️' },
+        { id: 'resume-section', label: 'Resume Builder', icon: '📄' },
+        { id: 'share-section', label: 'Share & Earn', icon: '🎁' },
+      ].map((item) => (
+        <button
+          key={item.id}
+          onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            padding: '8px 12px', border: 'none', background: 'transparent',
+            cursor: 'pointer', borderRadius: 8, textAlign: 'left', width: '100%',
+            fontSize: 13, color: '#555', fontWeight: 500,
+            transition: 'all 0.15s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#F0F7FF'; e.currentTarget.style.color = '#0A66C2'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#555'; }}
+        >
+          <span style={{ fontSize: 14 }}>{item.icon}</span>
+          {item.label}
+        </button>
+      ))}
+
+      {/* Quick tip card below nav */}
+      <div style={{ marginTop: 16, background: 'white', borderRadius: 12, padding: '14px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, color: '#999', letterSpacing: 1, marginBottom: 6 }}>PRO TIP</div>
+        <div style={{ fontSize: 12, color: '#555', lineHeight: 1.5 }}>Copy your new headline first — it makes the biggest difference in recruiter views.</div>
+      </div>
+    </div>
+  );
+}
+
+function HinglishWisdomCard() {
+  const [idx, setIdx] = useState(0);
+  const quotes = [
+    { text: 'HR be like: "We\'ll get back to you." Translation: Delete.', persona: 'The Recruiter' },
+    { text: 'Apna headline fix karo, recruiter ka mood fix ho jayega.', persona: 'The AI' },
+    { text: 'Resume mein "proficient in MS Office" likhna band karo. 2026 hai bhai.', persona: 'Your Resume' },
+    { text: 'Manager: "You\'re like family here." Also Manager: "Budget mein raise nahi hai."', persona: 'Corporate Life' },
+    { text: 'LinkedIn pe "Open to work" lagaya, phir bhi ghost ho gaye. Profile check karo.', persona: 'Reality Check' },
+    { text: '"We need someone with 5 years React experience." React was released 3 years ago.', persona: 'Job Posting' },
+  ];
+  useEffect(() => { const t = setInterval(() => setIdx(p => (p + 1) % quotes.length), 10000); return () => clearInterval(t); }, []);
+  const q = quotes[idx];
+  return (
+    <div key={idx} style={{ background: 'white', borderRadius: 14, padding: '14px 16px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)', animation: 'resultAppear 0.5s ease forwards' }}>
+      <div style={{ fontSize: 10, fontWeight: 700, color: '#E16B00', letterSpacing: 1, marginBottom: 6 }}>{q.persona.toUpperCase()}</div>
+      <div style={{ fontSize: 12, color: '#374151', lineHeight: 1.55, fontStyle: 'italic' }}>{q.text}</div>
+    </div>
+  );
+}
+
+function ResultsContextColumn({ scores, isPro, orderId }: { scores: any; isPro: boolean; orderId: string }) {
+  const improvement = scores.after.overall - scores.before.overall;
+
+  // Ranking
+  const afterScore = scores.after.overall;
+  const ranking = afterScore >= 80 ? 'Top 10%' : afterScore >= 70 ? 'Top 20%' : afterScore >= 60 ? 'Top 35%' : afterScore >= 50 ? 'Top 50%' : 'Improving';
+
+  return (
+    <div style={{ position: 'sticky', top: 80, display: 'flex', flexDirection: 'column', gap: 14 }}>
+      {/* Score card */}
+      <div style={{ background: 'white', borderRadius: 14, padding: '18px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)', textAlign: 'center' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, color: '#999', letterSpacing: 2, marginBottom: 8 }}>YOUR IMPROVEMENT</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+          <span style={{ fontSize: 24, fontWeight: 800, color: '#CC1016' }}>{scores.before.overall}</span>
+          <span style={{ fontSize: 16, color: '#ccc' }}>→</span>
+          <span style={{ fontSize: 32, fontWeight: 800, color: '#057642' }}>{scores.after.overall}</span>
+        </div>
+        <div style={{ background: '#DCFCE7', color: '#057642', fontSize: 14, fontWeight: 800, padding: '4px 16px', borderRadius: 20, display: 'inline-block', marginTop: 8 }}>+{improvement} pts</div>
+      </div>
+
+      {/* Ranking badge */}
+      <div style={{ background: afterScore >= 70 ? '#F0FDF4' : '#FEF9F0', border: `1px solid ${afterScore >= 70 ? '#BBF7D0' : '#FDE8CD'}`, borderRadius: 12, padding: '12px 16px', textAlign: 'center' }}>
+        <div style={{ fontSize: 18, fontWeight: 800, color: afterScore >= 70 ? '#057642' : '#E16B00' }}>{ranking}</div>
+        <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>of LinkedIn profiles after rewrite</div>
+      </div>
+
+      {/* Hinglish wisdom cards - rotate */}
+      <HinglishWisdomCard />
+
+      {/* Quick actions */}
+      <div style={{ background: 'white', borderRadius: 14, padding: '14px 16px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, color: '#999', letterSpacing: 1, marginBottom: 8 }}>QUICK ACTIONS</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <a href={`/resume?orderId=${orderId}`} style={{ display: 'block', padding: '8px 12px', background: '#F0F7FF', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', textDecoration: 'none', textAlign: 'center' }}>Build ATS Resume</a>
+          <button onClick={() => document.getElementById('share-section')?.scrollIntoView({ behavior: 'smooth' })} style={{ padding: '8px 12px', background: '#F0FDF4', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#057642', border: 'none', cursor: 'pointer' }}>Share & Earn ₹50</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════
 // Main Results Page
 // ═══════════════════════════════════════════
 export default function ResultsPage() {
@@ -2008,17 +2112,25 @@ export default function ResultsPage() {
 
   return (
     <main className="min-h-screen pb-16">
-      {/* Header */}
-      <div className="max-w-2xl mx-auto px-4 pt-8 pb-4 text-center">
-        <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--li-text-primary)' }}>
-          {roast.roast_title}
-        </h1>
-        <p className="text-sm" style={{ color: 'var(--li-text-secondary)' }}>
-          {roast.overall_verdict}
-        </p>
-      </div>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 16px' }}>
+        {/* Header stays full width above */}
+        <div className="pt-8 pb-4 text-center" style={{ maxWidth: 672, margin: '0 auto' }}>
+          <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--li-text-primary)' }}>
+            {roast.roast_title}
+          </h1>
+          <p className="text-sm" style={{ color: 'var(--li-text-secondary)' }}>
+            {roast.overall_verdict}
+          </p>
+        </div>
 
-      <div className="max-w-2xl mx-auto px-4">
+        <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start', justifyContent: 'center' }}>
+          {/* LEFT — Navigation */}
+          <div className="hidden xl:block" style={{ width: 220, flexShrink: 0 }}>
+            <ResultsNavColumn />
+          </div>
+
+          {/* CENTER — Results (keep max-w-2xl) */}
+          <div style={{ flex: 1, maxWidth: 672, minWidth: 0 }}>
         {/* VIRAL 1 — Top Share Block */}
         <div style={{
           background: 'linear-gradient(135deg, #004182, #0A66C2)',
@@ -2082,9 +2194,12 @@ export default function ResultsPage() {
         </div>
 
         {/* Score Reveal */}
+        <div id="score-section">
         <ScoreReveal before={scores.before} after={scores.after} />
+        </div>
 
         {/* Roast Section */}
+        <div id="roast-section">
         <h2 className="text-lg font-bold mb-3" style={{ color: 'var(--li-text-primary)' }}>
           Your Roast 🔥
         </h2>
@@ -2096,8 +2211,10 @@ export default function ResultsPage() {
             totalPoints={roast.roast_points.length}
           />
         ))}
+        </div>
 
         {/* Closing compliment */}
+        <div id="strength-section">
         <div className="li-card p-4 mb-6">
           <p className="text-sm italic" style={{ color: 'var(--li-green)' }}>
             {roast.closing_compliment}
@@ -2118,6 +2235,7 @@ export default function ResultsPage() {
         {roast.hidden_strengths && roast.hidden_strengths.length > 0 && (
           <HiddenStrengths strengths={roast.hidden_strengths} />
         )}
+        </div>
 
         {/* Personalization Note */}
         {rewrite?.personalization_note && (
@@ -2137,6 +2255,7 @@ export default function ResultsPage() {
         )}
 
         {/* Rewrite Section */}
+        <div id="rewrite-section">
         <SafeRender name="RewriteSections">
           <h2 className="text-lg font-bold mb-3" style={{ color: 'var(--li-text-primary)' }}>
             Your Rewrite ✍️
@@ -2213,11 +2332,15 @@ export default function ResultsPage() {
 
         {/* Placeholder Guide */}
         <PlaceholderGuide placeholders={rewrite.placeholders_to_fill} />
+        </div>
 
         {/* Resume Builder CTA — available for all plans */}
+        <div id="resume-section">
         <ResumeBuilderSection orderId={orderId} maxResumes={isPro ? 3 : 1} plan={plan} />
+        </div>
 
         {/* Share */}
+        <div id="share-section">
         <ShareButtons
           caption={roast.linkedin_caption}
           cardUrl={results.card_image_url ? `${results.card_image_url}?t=${Date.now()}` : null}
@@ -2226,6 +2349,7 @@ export default function ResultsPage() {
           afterScore={scores.after.overall}
           referralUrl={referral_url || `https://profileroaster.in?ref=${referral_code || ''}`}
         />
+        </div>
 
         {/* Feedback */}
         <FeedbackWidget orderId={orderId} />
@@ -2263,6 +2387,13 @@ export default function ResultsPage() {
               profileroaster.in is not responsible for any inaccuracies in AI-generated
               content. Use your judgment before updating your profile.
             </p>
+          </div>
+        </div>
+          </div>
+
+          {/* RIGHT — Context Cards */}
+          <div className="hidden xl:block" style={{ width: 240, flexShrink: 0 }}>
+            <ResultsContextColumn scores={scores} isPro={isPro} orderId={orderId} />
           </div>
         </div>
       </div>
