@@ -1465,18 +1465,23 @@ function ResumeBuilderSection({ orderId, maxResumes = 3, plan = 'standard' }: { 
         </div>
       )}
 
-      {/* Quota NOT full — show build button */}
-      {!quotaFull && (
+      {/* No resumes yet — show build button */}
+      {resumes.length === 0 && (
         <>
           <p style={{ fontSize: 14, color: '#444', lineHeight: 1.6, marginBottom: 12 }}>
-            {resumes.length > 0
-              ? `Build another resume for a different job (${maxResumes - resumes.length} remaining).`
-              : 'Turn your rewrite into an ATS-optimized resume + cover letter. Paste a job description and get everything in 60 seconds.'}
+            Turn your rewrite into an ATS-optimized resume + cover letter. Paste a job description and get everything in 60 seconds.
           </p>
           <a href={`/resume?orderId=${orderId}`} style={{ display: 'inline-block', background: '#0A66C2', color: 'white', padding: '10px 24px', borderRadius: 50, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
-            {resumes.length > 0 ? 'Build Another Resume' : 'Build My Resume'} &rarr;
+            Build My Resume &rarr;
           </a>
         </>
+      )}
+
+      {/* Has resumes but quota NOT full — show secondary build link */}
+      {resumes.length > 0 && !quotaFull && (
+        <a href={`/resume?orderId=${orderId}`} style={{ display: 'inline-block', fontSize: 13, color: '#0A66C2', fontWeight: 600, textDecoration: 'none', marginTop: 4 }}>
+          + Build another resume ({maxResumes - resumes.length} remaining)
+        </a>
       )}
 
       {/* Quota full — Standard user: show upgrade */}
