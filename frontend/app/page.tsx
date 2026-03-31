@@ -1313,6 +1313,46 @@ function RoastQuotesColumn() {
         <div style={{ fontSize: 11, color: '#E16B00', fontWeight: 600 }}>Your profile is next...</div>
         <div style={{ fontSize: 10, color: '#999', marginTop: 2 }}>Paste your LinkedIn content above</div>
       </div>
+
+      {/* Did You Know cards */}
+      <DidYouKnowCards />
+    </div>
+  );
+}
+
+// ─── Did You Know Cards ───
+function DidYouKnowCards() {
+  const facts = [
+    { stat: '7.4s', text: 'Average time a recruiter spends looking at your profile', icon: '&#9201;' },
+    { stat: '85%', text: 'Jobs are filled through networking. LinkedIn IS your network.', icon: '&#128101;' },
+    { stat: '40%', text: 'More profile views with a strong headline vs generic one', icon: '&#128200;' },
+    { stat: '6x', text: 'More likely to get messages with a complete profile', icon: '&#128172;' },
+    { stat: '71%', text: 'Recruiters reject profiles in under 10 seconds', icon: '&#9888;&#65039;' },
+  ];
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setIdx(p => (p + 1) % facts.length), 10000);
+    return () => clearInterval(t);
+  }, []);
+  const f = facts[idx];
+
+  return (
+    <div style={{ marginTop: 8 }}>
+      <div style={{ fontSize: 9, fontWeight: 700, color: '#bbb', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8, textAlign: 'center' }}>Did you know?</div>
+      <div key={idx} style={{
+        background: 'white', borderRadius: 14, padding: '18px 16px', textAlign: 'center',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.05)',
+        animation: 'resultAppear 0.5s ease forwards',
+      }}>
+        <div style={{ fontSize: 32, fontWeight: 800, color: '#0A66C2', lineHeight: 1 }} dangerouslySetInnerHTML={{ __html: f.stat }} />
+        <div style={{ fontSize: 11, color: '#555', lineHeight: 1.5, marginTop: 8 }}>{f.text}</div>
+        <div style={{ width: 30, height: 2, background: '#E5E7EB', margin: '10px auto 0', borderRadius: 1 }} />
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 4, marginTop: 8 }}>
+          {facts.map((_, i) => (
+            <div key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: i === idx ? '#0A66C2' : '#E0E0E0', transition: 'background 0.3s' }} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
