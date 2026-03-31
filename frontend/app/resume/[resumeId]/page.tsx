@@ -115,13 +115,17 @@ export default function ResumePreviewPage() {
       return;
     }
     const html = buildPrintHTML(resume.resume_data, templateId);
-    const PAGE_HEIGHT = 1123; // A4 at 96dpi
+
+    // A4 = 297mm height. @page margin = 12mm top + 10mm bottom = 22mm.
+    // Printable height = 297 - 22 = 275mm = ~1040px at 96dpi.
+    // Add 20px safety buffer for font/render variance.
+    const PRINTABLE_HEIGHT = 1020;
 
     // Measure content height in hidden iframe
     function measure(testHtml: string): Promise<number> {
       return new Promise(resolve => {
         const f = document.createElement('iframe');
-        f.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;height:1123px;border:none;visibility:hidden';
+        f.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;height:2000px;border:none;visibility:hidden';
         document.body.appendChild(f);
         const d = f.contentDocument || f.contentWindow?.document;
         if (!d) { document.body.removeChild(f); resolve(0); return; }
@@ -134,13 +138,19 @@ export default function ResumePreviewPage() {
       });
     }
 
-    (async () => {
-      // Pass 1: measure original
-      const height1 = await measure(html);
-      const overflow1 = height1 - PAGE_HEIGHT;
+    // Apply zoom to HTML content
+    function applyZoom(srcHtml: string, zoomValue: number): string {
+      const zoomCSS = `body{zoom:${zoomValue}!important;-webkit-transform:scale(${zoomValue});-webkit-transform-origin:top left;transform:scale(${zoomValue});transform-origin:top left;width:${Math.round(100 / zoomValue)}%!important}`;
+      return srcHtml.replace('</style>', zoomCSS + '</style>');
+    }
 
-      // If fits or intentionally 2 pages (large overflow), use as-is
-      if (overflow1 <= 0 || overflow1 > 250) {
+    (async () => {
+      // Pass 1: measure original against printable area (not full A4)
+      const height1 = await measure(html);
+      const overflow1 = height1 - PRINTABLE_HEIGHT;
+
+      // Fits on 1 page — print as-is
+      if (overflow1 <= 0) {
         const win = window.open('', '_blank');
         if (!win) { alert('Please allow popups to download PDF.'); return; }
         win.document.write(html);
@@ -150,59 +160,36 @@ export default function ResumePreviewPage() {
         return;
       }
 
-      // Pass 2: tiered shrink — reduce @page margin + content spacing
-      let shrinkCSS = '';
-      let pageMarginCSS = '';
-      if (overflow1 <= 80) {
-        // Light shrink (1-3 lines overflow) — reduce page margin + light content shrink
-        pageMarginCSS = '@page{margin:8mm 10mm 8mm 10mm!important}';
-        shrinkCSS = `
-          body,body *{line-height:1.35!important}
-          body div,body p,body span{margin-bottom:3px!important}
-        `;
-      } else if (overflow1 <= 160) {
-        // Medium shrink (3-6 lines overflow)
-        pageMarginCSS = '@page{margin:6mm 8mm 6mm 8mm!important}';
-        shrinkCSS = `
-          body,body *{line-height:1.25!important}
-          body div,body p{margin-top:3px!important;margin-bottom:2px!important}
-          body h1,body h2,body h3{margin-top:4px!important;margin-bottom:2px!important}
-        `;
-      } else {
-        // Aggressive shrink (6-8 lines overflow)
-        pageMarginCSS = '@page{margin:5mm 8mm 5mm 8mm!important}';
-        shrinkCSS = `
-          body,body *{line-height:1.2!important}
-          body div,body p,body span{margin-top:1px!important;margin-bottom:1px!important}
-          body h1,body h2,body h3{margin-top:2px!important;margin-bottom:1px!important}
-        `;
+      // Intentionally 2 pages (very large content) — print as-is
+      if (height1 > PRINTABLE_HEIGHT * 1.8) {
+        const win = window.open('', '_blank');
+        if (!win) { alert('Please allow popups to download PDF.'); return; }
+        win.document.write(html);
+        win.document.close();
+        win.document.title = ' ';
+        setTimeout(() => win.print(), 600);
+        return;
       }
 
-      let adjustedHtml = html
-        .replace(/@page\s*\{[^}]*\}/, pageMarginCSS)
-        .replace('</style>', shrinkCSS + '</style>');
+      // Pass 2: zoom loop — scale down until it fits
+      // Try zoom values: 0.97, 0.94, 0.91, 0.88, 0.85
+      let finalHtml = html;
+      const zoomSteps = [0.97, 0.94, 0.91, 0.88, 0.85];
 
-      // Pass 3: re-measure after shrink
-      const height2 = await measure(adjustedHtml);
-      const overflow2 = height2 - PAGE_HEIGHT;
-
-      // If still overflows, apply nuclear pass — minimal margins + tighter line-height
-      if (overflow2 > 0 && overflow2 <= 150) {
-        const nuclearPageCSS = '@page{margin:4mm 6mm 4mm 6mm!important}';
-        const nuclearCSS = `
-          body,body *{line-height:1.15!important}
-          body div,body p,body span{margin-top:0!important;margin-bottom:0!important;padding-top:0!important;padding-bottom:0!important}
-          body h1,body h2,body h3{margin:0!important}
-        `;
-        adjustedHtml = adjustedHtml
-          .replace(/@page\s*\{[^}]*\}/, nuclearPageCSS)
-          .replace('</style>', nuclearCSS + '</style>');
+      for (const zoom of zoomSteps) {
+        const zoomed = applyZoom(html, zoom);
+        const h = await measure(zoomed);
+        if (h <= PRINTABLE_HEIGHT) {
+          finalHtml = zoomed;
+          break;
+        }
+        // Use the last zoom as best effort
+        finalHtml = zoomed;
       }
-      // If > 150px after nuclear, genuinely 2 pages — let it be
 
       const win = window.open('', '_blank');
       if (!win) { alert('Please allow popups to download PDF.'); return; }
-      win.document.write(adjustedHtml);
+      win.document.write(finalHtml);
       win.document.close();
       win.document.title = ' ';
       setTimeout(() => win.print(), 600);
