@@ -1113,12 +1113,138 @@ function ReferralsScreen() {
   );
 }
 
+// ─── Build Orders Screen ───
+function BuildOrdersScreen() {
+  const [orders, setOrders] = useState<any[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [selected, setSelected] = useState<any>(null);
+
+  const load = useCallback(async () => {
+    try {
+      const data = await apiFetchJson(`/api/admin/build-orders?page=${page}&limit=20`);
+      if (data?.orders) { setOrders(data.orders); setTotal(data.total || 0); }
+    } catch {}
+  }, [page]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const planLabel: Record<string, string> = { starter: 'Starter ₹199', plus: 'Plus ₹399', pro: 'Pro ₹699' };
+  const statusColor: Record<string, string> = { done: '#057642', failed: '#CC1016', generating: '#E16B00', pending: '#888', queued: '#0A66C2', checking: '#0A66C2' };
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-bold">Build Orders ({total})</h2>
+      </div>
+
+      {/* Selected order detail */}
+      {selected && (
+        <div className="li-card p-4 mb-4">
+          <div className="flex justify-between items-start mb-3">
+            <h3 className="font-bold">Build Order Detail</h3>
+            <button onClick={() => setSelected(null)} className="text-xs cursor-pointer border-none px-2 py-1 rounded" style={{ background: 'var(--li-gray)' }}>Close</button>
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-sm mb-3">
+            <div><strong>ID:</strong> <span className="text-xs">{selected.id}</span></div>
+            <div><strong>Email:</strong> {selected.email}</div>
+            <div><strong>Plan:</strong> {planLabel[selected.plan] || selected.plan}</div>
+            <div><strong>Payment:</strong> {selected.payment_status}</div>
+            <div><strong>Processing:</strong> <span style={{ color: statusColor[selected.processing_status] || '#888' }}>{selected.processing_status}</span></div>
+            <div><strong>Created:</strong> {formatIST(selected.created_at)}</div>
+            {selected.paid_at && <div><strong>Paid:</strong> {formatIST(selected.paid_at)}</div>}
+            {selected.processing_done_at && <div><strong>Completed:</strong> {formatIST(selected.processing_done_at)}</div>}
+            {selected.processing_error && <div className="col-span-2"><strong>Error:</strong> <span style={{ color: '#CC1016' }}>{selected.processing_error}</span></div>}
+          </div>
+          {selected.form_input && (
+            <div className="mb-3">
+              <strong className="text-sm">Form Input:</strong>
+              <div className="text-xs mt-1 p-2 rounded" style={{ background: 'var(--li-gray)', maxHeight: 200, overflow: 'auto' }}>
+                <div><strong>Name:</strong> {selected.form_input.full_name}</div>
+                <div><strong>Target Role:</strong> {selected.form_input.target_role}</div>
+                <div><strong>Career Stage:</strong> {selected.form_input.career_stage}</div>
+                <div><strong>Industry:</strong> {selected.form_input.target_industry}</div>
+                <div><strong>Skills:</strong> {selected.form_input.skills?.join(', ')}</div>
+              </div>
+            </div>
+          )}
+          {selected.generated_profile && (
+            <div>
+              <strong className="text-sm">Generated Headlines:</strong>
+              <div className="text-xs mt-1">
+                {selected.generated_profile.headline_variations?.map((h: any, i: number) => (
+                  <div key={i} className="p-2 mb-1 rounded" style={{ background: 'var(--li-gray)' }}>
+                    <strong>{h.style}:</strong> {h.text}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <div className="mt-2">
+            <a href={`/build/results/${selected.id}`} target="_blank" rel="noreferrer" className="text-xs font-semibold" style={{ color: 'var(--li-blue)' }}>View Results Page &rarr;</a>
+          </div>
+        </div>
+      )}
+
+      {/* Orders table */}
+      <div className="li-card overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr style={{ background: 'var(--li-gray)' }}>
+              <th className="text-left p-3">Created</th>
+              <th className="text-left p-3">Email</th>
+              <th className="text-left p-3">Plan</th>
+              <th className="text-left p-3">Payment</th>
+              <th className="text-left p-3">Status</th>
+              <th className="text-left p-3">Rating</th>
+            </tr>
+          </thead>
+          <tbody>
+            {orders.map((o, idx) => (
+              <tr
+                key={o.id}
+                className="cursor-pointer"
+                style={{ borderBottom: '1px solid var(--li-border)', background: idx % 2 === 0 ? 'white' : 'var(--li-gray)' }}
+                onMouseEnter={e => (e.currentTarget.style.background = '#EFF6FF')}
+                onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? 'white' : 'var(--li-gray)')}
+                onClick={async () => {
+                  try { const d = await apiFetchJson(`/api/admin/build-orders/${o.id}`); setSelected(d); } catch {}
+                }}
+              >
+                <td className="p-3 text-xs whitespace-nowrap">{formatIST(o.created_at)}</td>
+                <td className="p-3 text-xs">{o.email}</td>
+                <td className="p-3 text-xs font-semibold">{planLabel[o.plan] || o.plan}</td>
+                <td className="p-3 text-xs">
+                  <span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{
+                    background: o.payment_status === 'paid' ? '#DCFCE7' : '#FEF3C7',
+                    color: o.payment_status === 'paid' ? '#057642' : '#92400E',
+                  }}>{o.payment_status}</span>
+                </td>
+                <td className="p-3 text-xs" style={{ color: statusColor[o.processing_status] || '#888' }}>{o.processing_status}</td>
+                <td className="p-3 text-xs">{o.user_rating ? `${'★'.repeat(o.user_rating)}` : '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {total > 20 && (
+        <div className="flex gap-2 justify-center mt-4">
+          <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="px-3 py-1 text-sm rounded cursor-pointer border-none" style={{ background: 'var(--li-gray)' }}>Prev</button>
+          <span className="text-sm py-1">Page {page} / {Math.ceil(total / 20)}</span>
+          <button disabled={page >= Math.ceil(total / 20)} onClick={() => setPage(p => p + 1)} className="px-3 py-1 text-sm rounded cursor-pointer border-none" style={{ background: 'var(--li-gray)' }}>Next</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Admin Dashboard ───
-type Screen = 'overview' | 'orders' | 'teasers' | 'quality' | 'revenue' | 'referrals';
+type Screen = 'overview' | 'orders' | 'build-orders' | 'teasers' | 'quality' | 'revenue' | 'referrals';
 
 const NAV: { key: Screen; label: string }[] = [
   { key: 'overview', label: 'Overview' },
-  { key: 'orders', label: 'Orders' },
+  { key: 'orders', label: 'Roast Orders' },
+  { key: 'build-orders', label: 'Build Orders' },
   { key: 'teasers', label: 'Teasers' },
   { key: 'quality', label: 'Quality' },
   { key: 'revenue', label: 'Revenue' },
@@ -1186,6 +1312,7 @@ export default function AdminPage() {
       <div className="max-w-5xl mx-auto px-4 py-6">
         {screen === 'overview' && <OverviewScreen />}
         {screen === 'orders' && <OrdersScreen />}
+        {screen === 'build-orders' && <BuildOrdersScreen />}
         {screen === 'teasers' && <TeasersScreen />}
         {screen === 'quality' && <QualityScreen />}
         {screen === 'revenue' && <RevenueScreen />}

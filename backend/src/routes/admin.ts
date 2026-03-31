@@ -565,4 +565,42 @@ router.post('/referrals/:code/payout', async (req: Request, res: Response) => {
   }
 });
 
+// ═══════════════════════════════════════════
+// Build Orders Admin
+// ═══════════════════════════════════════════
+
+// GET /api/admin/build-orders
+router.get('/build-orders', async (req: Request, res: Response) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
+    const offset = (page - 1) * limit;
+
+    const countResult = await query('SELECT COUNT(*)::int AS total FROM build_orders');
+    const result = await query(
+      `SELECT id, email, plan, amount_paise, payment_status, processing_status,
+              processing_error, created_at, paid_at, processing_done_at,
+              email_sent, user_rating, user_feedback
+       FROM build_orders ORDER BY created_at DESC LIMIT $1 OFFSET $2`,
+      [limit, offset],
+    );
+
+    res.json({ orders: result.rows, total: countResult.rows[0].total, page, limit });
+  } catch (err) {
+    console.error('Admin build-orders error:', err);
+    res.status(500).json({ error: 'Failed to fetch build orders' });
+  }
+});
+
+// GET /api/admin/build-orders/:id
+router.get('/build-orders/:id', async (req: Request, res: Response) => {
+  try {
+    const result = await query('SELECT * FROM build_orders WHERE id=$1', [req.params.id]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Build order not found' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch build order' });
+  }
+});
+
 export default router;

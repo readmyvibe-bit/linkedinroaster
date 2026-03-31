@@ -8,6 +8,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { jsonrepair } from 'jsonrepair';
 import * as Sentry from '@sentry/node';
 import { query } from '../db';
+import { sendBuildResultsEmail } from '../services/email';
 
 // --- Clients ---
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!);
@@ -333,6 +334,17 @@ export async function runBuildPipeline(orderId: string): Promise<void> {
 
       // REVISE: retry with revision instructions
       console.log(`[BUILD] Revision needed: ${qc.revision_instructions}`);
+    }
+
+    // Send results email
+    try {
+      const updatedOrder = await query('SELECT * FROM build_orders WHERE id=$1', [orderId]);
+      if (updatedOrder.rows[0]) {
+        await sendBuildResultsEmail(updatedOrder.rows[0]);
+        console.log(`[BUILD] Results email sent for ${orderId}`);
+      }
+    } catch (emailErr: any) {
+      console.error(`[BUILD] Email failed for ${orderId}:`, emailErr.message);
     }
 
     console.log(`[BUILD] Pipeline complete for ${orderId}`);

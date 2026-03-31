@@ -7,9 +7,12 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 interface RecoveredOrder {
   orderId: string;
-  roastTitle: string;
-  beforeScore: number;
-  afterScore: number;
+  type: 'roast' | 'build';
+  roastTitle?: string;
+  beforeScore?: number;
+  afterScore?: number;
+  headline?: string;
+  plan?: string;
   createdAt: string;
 }
 
@@ -60,11 +63,17 @@ export default function RecoverPage() {
         body: JSON.stringify({ email: email.trim(), otp: otp.trim() }),
       });
       const data = await res.json();
-      if (res.ok && data.orders?.length) {
-        if (data.orders.length === 1) {
-          router.push(`/results/${data.orders[0].orderId}`);
+      const allOrders = [
+        ...(data.orders || []),
+        ...(data.buildOrders || []),
+      ].sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+      if (res.ok && allOrders.length) {
+        if (allOrders.length === 1) {
+          const o = allOrders[0];
+          router.push(o.type === 'build' ? `/build/results/${o.orderId}` : `/results/${o.orderId}`);
         } else {
-          setOrders(data.orders);
+          setOrders(allOrders);
           setStep('results');
         }
       } else {
@@ -195,29 +204,39 @@ export default function RecoverPage() {
           {step === 'results' && (
             <>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: '#191919', marginBottom: 8 }}>
-                Your Roasts
+                Your Results
               </h2>
               <p style={{ fontSize: 14, color: '#666', marginBottom: 16 }}>
-                We found {orders.length} roast{orders.length > 1 ? 's' : ''} for this email.
+                We found {orders.length} result{orders.length > 1 ? 's' : ''} for this email.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {orders.map((o) => (
                   <button
                     key={o.orderId}
-                    onClick={() => router.push(`/results/${o.orderId}`)}
+                    onClick={() => router.push(o.type === 'build' ? `/build/results/${o.orderId}` : `/results/${o.orderId}`)}
                     style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px', background: '#F3F2EF', border: '1px solid #E0E0E0', borderRadius: 10, cursor: 'pointer', textAlign: 'left' }}
                   >
                     <div>
                       <div style={{ fontSize: 14, fontWeight: 600, color: '#191919' }}>
-                        {o.roastTitle || 'LinkedIn Roast'}
+                        {o.type === 'build' ? (o.headline || 'LinkedIn Profile Build') : (o.roastTitle || 'LinkedIn Roast')}
                       </div>
-                      <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
-                        {new Date(o.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 2 }}>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: o.type === 'build' ? '#0A66C2' : '#E16B00', background: o.type === 'build' ? '#E8F0FE' : '#FEF3C7', padding: '1px 8px', borderRadius: 4 }}>
+                          {o.type === 'build' ? 'Build' : 'Roast'}
+                        </span>
+                        <span style={{ fontSize: 12, color: '#666' }}>
+                          {new Date(o.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </span>
                       </div>
                     </div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: '#057642' }}>
-                      {o.beforeScore} &rarr; {o.afterScore}
-                    </div>
+                    {o.type === 'roast' && o.beforeScore != null && (
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#057642' }}>
+                        {o.beforeScore} &rarr; {o.afterScore}
+                      </div>
+                    )}
+                    {o.type === 'build' && (
+                      <span style={{ fontSize: 12, color: '#0A66C2' }}>&rarr;</span>
+                    )}
                   </button>
                 ))}
               </div>

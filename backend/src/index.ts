@@ -574,12 +574,15 @@ app.post('/api/recover/send-otp', rateLimiter('recover-otp', 5, 3600), async (re
     if (!email || !validateEmail(email))
       return res.status(400).json({ error: 'Invalid email address' });
 
-    // Check orders and result_lookups
+    // Check orders, result_lookups, and build_orders
     const orders = await query(
       `SELECT id FROM orders WHERE email=$1 AND processing_status='done'
        AND created_at > NOW() - INTERVAL '30 days'
        UNION
        SELECT order_id as id FROM result_lookups WHERE email=$1
+       AND created_at > NOW() - INTERVAL '30 days'
+       UNION
+       SELECT id FROM build_orders WHERE email=$1 AND processing_status='done'
        AND created_at > NOW() - INTERVAL '30 days'`,
       [email],
     );
@@ -629,7 +632,7 @@ app.post('/api/recover/verify-otp', async (req: Request, res: Response) => {
 
     await redis.del(`otp:${email}`);
 
-    // Find all completed orders for this email
+    // Find all completed roast orders for this email
     const orders = await query(
       `SELECT id, roast->'roast_title' as roast_title,
               before_score->'overall' as before_score,
@@ -641,12 +644,30 @@ app.post('/api/recover/verify-otp', async (req: Request, res: Response) => {
       [email],
     );
 
+    // Find all completed build orders for this email
+    const buildOrders = await query(
+      `SELECT id, plan, generated_profile->'headline_variations'->0->>'text' as headline,
+              created_at
+       FROM build_orders WHERE email=$1 AND processing_status='done'
+       AND created_at > NOW() - INTERVAL '30 days'
+       ORDER BY created_at DESC`,
+      [email],
+    );
+
     res.json({
       orders: orders.rows.map((o: any) => ({
         orderId: o.id,
+        type: 'roast',
         roastTitle: o.roast_title,
         beforeScore: o.before_score,
         afterScore: o.after_score,
+        createdAt: o.created_at,
+      })),
+      buildOrders: buildOrders.rows.map((o: any) => ({
+        orderId: o.id,
+        type: 'build',
+        headline: o.headline,
+        plan: o.plan,
         createdAt: o.created_at,
       })),
     });
