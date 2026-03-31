@@ -135,12 +135,6 @@ function CardDesign({ beforeScore, afterScore, topRoast, closingCompliment, rewr
             <div style={{ fontSize: 18, color: '#191919', lineHeight: 1.6, fontWeight: 600, display: 'flex' }}>{closingCompliment}</div>
           </div>
 
-          {/* Rewritten headline */}
-          <div style={{ background: 'white', borderLeft: '5px solid #0A66C2', borderRadius: '0 12px 12px 0', padding: '14px 20px', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: '#0A66C2', marginBottom: 8, display: 'flex' }}>NEW HEADLINE</div>
-            <div style={{ fontSize: 15, color: '#0A66C2', lineHeight: 1.55, fontWeight: 700, display: 'flex' }}>{afterHeadline}</div>
-          </div>
-
           {/* Social proof */}
           <div style={{ background: '#F0FDF4', border: '1.5px solid #BBF7D0', borderRadius: 8, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E', display: 'flex' }} />

@@ -2492,21 +2492,19 @@ export default function ResultsPage() {
               </div>
             ))}
           </div>
-          {/* 1 card centered below */}
+          {/* 3rd card full-width below */}
           {top3Roasts[2] && (
-            <div style={{ maxWidth: '60%', margin: '0 auto' }}>
-              <div style={{ background: 'white', borderRadius: 14, border: '1px solid #E0E0E0', padding: '20px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ fontSize: 20 }}>{sectionIcon(top3Roasts[2].section_targeted)}</span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: '#0A66C2', textTransform: 'uppercase', letterSpacing: 1 }}>{top3Roasts[2].section_targeted}</span>
-                </div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#191919', lineHeight: 1.5 }}>{top3Roasts[2].roast}</div>
-                {getFixPreview(top3Roasts[2].section_targeted) && (
-                  <div style={{ fontSize: 12, color: '#057642', background: '#F0FDF4', borderRadius: 6, padding: '6px 10px' }}>
-                    Fix: {getFixPreview(top3Roasts[2].section_targeted)}
-                  </div>
-                )}
+            <div style={{ background: 'white', borderRadius: 14, border: '1px solid #E0E0E0', padding: '20px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 20 }}>{sectionIcon(top3Roasts[2].section_targeted)}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#0A66C2', textTransform: 'uppercase', letterSpacing: 1 }}>{top3Roasts[2].section_targeted}</span>
               </div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: '#191919', lineHeight: 1.5 }}>{top3Roasts[2].roast}</div>
+              {getFixPreview(top3Roasts[2].section_targeted) && (
+                <div style={{ fontSize: 12, color: '#057642', background: '#F0FDF4', borderRadius: 6, padding: '6px 10px' }}>
+                  Fix: {getFixPreview(top3Roasts[2].section_targeted)}
+                </div>
+              )}
             </div>
           )}
         </div>
