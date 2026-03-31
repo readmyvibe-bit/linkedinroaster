@@ -64,7 +64,11 @@ router.get('/overview', async (_req: Request, res: Response) => {
       SELECT
         COUNT(*) FILTER (WHERE payment_status='paid')::int AS orders,
         COALESCE(SUM(amount_paise) FILTER (WHERE payment_status='paid'), 0)::int AS revenue_paise
-      FROM orders WHERE created_at >= CURRENT_DATE
+      FROM (
+        SELECT payment_status, amount_paise, created_at FROM orders WHERE created_at >= CURRENT_DATE
+        UNION ALL
+        SELECT payment_status, amount_paise, created_at FROM build_orders WHERE created_at >= CURRENT_DATE
+      ) combined
     `);
     const teasersToday = await query(
       `SELECT COUNT(*)::int AS cnt FROM teaser_attempts WHERE created_at >= CURRENT_DATE`,
@@ -77,12 +81,20 @@ router.get('/overview', async (_req: Request, res: Response) => {
     const week = await query(`
       SELECT COUNT(*) FILTER (WHERE payment_status='paid')::int AS orders,
         COALESCE(SUM(amount_paise) FILTER (WHERE payment_status='paid'), 0)::int AS revenue_paise
-      FROM orders WHERE created_at >= CURRENT_DATE - INTERVAL '7 days'
+      FROM (
+        SELECT payment_status, amount_paise, created_at FROM orders WHERE created_at >= CURRENT_DATE - INTERVAL '7 days'
+        UNION ALL
+        SELECT payment_status, amount_paise, created_at FROM build_orders WHERE created_at >= CURRENT_DATE - INTERVAL '7 days'
+      ) combined
     `);
     const month = await query(`
       SELECT COUNT(*) FILTER (WHERE payment_status='paid')::int AS orders,
         COALESCE(SUM(amount_paise) FILTER (WHERE payment_status='paid'), 0)::int AS revenue_paise
-      FROM orders WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
+      FROM (
+        SELECT payment_status, amount_paise, created_at FROM orders WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
+        UNION ALL
+        SELECT payment_status, amount_paise, created_at FROM build_orders WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
+      ) combined
     `);
 
     const activeJobs = await query(
