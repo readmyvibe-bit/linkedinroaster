@@ -636,8 +636,9 @@ export default function Home() {
       </div>
 
       {/* ─── CHANGE 6 — Value Cards ─── */}
-      {!submitted && <div style={{ maxWidth: 1000, margin: '0 auto', padding: '24px 24px' }}>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      {!submitted && <div style={{ background: '#F8FAFC', padding: '32px 40px', borderBottom: '1px solid #E8E8E8' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: 20, textAlign: 'center' }}>
             <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(232,82,10,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 22 }}>
               &#128293;
@@ -660,11 +661,13 @@ export default function Home() {
             <div style={{ fontSize: 12, color: '#666', lineHeight: 1.5 }}>Track how much stronger your profile becomes instantly.</div>
           </div>
         </div>
+        </div>
       </div>}
 
       {/* ─── Teaser Result ─── */}
       {teaser && (
-        <section ref={resultRef} style={{ maxWidth: 860, margin: '0 auto', padding: '0 24px 32px', animation: 'resultAppear 0.5s ease forwards' }}>
+        <section ref={resultRef} style={{ background: '#F8FAFC', borderTop: '1px solid #E8E8E8', borderBottom: '1px solid #E8E8E8', padding: '32px 40px', animation: 'resultAppear 0.5s ease forwards' }}>
+        <div style={{ maxWidth: 860, margin: '0 auto' }}>
           {/* Score card */}
           <div
             className="p-6 rounded-lg mb-4"
@@ -878,12 +881,14 @@ export default function Home() {
               </button>
             </div>
           )}
+        </div>
         </section>
       )}
 
       {/* ─── Pricing ─── */}
       {(showPricing || teaser) && !selectedPlan && (
-        <section ref={pricingRef} style={{ maxWidth: 1000, margin: '0 auto', padding: '48px 24px' }}>
+        <section ref={pricingRef} style={{ background: 'white', padding: '48px 40px' }}>
+        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
           <h2
             className="text-2xl font-bold text-center mb-2"
             style={{ color: 'var(--li-text-primary)' }}
@@ -931,12 +936,14 @@ export default function Home() {
               onSelect={() => handlePlanSelect('pro')}
             />
           </div>
+        </div>
         </section>
       )}
 
       {/* ─── Profile Input Form (after plan selection) ─── */}
       {selectedPlan && (
-        <section ref={inputFormRef} style={{ maxWidth: 1000, margin: '0 auto', padding: '0 24px 48px' }}>
+        <section ref={inputFormRef} style={{ background: '#F8FAFC', padding: '32px 40px 48px' }}>
+        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
           <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
             {/* Left — Form */}
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -971,9 +978,9 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
         </section>
       )}
-
 
       {/* ─── How It Works (full-width dark) ─── */}
       <section style={{ background: '#0F172A', padding: '48px 40px' }}>
@@ -1021,7 +1028,7 @@ export default function Home() {
             {/* Right — Features */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, justifyContent: 'center' }}>
               {[
-                { icon: '&#128196;', title: '21 Professional Templates', desc: 'ATS-friendly, modern, executive, creative — pick your style' },
+                { icon: '&#128196;', title: '23 Professional Templates', desc: 'ATS-friendly, modern, executive, creative — pick your style' },
                 { icon: '&#127919;', title: 'ATS Score & Keywords', desc: 'Real-time keyword matching against job descriptions' },
                 { icon: '&#9997;&#65039;', title: 'Live Editor', desc: 'Edit sections, drag to reorder, auto-save' },
                 { icon: '&#128229;', title: 'PDF + DOCX Download', desc: 'Download in both formats, ready for any application' },
