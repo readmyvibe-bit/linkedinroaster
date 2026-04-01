@@ -438,16 +438,30 @@ export default function ResumeEditorPage() {
     win.document.close();
     win.document.title = ' ';
 
-    const fitOnePage = resumeData.fitOnePage !== false; // default true
-    if (!fitOnePage) { setTimeout(() => win.print(), 800); return; }
+    const A4_HEIGHT = 1122.5;
+    const marginPx = isMobile ? 60 : 83;
+    const available = A4_HEIGHT - marginPx - 10;
 
-    // Measure in print tab and scale to fit
+    const fitPage = resumeData.fitOnePage !== false;
+    if (!fitPage) {
+      // 2-page mode: ensure page 2 has substantial content
+      setTimeout(() => {
+        const root = win.document.querySelector('.print-content-root') as HTMLElement;
+        if (!root) { win.print(); return; }
+        const overflow = root.scrollHeight - available;
+        if (overflow > 0 && overflow < 100) {
+          root.style.lineHeight = '1.75';
+          root.style.letterSpacing = '0.02em';
+        }
+        setTimeout(() => win.print(), 200);
+      }, 800);
+      return;
+    }
+
+    // Fit 1 page: measure and scale
     setTimeout(() => {
       const root = win.document.querySelector('.print-content-root') as HTMLElement;
       if (!root) { win.print(); return; }
-      const A4_HEIGHT = 1122.5;
-      const marginPx = isMobile ? 60 : 83;
-      const available = A4_HEIGHT - marginPx - 10;
       const contentHeight = root.scrollHeight;
       if (contentHeight > available && contentHeight < available * 1.5) {
         const scale = Math.max(0.78, available / contentHeight);

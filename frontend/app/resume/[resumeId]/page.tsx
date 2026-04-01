@@ -82,6 +82,8 @@ export default function ResumePreviewPage() {
   const [showKeywords, setShowKeywords] = useState(false);
   const [coverLetterCopied, setCoverLetterCopied] = useState(false);
   const [templateId, setTemplateId] = useState('classic');
+  const [printSize, setPrintSize] = useState<'compact' | 'standard' | 'spacious'>('standard');
+  const [fitOnePage, setFitOnePage] = useState(true);
 
   useEffect(() => {
     if (!resumeId) return;
@@ -94,6 +96,8 @@ export default function ResumePreviewPage() {
       .then(data => {
         setResume(data);
         setTemplateId(data.template_id || 'classic');
+        setPrintSize(data.resume_data?.printSize || 'standard');
+        setFitOnePage(data.resume_data?.fitOnePage !== false);
         setLoading(false);
       })
       .catch(() => {
@@ -101,6 +105,16 @@ export default function ResumePreviewPage() {
         setLoading(false);
       });
   }, [resumeId]);
+
+  // Save print settings to resume_data
+  function savePrintSettings(newSize: string, newFit: boolean) {
+    if (!resume) return;
+    const updated = { ...resume.resume_data, printSize: newSize, fitOnePage: newFit };
+    fetch(`${API_URL}/api/resume/${resumeId}`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ resume_data: updated }),
+    }).catch(() => {});
+  }
 
   const orderPlan = (resume as any)?.order_plan || 'standard';
   const orderSource = (resume as any)?.order_source || 'roast';
@@ -117,10 +131,9 @@ export default function ResumePreviewPage() {
     let html = buildPrintHTML(resume.resume_data, templateId);
 
     // Apply printSize CSS
-    const size = (resume.resume_data as any)?.printSize || 'standard';
-    if (size === 'compact') {
+    if (printSize === 'compact') {
       html = html.replace('</style>', '.print-content-root{font-size:92%!important;line-height:1.35!important}.print-content-root div,.print-content-root p{margin-bottom:2px!important}' + '</style>');
-    } else if (size === 'spacious') {
+    } else if (printSize === 'spacious') {
       html = html.replace('</style>', '.print-content-root{font-size:108%!important;line-height:1.65!important}' + '</style>');
     }
 
@@ -134,16 +147,31 @@ export default function ResumePreviewPage() {
     win.document.close();
     win.document.title = ' ';
 
-    const fitOnePage = (resume.resume_data as any)?.fitOnePage !== false; // default true
-    if (!fitOnePage) { setTimeout(() => win.print(), 800); return; }
+    const A4_HEIGHT = 1122.5;
+    const marginPx = isMobile ? 60 : 83;
+    const available = A4_HEIGHT - marginPx - 10;
 
-    // Measure in print tab and scale to fit
+    if (!fitOnePage) {
+      // 2-page mode: ensure page 2 has substantial content (not just 1-2 lines)
+      setTimeout(() => {
+        const root = win.document.querySelector('.print-content-root') as HTMLElement;
+        if (!root) { win.print(); return; }
+        const contentHeight = root.scrollHeight;
+        const overflow = contentHeight - available;
+        // If 1-5 lines spill (< 100px overflow), expand spacing so more flows to page 2
+        if (overflow > 0 && overflow < 100) {
+          root.style.lineHeight = '1.75';
+          root.style.letterSpacing = '0.02em';
+        }
+        setTimeout(() => win.print(), 200);
+      }, 800);
+      return;
+    }
+
+    // Fit 1 page: measure in print tab and scale to fit
     setTimeout(() => {
       const root = win.document.querySelector('.print-content-root') as HTMLElement;
       if (!root) { win.print(); return; }
-      const A4_HEIGHT = 1122.5;
-      const marginPx = isMobile ? 60 : 83;
-      const available = A4_HEIGHT - marginPx - 10;
       const contentHeight = root.scrollHeight;
       if (contentHeight > available && contentHeight < available * 1.5) {
         const scale = Math.max(0.78, available / contentHeight);
@@ -410,6 +438,40 @@ export default function ResumePreviewPage() {
               {t.name}{locked ? ' 🔒' : ''}
             </button>
           );})}
+        </div>
+
+        {/* ─── PRINT CONTROLS ─── */}
+        <div style={{
+          background: '#fff', borderRadius: 12, padding: '10px 16px', marginBottom: 16,
+          border: '1px solid #E0E0E0', display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap',
+        }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#333' }}>Print:</span>
+          {/* Print Size */}
+          <div style={{ display: 'flex', gap: 0, borderRadius: 8, overflow: 'hidden', border: '1px solid #D0D0D0' }}>
+            {(['compact', 'standard', 'spacious'] as const).map(s => (
+              <button key={s} onClick={() => { setPrintSize(s); savePrintSettings(s, fitOnePage); }}
+                style={{
+                  padding: '5px 14px', fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer',
+                  background: printSize === s ? '#0A66C2' : '#fff',
+                  color: printSize === s ? '#fff' : '#666',
+                }}>
+                {s.charAt(0).toUpperCase() + s.slice(1)}
+              </button>
+            ))}
+          </div>
+          {/* Pages */}
+          <div style={{ display: 'flex', gap: 0, borderRadius: 8, overflow: 'hidden', border: '1px solid #D0D0D0' }}>
+            <button onClick={() => { setFitOnePage(true); savePrintSettings(printSize, true); }}
+              style={{
+                padding: '5px 14px', fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer',
+                background: fitOnePage ? '#0A66C2' : '#fff', color: fitOnePage ? '#fff' : '#666',
+              }}>1 Page</button>
+            <button onClick={() => { setFitOnePage(false); savePrintSettings(printSize, false); }}
+              style={{
+                padding: '5px 14px', fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer',
+                background: !fitOnePage ? '#0A66C2' : '#fff', color: !fitOnePage ? '#fff' : '#666',
+              }}>2 Pages</button>
+          </div>
         </div>
 
         {/* ─── RESUME PREVIEW ─── */}
