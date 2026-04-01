@@ -291,6 +291,10 @@ export default function ResumeEditorPage() {
     } catch { /* silent fail */ }
   }, [resumeId]);
 
+  const removePhoto = useCallback(() => {
+    setResumeData(prev => prev ? { ...prev, photo: undefined } : prev);
+  }, []);
+
   const updateSummary = useCallback((value: string) => {
     setResumeData(prev => prev ? { ...prev, summary: value } : prev);
   }, []);
@@ -616,7 +620,10 @@ export default function ResumeEditorPage() {
                         <label style={labelStyle}>Photo</label>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                           {resumeData?.photo ? (
-                            <img src={resumeData.photo} alt="Photo" style={{ width: 60, height: 72, objectFit: 'cover', borderRadius: 4, border: '1px solid #ddd' }} />
+                            <div style={{ position: 'relative' }}>
+                              <img src={resumeData.photo} alt="Photo" style={{ width: 60, height: 72, objectFit: 'cover', borderRadius: 4, border: '1px solid #ddd' }} />
+                              <button onClick={removePhoto} style={{ position: 'absolute', top: -6, right: -6, width: 18, height: 18, borderRadius: '50%', background: '#CC1016', color: 'white', border: 'none', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>&times;</button>
+                            </div>
                           ) : (
                             <div style={{ width: 60, height: 72, border: '1px dashed #ccc', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#999' }}>No photo</div>
                           )}
