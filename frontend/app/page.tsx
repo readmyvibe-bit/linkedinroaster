@@ -636,31 +636,59 @@ export default function Home() {
       </div>
 
       {/* ─── CHANGE 6 — Value Cards ─── */}
-      {!submitted && <div style={{ background: '#F8FAFC', padding: '32px 40px', borderBottom: '1px solid #E8E8E8' }}>
+      {!submitted && <div style={{ background: '#F8FAFC', padding: '36px 40px', borderBottom: '1px solid #E8E8E8' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: 20, textAlign: 'center' }}>
-            <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(232,82,10,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 22 }}>
-              &#128293;
+          {/* Row 1: Two main product cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20, marginBottom: 16 }}>
+            {/* LinkedIn Roast + Rewrite */}
+            <div style={{ background: 'white', borderRadius: 14, border: '1px solid #E0E0E0', padding: '24px 28px', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>&#128293;</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#191919' }}>LinkedIn Roast + Rewrite</div>
+              </div>
+              <div style={{ fontSize: 14, color: '#555', lineHeight: 1.65, marginBottom: 16, flex: 1 }}>
+                AI scores your profile, roasts what{"'"}s wrong, and rewrites everything — headline, about section, experience bullets. Copy-paste into LinkedIn.
+              </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {['Before/After Score', 'AI Roast Points', 'Full Rewrite', 'Copy-Paste Ready'].map((t, i) => (
+                  <span key={i} style={{ background: '#FEF2F2', color: '#CC1016', fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 6 }}>{t}</span>
+                ))}
+              </div>
+              <div style={{ fontSize: 13, color: '#888', marginTop: 12 }}>From &#8377;299</div>
             </div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#191919', marginBottom: 4 }}>Brutal Roast</div>
-            <div style={{ fontSize: 12, color: '#666', lineHeight: 1.5 }}>See exactly what makes recruiters ignore your profile.</div>
-          </div>
-          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: 20, textAlign: 'center' }}>
-            <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(10,102,194,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 22 }}>
-              &#9997;&#65039;
+            {/* ATS Resume Builder */}
+            <div style={{ background: 'white', borderRadius: 14, border: '1px solid #E0E0E0', padding: '24px 28px', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#E0E7FF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>&#128196;</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#191919' }}>ATS Resume Builder</div>
+              </div>
+              <div style={{ fontSize: 14, color: '#555', lineHeight: 1.65, marginBottom: 16, flex: 1 }}>
+                Turn your LinkedIn rewrite into an ATS-optimized resume. Match keywords to any job description. Download as PDF or DOCX.
+              </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {['23 Templates', 'ATS Score Match', 'PDF + DOCX', 'Live Editor'].map((t, i) => (
+                  <span key={i} style={{ background: '#E8F0FE', color: '#0A66C2', fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 6 }}>{t}</span>
+                ))}
+              </div>
+              <div style={{ fontSize: 13, color: '#888', marginTop: 12 }}>Included in all paid plans</div>
             </div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#191919', marginBottom: 4 }}>Full Rewrite</div>
-            <div style={{ fontSize: 12, color: '#666', lineHeight: 1.5 }}>Turn your profile into something recruiters actually respond to.</div>
           </div>
-          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: 20, textAlign: 'center' }}>
-            <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(5,118,66,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 22 }}>
-              &#128200;
-            </div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#191919', marginBottom: 4 }}>Score Improvement</div>
-            <div style={{ fontSize: 12, color: '#666', lineHeight: 1.5 }}>Track how much stronger your profile becomes instantly.</div>
+          {/* Row 2: Three feature chips */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+            {[
+              { icon: '&#9997;&#65039;', title: '5 Headline Variations', desc: 'Pro plan includes multiple headline styles' },
+              { icon: '&#128200;', title: 'Before/After Score', desc: 'Track exactly how much your profile improved' },
+              { icon: '&#128274;', title: '100% Private', desc: 'No LinkedIn login. AI only. Data deleted in 30 days' },
+            ].map((f, i) => (
+              <div key={i} style={{ background: 'white', borderRadius: 10, border: '1px solid #E5E7EB', padding: '14px 18px', display: 'flex', gap: 10, alignItems: 'center' }}>
+                <span style={{ fontSize: 18, flexShrink: 0 }} dangerouslySetInnerHTML={{ __html: f.icon }} />
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#191919' }}>{f.title}</div>
+                  <div style={{ fontSize: 11, color: '#888' }}>{f.desc}</div>
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
         </div>
       </div>}
 
