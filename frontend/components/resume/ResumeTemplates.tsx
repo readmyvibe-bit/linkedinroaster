@@ -1874,26 +1874,26 @@ function renderFresher(data: ResumeData): React.ReactNode {
   const c = data.contact || {};
   const contactParts = [c.email, c.phone, c.location, c.linkedin].filter(Boolean);
   const skillGroups = normalizeSkills(data.skills);
-  const sideHdr = (t: string) => <div style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase' as const, color: '#6366F1', letterSpacing: '1.5px', marginBottom: '8px' }}>{t}</div>;
-  const mainHdr = (t: string) => <div style={{ fontSize: '13px', fontWeight: 700, textTransform: 'uppercase' as const, color: '#1E1B4B', borderBottom: '2px solid #6366F1', paddingBottom: '3px', marginBottom: '10px' }}>{t}</div>;
+  const sideHdr = (t: string) => <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' as const, color: '#6366F1', letterSpacing: '1.5px', marginBottom: '10px' }}>{t}</div>;
+  const mainHdr = (t: string) => <div style={{ fontSize: '14px', fontWeight: 700, textTransform: 'uppercase' as const, color: '#1E1B4B', borderBottom: '2px solid #6366F1', paddingBottom: '3px', marginBottom: '10px' }}>{t}</div>;
   return (
-    <div style={{ fontFamily: "'Segoe UI', Arial, sans-serif", fontSize: '12px', lineHeight: 1.5, maxWidth: '800px' }}>
+    <div style={{ fontFamily: "'Segoe UI', Arial, sans-serif", fontSize: '13px', lineHeight: 1.55, maxWidth: '800px' }}>
       {/* Full-width header */}
-      <div style={{ background: 'linear-gradient(135deg, #312E81, #4338CA)', padding: '24px 28px', color: 'white' }}>
-        <div style={{ fontSize: '26px', fontWeight: 800, letterSpacing: '0.5px' }}>{c.name || 'Your Name'}</div>
-        {contactParts.length > 0 && <div style={{ fontSize: '11px', opacity: 0.85, marginTop: '6px' }}>{contactParts.join('  •  ')}</div>}
+      <div style={{ background: 'linear-gradient(135deg, #312E81, #4338CA)', padding: '20px 24px', color: 'white' }}>
+        <div style={{ fontSize: '28px', fontWeight: 800, letterSpacing: '0.5px' }}>{c.name || 'Your Name'}</div>
+        {contactParts.length > 0 && <div style={{ fontSize: '12px', opacity: 0.85, marginTop: '5px' }}>{contactParts.join('  •  ')}</div>}
       </div>
       <div style={{ display: 'flex' }}>
-        {/* Left sidebar — Education + Skills + Certifications */}
-        <div style={{ width: '32%', background: '#F5F3FF', padding: '20px 16px', minHeight: '500px', borderRight: '1px solid #E5E7EB' }}>
+        {/* Left sidebar */}
+        <div style={{ width: '32%', background: '#F5F3FF', padding: '18px 14px', minHeight: '500px', borderRight: '1px solid #E5E7EB' }}>
           {data.education && data.education.length > 0 && (
-            <div style={{ marginBottom: '20px' }}>
+            <div style={{ marginBottom: '18px' }}>
               {sideHdr('Education')}
               {data.education.map((edu, i) => (
                 <div key={i} style={{ marginBottom: '10px' }}>
-                  <div style={{ fontWeight: 700, fontSize: '11px', color: '#1E1B4B' }}>{getEduDegree(edu)}</div>
-                  <div style={{ fontSize: '10px', color: '#6B7280' }}>{getEduSchool(edu)}</div>
-                  <div style={{ fontSize: '10px', color: '#9CA3AF' }}>{getEduDates(edu)}{edu.gpa ? ` — ${edu.gpa}` : ''}</div>
+                  <div style={{ fontWeight: 700, fontSize: '12px', color: '#1E1B4B' }}>{getEduDegree(edu)}</div>
+                  <div style={{ fontSize: '11px', color: '#6B7280' }}>{getEduSchool(edu)}</div>
+                  <div style={{ fontSize: '11px', color: '#9CA3AF' }}>{getEduDates(edu)}{edu.gpa ? ` — ${edu.gpa}` : ''}</div>
                 </div>
               ))}
             </div>
@@ -1903,9 +1903,9 @@ function renderFresher(data: ResumeData): React.ReactNode {
               {sideHdr('Skills')}
               {skillGroups.map((g, i) => (
                 <div key={i} style={{ marginBottom: '10px' }}>
-                  {skillGroups.length > 1 && <div style={{ fontSize: '9px', color: '#9CA3AF', fontWeight: 700, marginBottom: '4px' }}>{g.label}</div>}
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                    {g.items.map((s, j) => <span key={j} style={{ background: '#E0E7FF', color: '#3730A3', borderRadius: '4px', padding: '2px 7px', fontSize: '10px', fontWeight: 500 }}>{s}</span>)}
+                  {skillGroups.length > 1 && <div style={{ fontSize: '10px', color: '#9CA3AF', fontWeight: 700, marginBottom: '4px' }}>{g.label}</div>}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                    {g.items.map((s, j) => <span key={j} style={{ background: '#E0E7FF', color: '#3730A3', borderRadius: '4px', padding: '3px 8px', fontSize: '11px', fontWeight: 500 }}>{s}</span>)}
                   </div>
                 </div>
               ))}
@@ -1914,26 +1914,26 @@ function renderFresher(data: ResumeData): React.ReactNode {
           {data.achievements && data.achievements.length > 0 && (
             <div>
               {sideHdr('Achievements')}
-              {data.achievements.map((a, i) => <div key={i} style={{ fontSize: '10px', color: '#4B5563', marginBottom: '4px', paddingLeft: '8px', textIndent: '-8px' }}>▸ {a}</div>)}
+              {data.achievements.map((a, i) => <div key={i} style={{ fontSize: '11px', color: '#4B5563', marginBottom: '5px', paddingLeft: '10px', textIndent: '-10px' }}>▸ {a}</div>)}
             </div>
           )}
         </div>
         {/* Right main — Summary + Projects/Experience */}
-        <div style={{ width: '68%', padding: '20px 24px', color: '#333' }}>
-          {data.summary && <div style={{ marginBottom: '16px' }}>{mainHdr('Profile')}<div style={{ fontSize: '12px', color: '#374151', lineHeight: 1.6 }}>{data.summary}</div></div>}
+        <div style={{ width: '68%', padding: '18px 22px', color: '#333' }}>
+          {data.summary && <div style={{ marginBottom: '16px' }}>{mainHdr('Profile')}<div style={{ fontSize: '13px', color: '#374151', lineHeight: 1.6 }}>{data.summary}</div></div>}
           {data.experience && data.experience.length > 0 && (
             <div style={{ marginBottom: '16px' }}>
               {mainHdr('Projects & Experience')}
               {data.experience.map((exp, i) => (
                 <div key={i} style={{ marginBottom: '12px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                    <span style={{ fontWeight: 700, color: '#1E1B4B', fontSize: '12px' }}>{getExpTitle(exp)}</span>
-                    <span style={{ fontSize: '10px', color: '#9CA3AF', fontStyle: 'italic' }}>{getExpDates(exp)}</span>
+                    <span style={{ fontWeight: 700, color: '#1E1B4B', fontSize: '13px' }}>{getExpTitle(exp)}</span>
+                    <span style={{ fontSize: '11px', color: '#9CA3AF', fontStyle: 'italic' }}>{getExpDates(exp)}</span>
                   </div>
-                  <div style={{ color: '#6B7280', fontStyle: 'italic', fontSize: '11px' }}>{[exp.company, exp.location].filter(Boolean).join(' — ')}</div>
+                  <div style={{ color: '#6B7280', fontStyle: 'italic', fontSize: '12px' }}>{[exp.company, exp.location].filter(Boolean).join(' — ')}</div>
                   {exp.bullets && exp.bullets.length > 0 && (
                     <div style={{ marginTop: '4px' }}>
-                      {exp.bullets.map((b, j) => <div key={j} style={{ paddingLeft: '12px', textIndent: '-12px', marginBottom: '2px', fontSize: '11px' }}>• {b}</div>)}
+                      {exp.bullets.map((b, j) => <div key={j} style={{ paddingLeft: '12px', textIndent: '-12px', marginBottom: '3px', fontSize: '12px' }}>• {b}</div>)}
                     </div>
                   )}
                 </div>
@@ -1951,32 +1951,17 @@ function renderSalesBD(data: ResumeData): React.ReactNode {
   const c = data.contact || {};
   const contactParts = [c.email, c.phone, c.location, c.linkedin].filter(Boolean);
   const skillGroups = normalizeSkills(data.skills);
-  const hdr = (t: string) => <div style={{ fontSize: '12px', fontWeight: 800, textTransform: 'uppercase' as const, color: '#0F172A', letterSpacing: '2px', borderBottom: '3px solid #E16B00', paddingBottom: '4px', marginBottom: '10px' }}>{t}</div>;
-  // Extract metrics from summary or first experience for the metrics bar
-  const metrics: string[] = [];
-  const summary = data.summary || '';
-  const metricMatches = summary.match(/[\d₹$%,.]+[+]?\s*(?:Cr|cr|Crore|crore|Lakh|lakh|%|pts|calls|revenue|deals|pipeline|clients|ARR|MRR|quota|team|YOY)?/gi);
-  if (metricMatches) metrics.push(...metricMatches.slice(0, 4));
+  const hdr = (t: string) => <div style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase' as const, color: '#0F172A', letterSpacing: '2px', borderBottom: '3px solid #E16B00', paddingBottom: '4px', marginBottom: '10px' }}>{t}</div>;
   return (
-    <div style={{ fontFamily: "'Segoe UI', Arial, sans-serif", fontSize: '12px', lineHeight: 1.5, color: '#333', padding: '24px 28px', maxWidth: '800px' }}>
+    <div style={{ fontFamily: "'Segoe UI', Arial, sans-serif", fontSize: '13px', lineHeight: 1.55, color: '#333', padding: '22px 26px', maxWidth: '800px' }}>
       {/* Header */}
-      <div style={{ marginBottom: '6px' }}>
-        <div style={{ fontSize: '28px', fontWeight: 900, color: '#0F172A', letterSpacing: '-0.5px' }}>{c.name || 'Your Name'}</div>
-        {contactParts.length > 0 && <div style={{ fontSize: '11px', color: '#64748B', marginTop: '4px' }}>{contactParts.join('  |  ')}</div>}
+      <div style={{ background: '#0F172A', padding: '18px 22px', borderRadius: '8px 8px 0 0', marginBottom: '0' }}>
+        <div style={{ fontSize: '28px', fontWeight: 900, color: 'white', letterSpacing: '-0.5px' }}>{c.name || 'Your Name'}</div>
+        {contactParts.length > 0 && <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', marginTop: '4px' }}>{contactParts.join('  |  ')}</div>}
       </div>
-      {/* Metrics bar */}
-      {metrics.length > 0 && (
-        <div style={{ display: 'flex', gap: '0', margin: '10px 0 16px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #E2E8F0' }}>
-          {metrics.map((m, i) => (
-            <div key={i} style={{ flex: 1, padding: '10px 12px', textAlign: 'center', background: i === 0 ? '#0F172A' : i % 2 === 0 ? '#F8FAFC' : '#F1F5F9', color: i === 0 ? 'white' : '#0F172A' }}>
-              <div style={{ fontSize: '16px', fontWeight: 800 }}>{m.trim()}</div>
-            </div>
-          ))}
-        </div>
-      )}
-      <div style={{ borderBottom: '1px solid #E2E8F0', marginBottom: '14px' }} />
+      <div style={{ height: '4px', background: '#E16B00' }} />
       {/* Summary */}
-      {data.summary && <div style={{ marginBottom: '16px' }}>{hdr('Profile Summary')}<div style={{ fontSize: '12px', lineHeight: 1.65, color: '#374151' }}>{data.summary}</div></div>}
+      {data.summary && <div style={{ marginBottom: '16px', marginTop: '16px' }}>{hdr('Profile Summary')}<div style={{ fontSize: '13px', lineHeight: 1.65, color: '#374151' }}>{data.summary}</div></div>}
       {/* Experience */}
       {data.experience && data.experience.length > 0 && (
         <div style={{ marginBottom: '16px' }}>
@@ -1984,13 +1969,13 @@ function renderSalesBD(data: ResumeData): React.ReactNode {
           {data.experience.map((exp, i) => (
             <div key={i} style={{ marginBottom: '12px', paddingLeft: '12px', borderLeft: '3px solid #E16B00' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                <span style={{ fontWeight: 700, color: '#0F172A', fontSize: '13px' }}>{getExpTitle(exp)}</span>
-                <span style={{ fontSize: '10px', color: '#94A3B8', fontStyle: 'italic' }}>{getExpDates(exp)}</span>
+                <span style={{ fontWeight: 700, color: '#0F172A', fontSize: '14px' }}>{getExpTitle(exp)}</span>
+                <span style={{ fontSize: '11px', color: '#94A3B8', fontStyle: 'italic' }}>{getExpDates(exp)}</span>
               </div>
-              <div style={{ color: '#64748B', fontStyle: 'italic', fontSize: '11px' }}>{[exp.company, exp.location].filter(Boolean).join(' — ')}</div>
+              <div style={{ color: '#64748B', fontStyle: 'italic', fontSize: '12px' }}>{[exp.company, exp.location].filter(Boolean).join(' — ')}</div>
               {exp.bullets && exp.bullets.length > 0 && (
                 <div style={{ marginTop: '5px' }}>
-                  {exp.bullets.map((b, j) => <div key={j} style={{ paddingLeft: '14px', textIndent: '-14px', marginBottom: '3px', fontSize: '12px' }}>▸ {b}</div>)}
+                  {exp.bullets.map((b, j) => <div key={j} style={{ paddingLeft: '14px', textIndent: '-14px', marginBottom: '3px', fontSize: '13px' }}>▸ {b}</div>)}
                 </div>
               )}
             </div>
@@ -2015,7 +2000,7 @@ function renderSalesBD(data: ResumeData): React.ReactNode {
           {hdr('Skills & Tools')}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             {skillGroups.flatMap(g => g.items).map((s, i) => (
-              <span key={i} style={{ background: '#FFF7ED', color: '#C2410C', border: '1px solid #FDBA74', borderRadius: '4px', padding: '3px 10px', fontSize: '11px', fontWeight: 600 }}>{s}</span>
+              <span key={i} style={{ background: '#FFF7ED', color: '#C2410C', border: '1px solid #FDBA74', borderRadius: '4px', padding: '4px 12px', fontSize: '12px', fontWeight: 600 }}>{s}</span>
             ))}
           </div>
         </div>
@@ -2024,7 +2009,7 @@ function renderSalesBD(data: ResumeData): React.ReactNode {
       {data.achievements && data.achievements.length > 0 && (
         <div>
           {hdr('Key Wins')}
-          {data.achievements.map((a, i) => <div key={i} style={{ paddingLeft: '14px', textIndent: '-14px', marginBottom: '3px', fontSize: '12px' }}>★ {a}</div>)}
+          {data.achievements.map((a, i) => <div key={i} style={{ paddingLeft: '14px', textIndent: '-14px', marginBottom: '4px', fontSize: '13px' }}>★ {a}</div>)}
         </div>
       )}
     </div>
@@ -2951,21 +2936,21 @@ function printFresher(data: ResumeData): string {
   const c = data.contact || {};
   const cp = [c.email, c.phone, c.location, c.linkedin].filter(Boolean).map(esc).join('  &bull;  ');
   const skillGroups = normalizeSkills(data.skills);
-  const sideHdr = (t: string) => `<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#6366F1;letter-spacing:1.5px;margin-bottom:8px">${t}</div>`;
-  const mainHdr = (t: string) => `<div style="font-size:13px;font-weight:700;text-transform:uppercase;color:#1E1B4B;border-bottom:2px solid #6366F1;padding-bottom:3px;margin-bottom:10px">${t}</div>`;
-  const dateS = 'font-size:10px;color:#9CA3AF;font-style:italic';
-  const titleS = 'font-weight:700;color:#1E1B4B;font-size:12px';
+  const sideHdr = (t: string) => `<div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#6366F1;letter-spacing:1.5px;margin-bottom:10px">${t}</div>`;
+  const mainHdr = (t: string) => `<div style="font-size:14px;font-weight:700;text-transform:uppercase;color:#1E1B4B;border-bottom:2px solid #6366F1;padding-bottom:3px;margin-bottom:10px">${t}</div>`;
+  const dateS = 'font-size:11px;color:#9CA3AF;font-style:italic';
+  const titleS = 'font-weight:700;color:#1E1B4B;font-size:13px';
 
-  let h = `<div class="resume-wrapper" style="font-family:'Segoe UI',Arial,sans-serif;font-size:12px;line-height:1.5">`;
+  let h = `<div class="resume-wrapper" style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.55">`;
   // Header
-  h += `<div style="background:linear-gradient(135deg,#312E81,#4338CA);padding:24px 28px;color:white">`;
-  h += `<div style="font-size:26px;font-weight:800;letter-spacing:0.5px">${esc(c.name) || 'Your Name'}</div>`;
-  if (cp) h += `<div style="font-size:11px;opacity:0.85;margin-top:6px">${cp}</div>`;
+  h += `<div style="background:linear-gradient(135deg,#312E81,#4338CA);padding:20px 24px;color:white">`;
+  h += `<div style="font-size:28px;font-weight:800;letter-spacing:0.5px">${esc(c.name) || 'Your Name'}</div>`;
+  if (cp) h += `<div style="font-size:12px;opacity:0.85;margin-top:5px">${cp}</div>`;
   h += `</div>`;
   // Two column
   h += `<div style="position:relative"><div style="position:absolute;top:0;left:0;bottom:0;width:32%;background:#F5F3FF;min-height:250mm"></div><div class="two-col" style="position:relative;z-index:1">`;
   // Left sidebar
-  h += `<div class="two-col-left" style="width:32%;background:#F5F3FF;padding:20px 16px;border-right:1px solid #E5E7EB">`;
+  h += `<div class="two-col-left" style="width:32%;background:#F5F3FF;padding:18px 14px;border-right:1px solid #E5E7EB">`;
   if (data.education?.length) {
     h += `<div style="margin-bottom:20px">${sideHdr('Education')}`;
     data.education.forEach(edu => {
@@ -3004,34 +2989,17 @@ function printSalesBD(data: ResumeData): string {
   const c = data.contact || {};
   const cp = [c.email, c.phone, c.location, c.linkedin].filter(Boolean).map(esc).join('  |  ');
   const skillGroups = normalizeSkills(data.skills);
-  const hdr = (t: string) => `<div style="font-size:12px;font-weight:800;text-transform:uppercase;color:#0F172A;letter-spacing:2px;border-bottom:3px solid #E16B00;padding-bottom:4px;margin-bottom:10px">${t}</div>`;
-  const dateS = 'font-size:10px;color:#94A3B8;font-style:italic';
-  const titleS = 'font-weight:700;color:#0F172A;font-size:13px';
+  const hdr = (t: string) => `<div style="font-size:13px;font-weight:800;text-transform:uppercase;color:#0F172A;letter-spacing:2px;border-bottom:3px solid #E16B00;padding-bottom:4px;margin-bottom:10px">${t}</div>`;
+  const dateS = 'font-size:11px;color:#94A3B8;font-style:italic';
+  const titleS = 'font-weight:700;color:#0F172A;font-size:14px';
 
-  // Extract metrics from summary
-  const summary = data.summary || '';
-  const metrics: string[] = [];
-  const metricMatches = summary.match(/[\d₹$%,.]+[+]?\s*(?:Cr|cr|Crore|crore|Lakh|lakh|%|pts|calls|revenue|deals|pipeline|clients|ARR|MRR|quota|team|YOY)?/gi);
-  if (metricMatches) metrics.push(...metricMatches.slice(0, 4));
-
-  let h = `<div style="font-family:'Segoe UI',Arial,sans-serif;font-size:12px;line-height:1.5;color:#333;padding:24px 28px;max-width:100%">`;
-  // Header
-  h += `<div style="margin-bottom:6px"><div style="font-size:28px;font-weight:900;color:#0F172A;letter-spacing:-0.5px">${esc(c.name) || 'Your Name'}</div>`;
-  if (cp) h += `<div style="font-size:11px;color:#64748B;margin-top:4px">${cp}</div>`;
-  h += `</div>`;
-  // Metrics bar
-  if (metrics.length > 0) {
-    h += `<div style="display:flex;gap:0;margin:10px 0 16px;border-radius:8px;overflow:hidden;border:1px solid #E2E8F0">`;
-    metrics.forEach((m, i) => {
-      const bg = i === 0 ? '#0F172A' : i % 2 === 0 ? '#F8FAFC' : '#F1F5F9';
-      const col = i === 0 ? 'white' : '#0F172A';
-      h += `<div style="flex:1;padding:10px 12px;text-align:center;background:${bg};color:${col}"><div style="font-size:16px;font-weight:800">${esc(m.trim())}</div></div>`;
-    });
-    h += `</div>`;
-  }
-  h += `<div style="border-bottom:1px solid #E2E8F0;margin-bottom:14px"></div>`;
+  let h = `<div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.55;color:#333;padding:22px 26px;max-width:100%">`;
+  // Dark header
+  h += `<div style="background:#0F172A;padding:18px 22px;border-radius:8px 8px 0 0"><div style="font-size:28px;font-weight:900;color:white;letter-spacing:-0.5px">${esc(c.name) || 'Your Name'}</div>`;
+  if (cp) h += `<div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:4px">${cp}</div>`;
+  h += `</div><div style="height:4px;background:#E16B00"></div>`;
   // Summary
-  if (data.summary) h += `<div style="margin-bottom:16px">${hdr('Profile Summary')}<div style="font-size:12px;line-height:1.65;color:#374151">${esc(data.summary)}</div></div>`;
+  if (data.summary) h += `<div style="margin-bottom:16px;margin-top:16px">${hdr('Profile Summary')}<div style="font-size:13px;line-height:1.65;color:#374151">${esc(data.summary)}</div></div>`;
   // Experience with orange left border
   if (data.experience?.length) {
     h += `<div style="margin-bottom:16px">${hdr('Sales Experience')}`;
@@ -3039,8 +3007,8 @@ function printSalesBD(data: ResumeData): string {
       const title = esc(getExpTitle(exp));
       const dates = esc(getExpDates(exp));
       const company = [exp.company, exp.location].filter(Boolean).map(esc).join(' &mdash; ');
-      const bullets = (exp.bullets || []).map(b => `<div style="padding-left:14px;text-indent:-14px;margin-bottom:3px;font-size:12px">&#9658; ${esc(b)}</div>`).join('');
-      h += `<div class="entry" style="margin-bottom:12px;padding-left:12px;border-left:3px solid #E16B00"><div style="display:flex;justify-content:space-between;flex-wrap:wrap"><span style="${titleS}">${title}</span><span style="${dateS}">${dates}</span></div><div style="color:#64748B;font-style:italic;font-size:11px">${company}</div>${bullets ? `<div style="margin-top:5px">${bullets}</div>` : ''}</div>`;
+      const bullets = (exp.bullets || []).map(b => `<div style="padding-left:14px;text-indent:-14px;margin-bottom:3px;font-size:13px">&#9658; ${esc(b)}</div>`).join('');
+      h += `<div class="entry" style="margin-bottom:12px;padding-left:12px;border-left:3px solid #E16B00"><div style="display:flex;justify-content:space-between;flex-wrap:wrap"><span style="${titleS}">${title}</span><span style="${dateS}">${dates}</span></div><div style="color:#64748B;font-style:italic;font-size:12px">${company}</div>${bullets ? `<div style="margin-top:5px">${bullets}</div>` : ''}</div>`;
     });
     h += `</div>`;
   }
@@ -3048,7 +3016,7 @@ function printSalesBD(data: ResumeData): string {
   if (data.education?.length) {
     h += `<div style="margin-bottom:16px">${hdr('Education')}`;
     data.education.forEach(edu => {
-      h += `<div style="margin-bottom:6px;display:flex;justify-content:space-between;flex-wrap:wrap"><div><span style="font-weight:700;color:#0F172A">${esc(getEduDegree(edu))}</span> &mdash; <span style="color:#64748B">${esc(getEduSchool(edu))}</span></div><span style="font-size:10px;color:#94A3B8">${esc(getEduDates(edu))}</span></div>`;
+      h += `<div style="margin-bottom:6px;display:flex;justify-content:space-between;flex-wrap:wrap"><div><span style="font-weight:700;color:#0F172A">${esc(getEduDegree(edu))}</span> &mdash; <span style="color:#64748B">${esc(getEduSchool(edu))}</span></div><span style="font-size:11px;color:#94A3B8">${esc(getEduDates(edu))}</span></div>`;
     });
     h += `</div>`;
   }
@@ -3056,7 +3024,7 @@ function printSalesBD(data: ResumeData): string {
   if (skillGroups.length) {
     h += `<div style="margin-bottom:16px">${hdr('Skills & Tools')}<div style="display:flex;flex-wrap:wrap;gap:6px">`;
     skillGroups.flatMap(g => g.items).forEach(s => {
-      h += `<span style="background:#FFF7ED;color:#C2410C;border:1px solid #FDBA74;border-radius:4px;padding:3px 10px;font-size:11px;font-weight:600">${esc(s)}</span>`;
+      h += `<span style="background:#FFF7ED;color:#C2410C;border:1px solid #FDBA74;border-radius:4px;padding:4px 12px;font-size:12px;font-weight:600">${esc(s)}</span>`;
     });
     h += `</div></div>`;
   }
