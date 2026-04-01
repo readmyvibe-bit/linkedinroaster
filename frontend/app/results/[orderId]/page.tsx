@@ -2435,8 +2435,8 @@ export default function ResultsPage() {
         <div style={{ maxWidth: 1240, margin: '0 auto' }}>
 
           {/* Score row — compact horizontal */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ textAlign: 'center', marginBottom: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 8 }}>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 40, fontWeight: 800, color: '#CC1016', lineHeight: 1 }}>{scores.before.overall}</div>
                 <div style={{ fontSize: 10, fontWeight: 600, color: '#CC1016', textTransform: 'uppercase', letterSpacing: 1 }}>Before</div>
@@ -2448,9 +2448,9 @@ export default function ResultsPage() {
               </div>
               <div style={{ background: '#DCFCE7', color: '#057642', fontSize: 15, fontWeight: 800, padding: '5px 14px', borderRadius: 20 }}>+{improvement}</div>
             </div>
-            <span style={{ background: afterScore >= 70 ? '#DCFCE7' : '#FEF3C7', color: afterScore >= 70 ? '#057642' : '#92400E', fontSize: 12, fontWeight: 700, padding: '5px 14px', borderRadius: 20 }}>
-              {rankLabel}
-            </span>
+            <div style={{ fontSize: 14, fontWeight: 600, color: afterScore >= 70 ? '#057642' : '#92400E' }}>
+              Your profile is now in the <strong>{rankLabel}</strong> of LinkedIn profiles
+            </div>
           </div>
 
           {/* Dimension bars — horizontal grid */}
@@ -2481,18 +2481,20 @@ export default function ResultsPage() {
                 <ResumeBuilderSection orderId={orderId} maxResumes={isPro ? 3 : 1} plan={plan} />
               </div>
             </div>
-            {/* Quick Actions */}
-            <div style={{ flex: '1 1 300px', display: 'flex', gap: 8, flexWrap: 'wrap', alignContent: 'flex-start' }}>
-              <button onClick={() => handleCopy(rewrite.rewritten_headline, 'sidebar-headline')} style={{ flex: '1 1 140px', padding: '10px 14px', background: 'white', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'center' }}>
+            {/* Quick Actions — vertical stack */}
+            <div style={{ flex: '0 0 260px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#191919', marginBottom: 4 }}>Quick Actions</div>
+              <button onClick={() => handleCopy(rewrite.rewritten_headline, 'sidebar-headline')} style={{ width: '100%', padding: '9px 14px', background: 'white', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'left' }}>
                 {copiedField === 'sidebar-headline' ? '✓ Copied!' : '📋 Copy Headline'}
               </button>
-              <button onClick={() => handleCopy(rewrite.rewritten_about, 'sidebar-about')} style={{ flex: '1 1 140px', padding: '10px 14px', background: 'white', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'center' }}>
+              <button onClick={() => handleCopy(rewrite.rewritten_about, 'sidebar-about')} style={{ width: '100%', padding: '9px 14px', background: 'white', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'left' }}>
                 {copiedField === 'sidebar-about' ? '✓ Copied!' : '📋 Copy About'}
               </button>
-              <button onClick={handleShareLinkedIn} style={{ flex: '1 1 140px', padding: '10px 14px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'center' }}>&#128279; Share</button>
-              <button onClick={handleDownloadCard} style={{ flex: '1 1 140px', padding: '10px 14px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'center' }}>&#11015; Roast Card</button>
+              <button onClick={handleShareLinkedIn} style={{ width: '100%', padding: '9px 14px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'left' }}>&#128279; Share on LinkedIn</button>
+              <button onClick={handleShareWhatsApp} style={{ width: '100%', padding: '9px 14px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#057642', cursor: 'pointer', textAlign: 'left' }}>&#128172; WhatsApp</button>
+              <button onClick={handleDownloadCard} style={{ width: '100%', padding: '9px 14px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'left' }}>&#11015; Download Roast Card</button>
               {!isPro && (
-                <button onClick={handleUpgrade} style={{ flex: '1 1 290px', padding: '10px 14px', background: 'linear-gradient(135deg, #004182, #0A66C2)', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, color: 'white', cursor: 'pointer', textAlign: 'center' }}>&#9889; Upgrade Pro — &#8377;500</button>
+                <button onClick={handleUpgrade} style={{ width: '100%', padding: '10px 14px', background: 'linear-gradient(135deg, #004182, #0A66C2)', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, color: 'white', cursor: 'pointer', textAlign: 'left' }}>&#9889; Upgrade to Pro — &#8377;500</button>
               )}
             </div>
           </div>
