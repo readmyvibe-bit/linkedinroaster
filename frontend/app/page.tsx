@@ -249,55 +249,30 @@ function FeatureCardSmall({ icon, title, stat, desc }: {
   );
 }
 
-// ─── FloatingCards ───
-function FloatingCards() {
+// ─── Roast Snapshot (integrated right column) ───
+function RoastSnapshot() {
   return (
-    <>
-      {/* TOP LEFT — Roast */}
-      <div className="hidden xl:block absolute top-[60px] left-[-140px] z-0 rotate-[-3deg] opacity-85 pointer-events-none transition-all duration-300 hover:opacity-100 hover:rotate-0 hover:scale-[1.03] hover:z-20 hover:pointer-events-auto">
-        <RoastCardSmall
-          name="Priya M."
-          title="Software Engineer · Bangalore"
-          roast="Your headline lists every skill you have ever googled but forgets what you actually do."
-          score_before={28}
-          score_after={76}
-          originalHeadline="Software Engineer | Python | Java | AWS | Docker | React | Node.js | Seeking new opportunities"
-        />
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <RoastCardSmall
+        name="Priya M."
+        title="Software Engineer · Bangalore"
+        roast="Your headline lists every skill you have ever googled but forgets what you actually do."
+        score_before={28}
+        score_after={76}
+        originalHeadline="Software Engineer | Python | Java | AWS | Docker | React | Node.js | Seeking new opportunities"
+      />
+      <RewriteCardSmall
+        name="Sneha R."
+        location="HR Executive · Mumbai"
+        before="HR Executive | Talent Acquisition | HR Operations | Onboarding"
+        after="HR Executive | Built Hiring for 500+ Employees | Cut Time-to-Hire 40%"
+        score_before={38}
+        score_after={84}
+      />
+      <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 10, padding: '10px 14px', textAlign: 'center' }}>
+        <span style={{ fontSize: 13, fontWeight: 700, color: '#057642' }}>500+ profiles improved &bull; Avg +42 pts</span>
       </div>
-      {/* BOTTOM LEFT — Roast */}
-      <div className="hidden xl:block absolute top-[380px] left-[-160px] z-0 rotate-[-1deg] opacity-85 pointer-events-none transition-all duration-300 hover:opacity-100 hover:rotate-0 hover:scale-[1.03] hover:z-20 hover:pointer-events-auto">
-        <RoastCardSmall
-          name="Rahul S."
-          title="MBA Graduate · Delhi"
-          roast="Aspiring Professional is the career equivalent of a menu that says food — completely useless."
-          score_before={22}
-          score_after={71}
-          originalHeadline="Aspiring Professional | Hardworking | Passionate | MBA Graduate | Open to work | Delhi NCR"
-        />
-      </div>
-      {/* TOP RIGHT — Rewrite */}
-      <div className="hidden xl:block absolute top-[50px] right-[-140px] z-0 rotate-[3deg] opacity-85 pointer-events-none transition-all duration-300 hover:opacity-100 hover:rotate-0 hover:scale-[1.03] hover:z-20 hover:pointer-events-auto">
-        <RewriteCardSmall
-          name="Sneha R."
-          location="HR Executive · Mumbai"
-          before="HR Executive | Talent Acquisition | HR Operations | Onboarding"
-          after="HR Executive | Built Hiring for 500+ Employees | Cut Time-to-Hire 40%"
-          score_before={38}
-          score_after={84}
-        />
-      </div>
-      {/* BOTTOM RIGHT — Rewrite */}
-      <div className="hidden xl:block absolute top-[400px] right-[-160px] z-0 rotate-[1deg] opacity-85 pointer-events-none transition-all duration-300 hover:opacity-100 hover:rotate-0 hover:scale-[1.03] hover:z-20 hover:pointer-events-auto">
-        <RewriteCardSmall
-          name="Arjun T."
-          location="BDM · Pune"
-          before="Business Development Manager | Results-driven | Passionate about growth"
-          after={"BDM | Generated \u20b92.4Cr Pipeline in FY24 | EdTech & SaaS Specialist"}
-          score_before={31}
-          score_after={78}
-        />
-      </div>
-    </>
+    </div>
   );
 }
 
@@ -487,11 +462,13 @@ export default function Home() {
           Lost your results? Recover &rarr;
         </a>
       </div>
-      {/* ─── Hero with Floating Cards ─── */}
-      <div className="relative max-w-5xl mx-auto overflow-visible px-6">
-        <FloatingCards />
+      {/* ─── Hero (7/5 grid) ─── */}
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
+        <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start', paddingTop: 40, paddingBottom: 24 }}>
+          {/* Left 7 cols — primary conversion */}
+          <div style={{ flex: 7, minWidth: 0 }}>
 
-        <section className="relative z-10 max-w-2xl mx-auto text-center px-4 pt-12 pb-8">
+        <section className="text-left" style={{ maxWidth: 680 }}>
           {/* CHANGE 1 — Headline */}
           <h1 className="leading-tight mb-1" style={{ fontSize: 36, fontWeight: 900, color: '#191919' }}>
             Your LinkedIn Profile is Costing You
@@ -503,11 +480,8 @@ export default function Home() {
             AI shows exactly why recruiters skip you. Fix it in 60 seconds.
           </p>
 
-          {/* CHANGE 2 — Stats Row */}
-          <StatsRow />
-
           {/* Curiosity hook */}
-          <p className="text-center text-[14px] italic text-[#666666] mb-3">
+          <p className="text-[14px] italic text-[#666666] mb-3">
             Most LinkedIn profiles score below 40. What is yours?
           </p>
 
@@ -601,20 +575,7 @@ export default function Home() {
               </button>
             </div>
           )}
-          {/* CHANGE 5 — Trust line */}
-          {!rateLimited && (
-            <p className="text-center mt-3" style={{ fontSize: 12, color: '#888' }}>
-              No login &#8226; 60-90 sec &#8226; Used by 500+ professionals
-            </p>
-          )}
-
           {!submitted && <LiveCounter />}
-
-          {!submitted && (
-            <p className="text-[13px] text-center mt-1" style={{ color: '#888' }}>
-              Free check &bull; ~60 seconds &bull; No LinkedIn login required
-            </p>
-          )}
 
           {/* Fix 4 — Loading indicator */}
           {loading && (
@@ -628,10 +589,27 @@ export default function Home() {
             </div>
           )}
         </section>
+
+          </div>
+          {/* Right 5 cols — roast snapshot (desktop only) */}
+          <div className="hidden lg:block" style={{ flex: 5, minWidth: 0, position: 'sticky', top: 24 }}>
+            <RoastSnapshot />
+          </div>
+        </div>
+      </div>
+
+      {/* ─── Credibility Strip (full width) ─── */}
+      <div style={{ background: 'white', borderTop: '1px solid #E8E8E8', borderBottom: '1px solid #E8E8E8', padding: '16px 24px' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'center', gap: 32, flexWrap: 'wrap', fontSize: 13, color: '#666', fontWeight: 600 }}>
+          <span>&#128274; No LinkedIn login needed</span>
+          <span>&#9889; Results in 60-90 seconds</span>
+          <span>&#128179; Secure UPI/Card via Razorpay</span>
+          <span>&#128272; 100% private — data deleted in 30 days</span>
+        </div>
       </div>
 
       {/* ─── CHANGE 6 — Value Cards ─── */}
-      {!submitted && <div className="max-w-2xl mx-auto px-4 py-6">
+      {!submitted && <div style={{ maxWidth: 1000, margin: '0 auto', padding: '24px 24px' }}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: 20, textAlign: 'center' }}>
             <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(232,82,10,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 22 }}>
@@ -659,7 +637,7 @@ export default function Home() {
 
       {/* ─── Teaser Result ─── */}
       {teaser && (
-        <section ref={resultRef} className="max-w-2xl mx-auto px-4 pb-8" style={{ animation: 'resultAppear 0.5s ease forwards' }}>
+        <section ref={resultRef} style={{ maxWidth: 860, margin: '0 auto', padding: '0 24px 32px', animation: 'resultAppear 0.5s ease forwards' }}>
           {/* Score card */}
           <div
             className="p-6 rounded-lg mb-4"
@@ -878,7 +856,7 @@ export default function Home() {
 
       {/* ─── Pricing ─── */}
       {(showPricing || teaser) && !selectedPlan && (
-        <section ref={pricingRef} className="max-w-3xl mx-auto px-4 py-12">
+        <section ref={pricingRef} style={{ maxWidth: 1000, margin: '0 auto', padding: '48px 24px' }}>
           <h2
             className="text-2xl font-bold text-center mb-2"
             style={{ color: 'var(--li-text-primary)' }}
@@ -931,12 +909,41 @@ export default function Home() {
 
       {/* ─── Profile Input Form (after plan selection) ─── */}
       {selectedPlan && (
-        <section ref={inputFormRef} style={{ maxWidth: 720, margin: '0 auto', padding: '0 16px 48px' }}>
+        <section ref={inputFormRef} style={{ maxWidth: 1000, margin: '0 auto', padding: '0 24px 48px' }}>
+          <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+            {/* Left — Form */}
+            <div style={{ flex: 1, minWidth: 0 }}>
               <ProfileInputForm
                 plan={selectedPlan}
                 teaserId={teaser?.teaser_id || null}
                 email={email}
               />
+            </div>
+            {/* Right — Sticky sidebar (desktop) */}
+            <div className="hidden lg:block" style={{ width: 280, flexShrink: 0, position: 'sticky', top: 24 }}>
+              <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 14, padding: '20px', marginBottom: 12 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#191919', marginBottom: 12 }}>What happens next</div>
+                {[
+                  { icon: '1', text: 'Paste your full LinkedIn profile (Ctrl+A)' },
+                  { icon: '2', text: 'Pay securely via UPI/Card' },
+                  { icon: '3', text: 'AI roasts + rewrites in ~60 seconds' },
+                  { icon: '4', text: 'Copy-paste your new profile + download resume' },
+                ].map((s, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 10, alignItems: 'flex-start' }}>
+                    <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#0A66C2', color: 'white', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{s.icon}</div>
+                    <div style={{ fontSize: 13, color: '#555', lineHeight: 1.5 }}>{s.text}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 14, padding: '16px', fontSize: 12, color: '#057642', lineHeight: 1.6 }}>
+                <div style={{ fontWeight: 700, marginBottom: 4 }}>Secure & Private</div>
+                Your data is processed by AI only. No humans read your profile. Deleted after 30 days.
+              </div>
+              <div style={{ marginTop: 12, textAlign: 'center' }}>
+                <a href="mailto:support@profileroaster.in" style={{ fontSize: 12, color: '#888', textDecoration: 'none' }}>Need help? support@profileroaster.in</a>
+              </div>
+            </div>
+          </div>
         </section>
       )}
 
