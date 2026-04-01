@@ -1412,19 +1412,21 @@ function ResumeBuilderSection({ orderId, maxResumes = 3, plan = 'standard' }: { 
 
   async function handleUpgrade() {
     try {
+      if (!(window as any).Razorpay) { alert('Payment system is loading. Please try again in a moment.'); return; }
       const res = await fetch(`${API_URL}/api/orders/${orderId}/upgrade`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+      if (!res.ok) { const err = await res.json().catch(() => ({})); alert(err.error || 'Could not create upgrade order.'); return; }
       const data = await res.json();
       if (data.razorpay_order_id) {
-        const opts = {
+        const rzp = new (window as any).Razorpay({
           key: data.razorpay_key, amount: data.amount, currency: data.currency,
           order_id: data.razorpay_order_id, name: 'ProfileRoaster',
           description: 'Upgrade to Pro', theme: { color: '#0A66C2' },
           handler: () => { window.location.reload(); },
-          modal: { ondismiss: () => { document.body.style.overflow = ''; document.body.style.position = ''; document.documentElement.style.overflow = ''; } },
-        };
-        const rzp = new (window as any).Razorpay(opts); rzp.open();
-      } else { alert(data.error || 'Failed to create upgrade order'); }
-    } catch { alert('Failed to initiate upgrade. Please try again.'); }
+          modal: { ondismiss: () => { document.body.style.overflow = ''; } },
+        });
+        rzp.open();
+      } else { alert(data.error || 'Upgrade not available.'); }
+    } catch { alert('Could not reach server. Please try again.'); }
   }
 
   return (
@@ -1812,35 +1814,22 @@ function UpsellBanner({ orderId }: { orderId: string }) {
   async function handleUpgrade() {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/orders/${orderId}/upgrade`, { method: 'POST' });
+      if (!(window as any).Razorpay) { alert('Payment system is loading. Please try again.'); return; }
+      const res = await fetch(`${API_URL}/api/orders/${orderId}/upgrade`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+      if (!res.ok) { const err = await res.json().catch(() => ({})); alert(err.error || 'Could not create upgrade order.'); return; }
       const data = await res.json();
       if (data.razorpay_order_id) {
-        const options = {
-          key: data.razorpay_key,
-          amount: data.amount,
-          currency: data.currency,
-          name: 'Profile Roaster',
-          description: 'Upgrade to Pro',
-          order_id: data.razorpay_order_id,
-          theme: { color: '#0A66C2' },
-          handler: function () {
-            window.location.reload();
-          },
-          modal: {
-            ondismiss: function () {
-              document.body.style.overflow = '';
-              document.body.style.position = '';
-              document.documentElement.style.overflow = '';
-            },
-          },
-        };
-        const rzp = new (window as any).Razorpay(options);
+        const rzp = new (window as any).Razorpay({
+          key: data.razorpay_key, amount: data.amount, currency: data.currency,
+          order_id: data.razorpay_order_id, name: 'ProfileRoaster',
+          description: 'Upgrade to Pro', theme: { color: '#0A66C2' },
+          handler: () => { window.location.reload(); },
+          modal: { ondismiss: () => { document.body.style.overflow = ''; } },
+        });
         rzp.open();
-      } else {
-        alert(data.error || 'Failed to create upgrade');
-      }
+      } else { alert(data.error || 'Upgrade not available.'); }
     } catch {
-      alert('Could not reach server');
+      alert('Could not reach server. Please try again.');
     } finally {
       setLoading(false);
     }
