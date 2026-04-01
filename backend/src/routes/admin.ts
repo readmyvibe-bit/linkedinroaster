@@ -667,4 +667,122 @@ router.post('/build-orders/:id/send-email', async (req: Request, res: Response) 
   }
 });
 
+// ═══════════════════════════════════════════
+// EMAIL SEQUENCE CONTROLS
+// ═══════════════════════════════════════════
+import { processEmailSequences, sendSingleSequenceEmail, getSequenceKeys } from '../services/email-sequences';
+
+router.use('/email-sequences', adminAuth);
+
+// GET /api/admin/email-sequences/status — global status + opt-outs + available keys
+router.get('/email-sequences/status', async (_req: Request, res: Response) => {
+  try {
+    const settings = await query("SELECT value FROM email_settings WHERE key='sequences_enabled'");
+    const optouts = await query('SELECT email, reason, created_at FROM email_optouts ORDER BY created_at DESC');
+    const recentSends = await query(`
+      SELECT o.id, o.email, o.sequence_emails_sent, o.processing_done_at
+      FROM orders o
+      WHERE o.sequence_emails_sent IS NOT NULL AND o.sequence_emails_sent != '{}'::jsonb
+      ORDER BY o.processing_done_at DESC LIMIT 20
+    `);
+    res.json({
+      enabled: settings.rows[0]?.value === 'true',
+      optouts: optouts.rows,
+      recentSends: recentSends.rows,
+      availableKeys: getSequenceKeys(),
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/admin/email-sequences/toggle — pause/resume all sequences
+router.post('/email-sequences/toggle', async (req: Request, res: Response) => {
+  try {
+    const { enabled } = req.body;
+    await query("UPDATE email_settings SET value=$1, updated_at=NOW() WHERE key='sequences_enabled'", [enabled ? 'true' : 'false']);
+    res.json({ enabled: !!enabled, message: enabled ? 'Email sequences ENABLED' : 'Email sequences PAUSED' });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/admin/email-sequences/optout — block a specific email from sequences
+router.post('/email-sequences/optout', async (req: Request, res: Response) => {
+  try {
+    const { email, reason } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email required' });
+    await query('INSERT INTO email_optouts (email, reason) VALUES ($1, $2) ON CONFLICT (email) DO UPDATE SET reason=$2', [email.toLowerCase(), reason || 'admin']);
+    res.json({ message: `${email} opted out of sequences` });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /api/admin/email-sequences/optout — remove an email from opt-out list
+router.delete('/email-sequences/optout', async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email required' });
+    await query('DELETE FROM email_optouts WHERE email=$1', [email.toLowerCase()]);
+    res.json({ message: `${email} removed from opt-out list` });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/admin/email-sequences/send — send a specific sequence email to a specific order
+router.post('/email-sequences/send', async (req: Request, res: Response) => {
+  try {
+    const { orderId, emailKey } = req.body;
+    if (!orderId || !emailKey) return res.status(400).json({ error: 'orderId and emailKey required' });
+    const result = await sendSingleSequenceEmail(orderId, emailKey);
+    if (result.success) res.json({ message: `Sent ${emailKey} for order ${orderId}` });
+    else res.status(400).json({ error: result.error });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/admin/email-sequences/run-now — manually trigger the sequence processor
+router.post('/email-sequences/run-now', async (_req: Request, res: Response) => {
+  try {
+    const result = await processEmailSequences();
+    res.json({ message: 'Sequence processor ran', ...result });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/admin/email-sequences/preview/:emailKey/:orderId — preview an email without sending
+router.get('/email-sequences/preview/:emailKey/:orderId', async (req: Request, res: Response) => {
+  try {
+    const seq = getSequenceKeys().find(s => s.key === req.params.emailKey);
+    if (!seq) return res.status(404).json({ error: 'Unknown email key' });
+
+    const result = await query(`
+      SELECT o.id, o.email, o.plan,
+             o.before_score->'overall' as before_score,
+             o.after_score->'overall' as after_score,
+             o.roast->'roast_title' as roast_title,
+             o.rewrite->'rewritten_headline' as rewritten_headline,
+             EXISTS(SELECT 1 FROM resumes r WHERE r.order_id=o.id) as has_resume
+      FROM orders o WHERE o.id=$1
+    `, [req.params.orderId]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Order not found' });
+
+    // Import the sequence to get subject/body
+    const { ROAST_SEQUENCE_EXPORT } = require('../services/email-sequences');
+    // Fallback: just return order data + key
+    res.json({
+      emailKey: req.params.emailKey,
+      orderId: req.params.orderId,
+      email: result.rows[0].email,
+      note: 'Use POST /email-sequences/send to actually send this email',
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

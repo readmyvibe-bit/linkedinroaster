@@ -183,8 +183,63 @@ const ROAST_SEQUENCE: SequenceEmail[] = [
 ];
 
 // ═══ Process sequences ═══
+// Check if a specific email key should be sent for an order
+export async function sendSingleSequenceEmail(orderId: string, emailKey: string): Promise<{ success: boolean; error?: string }> {
+  if (!EMAIL_ENABLED) return { success: false, error: 'Email disabled' };
+
+  const seq = ROAST_SEQUENCE.find(s => s.key === emailKey);
+  if (!seq) return { success: false, error: `Unknown email key: ${emailKey}` };
+
+  const result = await query(`
+    SELECT o.id, o.email, o.plan,
+           o.before_score->'overall' as before_score,
+           o.after_score->'overall' as after_score,
+           o.roast->'roast_title' as roast_title,
+           o.rewrite->'rewritten_headline' as rewritten_headline,
+           o.sequence_emails_sent,
+           EXISTS(SELECT 1 FROM resumes r WHERE r.order_id=o.id) as has_resume
+    FROM orders o WHERE o.id=$1
+  `, [orderId]);
+
+  if (!result.rows.length) return { success: false, error: 'Order not found' };
+  const order = result.rows[0];
+
+  const data: OrderData = {
+    id: order.id, email: order.email, plan: order.plan,
+    before_score: order.before_score || 0, after_score: order.after_score || 0,
+    roast_title: order.roast_title || '', rewritten_headline: order.rewritten_headline || '',
+    has_resume: order.has_resume || false,
+  };
+
+  try {
+    await resend.emails.send({ from: FROM, to: data.email, subject: seq.subject(data), html: seq.body(data) });
+    const alreadySent = order.sequence_emails_sent || {};
+    alreadySent[emailKey] = true;
+    await query('UPDATE orders SET sequence_emails_sent=$1 WHERE id=$2', [JSON.stringify(alreadySent), orderId]);
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
+// Get available sequence email keys
+export function getSequenceKeys(): { key: string; day: number }[] {
+  return ROAST_SEQUENCE.map(s => ({ key: s.key, day: s.day }));
+}
+
 export async function processEmailSequences(): Promise<{ sent: number; errors: number }> {
   if (!EMAIL_ENABLED) { console.log('[SEQUENCES] Email disabled — skipping'); return { sent: 0, errors: 0 }; }
+
+  // Check global pause
+  const settings = await query("SELECT value FROM email_settings WHERE key='sequences_enabled'");
+  if (settings.rows[0]?.value !== 'true') {
+    console.log('[SEQUENCES] Globally paused — skipping');
+    return { sent: 0, errors: 0 };
+  }
+
+  // Get opt-out list
+  const optouts = await query('SELECT email FROM email_optouts');
+  const optoutSet = new Set(optouts.rows.map((r: any) => r.email.toLowerCase()));
 
   let sent = 0;
   let errors = 0;
@@ -208,6 +263,9 @@ export async function processEmailSequences(): Promise<{ sent: number; errors: n
   `);
 
   for (const order of orders.rows) {
+    // Skip opted-out users
+    if (optoutSet.has(order.email.toLowerCase())) continue;
+
     const doneAt = new Date(order.processing_done_at);
     const daysSinceDone = Math.floor((Date.now() - doneAt.getTime()) / (1000 * 60 * 60 * 24));
     const alreadySent: Record<string, boolean> = order.sequence_emails_sent || {};
