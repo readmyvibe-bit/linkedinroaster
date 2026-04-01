@@ -2473,26 +2473,37 @@ export default function ResultsPage() {
             ))}
           </div>
 
-          {/* Resume + Quick Actions — side by side, equal height */}
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'stretch' }}>
+          {/* Resume + Quick Actions — side by side */}
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-start' }}>
             {/* Resume card */}
-            <div style={{ flex: '1 1 300px', background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '16px 20px', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ flex: '1 1 300px', background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '16px 20px' }}>
               <div id="resume-section">
                 <ResumeBuilderSection orderId={orderId} maxResumes={isPro ? 3 : 1} plan={plan} />
               </div>
             </div>
-            {/* Quick Actions — vertical stack, stretch to match resume height */}
-            <div style={{ flex: '0 0 260px', display: 'flex', flexDirection: 'column', gap: 6, justifyContent: 'space-between' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#191919', marginBottom: 4 }}>Quick Actions</div>
-              <button onClick={() => handleCopy(rewrite.rewritten_headline, 'sidebar-headline')} style={{ width: '100%', padding: '9px 14px', background: 'white', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'left' }}>
+            {/* Quick Actions — vertical on desktop, 2x2 grid on mobile */}
+            <div className="hidden lg:flex" style={{ flex: '0 0 240px', flexDirection: 'column', gap: 6 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#191919', marginBottom: 2 }}>Quick Actions</div>
+              <button onClick={() => handleCopy(rewrite.rewritten_headline, 'sidebar-headline')} style={{ width: '100%', padding: '8px 12px', background: 'white', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'left' }}>
                 {copiedField === 'sidebar-headline' ? '✓ Copied!' : '📋 Copy Headline'}
               </button>
-              <button onClick={() => handleCopy(rewrite.rewritten_about, 'sidebar-about')} style={{ width: '100%', padding: '9px 14px', background: 'white', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'left' }}>
+              <button onClick={() => handleCopy(rewrite.rewritten_about, 'sidebar-about')} style={{ width: '100%', padding: '8px 12px', background: 'white', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'left' }}>
                 {copiedField === 'sidebar-about' ? '✓ Copied!' : '📋 Copy About'}
               </button>
-              <button onClick={handleShareLinkedIn} style={{ width: '100%', padding: '9px 14px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'left' }}>&#128279; Share on LinkedIn</button>
-              <button onClick={handleShareWhatsApp} style={{ width: '100%', padding: '9px 14px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#057642', cursor: 'pointer', textAlign: 'left' }}>&#128172; WhatsApp</button>
-              <button onClick={handleDownloadCard} style={{ width: '100%', padding: '9px 14px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'left' }}>&#11015; Download Roast Card</button>
+              <button onClick={handleShareLinkedIn} style={{ width: '100%', padding: '8px 12px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'left' }}>&#128279; Share on LinkedIn</button>
+              <button onClick={handleShareWhatsApp} style={{ width: '100%', padding: '8px 12px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#057642', cursor: 'pointer', textAlign: 'left' }}>&#128172; WhatsApp</button>
+              <button onClick={handleDownloadCard} style={{ width: '100%', padding: '8px 12px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'left' }}>&#11015; Download Roast Card</button>
+            </div>
+            {/* Mobile: 2x2 grid */}
+            <div className="flex lg:hidden" style={{ flex: '1 1 300px', gap: 8, flexWrap: 'wrap' }}>
+              <button onClick={() => handleCopy(rewrite.rewritten_headline, 'sidebar-headline')} style={{ flex: '1 1 45%', padding: '10px', background: 'white', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'center' }}>
+                {copiedField === 'sidebar-headline' ? '✓ Copied!' : '📋 Headline'}
+              </button>
+              <button onClick={() => handleCopy(rewrite.rewritten_about, 'sidebar-about')} style={{ flex: '1 1 45%', padding: '10px', background: 'white', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'center' }}>
+                {copiedField === 'sidebar-about' ? '✓ Copied!' : '📋 About'}
+              </button>
+              <button onClick={handleShareLinkedIn} style={{ flex: '1 1 45%', padding: '10px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'center' }}>&#128279; Share</button>
+              <button onClick={handleDownloadCard} style={{ flex: '1 1 45%', padding: '10px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'center' }}>&#11015; Card</button>
             </div>
           </div>
 
