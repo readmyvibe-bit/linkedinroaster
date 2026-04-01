@@ -473,7 +473,7 @@ export default function Home() {
   return (
     <main className="min-h-screen pb-16">
       {/* ─── Top Bar ─── */}
-      <div style={{ background: 'white', borderBottom: '1px solid #E8E8E8', padding: '10px 40px' }}>
+      <div style={{ background: 'white', borderBottom: '1px solid #E8E8E8', padding: '10px 16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: 1400, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <a href="/" style={{ textDecoration: 'none' }}>
@@ -489,10 +489,10 @@ export default function Home() {
       </div>
       {/* ─── Hero (full-bleed gradient) ─── */}
       <div style={{ background: 'linear-gradient(135deg, #F8FAFF 0%, #EEF2FF 40%, #F0F7FF 100%)', borderBottom: '1px solid #E0E7F0' }}>
-      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '0 40px' }}>
-        <div style={{ display: 'flex', gap: 40, alignItems: 'center', paddingTop: 40, paddingBottom: 36 }}>
-          {/* Left 60% — primary conversion */}
-          <div style={{ width: '60%', flexShrink: 0 }}>
+      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '0 16px' }}>
+        <div style={{ display: 'flex', gap: 32, alignItems: 'center', paddingTop: 32, paddingBottom: 32, flexWrap: 'wrap' }}>
+          {/* Left — primary conversion */}
+          <div style={{ flex: '1 1 480px', minWidth: 0 }}>
 
         <section className="text-left">
           {/* CHANGE 1 — Headline */}
@@ -617,8 +617,8 @@ export default function Home() {
         </section>
 
           </div>
-          {/* Right 40% — transformation showcase (desktop only) */}
-          <div className="hidden lg:block" style={{ width: '40%', flexShrink: 0 }}>
+          {/* Right — transformation showcase (desktop only) */}
+          <div className="hidden lg:block" style={{ flex: '1 1 340px', minWidth: 0 }}>
             <TransformationShowcase />
           </div>
         </div>
@@ -636,7 +636,7 @@ export default function Home() {
       </div>
 
       {/* ─── CHANGE 6 — Value Cards ─── */}
-      {!submitted && <div style={{ background: '#F8FAFC', padding: '36px 40px', borderBottom: '1px solid #E8E8E8' }}>
+      {!submitted && <div style={{ background: '#F8FAFC', padding: '28px 16px', borderBottom: '1px solid #E8E8E8' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           {/* Row 1: Two main product cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20, marginBottom: 16 }}>
@@ -694,7 +694,7 @@ export default function Home() {
 
       {/* ─── Teaser Result ─── */}
       {teaser && (
-        <section ref={resultRef} style={{ background: '#F8FAFC', borderTop: '1px solid #E8E8E8', borderBottom: '1px solid #E8E8E8', padding: '32px 40px', animation: 'resultAppear 0.5s ease forwards' }}>
+        <section ref={resultRef} style={{ background: '#F8FAFC', borderTop: '1px solid #E8E8E8', borderBottom: '1px solid #E8E8E8', padding: '28px 16px', animation: 'resultAppear 0.5s ease forwards' }}>
         <div style={{ maxWidth: 860, margin: '0 auto' }}>
           {/* Score card */}
           <div
@@ -915,7 +915,7 @@ export default function Home() {
 
       {/* ─── Pricing ─── */}
       {(showPricing || teaser) && !selectedPlan && (
-        <section ref={pricingRef} style={{ background: 'white', padding: '48px 40px' }}>
+        <section ref={pricingRef} style={{ background: 'white', padding: '40px 16px' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
           <h2
             className="text-2xl font-bold text-center mb-2"
@@ -970,7 +970,7 @@ export default function Home() {
 
       {/* ─── Profile Input Form (after plan selection) ─── */}
       {selectedPlan && (
-        <section ref={inputFormRef} style={{ background: '#F8FAFC', padding: '32px 40px 48px' }}>
+        <section ref={inputFormRef} style={{ background: '#F8FAFC', padding: '28px 16px 40px' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
           <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
             {/* Left — Form */}
@@ -1011,7 +1011,7 @@ export default function Home() {
       )}
 
       {/* ─── How It Works (full-width dark) ─── */}
-      <section style={{ background: '#0F172A', padding: '48px 40px' }}>
+      <section style={{ background: '#0F172A', padding: '40px 16px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <h2 style={{ fontSize: 24, fontWeight: 800, color: 'white', textAlign: 'center', marginBottom: 32 }}>How It Works</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 24 }}>
@@ -1032,7 +1032,7 @@ export default function Home() {
       </section>
 
       {/* ─── ATS Resume Showcase (full-width grey) ─── */}
-      <section style={{ background: '#F3F2EF', padding: '48px 40px' }}>
+      <section style={{ background: '#F3F2EF', padding: '40px 16px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <h2 style={{ fontSize: 22, fontWeight: 800, color: '#191919', textAlign: 'center', marginBottom: 8 }}>ATS Resume Builder</h2>
           <p style={{ fontSize: 14, color: '#666', textAlign: 'center', marginBottom: 28 }}>Included in all paid plans. Your LinkedIn rewrite becomes a resume in 60 seconds.</p>
@@ -1075,7 +1075,7 @@ export default function Home() {
       </section>
 
       {/* ─── Testimonials (full-width white) ─── */}
-      <section style={{ background: 'white', borderTop: '1px solid #E8E8E8', padding: '48px 40px' }}>
+      <section style={{ background: 'white', borderTop: '1px solid #E8E8E8', padding: '40px 16px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <h2 style={{ fontSize: 24, fontWeight: 800, color: '#191919', textAlign: 'center', marginBottom: 32 }}>Real Results From Real Professionals</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
@@ -1107,7 +1107,7 @@ export default function Home() {
       </section>
 
       {/* ─── Urgency CTA (full-width blue) ─── */}
-      <section style={{ background: 'linear-gradient(135deg, #004182 0%, #0A66C2 100%)', padding: '56px 40px', textAlign: 'center' }}>
+      <section style={{ background: 'linear-gradient(135deg, #004182 0%, #0A66C2 100%)', padding: '48px 16px', textAlign: 'center' }}>
         <div style={{ maxWidth: 800, margin: '0 auto' }}>
           <div style={{ fontSize: 28, fontWeight: 900, color: 'white', marginBottom: 8 }}>Stop losing opportunities.</div>
           <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.8)', marginBottom: 28 }}>Every day with a weak profile is another recruiter who scrolled past you.</div>
@@ -1130,7 +1130,7 @@ export default function Home() {
       </section>
 
       {/* ─── Trust Badges (full-width grey) ─── */}
-      <section style={{ background: '#F3F2EF', padding: '40px 40px' }}>
+      <section style={{ background: '#F3F2EF', padding: '32px 16px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
             {[
