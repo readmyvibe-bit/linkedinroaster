@@ -8,7 +8,7 @@ export default function BuildLandingPage() {
   const plans = [
     {
       id: 'starter',
-      name: 'LinkedIn Starter',
+      name: 'Profile Starter',
       price: 199,
       popular: false,
       features: [
@@ -23,7 +23,7 @@ export default function BuildLandingPage() {
     },
     {
       id: 'plus',
-      name: 'LinkedIn + Resume',
+      name: 'Profile + Resume',
       price: 399,
       popular: true,
       features: [
@@ -38,7 +38,7 @@ export default function BuildLandingPage() {
     },
     {
       id: 'pro',
-      name: 'LinkedIn Pro',
+      name: 'Profile Pro',
       price: 699,
       popular: false,
       features: [
@@ -234,6 +234,8 @@ export default function BuildLandingPage() {
                     padding: '28px 24px',
                     position: 'relative',
                     textAlign: 'left',
+                    display: 'flex',
+                    flexDirection: 'column',
                   }}
                 >
                   {p.popular && (
@@ -246,7 +248,7 @@ export default function BuildLandingPage() {
                     <span style={{ fontSize: 32, fontWeight: 800 }}>&#8377;{p.price}</span>
                     <span style={{ fontSize: 13, opacity: 0.7 }}> one-time</span>
                   </div>
-                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px' }}>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px', flex: 1 }}>
                     {p.features.map((f, i) => (
                       <li key={i} style={{ fontSize: 13, lineHeight: 1.5, padding: '4px 0', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                         <span style={{ color: p.popular ? '#BBF7D0' : '#057642', fontWeight: 700 }}>&#10003;</span>
