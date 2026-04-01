@@ -1,6 +1,7 @@
 import cron from 'node-cron';
 import { query } from '../db';
 import { sendTeaserFollowUp } from '../services/email';
+import { processEmailSequences } from '../services/email-sequences';
 
 // ═══════════════════════════════════════════════════════
 // CRON 1 — DATA CLEANUP (DPDPA compliance)
@@ -146,9 +147,26 @@ export function startStuckOrderCron(): void {
   console.log('[CRON] Stuck order cleanup scheduled: every 10 minutes');
 }
 
+// ═══════════════════════════════════════════════════════
+// CRON 4 — EMAIL SEQUENCES (day 3/7/14/25/30 follow-ups)
+// Schedule: daily 05:00 UTC = 10:30 AM IST
+// ═══════════════════════════════════════════════════════
+function startEmailSequenceCron(): void {
+  cron.schedule('0 5 * * *', async () => {
+    try {
+      const result = await processEmailSequences();
+      console.log(`[CRON] Email sequences: ${result.sent} sent, ${result.errors} errors`);
+    } catch (err: any) {
+      console.error('[CRON] Email sequence error:', err.message);
+    }
+  });
+  console.log('[CRON] Email sequences scheduled: daily 05:00 UTC (10:30 AM IST)');
+}
+
 // Start all crons
 export function startAllCrons(): void {
   startDataCleanupCron();
   startTeaserFollowUpCron();
   startStuckOrderCron();
+  startEmailSequenceCron();
 }
