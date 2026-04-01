@@ -418,29 +418,7 @@ export default function ResumeEditorPage() {
   // ─── Download PDF ───
   function handleDownloadPDF() {
     if (!resumeData) return;
-    let html = buildPrintHTML(resumeData, templateId);
-    const size = resumeData.printSize || 'standard';
-
-    // Apply print size CSS
-    if (size === 'compact') {
-      html = html.replace('</style>', 'body{font-size:92%!important;line-height:1.35!important}body div,body p{margin-bottom:2px!important}' + '</style>');
-    } else if (size === 'spacious') {
-      html = html.replace('</style>', 'body{font-size:108%!important;line-height:1.65!important}' + '</style>');
-    }
-
-    // 1-page mode: tighter margins
-    const fitPage = resumeData.fitOnePage !== false;
-    if (fitPage) {
-      html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 10mm 8mm 10mm}');
-    }
-
-    // Mobile: even tighter
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if (isMobile) {
-      html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:6mm 8mm 6mm 8mm}');
-    }
-
-    // Open and print — no zoom, no measurement
+    const html = buildPrintHTML(resumeData, templateId);
     const win = window.open('', '_blank');
     if (!win) { alert('Please allow popups to download PDF.'); return; }
     win.document.write(html);
@@ -537,26 +515,6 @@ export default function ResumeEditorPage() {
               <option key={t.id} value={t.id}>{t.name}</option>
             ))}
           </select>
-          {/* Print Size */}
-          <select
-            value={resumeData?.printSize || 'standard'}
-            onChange={e => setResumeData(prev => prev ? { ...prev, printSize: e.target.value as 'compact' | 'standard' | 'spacious' } : prev)}
-            style={{ padding: '5px 6px', border: '1px solid #D0D0D0', borderRadius: 6, fontSize: 11, outline: 'none' }}
-          >
-            <option value="compact">Compact</option>
-            <option value="standard">Standard</option>
-            <option value="spacious">Spacious</option>
-          </select>
-          {/* Fit 1 Page */}
-          <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#555', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-            <input
-              type="checkbox"
-              checked={resumeData?.fitOnePage !== false}
-              onChange={e => setResumeData(prev => prev ? { ...prev, fitOnePage: e.target.checked } : prev)}
-              style={{ accentColor: '#0A66C2' }}
-            />
-            1 Page
-          </label>
           <button
             onClick={handleDownloadPDF}
             style={{
@@ -566,15 +524,6 @@ export default function ResumeEditorPage() {
           >
             PDF
           </button>
-          <a
-            href={`${API_URL}/api/resume/${resumeId}/download/docx`}
-            style={{
-              padding: '5px 12px', background: '#374151', color: '#fff', border: 'none',
-              borderRadius: 16, fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
-            }}
-          >
-            DOCX
-          </a>
           <a
             href={`${API_URL}/api/resume/${resumeId}/download/txt`}
             style={{

@@ -82,8 +82,6 @@ export default function ResumePreviewPage() {
   const [showKeywords, setShowKeywords] = useState(false);
   const [coverLetterCopied, setCoverLetterCopied] = useState(false);
   const [templateId, setTemplateId] = useState('classic');
-  const [printSize, setPrintSize] = useState<'compact' | 'standard' | 'spacious'>('standard');
-  const [fitOnePage, setFitOnePage] = useState(true);
 
   useEffect(() => {
     if (!resumeId) return;
@@ -96,8 +94,6 @@ export default function ResumePreviewPage() {
       .then(data => {
         setResume(data);
         setTemplateId(data.template_id || 'classic');
-        setPrintSize(data.resume_data?.printSize || 'standard');
-        setFitOnePage(data.resume_data?.fitOnePage !== false);
         setLoading(false);
       })
       .catch(() => {
@@ -105,16 +101,6 @@ export default function ResumePreviewPage() {
         setLoading(false);
       });
   }, [resumeId]);
-
-  // Save print settings to resume_data
-  function savePrintSettings(newSize: string, newFit: boolean) {
-    if (!resume) return;
-    const updated = { ...resume.resume_data, printSize: newSize, fitOnePage: newFit };
-    fetch(`${API_URL}/api/resume/${resumeId}`, {
-      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ resume_data: updated }),
-    }).catch(() => {});
-  }
 
   const orderPlan = (resume as any)?.order_plan || 'standard';
   const orderSource = (resume as any)?.order_source || 'roast';
@@ -128,27 +114,7 @@ export default function ResumePreviewPage() {
       alert(`"${currentTemplate?.name}" is a Pro template. Upgrade to Pro for ₹500 to unlock all 23 templates.`);
       return;
     }
-    let html = buildPrintHTML(resume.resume_data, templateId);
-
-    // Apply print size CSS
-    if (printSize === 'compact') {
-      html = html.replace('</style>', 'body{font-size:92%!important;line-height:1.35!important}body div,body p{margin-bottom:2px!important}' + '</style>');
-    } else if (printSize === 'spacious') {
-      html = html.replace('</style>', 'body{font-size:108%!important;line-height:1.65!important}' + '</style>');
-    }
-
-    // 1-page mode: tighter margins to maximize printable area
-    if (fitOnePage) {
-      html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 10mm 8mm 10mm}');
-    }
-
-    // Mobile: even tighter margins
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if (isMobile) {
-      html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:6mm 8mm 6mm 8mm}');
-    }
-
-    // Open and print — no zoom, no measurement, no scale
+    const html = buildPrintHTML(resume.resume_data, templateId);
     const win = window.open('', '_blank');
     if (!win) { alert('Please allow popups to download PDF.'); return; }
     win.document.write(html);
@@ -264,16 +230,6 @@ export default function ResumePreviewPage() {
             PDF
           </button>
           <a
-            href={isTemplateLocked ? '#' : `${API_URL}/api/resume/${resume.id}/download/docx`}
-            onClick={(e) => { if (isTemplateLocked) { e.preventDefault(); alert(`"${currentTemplate?.name}" is a Pro template. Upgrade to Pro for ₹500.`); } }}
-            style={{
-              padding: '6px 14px', background: isTemplateLocked ? '#999' : '#374151', color: '#fff', border: 'none',
-              borderRadius: 16, fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
-            }}
-          >
-            DOCX
-          </a>
-          <a
             href={`${API_URL}/api/resume/${resume.id}/download/txt`}
             style={{
               padding: '6px 14px', background: '#F3F2EF', color: '#666', border: '1px solid #D0D0D0',
@@ -352,35 +308,12 @@ export default function ResumePreviewPage() {
             )}
           </div>
 
-          {/* Print Controls */}
-          <div style={{ background: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, border: '1px solid #E0E0E0' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#333', marginBottom: 10 }}>Print Settings</div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: '#666', marginBottom: 6 }}>Size</div>
-            <div style={{ display: 'flex', gap: 0, borderRadius: 8, overflow: 'hidden', border: '1px solid #D0D0D0', marginBottom: 10 }}>
-              {(['compact', 'standard', 'spacious'] as const).map(s => (
-                <button key={s} onClick={() => { setPrintSize(s); savePrintSettings(s, fitOnePage); }}
-                  style={{ flex: 1, padding: '5px 0', fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer', background: printSize === s ? '#0A66C2' : '#fff', color: printSize === s ? '#fff' : '#666' }}>
-                  {s.charAt(0).toUpperCase() + s.slice(1)}
-                </button>
-              ))}
-            </div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: '#666', marginBottom: 6 }}>Pages</div>
-            <div style={{ display: 'flex', gap: 0, borderRadius: 8, overflow: 'hidden', border: '1px solid #D0D0D0' }}>
-              <button onClick={() => { setFitOnePage(true); savePrintSettings(printSize, true); }}
-                style={{ flex: 1, padding: '5px 0', fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer', background: fitOnePage ? '#0A66C2' : '#fff', color: fitOnePage ? '#fff' : '#666' }}>1 Page</button>
-              <button onClick={() => { setFitOnePage(false); savePrintSettings(printSize, false); }}
-                style={{ flex: 1, padding: '5px 0', fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer', background: !fitOnePage ? '#0A66C2' : '#fff', color: !fitOnePage ? '#fff' : '#666' }}>2 Pages</button>
-            </div>
-          </div>
 
           {/* Download Resume */}
           <div style={{ background: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, border: '1px solid #E0E0E0' }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#333', marginBottom: 10 }}>Download Resume</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <button onClick={handleDownloadPDF} style={{ width: '100%', padding: '8px', background: '#0A66C2', color: 'white', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>&#128196; Download PDF</button>
-              <a href={isTemplateLocked ? '#' : `${API_URL}/api/resume/${resume.id}/download/docx`}
-                onClick={(e) => { if (isTemplateLocked) { e.preventDefault(); alert('Pro template — upgrade to download.'); } }}
-                style={{ width: '100%', padding: '8px', background: '#374151', color: 'white', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', textAlign: 'center', textDecoration: 'none', display: 'block' }}>&#128196; Download DOCX</a>
               <a href={`${API_URL}/api/resume/${resume.id}/download/txt`}
                 style={{ width: '100%', padding: '8px', background: '#F3F2EF', color: '#666', border: '1px solid #D0D0D0', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', textAlign: 'center', textDecoration: 'none', display: 'block' }}>&#128221; Download TXT (ATS Portals)</a>
             </div>
