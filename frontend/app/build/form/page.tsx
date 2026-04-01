@@ -233,7 +233,7 @@ function BuildFormContent() {
     }
   }
 
-  const planLabels: Record<string, string> = { starter: 'LinkedIn Starter — Rs 199', plus: 'LinkedIn + Resume — Rs 399', pro: 'LinkedIn Pro — Rs 699' };
+  const planLabels: Record<string, string> = { starter: 'Profile Starter — Rs 199', plus: 'Profile + Resume — Rs 399', pro: 'Profile Pro — Rs 699' };
   const inputStyle = { width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #D1D5DB', fontSize: 14, boxSizing: 'border-box' as const };
   const labelStyle = { display: 'block', fontSize: 13, fontWeight: 600 as const, color: '#374151', marginBottom: 6 };
   const sectionStyle = { background: 'white', borderRadius: 14, padding: '24px 28px', marginBottom: 16, border: '1px solid #E0E0E0' };

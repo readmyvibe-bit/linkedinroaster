@@ -42,7 +42,7 @@ export default function BuildLandingPage() {
       price: 699,
       popular: false,
       features: [
-        'Everything in LinkedIn + Resume',
+        'Everything in Profile + Resume',
         '3 ATS resumes for different roles',
         '3 tailored cover letters',
         'All 23 premium resume templates',
