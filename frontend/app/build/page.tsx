@@ -45,7 +45,7 @@ export default function BuildLandingPage() {
         'Everything in LinkedIn + Resume',
         '3 ATS resumes for different roles',
         '3 tailored cover letters',
-        'All 21 premium resume templates',
+        'All 23 premium resume templates',
         'Priority AI processing',
         'Multiple job targeting',
       ],

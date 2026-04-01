@@ -111,7 +111,7 @@ export default function ResumePreviewPage() {
   function handleDownloadPDF() {
     if (!resume) return;
     if (isTemplateLocked) {
-      alert(`"${currentTemplate?.name}" is a Pro template. Upgrade to Pro for ₹500 to unlock all 21 templates.`);
+      alert(`"${currentTemplate?.name}" is a Pro template. Upgrade to Pro for ₹500 to unlock all 23 templates.`);
       return;
     }
     let html = buildPrintHTML(resume.resume_data, templateId);
@@ -473,7 +473,7 @@ export default function ResumePreviewPage() {
                 <div style={{ fontSize: 28, marginBottom: 8 }}>&#128274;</div>
                 <div style={{ fontSize: 18, fontWeight: 800, color: '#1E40AF', marginBottom: 8 }}>Pro Template</div>
                 <div style={{ fontSize: 13, color: '#666', lineHeight: 1.5, marginBottom: 16 }}>
-                  &ldquo;{currentTemplate?.name}&rdquo; is available for Pro users. Upgrade to unlock all 21 templates + 3 resumes.
+                  &ldquo;{currentTemplate?.name}&rdquo; is available for Pro users. Upgrade to unlock all 23 templates + 3 resumes.
                 </div>
                 <button
                   onClick={async () => {

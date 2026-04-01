@@ -914,7 +914,7 @@ export default function Home() {
               features={[
                 'Everything in Standard, plus:',
                 '3 ATS Resumes + 3 Cover Letters',
-                'All 21 premium templates',
+                'All 23 premium templates',
                 '4 visual sidebar layouts',
                 '5 headline variations',
                 'Resume upload + auto-parse',

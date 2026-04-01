@@ -1493,7 +1493,7 @@ function ResumeBuilderSection({ orderId, maxResumes = 3, plan = 'standard' }: { 
         <div style={{ background: 'linear-gradient(135deg, #004182, #0A66C2)', borderRadius: 10, padding: '16px 20px', marginTop: 4 }}>
           <p style={{ fontSize: 14, fontWeight: 700, color: 'white', margin: '0 0 4px' }}>Want more resumes?</p>
           <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', margin: '0 0 12px', lineHeight: 1.5 }}>
-            Upgrade to Pro for 3 resumes, cover letters + all 21 templates
+            Upgrade to Pro for 3 resumes, cover letters + all 23 templates
           </p>
           <button
             onClick={handleUpgrade}
@@ -2674,7 +2674,7 @@ export default function ResultsPage() {
                 <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5, marginBottom: 12 }}>
                   {'\u2022'} 5 headline variations{'\n'}
                   {'\u2022'} 3 ATS resumes + cover letters{'\n'}
-                  {'\u2022'} All 21 templates{'\n'}
+                  {'\u2022'} All 23 templates{'\n'}
                   {'\u2022'} ATS keyword optimization
                 </div>
                 <button onClick={handleUpgrade} style={{ width: '100%', padding: '10px', background: 'white', color: '#0A66C2', border: 'none', borderRadius: 50, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
