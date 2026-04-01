@@ -1762,21 +1762,21 @@ function renderCampus(data: ResumeData): React.ReactNode {
   const contactParts = [c.email, c.phone, c.location, c.linkedin].filter(Boolean);
   const skillGroups = normalizeSkills(data.skills);
   const sectionHeader = (title: string) => (
-    <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' as const, color: '#1e3a5f', background: '#e8eef4', padding: '4px 10px', marginBottom: '8px', letterSpacing: '1px', borderLeft: '4px solid #1e3a5f' }}>{title}</div>
+    <div style={{ fontSize: '13px', fontWeight: 700, textTransform: 'uppercase' as const, color: '#1e3a5f', background: '#e8eef4', padding: '5px 12px', marginBottom: '10px', letterSpacing: '1px', borderLeft: '4px solid #1e3a5f' }}>{title}</div>
   );
   return (
-    <div style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '12px', lineHeight: 1.5, color: '#333', padding: '32px 36px', maxWidth: '800px' }}>
+    <div style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '13px', lineHeight: 1.55, color: '#333', padding: '24px 28px', maxWidth: '800px' }}>
       {/* Header with photo */}
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '14px', alignItems: 'flex-start' }}>
+      <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', alignItems: 'flex-start' }}>
         {data.photo ? (
-          <img src={data.photo} alt="Photo" style={{ width: '80px', height: '95px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ccc', flexShrink: 0 }} />
+          <img src={data.photo} alt="Photo" style={{ width: '90px', height: '110px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ccc', flexShrink: 0 }} />
         ) : (
-          <div style={{ width: '80px', height: '95px', border: '1px solid #ccc', borderRadius: '4px', background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '9px', color: '#999', textAlign: 'center' }}>Upload<br/>Photo</div>
+          <div style={{ width: '90px', height: '110px', border: '1px solid #ccc', borderRadius: '4px', background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '10px', color: '#999', textAlign: 'center' }}>Upload<br/>Photo</div>
         )}
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: '22px', fontWeight: 700, color: '#1e3a5f' }}>{c.name || 'Your Name'}</div>
-          {contactParts.length > 0 && <div style={{ fontSize: '10px', color: '#555', marginTop: '3px' }}>{contactParts.join('  |  ')}</div>}
-          <div style={{ fontSize: '10px', color: '#555', marginTop: '4px', borderTop: '1px solid #ddd', paddingTop: '4px' }}>
+          <div style={{ fontSize: '24px', fontWeight: 700, color: '#1e3a5f' }}>{c.name || 'Your Name'}</div>
+          {contactParts.length > 0 && <div style={{ fontSize: '11px', color: '#555', marginTop: '4px' }}>{contactParts.join('  |  ')}</div>}
+          <div style={{ fontSize: '11px', color: '#555', marginTop: '5px', borderTop: '1px solid #ddd', paddingTop: '5px' }}>
             {p.dob && <>Date of Birth: {p.dob} &nbsp;&nbsp;</>}
             {p.gender && <>Gender: {p.gender} &nbsp;&nbsp;</>}
             Nationality: {p.nationality || 'Indian'}
@@ -1791,22 +1791,22 @@ function renderCampus(data: ResumeData): React.ReactNode {
       {data.education && data.education.length > 0 && (
         <div style={{ marginBottom: '12px' }}>
           {sectionHeader('Education')}
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
             <thead>
               <tr style={{ background: '#f0f4f8' }}>
-                <th style={{ border: '1px solid #ddd', padding: '4px 8px', textAlign: 'left', fontWeight: 700 }}>Degree</th>
-                <th style={{ border: '1px solid #ddd', padding: '4px 8px', textAlign: 'left', fontWeight: 700 }}>Institution</th>
-                <th style={{ border: '1px solid #ddd', padding: '4px 8px', textAlign: 'center', fontWeight: 700 }}>Year</th>
-                <th style={{ border: '1px solid #ddd', padding: '4px 8px', textAlign: 'center', fontWeight: 700 }}>GPA/%</th>
+                <th style={{ border: '1px solid #ddd', padding: '5px 10px', textAlign: 'left', fontWeight: 700 }}>Degree</th>
+                <th style={{ border: '1px solid #ddd', padding: '5px 10px', textAlign: 'left', fontWeight: 700 }}>Institution</th>
+                <th style={{ border: '1px solid #ddd', padding: '5px 10px', textAlign: 'center', fontWeight: 700 }}>Year</th>
+                <th style={{ border: '1px solid #ddd', padding: '5px 10px', textAlign: 'center', fontWeight: 700 }}>GPA/%</th>
               </tr>
             </thead>
             <tbody>
               {data.education.map((edu, i) => (
                 <tr key={i}>
-                  <td style={{ border: '1px solid #ddd', padding: '4px 8px' }}>{getEduDegree(edu)}</td>
-                  <td style={{ border: '1px solid #ddd', padding: '4px 8px' }}>{getEduSchool(edu)}</td>
-                  <td style={{ border: '1px solid #ddd', padding: '4px 8px', textAlign: 'center' }}>{getEduDates(edu)}</td>
-                  <td style={{ border: '1px solid #ddd', padding: '4px 8px', textAlign: 'center' }}>{edu.gpa || '—'}</td>
+                  <td style={{ border: '1px solid #ddd', padding: '5px 10px' }}>{getEduDegree(edu)}</td>
+                  <td style={{ border: '1px solid #ddd', padding: '5px 10px' }}>{getEduSchool(edu)}</td>
+                  <td style={{ border: '1px solid #ddd', padding: '5px 10px', textAlign: 'center' }}>{getEduDates(edu)}</td>
+                  <td style={{ border: '1px solid #ddd', padding: '5px 10px', textAlign: 'center' }}>{edu.gpa || '—'}</td>
                 </tr>
               ))}
             </tbody>
@@ -1821,9 +1821,9 @@ function renderCampus(data: ResumeData): React.ReactNode {
             <div key={i} style={{ marginBottom: '8px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
                 <span style={{ fontWeight: 700, color: '#1e3a5f' }}>{getExpTitle(exp)}</span>
-                <span style={{ fontSize: '10px', color: '#666', fontStyle: 'italic' }}>{getExpDates(exp)}</span>
+                <span style={{ fontSize: '11px', color: '#666', fontStyle: 'italic' }}>{getExpDates(exp)}</span>
               </div>
-              <div style={{ color: '#555', fontStyle: 'italic', fontSize: '10px' }}>{[exp.company, exp.location].filter(Boolean).join(' — ')}</div>
+              <div style={{ color: '#555', fontStyle: 'italic', fontSize: '11px' }}>{[exp.company, exp.location].filter(Boolean).join(' — ')}</div>
               {exp.bullets && exp.bullets.length > 0 && (
                 <div style={{ marginTop: '3px' }}>
                   {exp.bullets.map((b, j) => <div key={j} style={{ paddingLeft: '12px', textIndent: '-12px', marginBottom: '1px' }}>• {b}</div>)}
@@ -1853,12 +1853,12 @@ function renderCampus(data: ResumeData): React.ReactNode {
         </div>
       )}
       {/* Declaration */}
-      <div style={{ marginTop: '16px', borderTop: '1px solid #ddd', paddingTop: '10px' }}>
-        <div style={{ fontSize: '11px', fontWeight: 700, color: '#1e3a5f', marginBottom: '4px' }}>DECLARATION</div>
-        <div style={{ fontSize: '11px', color: '#555', lineHeight: 1.6 }}>
+      <div style={{ marginTop: '20px', borderTop: '1px solid #ddd', paddingTop: '12px' }}>
+        <div style={{ fontSize: '13px', fontWeight: 700, color: '#1e3a5f', marginBottom: '6px' }}>DECLARATION</div>
+        <div style={{ fontSize: '13px', color: '#555', lineHeight: 1.6 }}>
           I hereby declare that the information furnished above is true to the best of my knowledge and belief.
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px', fontSize: '11px', color: '#555' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px', fontSize: '13px', color: '#555' }}>
           <div>Place: {p.declaration_place || '__________'}<br/>Date: {p.declaration_date || '__________'}</div>
           <div style={{ textAlign: 'right' }}>Signature<br/><span style={{ fontWeight: 600, color: '#1e3a5f' }}>{c.name || '(Your Name)'}</span></div>
         </div>
@@ -2714,21 +2714,21 @@ function printCampus(data: ResumeData): string {
   const c = data.contact || {};
   const p = data.personal || {};
   const cp = [c.email, c.phone, c.location, c.linkedin].filter(Boolean).map(esc).join('  |  ');
-  const hdr = (t: string) => `<div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#1e3a5f;background:#e8eef4;padding:4px 10px;margin-bottom:8px;letter-spacing:1px;border-left:4px solid #1e3a5f">${t}</div>`;
-  const dateS = 'font-size:10px;color:#666;font-style:italic';
+  const hdr = (t: string) => `<div style="font-size:13px;font-weight:700;text-transform:uppercase;color:#1e3a5f;background:#e8eef4;padding:5px 12px;margin-bottom:10px;letter-spacing:1px;border-left:4px solid #1e3a5f">${t}</div>`;
+  const dateS = 'font-size:11px;color:#666;font-style:italic';
   const titleS = 'font-weight:700;color:#1e3a5f';
 
-  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.5;color:#333;padding:32px 36px;max-width:100%">`;
+  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.55;color:#333;padding:24px 28px;max-width:100%">`;
   // Header with photo
-  h += `<div style="display:flex;gap:16px;margin-bottom:14px;align-items:flex-start">`;
+  h += `<div style="display:flex;gap:16px;margin-bottom:16px;align-items:flex-start">`;
   if (data.photo) {
-    h += `<img src="${esc(data.photo)}" alt="Photo" style="width:80px;height:95px;object-fit:cover;border-radius:4px;border:1px solid #ccc;flex-shrink:0"/>`;
+    h += `<img src="${esc(data.photo)}" alt="Photo" style="width:90px;height:110px;object-fit:cover;border-radius:4px;border:1px solid #ccc;flex-shrink:0"/>`;
   } else {
-    h += `<div style="width:80px;height:95px;border:1px solid #ccc;border-radius:4px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;color:#999;text-align:center">Photo</div>`;
+    h += `<div style="width:90px;height:110px;border:1px solid #ccc;border-radius:4px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;color:#999;text-align:center">Photo</div>`;
   }
   h += `<div style="flex:1">`;
-  h += `<div style="font-size:22px;font-weight:700;color:#1e3a5f">${esc(c.name) || 'Your Name'}</div>`;
-  if (cp) h += `<div style="font-size:10px;color:#555;margin-top:3px">${cp}</div>`;
+  h += `<div style="font-size:24px;font-weight:700;color:#1e3a5f">${esc(c.name) || 'Your Name'}</div>`;
+  if (cp) h += `<div style="font-size:11px;color:#555;margin-top:4px">${cp}</div>`;
   const personalParts = [];
   if (p.dob) personalParts.push(`Date of Birth: ${esc(p.dob)}`);
   if (p.gender) personalParts.push(`Gender: ${esc(p.gender)}`);
@@ -2742,17 +2742,17 @@ function printCampus(data: ResumeData): string {
   // Education table
   if (data.education?.length) {
     h += `<div style="margin-bottom:12px">${hdr('Education')}`;
-    h += `<table style="width:100%;border-collapse:collapse;font-size:10px"><thead><tr style="background:#f0f4f8">`;
-    h += `<th style="border:1px solid #ddd;padding:4px 8px;text-align:left;font-weight:700">Degree</th>`;
-    h += `<th style="border:1px solid #ddd;padding:4px 8px;text-align:left;font-weight:700">Institution</th>`;
-    h += `<th style="border:1px solid #ddd;padding:4px 8px;text-align:center;font-weight:700">Year</th>`;
-    h += `<th style="border:1px solid #ddd;padding:4px 8px;text-align:center;font-weight:700">GPA/%</th>`;
+    h += `<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#f0f4f8">`;
+    h += `<th style="border:1px solid #ddd;padding:5px 10px;text-align:left;font-weight:700">Degree</th>`;
+    h += `<th style="border:1px solid #ddd;padding:5px 10px;text-align:left;font-weight:700">Institution</th>`;
+    h += `<th style="border:1px solid #ddd;padding:5px 10px;text-align:center;font-weight:700">Year</th>`;
+    h += `<th style="border:1px solid #ddd;padding:5px 10px;text-align:center;font-weight:700">GPA/%</th>`;
     h += `</tr></thead><tbody>`;
     data.education.forEach(edu => {
-      h += `<tr><td style="border:1px solid #ddd;padding:4px 8px">${esc(getEduDegree(edu))}</td>`;
-      h += `<td style="border:1px solid #ddd;padding:4px 8px">${esc(getEduSchool(edu))}</td>`;
-      h += `<td style="border:1px solid #ddd;padding:4px 8px;text-align:center">${esc(getEduDates(edu))}</td>`;
-      h += `<td style="border:1px solid #ddd;padding:4px 8px;text-align:center">${esc(edu.gpa || '') || '&mdash;'}</td></tr>`;
+      h += `<tr><td style="border:1px solid #ddd;padding:5px 10px">${esc(getEduDegree(edu))}</td>`;
+      h += `<td style="border:1px solid #ddd;padding:5px 10px">${esc(getEduSchool(edu))}</td>`;
+      h += `<td style="border:1px solid #ddd;padding:5px 10px;text-align:center">${esc(getEduDates(edu))}</td>`;
+      h += `<td style="border:1px solid #ddd;padding:5px 10px;text-align:center">${esc(edu.gpa || '') || '&mdash;'}</td></tr>`;
     });
     h += `</tbody></table></div>`;
   }
@@ -2769,10 +2769,10 @@ function printCampus(data: ResumeData): string {
   const ach = buildAchievementsHTML(data, '&bull;');
   if (ach) h += `<div style="margin-bottom:12px">${hdr('Achievements &amp; Activities')}${ach}</div>`;
   // Declaration
-  h += `<div style="margin-top:16px;border-top:1px solid #ddd;padding-top:10px">`;
-  h += `<div style="font-size:11px;font-weight:700;color:#1e3a5f;margin-bottom:4px">DECLARATION</div>`;
-  h += `<div style="font-size:11px;color:#555;line-height:1.6">I hereby declare that the information furnished above is true to the best of my knowledge and belief.</div>`;
-  h += `<div style="display:flex;justify-content:space-between;margin-top:16px;font-size:11px;color:#555">`;
+  h += `<div style="margin-top:20px;border-top:1px solid #ddd;padding-top:12px">`;
+  h += `<div style="font-size:13px;font-weight:700;color:#1e3a5f;margin-bottom:6px">DECLARATION</div>`;
+  h += `<div style="font-size:13px;color:#555;line-height:1.6">I hereby declare that the information furnished above is true to the best of my knowledge and belief.</div>`;
+  h += `<div style="display:flex;justify-content:space-between;margin-top:20px;font-size:13px;color:#555">`;
   h += `<div>Place: ${esc(p.declaration_place) || '__________'}<br/>Date: ${esc(p.declaration_date) || '__________'}</div>`;
   h += `<div style="text-align:right">Signature<br/><span style="font-weight:600;color:#1e3a5f">${esc(c.name) || '(Your Name)'}</span></div>`;
   h += `</div></div>`;
