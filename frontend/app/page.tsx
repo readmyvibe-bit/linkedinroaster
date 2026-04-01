@@ -936,7 +936,7 @@ export default function Home() {
                 'Before & After score breakdown',
                 'Full headline + about + experience rewrite',
                 '1 ATS Resume + 1 Cover Letter',
-                '12 resume templates',
+                '15 resume templates',
                 'ATS score + keyword analysis',
                 'Shareable roast card',
                 'PDF + DOCX download',

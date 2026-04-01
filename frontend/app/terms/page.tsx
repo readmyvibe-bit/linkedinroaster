@@ -143,7 +143,7 @@ export default function TermsPage() {
 
             <h3 className="font-semibold mt-4 mb-2">6.1 LinkedIn Roast &amp; Rewrite</h3>
             <ul className="list-disc pl-6 space-y-1">
-              <li><strong>Standard Plan:</strong> &#8377;299 (INR) &mdash; full roast, rewrite, 1 ATS resume, 12 templates</li>
+              <li><strong>Standard Plan:</strong> &#8377;299 (INR) &mdash; full roast, rewrite, 1 ATS resume, 15 templates</li>
               <li><strong>Pro Plan:</strong> &#8377;799 (INR) &mdash; everything in Standard + 5 headline variations, ATS keywords, 3 resumes, all 23 templates, cover letters</li>
               <li><strong>Upgrade (Standard to Pro):</strong> &#8377;500 (INR) &mdash; difference payment</li>
             </ul>
@@ -151,7 +151,7 @@ export default function TermsPage() {
             <h3 className="font-semibold mt-4 mb-2">6.2 Build My LinkedIn</h3>
             <ul className="list-disc pl-6 space-y-1">
               <li><strong>Starter:</strong> &#8377;199 (INR) &mdash; complete LinkedIn profile + setup guide</li>
-              <li><strong>Plus:</strong> &#8377;399 (INR) &mdash; everything in Starter + 1 ATS resume, 1 cover letter, 12 templates</li>
+              <li><strong>Plus:</strong> &#8377;399 (INR) &mdash; everything in Starter + 1 ATS resume, 1 cover letter, 15 templates</li>
               <li><strong>Pro:</strong> &#8377;699 (INR) &mdash; everything in Plus + 3 resumes, 3 cover letters, all 23 templates</li>
             </ul>
 
@@ -193,7 +193,7 @@ export default function TermsPage() {
             <h2 className="text-lg font-bold mb-3">8. Resume Builder Terms</h2>
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li><strong>Resume limits:</strong> Standard/Plus plans include 1 resume per order. Pro plans include 3 resumes per order. Limits are enforced per order, not per user.</li>
-              <li><strong>Template access:</strong> 12 templates are available to all plans. 8 additional premium templates are exclusive to Pro plans. Attempting to use a Pro template on a non-Pro plan will be blocked.</li>
+              <li><strong>Template access:</strong> 15 templates are available to all plans. 8 additional premium templates are exclusive to Pro plans. Attempting to use a Pro template on a non-Pro plan will be blocked.</li>
               <li><strong>Resume editing:</strong> Users may edit generated resumes at any time via the live editor. Edits are saved automatically.</li>
               <li><strong>Data accuracy:</strong> The AI generates resume content based on the data you provide. We do not fabricate education, certifications, or employment history. Users must verify all content for accuracy before using it in job applications.</li>
               <li><strong>PDF/DOCX download:</strong> Users may download resumes in PDF (via browser print) and DOCX format. Downloaded files are yours to use without restriction.</li>

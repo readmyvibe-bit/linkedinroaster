@@ -79,7 +79,7 @@ interface TemplateDefinition {
 // ─── Template Definitions ────────────────────────────────────────────────────
 
 export const TEMPLATES: (TemplateDefinition & { proOnly?: boolean })[] = [
-  // Standard-accessible (12)
+  // Standard-accessible (15)
   { id: 'classic', name: 'Classic Professional', description: 'Traditional clean layout. Maximum ATS compatibility.', category: 'ATS-Friendly' },
   { id: 'modern', name: 'Modern Accent', description: 'Blue accent styling with skill tags. ATS safe.', category: 'ATS-Friendly' },
   { id: 'minimal', name: 'Minimalist', description: 'Ultra clean with maximum whitespace.', category: 'ATS-Friendly' },

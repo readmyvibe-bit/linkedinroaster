@@ -426,7 +426,7 @@ export default function BuildResultsPage() {
               Build My Resume &rarr;
             </a>
             <p style={{ fontSize: 12, color: '#888', marginTop: 8 }}>
-              {plan === 'pro' ? '3 resumes + 3 cover letters + all 23 templates' : '1 resume + 1 cover letter + 12 templates'} included in your plan
+              {plan === 'pro' ? '3 resumes + 3 cover letters + all 23 templates' : '1 resume + 1 cover letter + 15 templates'} included in your plan
             </p>
           </div>
         )}
