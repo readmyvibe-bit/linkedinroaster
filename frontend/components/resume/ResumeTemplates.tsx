@@ -1350,14 +1350,14 @@ function renderDivider(data: ResumeData): React.ReactNode {
   const contactParts = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean);
   const skillGroups = normalizeSkills(data.skills);
   const divider = (
-    <div style={{ textAlign: 'center' as const, margin: '18px 0' }}>
+    <div style={{ textAlign: 'center' as const, margin: '14px 0' }}>
       <span style={{ display: 'inline-block', width: '24px', height: '2px', background: '#D1D5DB', verticalAlign: 'middle' }} />
       <span style={{ display: 'inline-block', margin: '0 6px', color: '#D1D5DB', fontSize: '8px', verticalAlign: 'middle' }}>◆</span>
       <span style={{ display: 'inline-block', width: '24px', height: '2px', background: '#D1D5DB', verticalAlign: 'middle' }} />
     </div>
   );
   const sectionHdr = (t: string) => (
-    <div style={{ fontSize: '11px', fontWeight: 700, color: '#555', textTransform: 'uppercase' as const, marginBottom: '6px' }}>{t}</div>
+    <div style={{ fontSize: '12px', fontWeight: 700, color: '#555', textTransform: 'uppercase' as const, marginBottom: '6px' }}>{t}</div>
   );
   const sections: React.ReactNode[] = [];
   if (data.summary) {
@@ -1427,11 +1427,11 @@ function renderDivider(data: ResumeData): React.ReactNode {
     );
   }
   return (
-    <div style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '11px', lineHeight: 1.5, color: '#374151', padding: '40px', maxWidth: '800px' }}>
+    <div style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '13px', lineHeight: 1.55, color: '#374151', padding: '28px 32px', maxWidth: '800px' }}>
       <div style={{ marginBottom: '4px' }}>
-        <div style={{ fontSize: '26px', fontWeight: 700, color: '#111' }}>{c.name || 'Your Name'}</div>
+        <div style={{ fontSize: '28px', fontWeight: 700, color: '#111' }}>{c.name || 'Your Name'}</div>
         {contactParts.length > 0 && (
-          <div style={{ fontSize: '10px', color: '#555', marginTop: '4px' }}>{contactParts.join('  |  ')}</div>
+          <div style={{ fontSize: '11px', color: '#555', marginTop: '4px' }}>{contactParts.join('  |  ')}</div>
         )}
       </div>
       {sections.map((s, i) => (
@@ -2690,11 +2690,11 @@ function printDivider(data: ResumeData): string {
   const cp = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean).map(esc).join('  |  ');
   const dateS = 'font-size:10px;color:#666;font-style:italic';
   const titleS = 'font-weight:700;color:#111';
-  const hdr = (t: string) => `<div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;margin-bottom:6px">${t}</div>`;
-  const dividerHTML = `<div style="text-align:center;margin:18px 0"><span style="display:inline-block;width:24px;height:2px;background:#D1D5DB;vertical-align:middle"></span><span style="display:inline-block;margin:0 6px;color:#D1D5DB;font-size:8px;vertical-align:middle">&#9670;</span><span style="display:inline-block;width:24px;height:2px;background:#D1D5DB;vertical-align:middle"></span></div>`;
-  let h = `<div class="resume-wrapper" style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#374151;padding:40px;max-width:100%">`;
-  h += `<div style="margin-bottom:4px"><div style="font-size:26px;font-weight:700;color:#111">${esc(c.name) || 'Your Name'}</div>`;
-  if (cp) h += `<div style="font-size:10px;color:#555;margin-top:4px">${cp}</div>`;
+  const hdr = (t: string) => `<div style="font-size:12px;font-weight:700;color:#555;text-transform:uppercase;margin-bottom:6px">${t}</div>`;
+  const dividerHTML = `<div style="text-align:center;margin:14px 0"><span style="display:inline-block;width:24px;height:2px;background:#D1D5DB;vertical-align:middle"></span><span style="display:inline-block;margin:0 6px;color:#D1D5DB;font-size:8px;vertical-align:middle">&#9670;</span><span style="display:inline-block;width:24px;height:2px;background:#D1D5DB;vertical-align:middle"></span></div>`;
+  let h = `<div class="resume-wrapper" style="font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.55;color:#374151;padding:28px 32px;max-width:100%">`;
+  h += `<div style="margin-bottom:4px"><div style="font-size:28px;font-weight:700;color:#111">${esc(c.name) || 'Your Name'}</div>`;
+  if (cp) h += `<div style="font-size:11px;color:#555;margin-top:4px">${cp}</div>`;
   h += `</div>`;
   if (data.summary) h += `${dividerHTML}${hdr('Summary')}<div>${esc(data.summary)}</div>`;
   if (data.experience?.length) {

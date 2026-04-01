@@ -125,9 +125,9 @@ export default function ResumePreviewPage() {
       html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 8mm 8mm 8mm}');
     }
 
-    // Printable height: A4 (297mm) minus @page margins (12+10=22mm) minus 50px safety
-    // The 50px safety accounts for Chrome print rendering differently than iframe
-    const PRINTABLE_HEIGHT = isMobile ? 940 : 990;
+    // Printable height: conservative budget to guarantee 1-page print
+    // A4=1123px, @page margins=~83px, Chrome print variance=~80px
+    const PRINTABLE_HEIGHT = isMobile ? 920 : 960;
 
     // Measure content height in hidden iframe
     function measure(testHtml: string): Promise<number> {
