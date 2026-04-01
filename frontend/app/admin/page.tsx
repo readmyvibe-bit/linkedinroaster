@@ -1287,7 +1287,151 @@ function BuildOrdersScreen() {
 }
 
 // ─── Main Admin Dashboard ───
-type Screen = 'overview' | 'orders' | 'build-orders' | 'teasers' | 'quality' | 'revenue' | 'referrals';
+// ═══ Email Sequences Screen ═══
+function EmailsScreen() {
+  const [status, setStatus] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [optoutEmail, setOptoutEmail] = useState('');
+  const [optoutReason, setOptoutReason] = useState('');
+  const [sendOrderId, setSendOrderId] = useState('');
+  const [sendKey, setSendKey] = useState('');
+  const [msg, setMsg] = useState('');
+
+  const fetchStatus = useCallback(async () => {
+    try {
+      const data = await apiFetchJson('/api/admin/email-sequences/status');
+      setStatus(data);
+    } catch { setStatus(null); }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { fetchStatus(); }, [fetchStatus]);
+
+  async function toggleEnabled() {
+    const data = await apiFetchJson('/api/admin/email-sequences/toggle', { method: 'POST', body: JSON.stringify({ enabled: !status?.enabled }) });
+    setMsg(data.message); fetchStatus();
+  }
+
+  async function addOptout() {
+    if (!optoutEmail) return;
+    await apiFetchJson('/api/admin/email-sequences/optout', { method: 'POST', body: JSON.stringify({ email: optoutEmail, reason: optoutReason || 'admin' }) });
+    setOptoutEmail(''); setOptoutReason(''); setMsg(`${optoutEmail} opted out`); fetchStatus();
+  }
+
+  async function removeOptout(email: string) {
+    await apiFetchJson('/api/admin/email-sequences/optout', { method: 'DELETE', body: JSON.stringify({ email }) });
+    setMsg(`${email} removed from opt-out`); fetchStatus();
+  }
+
+  async function sendOne() {
+    if (!sendOrderId || !sendKey) return;
+    const data = await apiFetchJson('/api/admin/email-sequences/send', { method: 'POST', body: JSON.stringify({ orderId: sendOrderId, emailKey: sendKey }) });
+    setMsg(data.message || data.error); setSendOrderId(''); setSendKey('');
+  }
+
+  async function runNow() {
+    setMsg('Running...');
+    const data = await apiFetchJson('/api/admin/email-sequences/run-now', { method: 'POST' });
+    setMsg(`Done: ${data.sent} sent, ${data.errors} errors`);
+  }
+
+  if (loading) return <div>Loading...</div>;
+
+  return (
+    <div>
+      <h2 className="text-lg font-bold mb-4">Email Sequences</h2>
+      {msg && <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, padding: '8px 14px', marginBottom: 16, fontSize: 13, color: '#1E40AF' }}>{msg}</div>}
+
+      {/* Global Toggle */}
+      <div style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid #E0E0E0', marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 700 }}>Sequence Status</div>
+            <div style={{ fontSize: 13, color: '#666' }}>
+              {status?.enabled ? '✅ Emails are being sent automatically (daily 10:30 AM IST)' : '⏸️ All sequence emails are PAUSED'}
+            </div>
+          </div>
+          <button onClick={toggleEnabled} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, background: status?.enabled ? '#FEE2E2' : '#DCFCE7', color: status?.enabled ? '#CC1016' : '#057642' }}>
+            {status?.enabled ? 'Pause All' : 'Resume All'}
+          </button>
+        </div>
+      </div>
+
+      {/* Run Now */}
+      <div style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid #E0E0E0', marginBottom: 16 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 8 }}>Manual Run</div>
+        <button onClick={runNow} style={{ padding: '8px 20px', background: '#0A66C2', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+          Run Sequence Processor Now
+        </button>
+      </div>
+
+      {/* Send to Specific User */}
+      <div style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid #E0E0E0', marginBottom: 16 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 8 }}>Send to Specific User</div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+          <div>
+            <label style={{ fontSize: 11, color: '#666', display: 'block', marginBottom: 2 }}>Order ID</label>
+            <input value={sendOrderId} onChange={e => setSendOrderId(e.target.value)} placeholder="order-id-here" style={{ padding: '6px 10px', border: '1px solid #D0D0D0', borderRadius: 6, fontSize: 12, width: 280 }} />
+          </div>
+          <div>
+            <label style={{ fontSize: 11, color: '#666', display: 'block', marginBottom: 2 }}>Email Key</label>
+            <select value={sendKey} onChange={e => setSendKey(e.target.value)} style={{ padding: '6px 10px', border: '1px solid #D0D0D0', borderRadius: 6, fontSize: 12 }}>
+              <option value="">Select...</option>
+              {(status?.availableKeys || []).map((k: any) => <option key={k.key} value={k.key}>Day {k.day}: {k.key}</option>)}
+            </select>
+          </div>
+          <button onClick={sendOne} style={{ padding: '6px 16px', background: '#057642', color: 'white', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Send</button>
+        </div>
+      </div>
+
+      {/* Opt-Out Management */}
+      <div style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid #E0E0E0', marginBottom: 16 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 8 }}>Opt-Out List ({status?.optouts?.length || 0})</div>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+          <input value={optoutEmail} onChange={e => setOptoutEmail(e.target.value)} placeholder="email@example.com" style={{ padding: '6px 10px', border: '1px solid #D0D0D0', borderRadius: 6, fontSize: 12, width: 220 }} />
+          <input value={optoutReason} onChange={e => setOptoutReason(e.target.value)} placeholder="Reason (optional)" style={{ padding: '6px 10px', border: '1px solid #D0D0D0', borderRadius: 6, fontSize: 12, width: 160 }} />
+          <button onClick={addOptout} style={{ padding: '6px 14px', background: '#CC1016', color: 'white', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Block</button>
+        </div>
+        {status?.optouts?.length > 0 && (
+          <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
+            <thead><tr style={{ borderBottom: '1px solid #E0E0E0' }}><th style={{ textAlign: 'left', padding: 6 }}>Email</th><th style={{ textAlign: 'left', padding: 6 }}>Reason</th><th style={{ textAlign: 'left', padding: 6 }}>Date</th><th style={{ padding: 6 }}></th></tr></thead>
+            <tbody>
+              {status.optouts.map((o: any, i: number) => (
+                <tr key={i} style={{ borderBottom: '1px solid #F3F3F3' }}>
+                  <td style={{ padding: 6 }}>{o.email}</td>
+                  <td style={{ padding: 6, color: '#888' }}>{o.reason}</td>
+                  <td style={{ padding: 6, color: '#888' }}>{new Date(o.created_at).toLocaleDateString()}</td>
+                  <td style={{ padding: 6 }}><button onClick={() => removeOptout(o.email)} style={{ fontSize: 11, color: '#0A66C2', background: 'none', border: 'none', cursor: 'pointer' }}>Remove</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* Recent Sends */}
+      <div style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid #E0E0E0' }}>
+        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 8 }}>Recent Sends</div>
+        {status?.recentSends?.length > 0 ? (
+          <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
+            <thead><tr style={{ borderBottom: '1px solid #E0E0E0' }}><th style={{ textAlign: 'left', padding: 6 }}>Email</th><th style={{ textAlign: 'left', padding: 6 }}>Emails Sent</th><th style={{ textAlign: 'left', padding: 6 }}>Done At</th></tr></thead>
+            <tbody>
+              {status.recentSends.map((s: any, i: number) => (
+                <tr key={i} style={{ borderBottom: '1px solid #F3F3F3' }}>
+                  <td style={{ padding: 6 }}>{s.email}</td>
+                  <td style={{ padding: 6 }}>{Object.keys(s.sequence_emails_sent || {}).filter(k => s.sequence_emails_sent[k]).join(', ') || '—'}</td>
+                  <td style={{ padding: 6, color: '#888' }}>{s.processing_done_at ? new Date(s.processing_done_at).toLocaleDateString() : '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : <div style={{ fontSize: 13, color: '#888' }}>No sequence emails sent yet</div>}
+      </div>
+    </div>
+  );
+}
+
+type Screen = 'overview' | 'orders' | 'build-orders' | 'teasers' | 'quality' | 'revenue' | 'referrals' | 'emails';
 
 const NAV: { key: Screen; label: string }[] = [
   { key: 'overview', label: 'Overview' },
@@ -1297,6 +1441,7 @@ const NAV: { key: Screen; label: string }[] = [
   { key: 'quality', label: 'Quality' },
   { key: 'revenue', label: 'Revenue' },
   { key: 'referrals', label: 'Referrals' },
+  { key: 'emails', label: 'Emails' },
 ];
 
 export default function AdminPage() {
@@ -1365,6 +1510,7 @@ export default function AdminPage() {
         {screen === 'quality' && <QualityScreen />}
         {screen === 'revenue' && <RevenueScreen />}
         {screen === 'referrals' && <ReferralsScreen />}
+        {screen === 'emails' && <EmailsScreen />}
       </div>
     </main>
   );
