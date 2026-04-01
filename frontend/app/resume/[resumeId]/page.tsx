@@ -116,43 +116,41 @@ export default function ResumePreviewPage() {
     }
     let html = buildPrintHTML(resume.resume_data, templateId);
 
-    // Mobile: reduce @page margins for more printable space
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if (isMobile) {
-      html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 8mm 8mm 8mm}');
+    // Apply printSize CSS
+    const size = (resume.resume_data as any)?.printSize || 'standard';
+    if (size === 'compact') {
+      html = html.replace('</style>', '.print-content-root{font-size:92%!important;line-height:1.35!important}.print-content-root div,.print-content-root p{margin-bottom:2px!important}' + '</style>');
+    } else if (size === 'spacious') {
+      html = html.replace('</style>', '.print-content-root{font-size:108%!important;line-height:1.65!important}' + '</style>');
     }
 
-    // Open print tab and measure IN THE SAME RENDERING CONTEXT as print
+    // Mobile: reduce @page margins
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile) html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 8mm 8mm 8mm}');
+
     const win = window.open('', '_blank');
     if (!win) { alert('Please allow popups to download PDF.'); return; }
     win.document.write(html);
     win.document.close();
     win.document.title = ' ';
 
-    // Wait for fonts + layout to settle, then measure and scale
+    const fitOnePage = (resume.resume_data as any)?.fitOnePage !== false; // default true
+    if (!fitOnePage) { setTimeout(() => win.print(), 800); return; }
+
+    // Measure in print tab and scale to fit
     setTimeout(() => {
       const root = win.document.querySelector('.print-content-root') as HTMLElement;
       if (!root) { win.print(); return; }
-
-      // A4 at 96dpi = 1122.5px. @page margins: 12mm top + 10mm bottom = 22mm = ~83px
-      // Mobile: 8mm + 8mm = 16mm = ~60px
       const A4_HEIGHT = 1122.5;
       const marginPx = isMobile ? 60 : 83;
-      const safety = 10;
-      const available = A4_HEIGHT - marginPx - safety;
-
+      const available = A4_HEIGHT - marginPx - 10;
       const contentHeight = root.scrollHeight;
-
       if (contentHeight > available && contentHeight < available * 1.5) {
-        // Content overflows 1 page but isn't enough for 2 pages — scale to fit
-        const scale = Math.max(0.82, available / contentHeight);
+        const scale = Math.max(0.78, available / contentHeight);
         root.style.transform = `scale(${scale})`;
         root.style.transformOrigin = 'top left';
         root.style.width = `${Math.ceil(100 / scale)}%`;
       }
-      // If contentHeight <= available: fits, print as-is
-      // If contentHeight >= available * 1.5: genuinely 2 pages, let it flow
-
       setTimeout(() => win.print(), 200);
     }, 800);
   }

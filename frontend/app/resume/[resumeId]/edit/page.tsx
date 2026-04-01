@@ -67,6 +67,8 @@ interface ResumeData {
   skills?: SkillCategory[] | string[];
   achievements?: string[];
   customSections?: CustomSection[];
+  printSize?: 'compact' | 'standard' | 'spacious';
+  fitOnePage?: boolean;
 }
 
 interface ResumeResponse {
@@ -416,30 +418,45 @@ export default function ResumeEditorPage() {
   // ─── Download PDF ───
   function handleDownloadPDF() {
     if (!resumeData) return;
-    const html = buildPrintHTML(resumeData, templateId);
+    let html = buildPrintHTML(resumeData, templateId);
 
-    const iframe = document.createElement('iframe');
-    iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;height:1123px;border:none;visibility:hidden';
-    document.body.appendChild(iframe);
-    const iDoc = iframe.contentDocument || iframe.contentWindow?.document;
-    if (!iDoc) { document.body.removeChild(iframe); return; }
-    iDoc.open(); iDoc.write(html); iDoc.close();
+    // Apply printSize CSS
+    const size = resumeData.printSize || 'standard';
+    if (size === 'compact') {
+      html = html.replace('</style>', '.print-content-root{font-size:92%!important;line-height:1.35!important}.print-content-root div,.print-content-root p{margin-bottom:2px!important}' + '</style>');
+    } else if (size === 'spacious') {
+      html = html.replace('</style>', '.print-content-root{font-size:108%!important;line-height:1.65!important}' + '</style>');
+    }
 
+    // Mobile: reduce @page margins
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile) html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 8mm 8mm 8mm}');
+
+    const win = window.open('', '_blank');
+    if (!win) { alert('Please allow popups to download PDF.'); return; }
+    win.document.write(html);
+    win.document.close();
+    win.document.title = ' ';
+
+    const fitOnePage = resumeData.fitOnePage !== false; // default true
+    if (!fitOnePage) { setTimeout(() => win.print(), 800); return; }
+
+    // Measure in print tab and scale to fit
     setTimeout(() => {
-      const overflow = iDoc.body.scrollHeight - 1123;
-      let adjustedHtml = html;
-      if (overflow > 0 && overflow < 150) {
-        const shrinkCSS = `body{line-height:1.3!important}div,p,span{line-height:1.3!important}[style*="margin-bottom"]{margin-bottom:4px!important}[style*="margin-top: 20"],[style*="margin-top:20"]{margin-top:12px!important}[style*="padding: 24"],[style*="padding:24"]{padding:16px!important}`;
-        adjustedHtml = html.replace('</style>', shrinkCSS + '</style>');
+      const root = win.document.querySelector('.print-content-root') as HTMLElement;
+      if (!root) { win.print(); return; }
+      const A4_HEIGHT = 1122.5;
+      const marginPx = isMobile ? 60 : 83;
+      const available = A4_HEIGHT - marginPx - 10;
+      const contentHeight = root.scrollHeight;
+      if (contentHeight > available && contentHeight < available * 1.5) {
+        const scale = Math.max(0.78, available / contentHeight);
+        root.style.transform = `scale(${scale})`;
+        root.style.transformOrigin = 'top left';
+        root.style.width = `${Math.ceil(100 / scale)}%`;
       }
-      document.body.removeChild(iframe);
-      const win = window.open('', '_blank');
-      if (!win) return;
-      win.document.write(adjustedHtml);
-      win.document.close();
-      win.document.title = ' ';
-      setTimeout(() => { win.print(); }, 600);
-    }, 300);
+      setTimeout(() => win.print(), 200);
+    }, 800);
   }
 
   // ─── Loading ───
@@ -530,6 +547,26 @@ export default function ResumeEditorPage() {
               <option key={t.id} value={t.id}>{t.name}</option>
             ))}
           </select>
+          {/* Print Size */}
+          <select
+            value={resumeData?.printSize || 'standard'}
+            onChange={e => setResumeData(prev => prev ? { ...prev, printSize: e.target.value as 'compact' | 'standard' | 'spacious' } : prev)}
+            style={{ padding: '5px 6px', border: '1px solid #D0D0D0', borderRadius: 6, fontSize: 11, outline: 'none' }}
+          >
+            <option value="compact">Compact</option>
+            <option value="standard">Standard</option>
+            <option value="spacious">Spacious</option>
+          </select>
+          {/* Fit 1 Page */}
+          <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#555', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            <input
+              type="checkbox"
+              checked={resumeData?.fitOnePage !== false}
+              onChange={e => setResumeData(prev => prev ? { ...prev, fitOnePage: e.target.checked } : prev)}
+              style={{ accentColor: '#0A66C2' }}
+            />
+            1 Page
+          </label>
           <button
             onClick={handleDownloadPDF}
             style={{

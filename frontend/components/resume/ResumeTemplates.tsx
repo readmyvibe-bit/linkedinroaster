@@ -65,6 +65,8 @@ interface ResumeData {
   education?: EducationEntry[];
   skills?: SkillsData;
   achievements?: string[];
+  printSize?: 'compact' | 'standard' | 'spacious';
+  fitOnePage?: boolean;
 }
 
 interface TemplateDefinition {
