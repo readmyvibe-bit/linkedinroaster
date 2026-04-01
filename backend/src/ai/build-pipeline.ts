@@ -40,6 +40,7 @@ export interface BuildFormInput {
   skills: string[];
   certifications: string[];
   achievements: string;
+  projects?: string;
   target_role: string;
   target_industry: string;
   tone: 'professional' | 'friendly' | 'bold';
@@ -148,6 +149,9 @@ ${formInput.skills.length ? formInput.skills.join(', ') : 'Not specified'}
 ═══ CERTIFICATIONS ═══
 ${formInput.certifications.length ? formInput.certifications.join(', ') : 'None'}
 
+═══ PROJECTS & PORTFOLIO ═══
+${formInput.projects || 'Not specified'}
+
 ═══ ACHIEVEMENTS ═══
 ${formInput.achievements || 'Not specified'}
 
@@ -210,8 +214,18 @@ Steps must cover:
 9. Set "Open to Work" preferences
 10. Make first 50 connections
 
+PROJECTS (important for students/freshers):
+If the user provided projects, incorporate them into the profile:
+- Mention key projects in the About section (1-2 sentences about most impressive ones)
+- For freshers/students with no work experience, use projects as experience entries:
+  each project becomes an "experience" entry with role="Project Lead" or similar,
+  company=project context (e.g., "Academic Project" or "Personal Project"),
+  and bullets describing what was built, tech used, and outcomes
+- If the user has work experience AND projects, mention projects in About but
+  keep experience section for actual jobs only
+
 ═══ NEVER FABRICATE ═══
-- Do NOT invent companies, degrees, certifications, or achievements
+- Do NOT invent companies, degrees, certifications, achievements, or projects
 - Do NOT add metrics the user didn't mention (except with ~ prefix for estimates)
 - Use ONLY information provided above
 
