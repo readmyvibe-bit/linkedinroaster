@@ -114,12 +114,18 @@ export default function ResumePreviewPage() {
       alert(`"${currentTemplate?.name}" is a Pro template. Upgrade to Pro for ₹500 to unlock all 20 templates.`);
       return;
     }
-    const html = buildPrintHTML(resume.resume_data, templateId);
+    let html = buildPrintHTML(resume.resume_data, templateId);
 
-    // A4 = 297mm height. @page margin = 12mm top + 10mm bottom = 22mm.
-    // Printable height = 297 - 22 = 275mm = ~1040px at 96dpi.
-    // Add 20px safety buffer for font/render variance.
-    const PRINTABLE_HEIGHT = 1020;
+    // Mobile detection — mobile Chrome print has smaller effective page box
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    // Desktop: @page margin 12+10=22mm → printable ~1020px
+    // Mobile: reduce @page to 8mm all sides (16mm total) + tighter budget
+    if (isMobile) {
+      html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 8mm 8mm 8mm}');
+    }
+
+    const PRINTABLE_HEIGHT = isMobile ? 970 : 1020;
 
     // Measure content height in hidden iframe
     function measure(testHtml: string): Promise<number> {
