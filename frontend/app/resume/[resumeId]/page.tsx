@@ -175,9 +175,7 @@ export default function ResumePreviewPage() {
       const contentHeight = root.scrollHeight;
       if (contentHeight > available && contentHeight < available * 1.5) {
         const scale = Math.max(0.78, available / contentHeight);
-        root.style.transform = `scale(${scale})`;
-        root.style.transformOrigin = 'top left';
-        root.style.width = `${Math.ceil(100 / scale)}%`;
+        (root.style as any).zoom = String(scale);
       }
       setTimeout(() => win.print(), 200);
     }, 800);
