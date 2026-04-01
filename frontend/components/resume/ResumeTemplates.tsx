@@ -1874,26 +1874,26 @@ function renderFresher(data: ResumeData): React.ReactNode {
   const c = data.contact || {};
   const contactParts = [c.email, c.phone, c.location, c.linkedin].filter(Boolean);
   const skillGroups = normalizeSkills(data.skills);
-  const sideHdr = (t: string) => <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' as const, color: '#6366F1', letterSpacing: '1.5px', marginBottom: '10px' }}>{t}</div>;
-  const mainHdr = (t: string) => <div style={{ fontSize: '14px', fontWeight: 700, textTransform: 'uppercase' as const, color: '#1E1B4B', borderBottom: '2px solid #6366F1', paddingBottom: '3px', marginBottom: '10px' }}>{t}</div>;
+  const sideHdr = (t: string) => <div style={{ fontSize: '13px', fontWeight: 700, textTransform: 'uppercase' as const, color: '#6366F1', letterSpacing: '1.5px', marginBottom: '10px' }}>{t}</div>;
+  const mainHdr = (t: string) => <div style={{ fontSize: '15px', fontWeight: 700, textTransform: 'uppercase' as const, color: '#1E1B4B', borderBottom: '2px solid #6366F1', paddingBottom: '3px', marginBottom: '12px' }}>{t}</div>;
   return (
-    <div style={{ fontFamily: "'Segoe UI', Arial, sans-serif", fontSize: '13px', lineHeight: 1.55, maxWidth: '800px' }}>
+    <div style={{ fontFamily: "'Segoe UI', Arial, sans-serif", fontSize: '14.5px', lineHeight: 1.6, maxWidth: '800px' }}>
       {/* Full-width header */}
-      <div style={{ background: 'linear-gradient(135deg, #312E81, #4338CA)', padding: '20px 24px', color: 'white' }}>
-        <div style={{ fontSize: '28px', fontWeight: 800, letterSpacing: '0.5px' }}>{c.name || 'Your Name'}</div>
-        {contactParts.length > 0 && <div style={{ fontSize: '12px', opacity: 0.85, marginTop: '5px' }}>{contactParts.join('  •  ')}</div>}
+      <div style={{ background: 'linear-gradient(135deg, #312E81, #4338CA)', padding: '20px 22px', color: 'white' }}>
+        <div style={{ fontSize: '30px', fontWeight: 800, letterSpacing: '0.5px' }}>{c.name || 'Your Name'}</div>
+        {contactParts.length > 0 && <div style={{ fontSize: '13px', opacity: 0.85, marginTop: '5px' }}>{contactParts.join('  •  ')}</div>}
       </div>
       <div style={{ display: 'flex' }}>
         {/* Left sidebar */}
-        <div style={{ width: '32%', background: '#F5F3FF', padding: '18px 14px', minHeight: '500px', borderRight: '1px solid #E5E7EB' }}>
+        <div style={{ width: '33%', background: '#F5F3FF', padding: '16px 14px', minHeight: '500px', borderRight: '1px solid #E5E7EB' }}>
           {data.education && data.education.length > 0 && (
             <div style={{ marginBottom: '18px' }}>
               {sideHdr('Education')}
               {data.education.map((edu, i) => (
-                <div key={i} style={{ marginBottom: '10px' }}>
-                  <div style={{ fontWeight: 700, fontSize: '12px', color: '#1E1B4B' }}>{getEduDegree(edu)}</div>
-                  <div style={{ fontSize: '11px', color: '#6B7280' }}>{getEduSchool(edu)}</div>
-                  <div style={{ fontSize: '11px', color: '#9CA3AF' }}>{getEduDates(edu)}{edu.gpa ? ` — ${edu.gpa}` : ''}</div>
+                <div key={i} style={{ marginBottom: '12px' }}>
+                  <div style={{ fontWeight: 700, fontSize: '13px', color: '#1E1B4B' }}>{getEduDegree(edu)}</div>
+                  <div style={{ fontSize: '12px', color: '#6B7280' }}>{getEduSchool(edu)}</div>
+                  <div style={{ fontSize: '12px', color: '#9CA3AF' }}>{getEduDates(edu)}{edu.gpa ? ` — ${edu.gpa}` : ''}</div>
                 </div>
               ))}
             </div>
@@ -1903,9 +1903,9 @@ function renderFresher(data: ResumeData): React.ReactNode {
               {sideHdr('Skills')}
               {skillGroups.map((g, i) => (
                 <div key={i} style={{ marginBottom: '10px' }}>
-                  {skillGroups.length > 1 && <div style={{ fontSize: '10px', color: '#9CA3AF', fontWeight: 700, marginBottom: '4px' }}>{g.label}</div>}
+                  {skillGroups.length > 1 && <div style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 700, marginBottom: '5px' }}>{g.label}</div>}
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                    {g.items.map((s, j) => <span key={j} style={{ background: '#E0E7FF', color: '#3730A3', borderRadius: '4px', padding: '3px 8px', fontSize: '11px', fontWeight: 500 }}>{s}</span>)}
+                    {g.items.map((s, j) => <span key={j} style={{ background: '#E0E7FF', color: '#3730A3', borderRadius: '4px', padding: '3px 9px', fontSize: '12px', fontWeight: 500 }}>{s}</span>)}
                   </div>
                 </div>
               ))}
@@ -1914,26 +1914,26 @@ function renderFresher(data: ResumeData): React.ReactNode {
           {data.achievements && data.achievements.length > 0 && (
             <div>
               {sideHdr('Achievements')}
-              {data.achievements.map((a, i) => <div key={i} style={{ fontSize: '11px', color: '#4B5563', marginBottom: '5px', paddingLeft: '10px', textIndent: '-10px' }}>▸ {a}</div>)}
+              {data.achievements.map((a, i) => <div key={i} style={{ fontSize: '12px', color: '#4B5563', marginBottom: '6px', paddingLeft: '10px', textIndent: '-10px', lineHeight: 1.5 }}>▸ {a}</div>)}
             </div>
           )}
         </div>
         {/* Right main — Summary + Projects/Experience */}
-        <div style={{ width: '68%', padding: '18px 22px', color: '#333' }}>
-          {data.summary && <div style={{ marginBottom: '16px' }}>{mainHdr('Profile')}<div style={{ fontSize: '13px', color: '#374151', lineHeight: 1.6 }}>{data.summary}</div></div>}
+        <div style={{ width: '67%', padding: '16px 20px', color: '#333' }}>
+          {data.summary && <div style={{ marginBottom: '16px' }}>{mainHdr('Profile')}<div style={{ fontSize: '14px', color: '#374151', lineHeight: 1.65 }}>{data.summary}</div></div>}
           {data.experience && data.experience.length > 0 && (
             <div style={{ marginBottom: '16px' }}>
               {mainHdr('Projects & Experience')}
               {data.experience.map((exp, i) => (
                 <div key={i} style={{ marginBottom: '12px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                    <span style={{ fontWeight: 700, color: '#1E1B4B', fontSize: '13px' }}>{getExpTitle(exp)}</span>
-                    <span style={{ fontSize: '11px', color: '#9CA3AF', fontStyle: 'italic' }}>{getExpDates(exp)}</span>
+                    <span style={{ fontWeight: 700, color: '#1E1B4B', fontSize: '14px' }}>{getExpTitle(exp)}</span>
+                    <span style={{ fontSize: '12px', color: '#9CA3AF', fontStyle: 'italic' }}>{getExpDates(exp)}</span>
                   </div>
-                  <div style={{ color: '#6B7280', fontStyle: 'italic', fontSize: '12px' }}>{[exp.company, exp.location].filter(Boolean).join(' — ')}</div>
+                  <div style={{ color: '#6B7280', fontStyle: 'italic', fontSize: '13px' }}>{[exp.company, exp.location].filter(Boolean).join(' — ')}</div>
                   {exp.bullets && exp.bullets.length > 0 && (
-                    <div style={{ marginTop: '4px' }}>
-                      {exp.bullets.map((b, j) => <div key={j} style={{ paddingLeft: '12px', textIndent: '-12px', marginBottom: '3px', fontSize: '12px' }}>• {b}</div>)}
+                    <div style={{ marginTop: '5px' }}>
+                      {exp.bullets.map((b, j) => <div key={j} style={{ paddingLeft: '12px', textIndent: '-12px', marginBottom: '4px', fontSize: '13.5px', lineHeight: 1.55 }}>• {b}</div>)}
                     </div>
                   )}
                 </div>
@@ -1951,17 +1951,17 @@ function renderSalesBD(data: ResumeData): React.ReactNode {
   const c = data.contact || {};
   const contactParts = [c.email, c.phone, c.location, c.linkedin].filter(Boolean);
   const skillGroups = normalizeSkills(data.skills);
-  const hdr = (t: string) => <div style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase' as const, color: '#0F172A', letterSpacing: '2px', borderBottom: '3px solid #E16B00', paddingBottom: '4px', marginBottom: '10px' }}>{t}</div>;
+  const hdr = (t: string) => <div style={{ fontSize: '14px', fontWeight: 800, textTransform: 'uppercase' as const, color: '#0F172A', letterSpacing: '2px', borderBottom: '3px solid #E16B00', paddingBottom: '4px', marginBottom: '12px' }}>{t}</div>;
   return (
-    <div style={{ fontFamily: "'Segoe UI', Arial, sans-serif", fontSize: '13px', lineHeight: 1.55, color: '#333', padding: '22px 26px', maxWidth: '800px' }}>
+    <div style={{ fontFamily: "'Segoe UI', Arial, sans-serif", fontSize: '14.5px', lineHeight: 1.6, color: '#333', padding: '20px 24px', maxWidth: '800px' }}>
       {/* Header */}
       <div style={{ background: '#0F172A', padding: '18px 22px', borderRadius: '8px 8px 0 0', marginBottom: '0' }}>
-        <div style={{ fontSize: '28px', fontWeight: 900, color: 'white', letterSpacing: '-0.5px' }}>{c.name || 'Your Name'}</div>
-        {contactParts.length > 0 && <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', marginTop: '4px' }}>{contactParts.join('  |  ')}</div>}
+        <div style={{ fontSize: '30px', fontWeight: 900, color: 'white', letterSpacing: '-0.5px' }}>{c.name || 'Your Name'}</div>
+        {contactParts.length > 0 && <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', marginTop: '4px' }}>{contactParts.join('  |  ')}</div>}
       </div>
       <div style={{ height: '4px', background: '#E16B00' }} />
       {/* Summary */}
-      {data.summary && <div style={{ marginBottom: '16px', marginTop: '16px' }}>{hdr('Profile Summary')}<div style={{ fontSize: '13px', lineHeight: 1.65, color: '#374151' }}>{data.summary}</div></div>}
+      {data.summary && <div style={{ marginBottom: '16px', marginTop: '16px' }}>{hdr('Profile Summary')}<div style={{ fontSize: '14px', lineHeight: 1.65, color: '#374151' }}>{data.summary}</div></div>}
       {/* Experience */}
       {data.experience && data.experience.length > 0 && (
         <div style={{ marginBottom: '16px' }}>
@@ -1969,13 +1969,13 @@ function renderSalesBD(data: ResumeData): React.ReactNode {
           {data.experience.map((exp, i) => (
             <div key={i} style={{ marginBottom: '12px', paddingLeft: '12px', borderLeft: '3px solid #E16B00' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                <span style={{ fontWeight: 700, color: '#0F172A', fontSize: '14px' }}>{getExpTitle(exp)}</span>
-                <span style={{ fontSize: '11px', color: '#94A3B8', fontStyle: 'italic' }}>{getExpDates(exp)}</span>
+                <span style={{ fontWeight: 700, color: '#0F172A', fontSize: '15px' }}>{getExpTitle(exp)}</span>
+                <span style={{ fontSize: '12px', color: '#94A3B8', fontStyle: 'italic' }}>{getExpDates(exp)}</span>
               </div>
-              <div style={{ color: '#64748B', fontStyle: 'italic', fontSize: '12px' }}>{[exp.company, exp.location].filter(Boolean).join(' — ')}</div>
+              <div style={{ color: '#64748B', fontStyle: 'italic', fontSize: '13px' }}>{[exp.company, exp.location].filter(Boolean).join(' — ')}</div>
               {exp.bullets && exp.bullets.length > 0 && (
                 <div style={{ marginTop: '5px' }}>
-                  {exp.bullets.map((b, j) => <div key={j} style={{ paddingLeft: '14px', textIndent: '-14px', marginBottom: '3px', fontSize: '13px' }}>▸ {b}</div>)}
+                  {exp.bullets.map((b, j) => <div key={j} style={{ paddingLeft: '14px', textIndent: '-14px', marginBottom: '4px', fontSize: '14px', lineHeight: 1.55 }}>▸ {b}</div>)}
                 </div>
               )}
             </div>
@@ -2000,7 +2000,7 @@ function renderSalesBD(data: ResumeData): React.ReactNode {
           {hdr('Skills & Tools')}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             {skillGroups.flatMap(g => g.items).map((s, i) => (
-              <span key={i} style={{ background: '#FFF7ED', color: '#C2410C', border: '1px solid #FDBA74', borderRadius: '4px', padding: '4px 12px', fontSize: '12px', fontWeight: 600 }}>{s}</span>
+              <span key={i} style={{ background: '#FFF7ED', color: '#C2410C', border: '1px solid #FDBA74', borderRadius: '4px', padding: '4px 12px', fontSize: '13px', fontWeight: 600 }}>{s}</span>
             ))}
           </div>
         </div>
@@ -2009,7 +2009,7 @@ function renderSalesBD(data: ResumeData): React.ReactNode {
       {data.achievements && data.achievements.length > 0 && (
         <div>
           {hdr('Key Wins')}
-          {data.achievements.map((a, i) => <div key={i} style={{ paddingLeft: '14px', textIndent: '-14px', marginBottom: '4px', fontSize: '13px' }}>★ {a}</div>)}
+          {data.achievements.map((a, i) => <div key={i} style={{ paddingLeft: '14px', textIndent: '-14px', marginBottom: '5px', fontSize: '14px', lineHeight: 1.55 }}>★ {a}</div>)}
         </div>
       )}
     </div>
@@ -2936,21 +2936,21 @@ function printFresher(data: ResumeData): string {
   const c = data.contact || {};
   const cp = [c.email, c.phone, c.location, c.linkedin].filter(Boolean).map(esc).join('  &bull;  ');
   const skillGroups = normalizeSkills(data.skills);
-  const sideHdr = (t: string) => `<div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#6366F1;letter-spacing:1.5px;margin-bottom:10px">${t}</div>`;
-  const mainHdr = (t: string) => `<div style="font-size:14px;font-weight:700;text-transform:uppercase;color:#1E1B4B;border-bottom:2px solid #6366F1;padding-bottom:3px;margin-bottom:10px">${t}</div>`;
-  const dateS = 'font-size:11px;color:#9CA3AF;font-style:italic';
-  const titleS = 'font-weight:700;color:#1E1B4B;font-size:13px';
+  const sideHdr = (t: string) => `<div style="font-size:13px;font-weight:700;text-transform:uppercase;color:#6366F1;letter-spacing:1.5px;margin-bottom:10px">${t}</div>`;
+  const mainHdr = (t: string) => `<div style="font-size:15px;font-weight:700;text-transform:uppercase;color:#1E1B4B;border-bottom:2px solid #6366F1;padding-bottom:3px;margin-bottom:12px">${t}</div>`;
+  const dateS = 'font-size:12px;color:#9CA3AF;font-style:italic';
+  const titleS = 'font-weight:700;color:#1E1B4B;font-size:14px';
 
-  let h = `<div class="resume-wrapper" style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.55">`;
+  let h = `<div class="resume-wrapper" style="font-family:'Segoe UI',Arial,sans-serif;font-size:14.5px;line-height:1.6">`;
   // Header
-  h += `<div style="background:linear-gradient(135deg,#312E81,#4338CA);padding:20px 24px;color:white">`;
-  h += `<div style="font-size:28px;font-weight:800;letter-spacing:0.5px">${esc(c.name) || 'Your Name'}</div>`;
-  if (cp) h += `<div style="font-size:12px;opacity:0.85;margin-top:5px">${cp}</div>`;
+  h += `<div style="background:linear-gradient(135deg,#312E81,#4338CA);padding:20px 22px;color:white">`;
+  h += `<div style="font-size:30px;font-weight:800;letter-spacing:0.5px">${esc(c.name) || 'Your Name'}</div>`;
+  if (cp) h += `<div style="font-size:13px;opacity:0.85;margin-top:5px">${cp}</div>`;
   h += `</div>`;
   // Two column
   h += `<div style="position:relative"><div style="position:absolute;top:0;left:0;bottom:0;width:32%;background:#F5F3FF;min-height:250mm"></div><div class="two-col" style="position:relative;z-index:1">`;
   // Left sidebar
-  h += `<div class="two-col-left" style="width:32%;background:#F5F3FF;padding:18px 14px;border-right:1px solid #E5E7EB">`;
+  h += `<div class="two-col-left" style="width:33%;background:#F5F3FF;padding:16px 14px;border-right:1px solid #E5E7EB">`;
   if (data.education?.length) {
     h += `<div style="margin-bottom:20px">${sideHdr('Education')}`;
     data.education.forEach(edu => {
@@ -2989,17 +2989,17 @@ function printSalesBD(data: ResumeData): string {
   const c = data.contact || {};
   const cp = [c.email, c.phone, c.location, c.linkedin].filter(Boolean).map(esc).join('  |  ');
   const skillGroups = normalizeSkills(data.skills);
-  const hdr = (t: string) => `<div style="font-size:13px;font-weight:800;text-transform:uppercase;color:#0F172A;letter-spacing:2px;border-bottom:3px solid #E16B00;padding-bottom:4px;margin-bottom:10px">${t}</div>`;
-  const dateS = 'font-size:11px;color:#94A3B8;font-style:italic';
-  const titleS = 'font-weight:700;color:#0F172A;font-size:14px';
+  const hdr = (t: string) => `<div style="font-size:14px;font-weight:800;text-transform:uppercase;color:#0F172A;letter-spacing:2px;border-bottom:3px solid #E16B00;padding-bottom:4px;margin-bottom:12px">${t}</div>`;
+  const dateS = 'font-size:12px;color:#94A3B8;font-style:italic';
+  const titleS = 'font-weight:700;color:#0F172A;font-size:15px';
 
-  let h = `<div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.55;color:#333;padding:22px 26px;max-width:100%">`;
+  let h = `<div style="font-family:'Segoe UI',Arial,sans-serif;font-size:14.5px;line-height:1.6;color:#333;padding:20px 24px;max-width:100%">`;
   // Dark header
-  h += `<div style="background:#0F172A;padding:18px 22px;border-radius:8px 8px 0 0"><div style="font-size:28px;font-weight:900;color:white;letter-spacing:-0.5px">${esc(c.name) || 'Your Name'}</div>`;
-  if (cp) h += `<div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:4px">${cp}</div>`;
+  h += `<div style="background:#0F172A;padding:18px 22px;border-radius:8px 8px 0 0"><div style="font-size:30px;font-weight:900;color:white;letter-spacing:-0.5px">${esc(c.name) || 'Your Name'}</div>`;
+  if (cp) h += `<div style="font-size:13px;color:rgba(255,255,255,0.7);margin-top:4px">${cp}</div>`;
   h += `</div><div style="height:4px;background:#E16B00"></div>`;
   // Summary
-  if (data.summary) h += `<div style="margin-bottom:16px;margin-top:16px">${hdr('Profile Summary')}<div style="font-size:13px;line-height:1.65;color:#374151">${esc(data.summary)}</div></div>`;
+  if (data.summary) h += `<div style="margin-bottom:16px;margin-top:16px">${hdr('Profile Summary')}<div style="font-size:14px;line-height:1.65;color:#374151">${esc(data.summary)}</div></div>`;
   // Experience with orange left border
   if (data.experience?.length) {
     h += `<div style="margin-bottom:16px">${hdr('Sales Experience')}`;
@@ -3007,8 +3007,8 @@ function printSalesBD(data: ResumeData): string {
       const title = esc(getExpTitle(exp));
       const dates = esc(getExpDates(exp));
       const company = [exp.company, exp.location].filter(Boolean).map(esc).join(' &mdash; ');
-      const bullets = (exp.bullets || []).map(b => `<div style="padding-left:14px;text-indent:-14px;margin-bottom:3px;font-size:13px">&#9658; ${esc(b)}</div>`).join('');
-      h += `<div class="entry" style="margin-bottom:12px;padding-left:12px;border-left:3px solid #E16B00"><div style="display:flex;justify-content:space-between;flex-wrap:wrap"><span style="${titleS}">${title}</span><span style="${dateS}">${dates}</span></div><div style="color:#64748B;font-style:italic;font-size:12px">${company}</div>${bullets ? `<div style="margin-top:5px">${bullets}</div>` : ''}</div>`;
+      const bullets = (exp.bullets || []).map(b => `<div style="padding-left:14px;text-indent:-14px;margin-bottom:4px;font-size:14px;line-height:1.55">&#9658; ${esc(b)}</div>`).join('');
+      h += `<div class="entry" style="margin-bottom:12px;padding-left:12px;border-left:3px solid #E16B00"><div style="display:flex;justify-content:space-between;flex-wrap:wrap"><span style="${titleS}">${title}</span><span style="${dateS}">${dates}</span></div><div style="color:#64748B;font-style:italic;font-size:13px">${company}</div>${bullets ? `<div style="margin-top:5px">${bullets}</div>` : ''}</div>`;
     });
     h += `</div>`;
   }
@@ -3024,7 +3024,7 @@ function printSalesBD(data: ResumeData): string {
   if (skillGroups.length) {
     h += `<div style="margin-bottom:16px">${hdr('Skills & Tools')}<div style="display:flex;flex-wrap:wrap;gap:6px">`;
     skillGroups.flatMap(g => g.items).forEach(s => {
-      h += `<span style="background:#FFF7ED;color:#C2410C;border:1px solid #FDBA74;border-radius:4px;padding:4px 12px;font-size:12px;font-weight:600">${esc(s)}</span>`;
+      h += `<span style="background:#FFF7ED;color:#C2410C;border:1px solid #FDBA74;border-radius:4px;padding:4px 12px;font-size:13px;font-weight:600">${esc(s)}</span>`;
     });
     h += `</div></div>`;
   }
