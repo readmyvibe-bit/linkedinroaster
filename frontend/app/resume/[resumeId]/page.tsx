@@ -274,6 +274,15 @@ export default function ResumePreviewPage() {
             DOCX
           </a>
           <a
+            href={`${API_URL}/api/resume/${resume.id}/download/txt`}
+            style={{
+              padding: '6px 14px', background: '#F3F2EF', color: '#666', border: '1px solid #D0D0D0',
+              borderRadius: 16, fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
+            }}
+          >
+            TXT
+          </a>
+          <a
             href={`/resume/${resume.id}/edit`}
             style={{
               padding: '6px 14px', background: '#057642', color: '#fff', border: 'none',
@@ -372,6 +381,8 @@ export default function ResumePreviewPage() {
               <a href={isTemplateLocked ? '#' : `${API_URL}/api/resume/${resume.id}/download/docx`}
                 onClick={(e) => { if (isTemplateLocked) { e.preventDefault(); alert('Pro template — upgrade to download.'); } }}
                 style={{ width: '100%', padding: '8px', background: '#374151', color: 'white', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', textAlign: 'center', textDecoration: 'none', display: 'block' }}>&#128196; Download DOCX</a>
+              <a href={`${API_URL}/api/resume/${resume.id}/download/txt`}
+                style={{ width: '100%', padding: '8px', background: '#F3F2EF', color: '#666', border: '1px solid #D0D0D0', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', textAlign: 'center', textDecoration: 'none', display: 'block' }}>&#128221; Download TXT (ATS Portals)</a>
             </div>
           </div>
 

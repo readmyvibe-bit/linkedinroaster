@@ -576,6 +576,15 @@ export default function ResumeEditorPage() {
             DOCX
           </a>
           <a
+            href={`${API_URL}/api/resume/${resumeId}/download/txt`}
+            style={{
+              padding: '5px 12px', background: '#F3F2EF', color: '#666', border: '1px solid #D0D0D0',
+              borderRadius: 16, fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
+            }}
+          >
+            TXT
+          </a>
+          <a
             href={`/resume/${resumeId}`}
             style={{ fontSize: 12, fontWeight: 600, color: '#666', textDecoration: 'none', whiteSpace: 'nowrap' }}
           >

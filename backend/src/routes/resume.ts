@@ -261,6 +261,101 @@ router.get('/:resumeId/download/docx', async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/resume/:resumeId/download/txt — plain text for ATS portals (TCS, Infosys, Wipro)
+router.get('/:resumeId/download/txt', async (req: Request, res: Response) => {
+  try {
+    const result = await query('SELECT * FROM resumes WHERE id=$1', [req.params.resumeId]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Resume not found' });
+
+    const resume = result.rows[0];
+    const d = resume.resume_data;
+    const c = d.contact || {};
+    const lines: string[] = [];
+
+    // Name + Contact
+    if (c.name) lines.push(c.name.toUpperCase());
+    const contactParts = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean);
+    if (contactParts.length) lines.push(contactParts.join(' | '));
+    lines.push('');
+
+    // Summary
+    if (d.summary) {
+      lines.push('PROFESSIONAL SUMMARY');
+      lines.push(d.summary);
+      lines.push('');
+    }
+
+    // Experience
+    if (d.experience?.length) {
+      lines.push('WORK EXPERIENCE');
+      lines.push('');
+      for (const exp of d.experience) {
+        const role = exp.role || exp.title || '';
+        const company = exp.company || '';
+        const dates = exp.dates || (exp.start_date ? `${exp.start_date} - ${exp.end_date || 'Present'}` : '');
+        lines.push(`${role}${company ? ' | ' + company : ''}${dates ? ' | ' + dates : ''}`);
+        if (exp.location) lines.push(exp.location);
+        if (exp.bullets?.length) {
+          for (const b of exp.bullets) lines.push(`- ${b}`);
+        }
+        lines.push('');
+      }
+    }
+
+    // Education
+    if (d.education?.length) {
+      lines.push('EDUCATION');
+      lines.push('');
+      for (const edu of d.education) {
+        const degree = edu.degree || '';
+        const school = edu.institution || edu.school || '';
+        const year = edu.year || edu.dates || '';
+        lines.push(`${degree}${school ? ' — ' + school : ''}${year ? ' | ' + year : ''}${edu.gpa ? ' | GPA: ' + edu.gpa : ''}`);
+      }
+      lines.push('');
+    }
+
+    // Skills
+    if (d.skills) {
+      lines.push('SKILLS');
+      if (Array.isArray(d.skills)) {
+        if (typeof d.skills[0] === 'string') {
+          lines.push(d.skills.join(', '));
+        } else {
+          for (const cat of d.skills) {
+            lines.push(`${cat.category || cat.label || 'Skills'}: ${(cat.skills || []).join(', ')}`);
+          }
+        }
+      } else if (typeof d.skills === 'object') {
+        for (const [label, items] of Object.entries(d.skills)) {
+          if (Array.isArray(items) && items.length) {
+            lines.push(`${label}: ${items.join(', ')}`);
+          }
+        }
+      }
+      lines.push('');
+    }
+
+    // Achievements
+    if (d.achievements?.length) {
+      lines.push('ACHIEVEMENTS');
+      for (const a of d.achievements) lines.push(`- ${a}`);
+      lines.push('');
+    }
+
+    const name = (c.name || 'resume').replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+    const role = (resume.target_role || 'resume').replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+    const txt = lines.join('\n');
+
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${name}-${role}-resume.txt"`);
+    res.send(txt);
+  } catch (err: any) {
+    console.error('TXT download error:', err.message);
+    res.status(500).json({ error: 'Failed to generate TXT' });
+  }
+});
+
 // POST /api/resume/:resumeId/regenerate-section
 router.post('/:resumeId/regenerate-section', async (req: Request, res: Response) => {
   try {
