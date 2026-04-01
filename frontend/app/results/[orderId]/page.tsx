@@ -2409,10 +2409,10 @@ export default function ResultsPage() {
   }
 
   return (
-    <main style={{ fontFamily: "'Inter', system-ui, sans-serif", background: '#F3F2EF', minHeight: '100vh', paddingBottom: 40 }}>
+    <main style={{ fontFamily: "'Inter', system-ui, sans-serif", background: '#F3F2EF', minHeight: '100vh', paddingBottom: 0 }}>
       {/* Header */}
-      <header style={{ background: 'white', borderBottom: '1px solid #E0E0E0', padding: '12px 20px' }}>
-        <div style={{ maxWidth: 1080, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <header style={{ background: 'white', borderBottom: '1px solid #E0E0E0', padding: '12px 16px' }}>
+        <div style={{ maxWidth: 1240, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <a href="/dashboard" style={{ fontSize: 13, color: '#0A66C2', textDecoration: 'none', fontWeight: 600 }}>&larr; My Dashboard</a>
             <span style={{ color: '#E0E0E0' }}>|</span>
@@ -2425,14 +2425,11 @@ export default function ResultsPage() {
         </div>
       </header>
 
-      <div style={{ maxWidth: 1080, margin: '0 auto', padding: '24px 20px 0' }}>
-        <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
-
-          {/* ═══ LEFT COLUMN ═══ */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-
-        {/* SECTION 1: Score Hero */}
-        <div style={{ background: 'white', borderRadius: 16, padding: '32px', marginBottom: 20, border: '1px solid #E0E0E0' }}>
+      {/* ═══ SECTION 1: Score Hero (full-bleed gradient) ═══ */}
+      <section style={{ background: 'linear-gradient(135deg, #F0F7FF 0%, #E8F0FE 50%, #F0FDF4 100%)', padding: '32px 16px', borderBottom: '1px solid #E0E7F0' }}>
+        <div style={{ maxWidth: 1240, margin: '0 auto', display: 'flex', gap: 24, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+          <div style={{ flex: '1 1 600px', minWidth: 0 }}>
+        <div style={{ background: 'white', borderRadius: 16, padding: '28px 32px', border: '1px solid #E0E0E0' }}>
           <div style={{ textAlign: 'center', marginBottom: 24 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
               <div style={{ textAlign: 'center' }}>
@@ -2471,8 +2468,40 @@ export default function ResultsPage() {
             </span>
           </div>
         </div>
+          </div>
+          {/* Right rail — Quick Actions */}
+          <div className="hidden lg:block" style={{ flex: '0 0 300px' }}>
+            <div style={{ background: 'white', borderRadius: 14, padding: '20px', border: '1px solid #E0E0E0', marginBottom: 12 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#191919', marginBottom: 12 }}>Quick Actions</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <button onClick={() => handleCopy(rewrite.rewritten_headline, 'sidebar-headline')} style={{ width: '100%', padding: '8px 12px', background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'left' }}>
+                  {copiedField === 'sidebar-headline' ? '✓ Copied!' : '📋 Copy Headline'}
+                </button>
+                <button onClick={() => handleCopy(rewrite.rewritten_about, 'sidebar-about')} style={{ width: '100%', padding: '8px 12px', background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'left' }}>
+                  {copiedField === 'sidebar-about' ? '✓ Copied!' : '📋 Copy About'}
+                </button>
+                <button onClick={handleResumeCTA} style={{ width: '100%', padding: '8px 12px', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#057642', cursor: 'pointer', textAlign: 'left' }}>&#128196; Build Resume</button>
+                <button onClick={handleShareLinkedIn} style={{ width: '100%', padding: '8px 12px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'left' }}>&#128279; Share Roast</button>
+                <button onClick={handleDownloadCard} style={{ width: '100%', padding: '8px 12px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'left' }}>&#11015; Download Card</button>
+              </div>
+            </div>
+            {!isPro && (
+              <div style={{ background: 'linear-gradient(135deg, #004182, #0A66C2)', borderRadius: 14, padding: '20px' }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 6 }}>Upgrade to Pro</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5, marginBottom: 12 }}>{'\u2022'} 5 headline variations{'\n'}{'\u2022'} 3 ATS resumes + cover letters{'\n'}{'\u2022'} All 23 templates{'\n'}{'\u2022'} ATS keyword optimization</div>
+                <button onClick={handleUpgrade} style={{ width: '100%', padding: '10px', background: 'white', color: '#0A66C2', border: 'none', borderRadius: 50, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Upgrade &#8377;500 &rarr;</button>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
 
-        {/* SECTION 2: Top 3 Roast Cards (T-layout: 2 top + 1 center bottom) */}
+      {/* ═══ SECTION 2: Top 3 Roasts (full-bleed white) ═══ */}
+      <section style={{ background: 'white', padding: '28px 16px', borderBottom: '1px solid #E8E8E8' }}>
+        <div style={{ maxWidth: 1240, margin: '0 auto', display: 'flex', gap: 24, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+          <div style={{ flex: '1 1 600px', minWidth: 0 }}>
+
+        {/* SECTION 2: Top 3 Roast Cards */}
         <div style={{ marginBottom: 20 }}>
           <h2 style={{ fontSize: 18, fontWeight: 800, color: '#191919', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
             <span>&#128293;</span> AI Roasted Your Profile
@@ -2511,8 +2540,30 @@ export default function ResultsPage() {
           )}
         </div>
 
-        {/* SECTION 3: Your New Profile */}
-        <div style={{ background: 'white', borderRadius: 16, padding: '28px 32px', marginBottom: 20, border: '1px solid #E0E0E0' }} id="rewrite-section">
+          </div>
+          {/* Right rail — Why This Matters */}
+          <div className="hidden lg:block" style={{ flex: '0 0 300px' }}>
+            <div style={{ background: '#F9FAFB', borderRadius: 14, padding: '20px', border: '1px solid #E5E7EB' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#191919', marginBottom: 10 }}>Why This Matters</div>
+              {[
+                { icon: '&#128064;', text: 'Recruiters spend 6 seconds on your profile. First impressions are everything.' },
+                { icon: '&#128269;', text: 'ATS systems filter 75% of applications before a human sees them.' },
+                { icon: '&#128200;', text: 'Profiles scoring 70+ get 3x more recruiter messages.' },
+              ].map((t, i) => (
+                <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'flex-start' }}>
+                  <span style={{ fontSize: 14, flexShrink: 0 }} dangerouslySetInnerHTML={{ __html: t.icon }} />
+                  <span style={{ fontSize: 12, color: '#555', lineHeight: 1.5 }}>{t.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ SECTION 3: Your New Profile (full-bleed tinted) ═══ */}
+      <section style={{ background: '#F8FAFC', padding: '28px 16px', borderBottom: '1px solid #E8E8E8' }}>
+        <div style={{ maxWidth: 1240, margin: '0 auto' }}>
+        <div style={{ background: 'white', borderRadius: 16, padding: '28px 32px', border: '1px solid #E0E0E0' }} id="rewrite-section">
           <h2 style={{ fontSize: 18, fontWeight: 800, color: '#191919', marginBottom: 20 }}>Your New Profile</h2>
 
           {/* Headline */}
@@ -2600,8 +2651,13 @@ export default function ResultsPage() {
           )}
         </div>
 
-        {/* SECTION 4: What AI Loved */}
-        <div style={{ background: '#F0FDF4', borderRadius: 16, padding: '24px 28px', marginBottom: 20, border: '1px solid #BBF7D0' }}>
+        </div>
+      </section>
+
+      {/* ═══ SECTION 4: What AI Loved (full-bleed green tint) ═══ */}
+      <section style={{ background: '#F0FDF4', padding: '28px 16px', borderBottom: '1px solid #BBF7D0' }}>
+        <div style={{ maxWidth: 1240, margin: '0 auto' }}>
+        <div style={{ background: 'white', borderRadius: 16, padding: '24px 28px', border: '1px solid #BBF7D0' }}>
           <h2 style={{ fontSize: 16, fontWeight: 800, color: '#057642', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
             <span>&#128154;</span> What AI Loved About Your Profile
           </h2>
@@ -2614,9 +2670,13 @@ export default function ResultsPage() {
             </div>
           )}
         </div>
+        </div>
+      </section>
 
-        {/* SECTION 5: Action Bar */}
-        <div style={{ marginBottom: 20 }}>
+      {/* ═══ SECTION 5: Action Bar (full-bleed blue tint) ═══ */}
+      <section style={{ background: '#EEF2FF', padding: '28px 16px', borderBottom: '1px solid #E0E7F0' }}>
+        <div style={{ maxWidth: 1240, margin: '0 auto' }}>
+        <div>
           <button onClick={handleResumeCTA} style={{ width: '100%', padding: '14px', background: '#0A66C2', color: 'white', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: 'pointer', marginBottom: 10 }}>
             Build ATS Resume &rarr;
           </button>
@@ -2629,63 +2689,26 @@ export default function ResultsPage() {
             <button onClick={handleDownloadCard} style={{ flex: 1, padding: '10px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 10, fontSize: 13, fontWeight: 600, color: '#666', cursor: 'pointer' }}>Download Card</button>
           </div>
         </div>
-
-        {/* SECTION 6: Feedback */}
-        <div style={{ background: 'white', borderRadius: 16, padding: '24px 28px', marginBottom: 20, border: '1px solid #E0E0E0' }}>
-          <FeedbackWidget orderId={orderId} />
         </div>
+      </section>
 
-        {/* AI Disclaimer */}
-        <div style={{ background: '#FFFBEB', border: '1px solid #F59E0B', borderRadius: 10, padding: '12px 16px', fontSize: 12, color: '#78350F', lineHeight: 1.6 }}>
-          <strong>AI-Generated Content:</strong> Please review all content for accuracy before publishing. Verify company names, job titles, dates, and metrics are factually correct.
-        </div>
-
+      {/* ═══ SECTION 6: Feedback (full-bleed white) ═══ */}
+      <section style={{ background: 'white', padding: '28px 16px', borderBottom: '1px solid #E8E8E8' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+          <div style={{ background: 'white', borderRadius: 16, padding: '24px 28px' }}>
+            <FeedbackWidget orderId={orderId} />
           </div>
-
-          {/* ═══ RIGHT SIDEBAR (sticky) ═══ */}
-          <div className="hidden lg:block" style={{ width: 300, flexShrink: 0, position: 'sticky', top: 16, alignSelf: 'flex-start' }}>
-
-            {/* Quick Actions */}
-            <div style={{ background: 'white', borderRadius: 14, padding: '20px', border: '1px solid #E0E0E0', marginBottom: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#191919', marginBottom: 12 }}>Quick Actions</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <button onClick={() => handleCopy(rewrite.rewritten_headline, 'sidebar-headline')} style={{ width: '100%', padding: '8px 12px', background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'left' }}>
-                  {copiedField === 'sidebar-headline' ? '✓ Copied!' : '📋 Copy Headline'}
-                </button>
-                <button onClick={() => handleCopy(rewrite.rewritten_about, 'sidebar-about')} style={{ width: '100%', padding: '8px 12px', background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'left' }}>
-                  {copiedField === 'sidebar-about' ? '✓ Copied!' : '📋 Copy About'}
-                </button>
-                <button onClick={handleResumeCTA} style={{ width: '100%', padding: '8px 12px', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#057642', cursor: 'pointer', textAlign: 'left' }}>
-                  &#128196; Build Resume
-                </button>
-                <button onClick={handleShareLinkedIn} style={{ width: '100%', padding: '8px 12px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'left' }}>
-                  &#128279; Share Roast
-                </button>
-                <button onClick={handleDownloadCard} style={{ width: '100%', padding: '8px 12px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'left' }}>
-                  &#11015; Download Card
-                </button>
-              </div>
-            </div>
-
-            {/* Upgrade (Standard only) */}
-            {!isPro && (
-              <div style={{ background: 'linear-gradient(135deg, #004182, #0A66C2)', borderRadius: 14, padding: '20px', marginBottom: 12 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 6 }}>Upgrade to Pro</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5, marginBottom: 12 }}>
-                  {'\u2022'} 5 headline variations{'\n'}
-                  {'\u2022'} 3 ATS resumes + cover letters{'\n'}
-                  {'\u2022'} All 23 templates{'\n'}
-                  {'\u2022'} ATS keyword optimization
-                </div>
-                <button onClick={handleUpgrade} style={{ width: '100%', padding: '10px', background: 'white', color: '#0A66C2', border: 'none', borderRadius: 50, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
-                  Upgrade &#8377;500 &rarr;
-                </button>
-              </div>
-            )}
-          </div>
-
         </div>
-      </div>
+      </section>
+
+      {/* ═══ Disclaimer + Footer ═══ */}
+      <section style={{ background: '#F3F2EF', padding: '20px 16px' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+          <div style={{ background: '#FFFBEB', border: '1px solid #F59E0B', borderRadius: 10, padding: '12px 16px', fontSize: 12, color: '#78350F', lineHeight: 1.6 }}>
+            <strong>AI-Generated Content:</strong> Please review all content for accuracy before publishing. Verify company names, job titles, dates, and metrics are factually correct.
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
