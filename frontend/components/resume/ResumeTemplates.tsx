@@ -2071,7 +2071,6 @@ body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!importa
 .two-col-right{flex:1}
 @media print{
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-  html,body{height:calc(297mm - 22mm);overflow:hidden}
   .entry{page-break-inside:avoid}
   .section-block{page-break-inside:avoid}
 }
