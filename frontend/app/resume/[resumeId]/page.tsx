@@ -125,7 +125,8 @@ export default function ResumePreviewPage() {
       html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 8mm 8mm 8mm}');
     }
 
-    const PRINTABLE_HEIGHT = isMobile ? 970 : 1020;
+    // Printable height: A4 (297mm) minus @page margins (12+10=22mm) minus safety
+    const PRINTABLE_HEIGHT = isMobile ? 960 : 1010;
 
     // Measure content height in hidden iframe
     function measure(testHtml: string): Promise<number> {
@@ -140,22 +141,26 @@ export default function ResumePreviewPage() {
           const h = d.body.scrollHeight;
           document.body.removeChild(f);
           resolve(h);
-        }, 200);
+        }, 250);
       });
     }
 
-    // Apply zoom to HTML content
+    // Apply zoom using only CSS zoom property (Chrome print supports this natively)
     function applyZoom(srcHtml: string, zoomValue: number): string {
-      const zoomCSS = `body{zoom:${zoomValue}!important;-webkit-transform:scale(${zoomValue});-webkit-transform-origin:top left;transform:scale(${zoomValue});transform-origin:top left;width:${Math.round(100 / zoomValue)}%!important}`;
-      return srcHtml.replace('</style>', zoomCSS + '</style>');
+      return srcHtml.replace('</style>', `body{zoom:${zoomValue}!important}` + '</style>');
+    }
+
+    // Reduce @page margins to reclaim space
+    function reduceMargins(srcHtml: string): string {
+      return srcHtml.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 10mm 6mm 10mm}');
     }
 
     (async () => {
-      // Pass 1: measure original against printable area (not full A4)
+      // Pass 1: measure original
       const height1 = await measure(html);
       const overflow1 = height1 - PRINTABLE_HEIGHT;
 
-      // Fits on 1 page — print as-is
+      // Fits — print as-is
       if (overflow1 <= 0) {
         const win = window.open('', '_blank');
         if (!win) { alert('Please allow popups to download PDF.'); return; }
@@ -166,8 +171,8 @@ export default function ResumePreviewPage() {
         return;
       }
 
-      // Intentionally 2 pages (very large content) — print as-is
-      if (height1 > PRINTABLE_HEIGHT * 1.8) {
+      // Intentionally 2 pages — print as-is
+      if (height1 > PRINTABLE_HEIGHT * 1.7) {
         const win = window.open('', '_blank');
         if (!win) { alert('Please allow popups to download PDF.'); return; }
         win.document.write(html);
@@ -177,19 +182,30 @@ export default function ResumePreviewPage() {
         return;
       }
 
-      // Pass 2: zoom loop — scale down until it fits
-      // Try zoom values: 0.97, 0.94, 0.91, 0.88, 0.85
-      let finalHtml = html;
-      const zoomSteps = [0.97, 0.94, 0.91, 0.88, 0.85];
+      // Pass 2: first try reducing @page margins (cheap, gets ~30px back)
+      let finalHtml = reduceMargins(html);
+      let h2 = await measure(finalHtml);
+      if (h2 <= PRINTABLE_HEIGHT + 30) {
+        // Margin reduction enough — fits with the smaller margins
+        const win = window.open('', '_blank');
+        if (!win) { alert('Please allow popups to download PDF.'); return; }
+        win.document.write(finalHtml);
+        win.document.close();
+        win.document.title = ' ';
+        setTimeout(() => win.print(), 600);
+        return;
+      }
 
+      // Pass 3: zoom loop on margin-reduced HTML
+      // Finer steps: 0.98, 0.96, 0.94, 0.92, 0.90, 0.88, 0.86
+      const zoomSteps = [0.98, 0.96, 0.94, 0.92, 0.90, 0.88, 0.86];
       for (const zoom of zoomSteps) {
-        const zoomed = applyZoom(html, zoom);
-        const h = await measure(zoomed);
-        if (h <= PRINTABLE_HEIGHT) {
+        const zoomed = applyZoom(finalHtml, zoom);
+        const hz = await measure(zoomed);
+        if (hz <= PRINTABLE_HEIGHT + 30) {
           finalHtml = zoomed;
           break;
         }
-        // Use the last zoom as best effort
         finalHtml = zoomed;
       }
 
