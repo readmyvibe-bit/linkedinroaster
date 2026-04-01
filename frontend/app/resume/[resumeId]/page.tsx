@@ -385,13 +385,24 @@ export default function ResumePreviewPage() {
             </div>
           </div>
 
-          {/* Cover Letter Quick Actions */}
+          {/* Download Resume */}
+          <div style={{ background: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, border: '1px solid #E0E0E0' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#333', marginBottom: 10 }}>Download Resume</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <button onClick={handleDownloadPDF} style={{ width: '100%', padding: '8px', background: '#0A66C2', color: 'white', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>&#128196; Download PDF</button>
+              <a href={isTemplateLocked ? '#' : `${API_URL}/api/resume/${resume.id}/download/docx`}
+                onClick={(e) => { if (isTemplateLocked) { e.preventDefault(); alert('Pro template — upgrade to download.'); } }}
+                style={{ width: '100%', padding: '8px', background: '#374151', color: 'white', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', textAlign: 'center', textDecoration: 'none', display: 'block' }}>&#128196; Download DOCX</a>
+            </div>
+          </div>
+
+          {/* Cover Letter */}
           {resume.cover_letter && (
             <div style={{ background: '#fff', borderRadius: 12, padding: 16, border: '1px solid #E0E0E0' }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#333', marginBottom: 10 }}>Cover Letter</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <button onClick={handleCopyCoverLetter} style={{ width: '100%', padding: '6px', background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer' }}>{coverLetterCopied ? '✓ Copied!' : '📋 Copy'}</button>
-                <button onClick={handleDownloadCoverLetterPDF} style={{ width: '100%', padding: '6px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer' }}>&#128196; Download PDF</button>
+                <button onClick={handleCopyCoverLetter} style={{ width: '100%', padding: '6px', background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer' }}>{coverLetterCopied ? '✓ Copied!' : '📋 Copy Cover Letter'}</button>
+                <button onClick={handleDownloadCoverLetterPDF} style={{ width: '100%', padding: '6px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer' }}>&#128196; Cover Letter PDF</button>
               </div>
             </div>
           )}
