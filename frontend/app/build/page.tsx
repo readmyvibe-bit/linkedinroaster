@@ -14,10 +14,10 @@ export default function BuildLandingPage() {
       features: [
         'AI-generated headline (3 variations)',
         'Professional About section (300+ words)',
-        'Experience bullets with action verbs & metrics',
+        'Experience bullets from projects & internships',
         'Skills list ranked by industry relevance',
         'Step-by-step LinkedIn setup guide (10 steps)',
-        'Copy-paste ready — build profile in 10 minutes',
+        'Connection request templates included',
       ],
       notIncluded: ['ATS Resume', 'Cover Letter', 'Premium templates'],
     },
@@ -28,9 +28,9 @@ export default function BuildLandingPage() {
       popular: true,
       features: [
         'Everything in Starter',
-        '1 ATS-optimized resume',
+        '1 ATS-optimized resume for placements',
         '1 tailored cover letter',
-        '12 professional resume templates',
+        '15 professional resume templates',
         'PDF + DOCX download',
         'Job description targeting',
       ],
@@ -47,16 +47,16 @@ export default function BuildLandingPage() {
         '3 tailored cover letters',
         'All 23 premium resume templates',
         'Priority AI processing',
-        'Multiple job targeting',
+        'Target multiple companies at once',
       ],
       notIncluded: [],
     },
   ];
 
   const steps = [
-    { num: '1', title: 'Tell us about yourself', desc: 'Fill a simple form — your education, experience, skills, and target role. Have a resume? Upload it to auto-fill.', time: '5 min' },
-    { num: '2', title: 'AI builds your profile', desc: 'Claude AI generates your complete LinkedIn profile — headline, about, experience bullets — optimized for Indian recruiters.', time: '60 sec' },
-    { num: '3', title: 'Copy-paste to LinkedIn', desc: 'Follow our step-by-step guide. Your profile is ready in 10 minutes. Start getting recruiter messages.', time: '10 min' },
+    { num: '1', title: 'Tell us about yourself', desc: 'Fill a simple form — education, projects, skills, target role. Have a resume? Upload it to auto-fill.', time: '~5 min' },
+    { num: '2', title: 'AI builds your profile', desc: 'AI generates your complete LinkedIn profile — 3 headline variations, about section, experience bullets — optimized for Indian recruiters.', time: '~60 sec' },
+    { num: '3', title: 'Copy-paste to LinkedIn', desc: 'Follow our step-by-step setup guide with exact menu paths. Start getting recruiter messages and internship DMs.', time: '~10 min' },
   ];
 
   return (
@@ -86,13 +86,14 @@ export default function BuildLandingPage() {
             No LinkedIn? No Problem.
           </div>
           <h1 style={{ fontSize: 38, fontWeight: 800, lineHeight: 1.2, margin: '0 0 16px' }}>
-            Build a Complete LinkedIn<br />Profile From Scratch
+            Build a Recruiter-Ready LinkedIn<br />Profile in ~15 Minutes
           </h1>
-          <p style={{ fontSize: 17, opacity: 0.9, lineHeight: 1.6, maxWidth: 600, margin: '0 auto 28px' }}>
-            Fill a 5-minute form. AI generates your headline, about section, and experience bullets in ~60 seconds. Paste into LinkedIn using our step-by-step guide.
+          <p style={{ fontSize: 17, opacity: 0.9, lineHeight: 1.6, maxWidth: 620, margin: '0 auto 12px' }}>
+            Perfect for placement season, internship applications, and building your first professional network. AI turns your projects, education, and skills into a profile recruiters actually find.
           </p>
+          <p style={{ fontSize: 14, opacity: 0.7, marginBottom: 24 }}>5-min form &rarr; AI generates in ~60 sec &rarr; paste with our guide in ~10 min</p>
           <a href="#pricing" style={{ display: 'inline-block', background: 'white', color: '#0A66C2', padding: '14px 36px', borderRadius: 50, fontSize: 16, fontWeight: 700, textDecoration: 'none' }}>
-            See Plans &amp; Build My Profile &rarr;
+            See Plans — From &#8377;199 &rarr;
           </a>
           <p style={{ fontSize: 13, opacity: 0.7, marginTop: 12 }}>500+ profiles built &bull; One-time payment &bull; No LinkedIn login needed</p>
         </div>
@@ -102,18 +103,43 @@ export default function BuildLandingPage() {
       <section style={{ background: 'white', padding: '48px 20px', borderBottom: '1px solid #E8E8E8' }}>
         <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
           <h2 style={{ fontSize: 24, fontWeight: 800, color: '#191919', marginBottom: 8 }}>Perfect for</h2>
-          <p style={{ fontSize: 14, color: '#666', marginBottom: 28 }}>Built specifically for people starting their LinkedIn journey</p>
+          <p style={{ fontSize: 14, color: '#666', marginBottom: 28 }}>Built specifically for students, freshers, and anyone starting their LinkedIn journey</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, textAlign: 'left' }}>
             {[
-              { icon: '🎓', text: 'Final year students' },
+              { icon: '🎓', text: 'Final year students (placement season)' },
+              { icon: '☀️', text: 'Summer internship applicants' },
               { icon: '🚀', text: 'Recent graduates (0-1 year)' },
-              { icon: '💼', text: 'Professionals creating LinkedIn for first time' },
+              { icon: '💼', text: 'First-time LinkedIn users' },
               { icon: '🔄', text: 'Career changers starting fresh' },
-              { icon: '😅', text: 'Anyone who has been avoiding LinkedIn' },
+              { icon: '📝', text: 'Internshala / Unstop / campus portal applicants' },
             ].map((item, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#F0F7FF', borderRadius: 10, padding: '14px 16px' }}>
                 <span style={{ fontSize: 22 }}>{item.icon}</span>
                 <span style={{ fontSize: 14, fontWeight: 600, color: '#191919' }}>{item.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Built for Campus Reality */}
+      <section style={{ background: '#F8FAFC', padding: '40px 20px', borderBottom: '1px solid #E8E8E8' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto' }}>
+          <h2 style={{ fontSize: 22, fontWeight: 800, color: '#191919', textAlign: 'center', marginBottom: 8 }}>Built for Campus Reality</h2>
+          <p style={{ fontSize: 14, color: '#666', textAlign: 'center', marginBottom: 24 }}>We turn what you already have into a profile that gets noticed</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16 }}>
+            {[
+              { icon: '🔬', title: 'No internship yet?', desc: 'Your projects, coursework, hackathons, and club activities become compelling experience bullets. AI knows how to frame academic work for recruiters.' },
+              { icon: '📅', title: '2-month summer intern?', desc: 'Short internships get framed with impact and metrics. "Assisted with testing" becomes "Executed 200+ test cases reducing bug escape rate by 15%."' },
+              { icon: '🎯', title: 'Placement season prep?', desc: 'Headline + skills aligned to campus drives — SDE, analyst, product, consulting. One LinkedIn profile works for Easy Apply, company portals, and referrals.' },
+              { icon: '📱', title: 'Internshala / Unstop ready?', desc: 'Same LinkedIn profile works across all platforms. Recruiters on Internshala, Unstop, and LinkedIn search the same keywords.' },
+            ].map((item, i) => (
+              <div key={i} style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 20 }}>{item.icon}</span>
+                  <span style={{ fontSize: 15, fontWeight: 700, color: '#191919' }}>{item.title}</span>
+                </div>
+                <p style={{ fontSize: 13, color: '#555', lineHeight: 1.6, margin: 0 }}>{item.desc}</p>
               </div>
             ))}
           </div>
@@ -272,12 +298,15 @@ export default function BuildLandingPage() {
         <div style={{ maxWidth: 700, margin: '0 auto' }}>
           <h2 style={{ fontSize: 24, fontWeight: 800, color: '#191919', textAlign: 'center', marginBottom: 32 }}>Frequently Asked Questions</h2>
           {[
-            { q: 'I have zero work experience. Will this work?', a: 'Yes! Our AI specializes in fresher profiles. It turns your education, projects, internships, and skills into a professional LinkedIn profile that stands out.' },
-            { q: 'How do I set up LinkedIn after getting the profile?', a: 'Every plan includes a detailed 10-step setup guide with exact menu paths, screenshots descriptions, and common mistakes to avoid. You can set up LinkedIn in 10 minutes.' },
-            { q: 'Can I edit the profile after generation?', a: 'Absolutely. The generated text is yours to copy-paste and edit as needed. We provide 3 headline variations so you can pick the one you like most.' },
+            { q: 'I have zero work experience. Will this work?', a: 'Yes! Our AI specializes in fresher profiles. It turns your projects, coursework, hackathons, clubs, and skills into professional experience bullets that recruiters value.' },
+            { q: 'I\'m preparing for placement season. When should I do this?', a: 'Ideally 2-4 weeks before campus drives start. Build your LinkedIn, start connecting with alumni and recruiters, and apply on company portals with the same profile.' },
+            { q: 'Does this work for internship applications?', a: 'Absolutely. Whether you\'re applying on Internshala, Unstop, LinkedIn, or college portals — the same headline and about section works everywhere. One profile, all platforms.' },
+            { q: 'How is this different from just writing my own profile?', a: 'AI knows what recruiters search for. It uses the right keywords, action verbs, and metrics format that gets you found in LinkedIn search. Most student profiles score below 30/100 — ours score 70+.' },
+            { q: 'How do I set up LinkedIn after getting the profile?', a: 'Every plan includes a 10-step setup guide with exact menu paths and common mistakes. You\'ll also get connection request templates for alumni, recruiters, and hiring managers.' },
+            { q: 'Can I edit the profile after generation?', a: 'Yes. The generated text is yours to copy-paste and customize. We provide 3 headline variations so you can pick the style that fits you.' },
             { q: 'What if I already have a basic resume?', a: 'Upload it on the form page and we auto-fill all your details. Saves 5 minutes of typing.' },
-            { q: 'Is this different from the Profile Roast?', a: 'Yes. The Roast is for people who already have a LinkedIn profile and want to improve it. Build is for people who don\'t have LinkedIn yet and want to create one from scratch.' },
-            { q: 'Do I need to share my LinkedIn login?', a: 'No. We never ask for your LinkedIn password. You fill a simple form, we generate the text, and you paste it yourself.' },
+            { q: 'Is this different from the Profile Roast?', a: 'Yes. The Roast is for people who already have a LinkedIn profile and want to improve it. Build is for creating a profile from scratch.' },
+            { q: 'Do I need to share my LinkedIn login?', a: 'No. We never ask for your LinkedIn password. You fill a form, we generate the text, you paste it yourself.' },
           ].map((faq, i) => (
             <div key={i} style={{ background: 'white', borderRadius: 12, padding: '18px 22px', marginBottom: 10, border: '1px solid #E0E0E0' }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#191919', marginBottom: 6 }}>{faq.q}</div>

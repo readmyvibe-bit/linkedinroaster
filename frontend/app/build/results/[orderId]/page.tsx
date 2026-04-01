@@ -201,6 +201,9 @@ export default function BuildResultsPage() {
     { label: 'For Alumni', text: `Hi! I'm a fellow ${profile.experience?.[0]?.role || 'professional'} and noticed we share a similar background. Would love to connect and learn from your journey.` },
     { label: 'For Recruiters', text: `Hi! I'm actively looking for ${profile.experience?.[0]?.role || 'new'} opportunities. I'd love to connect and share how my experience might be a good fit for roles at your organization.` },
     { label: 'For Hiring Managers', text: `Hi! I came across your team's work and I'm very interested in ${profile.experience?.[0]?.role || 'similar'} roles. I'd appreciate the chance to connect and learn more about opportunities on your team.` },
+    { label: 'For College Seniors', text: `Hi! I'm a junior from your college and currently exploring ${profile.experience?.[0]?.role || 'career'} opportunities. Would love to connect and hear about your experience after graduation.` },
+    { label: 'For Internship Coordinators', text: `Hi! I'm interested in internship opportunities at your organization. I've been working on projects in ${profile.experience?.[0]?.role || 'this'} space and would love to discuss how I can contribute.` },
+    { label: 'After a Hackathon/Event', text: `Hi! Great meeting you at the event. I really enjoyed our conversation about ${profile.experience?.[0]?.role || 'technology'}. Would love to stay connected and keep the discussion going.` },
   ];
 
   return (

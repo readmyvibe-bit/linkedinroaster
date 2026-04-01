@@ -322,7 +322,7 @@ function BuildFormContent() {
                 <label style={labelStyle}>Profile Tone</label>
                 <select value={tone} onChange={e => setTone(e.target.value)} style={inputStyle}>
                   <option value="professional">Professional</option>
-                  <option value="friendly">Friendly</option>
+                  <option value="friendly">Friendly (Recommended for students)</option>
                   <option value="bold">Bold</option>
                 </select>
               </div>
