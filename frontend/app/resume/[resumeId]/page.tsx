@@ -128,19 +128,20 @@ export default function ResumePreviewPage() {
       alert(`"${currentTemplate?.name}" is a Pro template. Upgrade to Pro for ₹500 to unlock all 23 templates.`);
       return;
     }
-    let html = buildPrintHTML(resume.resume_data, templateId);
+    const baseHtml = buildPrintHTML(resume.resume_data, templateId);
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    // CSS injectors
+    const compactCSS = 'body{font-size:92%!important;line-height:1.35!important}body div,body p{margin-bottom:2px!important}';
+    const spaciousCSS = 'body{font-size:108%!important;line-height:1.65!important}';
+
+    let html = baseHtml;
     if (isMobile) html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 8mm 8mm 8mm}');
 
-    // Apply printSize CSS
-    if (printSize === 'compact') {
-      html = html.replace('</style>', 'body{font-size:92%!important;line-height:1.35!important}body div,body p{margin-bottom:2px!important}' + '</style>');
-    } else if (printSize === 'spacious') {
-      html = html.replace('</style>', 'body{font-size:108%!important;line-height:1.65!important}' + '</style>');
-    }
-
+    // 2-page mode: apply printSize directly, print naturally
     if (!fitOnePage) {
-      // 2-page mode: just print, let content flow naturally
+      if (printSize === 'compact') html = html.replace('</style>', compactCSS + '</style>');
+      else if (printSize === 'spacious') html = html.replace('</style>', spaciousCSS + '</style>');
       const win = window.open('', '_blank');
       if (!win) { alert('Please allow popups to download PDF.'); return; }
       win.document.write(html);
@@ -150,10 +151,10 @@ export default function ResumePreviewPage() {
       return;
     }
 
-    // 1-page mode: measure in print tab, apply zoom on BODY if needed
+    // 1-page mode: smart pipeline — measure first at Standard, then apply size if needed
     const win = window.open('', '_blank');
     if (!win) { alert('Please allow popups to download PDF.'); return; }
-    win.document.write(html);
+    win.document.write(html); // Standard size first (no compact/spacious yet)
     win.document.close();
     win.document.title = ' ';
 
@@ -162,19 +163,57 @@ export default function ResumePreviewPage() {
       const A4_HEIGHT = 1122.5;
       const marginPx = isMobile ? 60 : 83;
       const available = A4_HEIGHT - marginPx - 10;
-      const contentHeight = body.scrollHeight;
+      let contentHeight = body.scrollHeight;
 
-      if (contentHeight > available) {
-        const scale = available / contentHeight;
-        if (scale >= 0.78) {
-          // Fits with reasonable zoom — apply on body
-          (body.style as any).zoom = String(scale);
-        } else {
-          // Too much content for 1 page (needs >22% shrink) — auto-switch to 2 pages
-          // Don't make text unreadably small
+      // Step 1: Check if Standard fits
+      if (contentHeight <= available) {
+        // Fits at Standard — check if user wanted Spacious (fill more page)
+        if (printSize === 'spacious') {
+          const style = win.document.createElement('style');
+          style.textContent = spaciousCSS;
+          win.document.head.appendChild(style);
+          // Re-measure after spacious
+          const newHeight = body.scrollHeight;
+          if (newHeight > available) {
+            // Spacious overflows — zoom down to fit
+            (body.style as any).zoom = String(available / newHeight);
+          }
+        } else if (printSize === 'standard' || printSize === 'compact') {
+          // Content is short — zoom up slightly to fill page (max 1.06)
+          const fillScale = Math.min(1.06, available / contentHeight);
+          if (fillScale > 1.01) {
+            (body.style as any).zoom = String(fillScale);
+          }
         }
+        setTimeout(() => win.print(), 200);
+        return;
       }
-      setTimeout(() => win.print(), 200);
+
+      // Step 2: Content overflows at Standard — try Compact if user picked it (or auto-apply)
+      if (printSize === 'compact' || contentHeight > available) {
+        const style = win.document.createElement('style');
+        style.textContent = compactCSS;
+        win.document.head.appendChild(style);
+        contentHeight = body.scrollHeight;
+      }
+
+      // Step 3: After compact, check fit
+      if (contentHeight <= available) {
+        // Compact was enough — no zoom needed
+        setTimeout(() => win.print(), 200);
+        return;
+      }
+
+      // Step 4: Still overflows after compact — zoom down
+      const scale = available / contentHeight;
+      if (scale >= 0.78) {
+        (body.style as any).zoom = String(scale);
+        setTimeout(() => win.print(), 200);
+      } else {
+        // Needs >22% shrink — too much for 1 page, suggest 2 pages
+        alert('This resume has too much content for 1 page. Try "2 Pages" mode or remove some content in the editor.');
+        setTimeout(() => win.print(), 200);
+      }
     }, 800);
   }
 

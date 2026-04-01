@@ -418,21 +418,19 @@ export default function ResumeEditorPage() {
   // ─── Download PDF ───
   function handleDownloadPDF() {
     if (!resumeData) return;
-    let html = buildPrintHTML(resumeData, templateId);
+    const baseHtml = buildPrintHTML(resumeData, templateId);
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if (isMobile) html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 8mm 8mm 8mm}');
-
-    // Apply printSize CSS on body
+    const compactCSS = 'body{font-size:92%!important;line-height:1.35!important}body div,body p{margin-bottom:2px!important}';
+    const spaciousCSS = 'body{font-size:108%!important;line-height:1.65!important}';
     const size = resumeData.printSize || 'standard';
-    if (size === 'compact') {
-      html = html.replace('</style>', 'body{font-size:92%!important;line-height:1.35!important}body div,body p{margin-bottom:2px!important}' + '</style>');
-    } else if (size === 'spacious') {
-      html = html.replace('</style>', 'body{font-size:108%!important;line-height:1.65!important}' + '</style>');
-    }
+
+    let html = baseHtml;
+    if (isMobile) html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 8mm 8mm 8mm}');
 
     const fitPage = resumeData.fitOnePage !== false;
     if (!fitPage) {
-      // 2-page mode: just print naturally
+      if (size === 'compact') html = html.replace('</style>', compactCSS + '</style>');
+      else if (size === 'spacious') html = html.replace('</style>', spaciousCSS + '</style>');
       const win = window.open('', '_blank');
       if (!win) { alert('Please allow popups to download PDF.'); return; }
       win.document.write(html);
@@ -442,7 +440,7 @@ export default function ResumeEditorPage() {
       return;
     }
 
-    // 1-page mode: measure in print tab, apply zoom on BODY
+    // 1-page mode: smart pipeline
     const win = window.open('', '_blank');
     if (!win) { alert('Please allow popups to download PDF.'); return; }
     win.document.write(html);
@@ -454,14 +452,33 @@ export default function ResumeEditorPage() {
       const A4_HEIGHT = 1122.5;
       const marginPx = isMobile ? 60 : 83;
       const available = A4_HEIGHT - marginPx - 10;
-      const contentHeight = body.scrollHeight;
+      let contentHeight = body.scrollHeight;
 
-      if (contentHeight > available) {
-        const scale = available / contentHeight;
-        if (scale >= 0.78) {
-          (body.style as any).zoom = String(scale);
+      if (contentHeight <= available) {
+        if (size === 'spacious') {
+          const s = win.document.createElement('style'); s.textContent = spaciousCSS; win.document.head.appendChild(s);
+          const nh = body.scrollHeight;
+          if (nh > available) (body.style as any).zoom = String(available / nh);
+        } else {
+          const fillScale = Math.min(1.06, available / contentHeight);
+          if (fillScale > 1.01) (body.style as any).zoom = String(fillScale);
         }
-        // If scale < 0.78: too much content, let it flow to 2 pages naturally
+        setTimeout(() => win.print(), 200);
+        return;
+      }
+
+      if (size === 'compact' || contentHeight > available) {
+        const s = win.document.createElement('style'); s.textContent = compactCSS; win.document.head.appendChild(s);
+        contentHeight = body.scrollHeight;
+      }
+
+      if (contentHeight <= available) { setTimeout(() => win.print(), 200); return; }
+
+      const scale = available / contentHeight;
+      if (scale >= 0.78) {
+        (body.style as any).zoom = String(scale);
+      } else {
+        alert('This resume has too much content for 1 page. Try "2 Pages" mode or remove some content.');
       }
       setTimeout(() => win.print(), 200);
     }, 800);
