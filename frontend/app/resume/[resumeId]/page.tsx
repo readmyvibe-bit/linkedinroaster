@@ -116,106 +116,45 @@ export default function ResumePreviewPage() {
     }
     let html = buildPrintHTML(resume.resume_data, templateId);
 
-    // Mobile detection — mobile Chrome print has smaller effective page box
+    // Mobile: reduce @page margins for more printable space
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-    // Desktop: @page margin 12+10=22mm → printable ~1020px
-    // Mobile: reduce @page to 8mm all sides (16mm total) + tighter budget
     if (isMobile) {
       html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 8mm 8mm 8mm}');
     }
 
-    // Printable height: conservative budget to guarantee 1-page print
-    // A4=1123px, @page margins=~83px, Chrome print variance=~80px
-    const PRINTABLE_HEIGHT = isMobile ? 920 : 960;
+    // Open print tab and measure IN THE SAME RENDERING CONTEXT as print
+    const win = window.open('', '_blank');
+    if (!win) { alert('Please allow popups to download PDF.'); return; }
+    win.document.write(html);
+    win.document.close();
+    win.document.title = ' ';
 
-    // Measure content height in hidden iframe
-    function measure(testHtml: string): Promise<number> {
-      return new Promise(resolve => {
-        const f = document.createElement('iframe');
-        f.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;height:2000px;border:none;visibility:hidden';
-        document.body.appendChild(f);
-        const d = f.contentDocument || f.contentWindow?.document;
-        if (!d) { document.body.removeChild(f); resolve(0); return; }
-        d.open(); d.write(testHtml); d.close();
-        setTimeout(() => {
-          const h = d.body.scrollHeight;
-          document.body.removeChild(f);
-          resolve(h);
-        }, 250);
-      });
-    }
+    // Wait for fonts + layout to settle, then measure and scale
+    setTimeout(() => {
+      const root = win.document.querySelector('.print-content-root') as HTMLElement;
+      if (!root) { win.print(); return; }
 
-    // Apply zoom using only CSS zoom property (Chrome print supports this natively)
-    function applyZoom(srcHtml: string, zoomValue: number): string {
-      return srcHtml.replace('</style>', `body{zoom:${zoomValue}!important}` + '</style>');
-    }
+      // A4 at 96dpi = 1122.5px. @page margins: 12mm top + 10mm bottom = 22mm = ~83px
+      // Mobile: 8mm + 8mm = 16mm = ~60px
+      const A4_HEIGHT = 1122.5;
+      const marginPx = isMobile ? 60 : 83;
+      const safety = 10;
+      const available = A4_HEIGHT - marginPx - safety;
 
-    // Reduce @page margins to reclaim space
-    function reduceMargins(srcHtml: string): string {
-      return srcHtml.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 10mm 6mm 10mm}');
-    }
+      const contentHeight = root.scrollHeight;
 
-    (async () => {
-      // Pass 1: measure original
-      const height1 = await measure(html);
-      const overflow1 = height1 - PRINTABLE_HEIGHT;
-
-      // Fits — print as-is
-      if (overflow1 <= 0) {
-        const win = window.open('', '_blank');
-        if (!win) { alert('Please allow popups to download PDF.'); return; }
-        win.document.write(html);
-        win.document.close();
-        win.document.title = ' ';
-        setTimeout(() => win.print(), 600);
-        return;
+      if (contentHeight > available && contentHeight < available * 1.5) {
+        // Content overflows 1 page but isn't enough for 2 pages — scale to fit
+        const scale = Math.max(0.82, available / contentHeight);
+        root.style.transform = `scale(${scale})`;
+        root.style.transformOrigin = 'top left';
+        root.style.width = `${Math.ceil(100 / scale)}%`;
       }
+      // If contentHeight <= available: fits, print as-is
+      // If contentHeight >= available * 1.5: genuinely 2 pages, let it flow
 
-      // Intentionally 2 pages — print as-is
-      if (height1 > PRINTABLE_HEIGHT * 1.7) {
-        const win = window.open('', '_blank');
-        if (!win) { alert('Please allow popups to download PDF.'); return; }
-        win.document.write(html);
-        win.document.close();
-        win.document.title = ' ';
-        setTimeout(() => win.print(), 600);
-        return;
-      }
-
-      // Pass 2: first try reducing @page margins (cheap, gets ~30px back)
-      let finalHtml = reduceMargins(html);
-      let h2 = await measure(finalHtml);
-      if (h2 <= PRINTABLE_HEIGHT) {
-        // Margin reduction alone is enough
-        const win = window.open('', '_blank');
-        if (!win) { alert('Please allow popups to download PDF.'); return; }
-        win.document.write(finalHtml);
-        win.document.close();
-        win.document.title = ' ';
-        setTimeout(() => win.print(), 600);
-        return;
-      }
-
-      // Pass 3: zoom loop on margin-reduced HTML
-      const zoomSteps = [0.97, 0.95, 0.93, 0.91, 0.89, 0.87, 0.85, 0.83];
-      for (const zoom of zoomSteps) {
-        const zoomed = applyZoom(finalHtml, zoom);
-        const hz = await measure(zoomed);
-        if (hz <= PRINTABLE_HEIGHT) {
-          finalHtml = zoomed;
-          break;
-        }
-        finalHtml = zoomed;
-      }
-
-      const win = window.open('', '_blank');
-      if (!win) { alert('Please allow popups to download PDF.'); return; }
-      win.document.write(finalHtml);
-      win.document.close();
-      win.document.title = ' ';
-      setTimeout(() => win.print(), 600);
-    })();
+      setTimeout(() => win.print(), 200);
+    }, 800);
   }
 
   function handleDownloadCoverLetterPDF() {

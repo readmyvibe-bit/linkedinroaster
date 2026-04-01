@@ -2065,6 +2065,7 @@ function printPageWrapper(body: string, pageCount?: number): string {
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;margin:0;padding:0}
 body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important;font-size:11px}
+.print-content-root{width:100%;transform-origin:top left}
 .resume-wrapper{width:100%;position:relative}
 .two-col{display:flex;width:100%;min-height:calc(297mm - 22mm)}
 .two-col-left{flex-shrink:0}
@@ -2074,7 +2075,7 @@ body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!importa
   .entry{page-break-inside:avoid}
   .section-block{page-break-inside:avoid}
 }
-</style></head><body style="-webkit-print-color-adjust:exact;print-color-adjust:exact">${body}</body></html>`;
+</style></head><body style="-webkit-print-color-adjust:exact;print-color-adjust:exact"><div class="print-content-root">${body}</div></body></html>`;
 }
 
 // Helper: build experience HTML for single-column templates
@@ -2262,14 +2263,14 @@ function printCompact(data: ResumeData): string {
 function printBold(data: ResumeData): string {
   const c = data.contact || {};
   const cp = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean).map(esc).join('  |  ');
-  const dateS = 'font-size:10px;color:#666;font-style:italic';
-  const titleS = 'font-weight:700;color:#111;font-size:12px';
+  const dateS = 'font-size:11px;color:#666;font-style:italic';
+  const titleS = 'font-weight:700;color:#111;font-size:13px';
   const hdr = (t: string) => `<div style="font-size:14px;font-weight:700;color:#057642;border-left:4px solid #057642;padding-left:12px;margin-bottom:8px">${t}</div>`;
-  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#333;padding:40px;max-width:100%">`;
+  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:12.5px;line-height:1.55;color:#333;padding:28px 32px;max-width:100%">`;
   h += `<div style="margin-bottom:6px"><div style="font-size:34px;font-weight:800;color:#111">${esc(c.name) || 'Your Name'}</div><div style="width:100%;height:4px;background:#057642;margin-top:6px;margin-bottom:8px"></div>`;
-  if (cp) h += `<div style="font-size:10px;color:#666">${cp}</div>`;
-  h += `</div><div style="height:16px"></div>`;
-  if (data.summary) h += `<div style="margin-bottom:18px">${hdr('SUMMARY')}<div>${esc(data.summary)}</div></div>`;
+  if (cp) h += `<div style="font-size:11px;color:#666">${cp}</div>`;
+  h += `</div><div style="height:10px"></div>`;
+  if (data.summary) h += `<div style="margin-bottom:14px">${hdr('SUMMARY')}<div>${esc(data.summary)}</div></div>`;
   if (data.experience?.length) {
     h += `<div style="margin-bottom:18px">${hdr('EXPERIENCE')}`;
     data.experience.forEach(exp => {
