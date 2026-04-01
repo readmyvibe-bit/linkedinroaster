@@ -1493,7 +1493,7 @@ function ResumeBuilderSection({ orderId, maxResumes = 3, plan = 'standard' }: { 
         <div style={{ background: 'linear-gradient(135deg, #004182, #0A66C2)', borderRadius: 10, padding: '16px 20px', marginTop: 4 }}>
           <p style={{ fontSize: 14, fontWeight: 700, color: 'white', margin: '0 0 4px' }}>Want more resumes?</p>
           <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', margin: '0 0 12px', lineHeight: 1.5 }}>
-            Upgrade to Pro for 3 resumes, cover letters + all 20 templates
+            Upgrade to Pro for 3 resumes, cover letters + all 21 templates
           </p>
           <button
             onClick={handleUpgrade}

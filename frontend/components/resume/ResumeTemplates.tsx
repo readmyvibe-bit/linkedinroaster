@@ -88,6 +88,7 @@ export const TEMPLATES: (TemplateDefinition & { proOnly?: boolean })[] = [
   { id: 'splitmodern', name: 'Split Modern', description: 'Light sidebar with skills and education.', category: 'Visual', proOnly: true },
   { id: 'highlight', name: 'Highlight Sections', description: 'Full-width header with highlighted side panel.', category: 'Visual', proOnly: true },
   { id: 'corporate', name: 'Corporate Formal', description: 'Navy header with structured sidebar layout.', category: 'Visual', proOnly: true },
+  { id: 'campus', name: 'Campus Placement', description: 'Indian campus placement format. Photo, personal details, education-first.', category: 'India' },
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -1743,6 +1744,110 @@ function renderIndigo(data: ResumeData): React.ReactNode {
   );
 }
 
+// ─── Render: Campus Placement (India) ──────────────────────────────────────
+function renderCampus(data: ResumeData): React.ReactNode {
+  const c = data.contact || {};
+  const contactParts = [c.email, c.phone, c.location, c.linkedin].filter(Boolean);
+  const skillGroups = normalizeSkills(data.skills);
+  const sectionHeader = (title: string) => (
+    <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' as const, color: '#1e3a5f', background: '#e8eef4', padding: '4px 10px', marginBottom: '8px', letterSpacing: '1px', borderLeft: '4px solid #1e3a5f' }}>{title}</div>
+  );
+  return (
+    <div style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '11px', lineHeight: 1.5, color: '#333', padding: '32px 36px', maxWidth: '800px' }}>
+      {/* Header with photo placeholder */}
+      <div style={{ display: 'flex', gap: '16px', marginBottom: '14px', alignItems: 'flex-start' }}>
+        <div style={{ width: '80px', height: '95px', border: '1px solid #ccc', borderRadius: '4px', background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '9px', color: '#999', textAlign: 'center' }}>Paste<br/>Photo</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: '22px', fontWeight: 700, color: '#1e3a5f' }}>{c.name || 'Your Name'}</div>
+          {contactParts.length > 0 && <div style={{ fontSize: '10px', color: '#555', marginTop: '3px' }}>{contactParts.join('  |  ')}</div>}
+          <div style={{ fontSize: '10px', color: '#777', marginTop: '4px', borderTop: '1px solid #ddd', paddingTop: '4px' }}>
+            Date of Birth: __________ &nbsp;&nbsp; Gender: __________ &nbsp;&nbsp; Nationality: Indian
+          </div>
+        </div>
+      </div>
+      <div style={{ borderBottom: '2px solid #1e3a5f', marginBottom: '12px' }} />
+      {/* Objective / Summary */}
+      {data.summary && <div style={{ marginBottom: '12px' }}>{sectionHeader('Career Objective')}<div style={{ paddingLeft: '4px' }}>{data.summary}</div></div>}
+      {/* Education FIRST */}
+      {data.education && data.education.length > 0 && (
+        <div style={{ marginBottom: '12px' }}>
+          {sectionHeader('Education')}
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px' }}>
+            <thead>
+              <tr style={{ background: '#f0f4f8' }}>
+                <th style={{ border: '1px solid #ddd', padding: '4px 8px', textAlign: 'left', fontWeight: 700 }}>Degree</th>
+                <th style={{ border: '1px solid #ddd', padding: '4px 8px', textAlign: 'left', fontWeight: 700 }}>Institution</th>
+                <th style={{ border: '1px solid #ddd', padding: '4px 8px', textAlign: 'center', fontWeight: 700 }}>Year</th>
+                <th style={{ border: '1px solid #ddd', padding: '4px 8px', textAlign: 'center', fontWeight: 700 }}>GPA/%</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.education.map((edu, i) => (
+                <tr key={i}>
+                  <td style={{ border: '1px solid #ddd', padding: '4px 8px' }}>{getEduDegree(edu)}</td>
+                  <td style={{ border: '1px solid #ddd', padding: '4px 8px' }}>{getEduSchool(edu)}</td>
+                  <td style={{ border: '1px solid #ddd', padding: '4px 8px', textAlign: 'center' }}>{getEduDates(edu)}</td>
+                  <td style={{ border: '1px solid #ddd', padding: '4px 8px', textAlign: 'center' }}>{edu.gpa || '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {/* Experience */}
+      {data.experience && data.experience.length > 0 && (
+        <div style={{ marginBottom: '12px' }}>
+          {sectionHeader('Experience / Internships')}
+          {data.experience.map((exp, i) => (
+            <div key={i} style={{ marginBottom: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                <span style={{ fontWeight: 700, color: '#1e3a5f' }}>{getExpTitle(exp)}</span>
+                <span style={{ fontSize: '10px', color: '#666', fontStyle: 'italic' }}>{getExpDates(exp)}</span>
+              </div>
+              <div style={{ color: '#555', fontStyle: 'italic', fontSize: '10px' }}>{[exp.company, exp.location].filter(Boolean).join(' — ')}</div>
+              {exp.bullets && exp.bullets.length > 0 && (
+                <div style={{ marginTop: '3px' }}>
+                  {exp.bullets.map((b, j) => <div key={j} style={{ paddingLeft: '12px', textIndent: '-12px', marginBottom: '1px' }}>• {b}</div>)}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      {/* Skills */}
+      {skillGroups.length > 0 && (
+        <div style={{ marginBottom: '12px' }}>
+          {sectionHeader('Technical & Soft Skills')}
+          {skillGroups.map((g, i) => (
+            <div key={i} style={{ marginBottom: '3px', paddingLeft: '4px' }}>
+              {skillGroups.length > 1 && <span style={{ fontWeight: 700, fontSize: '10px' }}>{g.label}: </span>}
+              <span>{g.items.join(', ')}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {/* Achievements */}
+      {data.achievements && data.achievements.length > 0 && (
+        <div style={{ marginBottom: '12px' }}>
+          {sectionHeader('Achievements & Activities')}
+          {data.achievements.map((a, i) => <div key={i} style={{ paddingLeft: '12px', textIndent: '-12px', marginBottom: '1px' }}>• {a}</div>)}
+        </div>
+      )}
+      {/* Declaration */}
+      <div style={{ marginTop: '16px', borderTop: '1px solid #ddd', paddingTop: '10px' }}>
+        <div style={{ fontSize: '10px', fontWeight: 700, color: '#1e3a5f', marginBottom: '4px' }}>DECLARATION</div>
+        <div style={{ fontSize: '10px', color: '#555', lineHeight: 1.6 }}>
+          I hereby declare that the information furnished above is true to the best of my knowledge and belief.
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px', fontSize: '10px', color: '#555' }}>
+          <div>Place: __________<br/>Date: __________</div>
+          <div style={{ textAlign: 'right' }}>Signature<br/><span style={{ fontWeight: 600, color: '#1e3a5f' }}>{c.name || '(Your Name)'}</span></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // ROUTER: renderResumeHTML
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1768,6 +1873,7 @@ export function renderResumeHTML(data: ResumeData, templateId: string): React.Re
     case 'ocean': return renderOcean(data);
     case 'slategold': return renderSlateGold(data);
     case 'indigo': return renderIndigo(data);
+    case 'campus': return renderCampus(data);
     case 'classic':
     default: return renderClassic(data);
   }
@@ -2584,6 +2690,67 @@ function printIndigo(data: ResumeData): string {
   return printPageWrapper(h);
 }
 
+// ─── Print: Campus Placement (India) ───────────────────────────────────────
+function printCampus(data: ResumeData): string {
+  const c = data.contact || {};
+  const cp = [c.email, c.phone, c.location, c.linkedin].filter(Boolean).map(esc).join('  |  ');
+  const hdr = (t: string) => `<div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#1e3a5f;background:#e8eef4;padding:4px 10px;margin-bottom:8px;letter-spacing:1px;border-left:4px solid #1e3a5f">${t}</div>`;
+  const dateS = 'font-size:10px;color:#666;font-style:italic';
+  const titleS = 'font-weight:700;color:#1e3a5f';
+
+  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#333;padding:32px 36px;max-width:100%">`;
+  // Header with photo placeholder
+  h += `<div style="display:flex;gap:16px;margin-bottom:14px;align-items:flex-start">`;
+  h += `<div style="width:80px;height:95px;border:1px solid #ccc;border-radius:4px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;color:#999;text-align:center">Paste<br/>Photo</div>`;
+  h += `<div style="flex:1">`;
+  h += `<div style="font-size:22px;font-weight:700;color:#1e3a5f">${esc(c.name) || 'Your Name'}</div>`;
+  if (cp) h += `<div style="font-size:10px;color:#555;margin-top:3px">${cp}</div>`;
+  h += `<div style="font-size:10px;color:#777;margin-top:4px;border-top:1px solid #ddd;padding-top:4px">Date of Birth: __________ &nbsp;&nbsp; Gender: __________ &nbsp;&nbsp; Nationality: Indian</div>`;
+  h += `</div></div>`;
+  h += `<div style="border-bottom:2px solid #1e3a5f;margin-bottom:12px"></div>`;
+  // Summary
+  if (data.summary) h += `<div style="margin-bottom:12px">${hdr('Career Objective')}<div style="padding-left:4px">${esc(data.summary)}</div></div>`;
+  // Education table
+  if (data.education?.length) {
+    h += `<div style="margin-bottom:12px">${hdr('Education')}`;
+    h += `<table style="width:100%;border-collapse:collapse;font-size:10px"><thead><tr style="background:#f0f4f8">`;
+    h += `<th style="border:1px solid #ddd;padding:4px 8px;text-align:left;font-weight:700">Degree</th>`;
+    h += `<th style="border:1px solid #ddd;padding:4px 8px;text-align:left;font-weight:700">Institution</th>`;
+    h += `<th style="border:1px solid #ddd;padding:4px 8px;text-align:center;font-weight:700">Year</th>`;
+    h += `<th style="border:1px solid #ddd;padding:4px 8px;text-align:center;font-weight:700">GPA/%</th>`;
+    h += `</tr></thead><tbody>`;
+    data.education.forEach(edu => {
+      h += `<tr><td style="border:1px solid #ddd;padding:4px 8px">${esc(getEduDegree(edu))}</td>`;
+      h += `<td style="border:1px solid #ddd;padding:4px 8px">${esc(getEduSchool(edu))}</td>`;
+      h += `<td style="border:1px solid #ddd;padding:4px 8px;text-align:center">${esc(getEduDates(edu))}</td>`;
+      h += `<td style="border:1px solid #ddd;padding:4px 8px;text-align:center">${esc(edu.gpa || '') || '&mdash;'}</td></tr>`;
+    });
+    h += `</tbody></table></div>`;
+  }
+  // Experience
+  if (data.experience?.length) {
+    h += `<div style="margin-bottom:12px">${hdr('Experience / Internships')}`;
+    h += buildExpHTML(data, '&bull;', dateS, 'color:#555;font-style:italic;font-size:10px', titleS);
+    h += `</div>`;
+  }
+  // Skills
+  const sk = buildSkillsGroupedHTML(data);
+  if (sk) h += `<div style="margin-bottom:12px">${hdr('Technical &amp; Soft Skills')}${sk}</div>`;
+  // Achievements
+  const ach = buildAchievementsHTML(data, '&bull;');
+  if (ach) h += `<div style="margin-bottom:12px">${hdr('Achievements &amp; Activities')}${ach}</div>`;
+  // Declaration
+  h += `<div style="margin-top:16px;border-top:1px solid #ddd;padding-top:10px">`;
+  h += `<div style="font-size:10px;font-weight:700;color:#1e3a5f;margin-bottom:4px">DECLARATION</div>`;
+  h += `<div style="font-size:10px;color:#555;line-height:1.6">I hereby declare that the information furnished above is true to the best of my knowledge and belief.</div>`;
+  h += `<div style="display:flex;justify-content:space-between;margin-top:16px;font-size:10px;color:#555">`;
+  h += `<div>Place: __________<br/>Date: __________</div>`;
+  h += `<div style="text-align:right">Signature<br/><span style="font-weight:600;color:#1e3a5f">${esc(c.name) || '(Your Name)'}</span></div>`;
+  h += `</div></div>`;
+  h += `</div>`;
+  return printPageWrapper(h);
+}
+
 export function buildPrintHTML(data: ResumeData, templateId: string, pageCount?: number): string {
   let html: string;
   switch (templateId) {
@@ -2606,6 +2773,7 @@ export function buildPrintHTML(data: ResumeData, templateId: string, pageCount?:
     case 'ocean': html = printOcean(data); break;
     case 'slategold': html = printSlateGold(data); break;
     case 'indigo': html = printIndigo(data); break;
+    case 'campus': html = printCampus(data); break;
     case 'classic':
     default: html = printClassic(data); break;
   }
