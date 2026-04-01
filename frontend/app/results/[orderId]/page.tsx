@@ -2430,81 +2430,79 @@ export default function ResultsPage() {
         </div>
       </header>
 
-      {/* ═══ SECTION 1: Score Hero (full-bleed gradient) ═══ */}
-      <section style={{ background: 'linear-gradient(135deg, #F0F7FF 0%, #E8F0FE 50%, #F0FDF4 100%)', padding: '32px 16px', borderBottom: '1px solid #E0E7F0' }}>
-        <div style={{ maxWidth: 1240, margin: '0 auto', display: 'flex', gap: 24, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-          <div style={{ flex: '1 1 600px', minWidth: 0 }}>
-        <div style={{ background: 'white', borderRadius: 16, padding: '28px 32px', border: '1px solid #E0E0E0' }}>
-          <div style={{ textAlign: 'center', marginBottom: 24 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+      {/* ═══ SECTION 1: Hero — Score + Resume + Actions (full-bleed gradient) ═══ */}
+      <section style={{ background: 'linear-gradient(135deg, #F0F7FF 0%, #E8F0FE 50%, #F0FDF4 100%)', padding: '24px 16px', borderBottom: '1px solid #E0E7F0' }}>
+        <div style={{ maxWidth: 1240, margin: '0 auto' }}>
+
+          {/* Score row — compact horizontal */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 48, fontWeight: 800, color: '#CC1016' }}>{scores.before.overall}</div>
-                <div style={{ fontSize: 11, fontWeight: 600, color: '#CC1016', textTransform: 'uppercase', letterSpacing: 1 }}>Before</div>
+                <div style={{ fontSize: 40, fontWeight: 800, color: '#CC1016', lineHeight: 1 }}>{scores.before.overall}</div>
+                <div style={{ fontSize: 10, fontWeight: 600, color: '#CC1016', textTransform: 'uppercase', letterSpacing: 1 }}>Before</div>
               </div>
-              <div style={{ fontSize: 28, color: '#ccc' }}>&rarr;</div>
+              <div style={{ fontSize: 24, color: '#ccc' }}>&rarr;</div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 56, fontWeight: 800, color: '#057642' }}>{scores.after.overall}</div>
-                <div style={{ fontSize: 11, fontWeight: 600, color: '#057642', textTransform: 'uppercase', letterSpacing: 1 }}>After</div>
+                <div style={{ fontSize: 52, fontWeight: 800, color: '#057642', lineHeight: 1 }}>{scores.after.overall}</div>
+                <div style={{ fontSize: 10, fontWeight: 600, color: '#057642', textTransform: 'uppercase', letterSpacing: 1 }}>After</div>
               </div>
-              <div style={{ background: '#DCFCE7', color: '#057642', fontSize: 16, fontWeight: 800, padding: '6px 16px', borderRadius: 20, marginLeft: 8 }}>+{improvement}</div>
+              <div style={{ background: '#DCFCE7', color: '#057642', fontSize: 15, fontWeight: 800, padding: '5px 14px', borderRadius: 20 }}>+{improvement}</div>
             </div>
+            <span style={{ background: afterScore >= 70 ? '#DCFCE7' : '#FEF3C7', color: afterScore >= 70 ? '#057642' : '#92400E', fontSize: 12, fontWeight: 700, padding: '5px 14px', borderRadius: 20 }}>
+              {rankLabel}
+            </span>
           </div>
-          {/* Dimension bars */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+
+          {/* Dimension bars — horizontal grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 8, marginBottom: 16 }}>
             {[
               { label: 'Headline', b: scores.before.headline, a: scores.after.headline },
               { label: 'About', b: scores.before.about, a: scores.after.about },
               { label: 'Experience', b: scores.before.experience, a: scores.after.experience },
-              { label: 'Completeness', b: scores.before.completeness, a: scores.after.completeness },
               { label: 'ATS', b: scores.before.ats || 0, a: scores.after.ats || 0 },
             ].map(s => (
-              <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ width: 100, fontSize: 13, color: '#666', textAlign: 'right' }}>{s.label}</span>
-                <div style={{ flex: 1, height: 8, background: '#F3F4F6', borderRadius: 4 }}>
-                  <div style={{ width: `${s.a}%`, height: '100%', background: '#0A66C2', borderRadius: 4, transition: 'width 1s' }} />
+              <div key={s.label} style={{ background: 'white', borderRadius: 8, padding: '8px 12px', border: '1px solid #E0E7F0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 4 }}>
+                  <span style={{ color: '#666' }}>{s.label}</span>
+                  <span style={{ fontWeight: 700, color: '#057642' }}>+{s.a - s.b}</span>
                 </div>
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#057642', width: 40 }}>+{s.a - s.b}</span>
+                <div style={{ height: 6, background: '#F3F4F6', borderRadius: 3 }}>
+                  <div style={{ width: `${s.a}%`, height: '100%', background: '#0A66C2', borderRadius: 3 }} />
+                </div>
               </div>
             ))}
           </div>
-          <div style={{ textAlign: 'center', marginTop: 16 }}>
-            <span style={{ background: afterScore >= 70 ? '#DCFCE7' : '#FEF3C7', color: afterScore >= 70 ? '#057642' : '#92400E', fontSize: 13, fontWeight: 700, padding: '6px 16px', borderRadius: 20, display: 'inline-block' }}>
-              After rewrite: {rankLabel} of LinkedIn profiles
-            </span>
-          </div>
-        </div>
-          </div>
-          {/* Right rail — Quick Actions */}
-          <div className="hidden lg:block" style={{ flex: '0 0 300px' }}>
-            <div style={{ background: 'white', borderRadius: 14, padding: '20px', border: '1px solid #E0E0E0', marginBottom: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#191919', marginBottom: 12 }}>Quick Actions</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <button onClick={() => handleCopy(rewrite.rewritten_headline, 'sidebar-headline')} style={{ width: '100%', padding: '8px 12px', background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'left' }}>
-                  {copiedField === 'sidebar-headline' ? '✓ Copied!' : '📋 Copy Headline'}
-                </button>
-                <button onClick={() => handleCopy(rewrite.rewritten_about, 'sidebar-about')} style={{ width: '100%', padding: '8px 12px', background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'left' }}>
-                  {copiedField === 'sidebar-about' ? '✓ Copied!' : '📋 Copy About'}
-                </button>
-                <button onClick={handleResumeCTA} style={{ width: '100%', padding: '8px 12px', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#057642', cursor: 'pointer', textAlign: 'left' }}>&#128196; Build Resume</button>
-                <button onClick={handleShareLinkedIn} style={{ width: '100%', padding: '8px 12px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'left' }}>&#128279; Share Roast</button>
-                <button onClick={handleDownloadCard} style={{ width: '100%', padding: '8px 12px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'left' }}>&#11015; Download Card</button>
+
+          {/* Resume + Quick Actions — side by side */}
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            {/* Resume card */}
+            <div style={{ flex: '1 1 300px', background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '16px 20px' }}>
+              <div id="resume-section">
+                <ResumeBuilderSection orderId={orderId} maxResumes={isPro ? 3 : 1} plan={plan} />
               </div>
             </div>
-            {!isPro && (
-              <div style={{ background: 'linear-gradient(135deg, #004182, #0A66C2)', borderRadius: 14, padding: '20px' }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: 'white', marginBottom: 6 }}>Upgrade to Pro</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5, marginBottom: 12 }}>{'\u2022'} 5 headline variations{'\n'}{'\u2022'} 3 ATS resumes + cover letters{'\n'}{'\u2022'} All 25 templates{'\n'}{'\u2022'} ATS keyword optimization</div>
-                <button onClick={handleUpgrade} style={{ width: '100%', padding: '10px', background: 'white', color: '#0A66C2', border: 'none', borderRadius: 50, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Upgrade &#8377;500 &rarr;</button>
-              </div>
-            )}
+            {/* Quick Actions */}
+            <div style={{ flex: '1 1 300px', display: 'flex', gap: 8, flexWrap: 'wrap', alignContent: 'flex-start' }}>
+              <button onClick={() => handleCopy(rewrite.rewritten_headline, 'sidebar-headline')} style={{ flex: '1 1 140px', padding: '10px 14px', background: 'white', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'center' }}>
+                {copiedField === 'sidebar-headline' ? '✓ Copied!' : '📋 Copy Headline'}
+              </button>
+              <button onClick={() => handleCopy(rewrite.rewritten_about, 'sidebar-about')} style={{ flex: '1 1 140px', padding: '10px 14px', background: 'white', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'center' }}>
+                {copiedField === 'sidebar-about' ? '✓ Copied!' : '📋 Copy About'}
+              </button>
+              <button onClick={handleShareLinkedIn} style={{ flex: '1 1 140px', padding: '10px 14px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'center' }}>&#128279; Share</button>
+              <button onClick={handleDownloadCard} style={{ flex: '1 1 140px', padding: '10px 14px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'center' }}>&#11015; Roast Card</button>
+              {!isPro && (
+                <button onClick={handleUpgrade} style={{ flex: '1 1 290px', padding: '10px 14px', background: 'linear-gradient(135deg, #004182, #0A66C2)', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, color: 'white', cursor: 'pointer', textAlign: 'center' }}>&#9889; Upgrade Pro — &#8377;500</button>
+              )}
+            </div>
           </div>
+
         </div>
       </section>
 
       {/* ═══ SECTION 2: Top 3 Roasts (full-bleed white) ═══ */}
       <section style={{ background: 'white', padding: '28px 16px', borderBottom: '1px solid #E8E8E8' }}>
-        <div style={{ maxWidth: 1240, margin: '0 auto', display: 'flex', gap: 24, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-          <div style={{ flex: '1 1 600px', minWidth: 0 }}>
+        <div style={{ maxWidth: 900, margin: '0 auto' }}>
 
         {/* SECTION 2: Top 3 Roast Cards */}
         <div style={{ marginBottom: 20 }}>
@@ -2545,23 +2543,6 @@ export default function ResultsPage() {
           )}
         </div>
 
-          </div>
-          {/* Right rail — Why This Matters */}
-          <div className="hidden lg:block" style={{ flex: '0 0 300px' }}>
-            <div style={{ background: '#F9FAFB', borderRadius: 14, padding: '20px', border: '1px solid #E5E7EB' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#191919', marginBottom: 10 }}>Why This Matters</div>
-              {[
-                { icon: '&#128064;', text: 'Recruiters spend 6 seconds on your profile. First impressions are everything.' },
-                { icon: '&#128269;', text: 'ATS systems filter 75% of applications before a human sees them.' },
-                { icon: '&#128200;', text: 'Profiles scoring 70+ get 3x more recruiter messages.' },
-              ].map((t, i) => (
-                <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'flex-start' }}>
-                  <span style={{ fontSize: 14, flexShrink: 0 }} dangerouslySetInnerHTML={{ __html: t.icon }} />
-                  <span style={{ fontSize: 12, color: '#555', lineHeight: 1.5 }}>{t.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </section>
 
@@ -2678,24 +2659,6 @@ export default function ResultsPage() {
         </div>
       </section>
 
-      {/* ═══ SECTION 5: Action Bar (full-bleed blue tint) ═══ */}
-      <section style={{ background: '#EEF2FF', padding: '28px 16px', borderBottom: '1px solid #E0E7F0' }}>
-        <div style={{ maxWidth: 1240, margin: '0 auto' }}>
-        <div>
-          <button onClick={handleResumeCTA} style={{ width: '100%', padding: '14px', background: '#0A66C2', color: 'white', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: 'pointer', marginBottom: 10 }}>
-            Build ATS Resume &rarr;
-          </button>
-          <div id="resume-section">
-            <ResumeBuilderSection orderId={orderId} maxResumes={isPro ? 3 : 1} plan={plan} />
-          </div>
-          <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
-            <button onClick={handleShareLinkedIn} style={{ flex: 1, padding: '10px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 10, fontSize: 13, fontWeight: 600, color: '#0A66C2', cursor: 'pointer' }}>Share on LinkedIn</button>
-            <button onClick={handleShareWhatsApp} style={{ flex: 1, padding: '10px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 10, fontSize: 13, fontWeight: 600, color: '#057642', cursor: 'pointer' }}>WhatsApp</button>
-            <button onClick={handleDownloadCard} style={{ flex: 1, padding: '10px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 10, fontSize: 13, fontWeight: 600, color: '#666', cursor: 'pointer' }}>Download Card</button>
-          </div>
-        </div>
-        </div>
-      </section>
 
       {/* ═══ SECTION 6: Feedback (full-bleed white) ═══ */}
       <section style={{ background: 'white', padding: '28px 16px', borderBottom: '1px solid #E8E8E8' }}>
