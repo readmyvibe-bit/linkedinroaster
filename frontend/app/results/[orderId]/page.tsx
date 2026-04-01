@@ -2473,16 +2473,16 @@ export default function ResultsPage() {
             ))}
           </div>
 
-          {/* Resume + Quick Actions — side by side */}
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          {/* Resume + Quick Actions — side by side, equal height */}
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'stretch' }}>
             {/* Resume card */}
-            <div style={{ flex: '1 1 300px', background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '16px 20px' }}>
+            <div style={{ flex: '1 1 300px', background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '16px 20px', display: 'flex', flexDirection: 'column' }}>
               <div id="resume-section">
                 <ResumeBuilderSection orderId={orderId} maxResumes={isPro ? 3 : 1} plan={plan} />
               </div>
             </div>
-            {/* Quick Actions — vertical stack */}
-            <div style={{ flex: '0 0 260px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {/* Quick Actions — vertical stack, stretch to match resume height */}
+            <div style={{ flex: '0 0 260px', display: 'flex', flexDirection: 'column', gap: 6, justifyContent: 'space-between' }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#191919', marginBottom: 4 }}>Quick Actions</div>
               <button onClick={() => handleCopy(rewrite.rewritten_headline, 'sidebar-headline')} style={{ width: '100%', padding: '9px 14px', background: 'white', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'left' }}>
                 {copiedField === 'sidebar-headline' ? '✓ Copied!' : '📋 Copy Headline'}
@@ -2493,9 +2493,6 @@ export default function ResultsPage() {
               <button onClick={handleShareLinkedIn} style={{ width: '100%', padding: '9px 14px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'left' }}>&#128279; Share on LinkedIn</button>
               <button onClick={handleShareWhatsApp} style={{ width: '100%', padding: '9px 14px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#057642', cursor: 'pointer', textAlign: 'left' }}>&#128172; WhatsApp</button>
               <button onClick={handleDownloadCard} style={{ width: '100%', padding: '9px 14px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'left' }}>&#11015; Download Roast Card</button>
-              {!isPro && (
-                <button onClick={handleUpgrade} style={{ width: '100%', padding: '10px 14px', background: 'linear-gradient(135deg, #004182, #0A66C2)', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, color: 'white', cursor: 'pointer', textAlign: 'left' }}>&#9889; Upgrade to Pro — &#8377;500</button>
-              )}
             </div>
           </div>
 
