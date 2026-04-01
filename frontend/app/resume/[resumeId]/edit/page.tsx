@@ -459,15 +459,12 @@ export default function ResumeEditorPage() {
           const s = win.document.createElement('style'); s.textContent = spaciousCSS; win.document.head.appendChild(s);
           const nh = body.scrollHeight;
           if (nh > available) (body.style as any).zoom = String(available / nh);
-        } else {
-          const fillScale = Math.min(1.06, available / contentHeight);
-          if (fillScale > 1.01) (body.style as any).zoom = String(fillScale);
         }
         setTimeout(() => win.print(), 200);
         return;
       }
 
-      if (size === 'compact' || contentHeight > available) {
+      {
         const s = win.document.createElement('style'); s.textContent = compactCSS; win.document.head.appendChild(s);
         contentHeight = body.scrollHeight;
       }

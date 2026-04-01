@@ -165,32 +165,25 @@ export default function ResumePreviewPage() {
       const available = A4_HEIGHT - marginPx - 10;
       let contentHeight = body.scrollHeight;
 
-      // Step 1: Check if Standard fits
+      // Step 1: Fits at Standard — print as-is, no zoom
       if (contentHeight <= available) {
-        // Fits at Standard — check if user wanted Spacious (fill more page)
+        // Only apply Spacious if user explicitly chose it
         if (printSize === 'spacious') {
           const style = win.document.createElement('style');
           style.textContent = spaciousCSS;
           win.document.head.appendChild(style);
-          // Re-measure after spacious
           const newHeight = body.scrollHeight;
           if (newHeight > available) {
-            // Spacious overflows — zoom down to fit
             (body.style as any).zoom = String(available / newHeight);
           }
-        } else if (printSize === 'standard' || printSize === 'compact') {
-          // Content is short — zoom up slightly to fill page (max 1.06)
-          const fillScale = Math.min(1.06, available / contentHeight);
-          if (fillScale > 1.01) {
-            (body.style as any).zoom = String(fillScale);
-          }
         }
+        // Standard/Compact: content fits, print as-is — no zoom up/down
         setTimeout(() => win.print(), 200);
         return;
       }
 
-      // Step 2: Content overflows at Standard — try Compact if user picked it (or auto-apply)
-      if (printSize === 'compact' || contentHeight > available) {
+      // Step 2: Content overflows — auto-apply Compact to try to fit
+      {
         const style = win.document.createElement('style');
         style.textContent = compactCSS;
         win.document.head.appendChild(style);
