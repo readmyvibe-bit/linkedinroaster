@@ -139,6 +139,37 @@ router.patch('/:resumeId', async (req: Request, res: Response) => {
   }
 });
 
+// POST /api/resume/:resumeId/photo — upload photo for campus template
+router.post('/:resumeId/photo', upload.single('photo'), async (req: Request, res: Response) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No photo file' });
+    const { createClient } = require('@supabase/supabase-js');
+    const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+    const bucket = process.env.SUPABASE_STORAGE_BUCKET || 'roast-cards';
+    const filePath = `photos/${req.params.resumeId}.${req.file.mimetype.split('/')[1] || 'jpg'}`;
+
+    const { error } = await supabase.storage.from(bucket).upload(filePath, req.file.buffer, {
+      contentType: req.file.mimetype, cacheControl: '60', upsert: true,
+    });
+    if (error) return res.status(500).json({ error: 'Upload failed' });
+
+    const publicBase = `${process.env.SUPABASE_URL}/storage/v1/object/public/${bucket}`;
+    const photoUrl = `${publicBase}/${filePath}`;
+
+    // Save photo URL into resume_data
+    const result = await query('SELECT resume_data FROM resumes WHERE id=$1', [req.params.resumeId]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Resume not found' });
+    const resumeData = result.rows[0].resume_data || {};
+    resumeData.photo = photoUrl;
+    await query('UPDATE resumes SET resume_data=$1, updated_at=NOW() WHERE id=$2', [JSON.stringify(resumeData), req.params.resumeId]);
+
+    res.json({ photo_url: photoUrl });
+  } catch (err: any) {
+    console.error('Photo upload error:', err.message);
+    res.status(500).json({ error: 'Photo upload failed' });
+  }
+});
+
 // POST /api/resume/:resumeId/ats-check
 router.post('/:resumeId/ats-check', async (req: Request, res: Response) => {
   try {

@@ -47,8 +47,19 @@ interface SkillsObject {
 
 type SkillsData = string[] | SkillsObject | SkillCategory[];
 
+interface PersonalDetails {
+  dob?: string;
+  gender?: string;
+  nationality?: string;
+  father_name?: string;
+  declaration_place?: string;
+  declaration_date?: string;
+}
+
 interface ResumeData {
   contact?: ContactInfo;
+  photo?: string;
+  personal?: PersonalDetails;
   summary?: string;
   experience?: ExperienceEntry[];
   education?: EducationEntry[];
@@ -1747,21 +1758,29 @@ function renderIndigo(data: ResumeData): React.ReactNode {
 // ─── Render: Campus Placement (India) ──────────────────────────────────────
 function renderCampus(data: ResumeData): React.ReactNode {
   const c = data.contact || {};
+  const p = data.personal || {};
   const contactParts = [c.email, c.phone, c.location, c.linkedin].filter(Boolean);
   const skillGroups = normalizeSkills(data.skills);
   const sectionHeader = (title: string) => (
     <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' as const, color: '#1e3a5f', background: '#e8eef4', padding: '4px 10px', marginBottom: '8px', letterSpacing: '1px', borderLeft: '4px solid #1e3a5f' }}>{title}</div>
   );
   return (
-    <div style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '11px', lineHeight: 1.5, color: '#333', padding: '32px 36px', maxWidth: '800px' }}>
-      {/* Header with photo placeholder */}
+    <div style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '12px', lineHeight: 1.5, color: '#333', padding: '32px 36px', maxWidth: '800px' }}>
+      {/* Header with photo */}
       <div style={{ display: 'flex', gap: '16px', marginBottom: '14px', alignItems: 'flex-start' }}>
-        <div style={{ width: '80px', height: '95px', border: '1px solid #ccc', borderRadius: '4px', background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '9px', color: '#999', textAlign: 'center' }}>Paste<br/>Photo</div>
+        {data.photo ? (
+          <img src={data.photo} alt="Photo" style={{ width: '80px', height: '95px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ccc', flexShrink: 0 }} />
+        ) : (
+          <div style={{ width: '80px', height: '95px', border: '1px solid #ccc', borderRadius: '4px', background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '9px', color: '#999', textAlign: 'center' }}>Upload<br/>Photo</div>
+        )}
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: '22px', fontWeight: 700, color: '#1e3a5f' }}>{c.name || 'Your Name'}</div>
           {contactParts.length > 0 && <div style={{ fontSize: '10px', color: '#555', marginTop: '3px' }}>{contactParts.join('  |  ')}</div>}
-          <div style={{ fontSize: '10px', color: '#777', marginTop: '4px', borderTop: '1px solid #ddd', paddingTop: '4px' }}>
-            Date of Birth: __________ &nbsp;&nbsp; Gender: __________ &nbsp;&nbsp; Nationality: Indian
+          <div style={{ fontSize: '10px', color: '#555', marginTop: '4px', borderTop: '1px solid #ddd', paddingTop: '4px' }}>
+            {p.dob && <>Date of Birth: {p.dob} &nbsp;&nbsp;</>}
+            {p.gender && <>Gender: {p.gender} &nbsp;&nbsp;</>}
+            Nationality: {p.nationality || 'Indian'}
+            {p.father_name && <> &nbsp;&nbsp; Father{"'"}s Name: {p.father_name}</>}
           </div>
         </div>
       </div>
@@ -1835,12 +1854,12 @@ function renderCampus(data: ResumeData): React.ReactNode {
       )}
       {/* Declaration */}
       <div style={{ marginTop: '16px', borderTop: '1px solid #ddd', paddingTop: '10px' }}>
-        <div style={{ fontSize: '10px', fontWeight: 700, color: '#1e3a5f', marginBottom: '4px' }}>DECLARATION</div>
-        <div style={{ fontSize: '10px', color: '#555', lineHeight: 1.6 }}>
+        <div style={{ fontSize: '11px', fontWeight: 700, color: '#1e3a5f', marginBottom: '4px' }}>DECLARATION</div>
+        <div style={{ fontSize: '11px', color: '#555', lineHeight: 1.6 }}>
           I hereby declare that the information furnished above is true to the best of my knowledge and belief.
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px', fontSize: '10px', color: '#555' }}>
-          <div>Place: __________<br/>Date: __________</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px', fontSize: '11px', color: '#555' }}>
+          <div>Place: {p.declaration_place || '__________'}<br/>Date: {p.declaration_date || '__________'}</div>
           <div style={{ textAlign: 'right' }}>Signature<br/><span style={{ fontWeight: 600, color: '#1e3a5f' }}>{c.name || '(Your Name)'}</span></div>
         </div>
       </div>
@@ -2693,19 +2712,29 @@ function printIndigo(data: ResumeData): string {
 // ─── Print: Campus Placement (India) ───────────────────────────────────────
 function printCampus(data: ResumeData): string {
   const c = data.contact || {};
+  const p = data.personal || {};
   const cp = [c.email, c.phone, c.location, c.linkedin].filter(Boolean).map(esc).join('  |  ');
   const hdr = (t: string) => `<div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#1e3a5f;background:#e8eef4;padding:4px 10px;margin-bottom:8px;letter-spacing:1px;border-left:4px solid #1e3a5f">${t}</div>`;
   const dateS = 'font-size:10px;color:#666;font-style:italic';
   const titleS = 'font-weight:700;color:#1e3a5f';
 
-  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#333;padding:32px 36px;max-width:100%">`;
-  // Header with photo placeholder
+  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.5;color:#333;padding:32px 36px;max-width:100%">`;
+  // Header with photo
   h += `<div style="display:flex;gap:16px;margin-bottom:14px;align-items:flex-start">`;
-  h += `<div style="width:80px;height:95px;border:1px solid #ccc;border-radius:4px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;color:#999;text-align:center">Paste<br/>Photo</div>`;
+  if (data.photo) {
+    h += `<img src="${esc(data.photo)}" alt="Photo" style="width:80px;height:95px;object-fit:cover;border-radius:4px;border:1px solid #ccc;flex-shrink:0"/>`;
+  } else {
+    h += `<div style="width:80px;height:95px;border:1px solid #ccc;border-radius:4px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;color:#999;text-align:center">Photo</div>`;
+  }
   h += `<div style="flex:1">`;
   h += `<div style="font-size:22px;font-weight:700;color:#1e3a5f">${esc(c.name) || 'Your Name'}</div>`;
   if (cp) h += `<div style="font-size:10px;color:#555;margin-top:3px">${cp}</div>`;
-  h += `<div style="font-size:10px;color:#777;margin-top:4px;border-top:1px solid #ddd;padding-top:4px">Date of Birth: __________ &nbsp;&nbsp; Gender: __________ &nbsp;&nbsp; Nationality: Indian</div>`;
+  const personalParts = [];
+  if (p.dob) personalParts.push(`Date of Birth: ${esc(p.dob)}`);
+  if (p.gender) personalParts.push(`Gender: ${esc(p.gender)}`);
+  personalParts.push(`Nationality: ${esc(p.nationality || 'Indian')}`);
+  if (p.father_name) personalParts.push(`Father's Name: ${esc(p.father_name)}`);
+  h += `<div style="font-size:10px;color:#555;margin-top:4px;border-top:1px solid #ddd;padding-top:4px">${personalParts.join(' &nbsp;&nbsp; ')}</div>`;
   h += `</div></div>`;
   h += `<div style="border-bottom:2px solid #1e3a5f;margin-bottom:12px"></div>`;
   // Summary
@@ -2741,10 +2770,10 @@ function printCampus(data: ResumeData): string {
   if (ach) h += `<div style="margin-bottom:12px">${hdr('Achievements &amp; Activities')}${ach}</div>`;
   // Declaration
   h += `<div style="margin-top:16px;border-top:1px solid #ddd;padding-top:10px">`;
-  h += `<div style="font-size:10px;font-weight:700;color:#1e3a5f;margin-bottom:4px">DECLARATION</div>`;
-  h += `<div style="font-size:10px;color:#555;line-height:1.6">I hereby declare that the information furnished above is true to the best of my knowledge and belief.</div>`;
-  h += `<div style="display:flex;justify-content:space-between;margin-top:16px;font-size:10px;color:#555">`;
-  h += `<div>Place: __________<br/>Date: __________</div>`;
+  h += `<div style="font-size:11px;font-weight:700;color:#1e3a5f;margin-bottom:4px">DECLARATION</div>`;
+  h += `<div style="font-size:11px;color:#555;line-height:1.6">I hereby declare that the information furnished above is true to the best of my knowledge and belief.</div>`;
+  h += `<div style="display:flex;justify-content:space-between;margin-top:16px;font-size:11px;color:#555">`;
+  h += `<div>Place: ${esc(p.declaration_place) || '__________'}<br/>Date: ${esc(p.declaration_date) || '__________'}</div>`;
   h += `<div style="text-align:right">Signature<br/><span style="font-weight:600;color:#1e3a5f">${esc(c.name) || '(Your Name)'}</span></div>`;
   h += `</div></div>`;
   h += `</div>`;

@@ -52,6 +52,15 @@ interface CustomSection {
 
 interface ResumeData {
   contact?: ContactInfo;
+  photo?: string;
+  personal?: {
+    dob?: string;
+    gender?: string;
+    nationality?: string;
+    father_name?: string;
+    declaration_place?: string;
+    declaration_date?: string;
+  };
   summary?: string;
   experience?: ExperienceEntry[];
   education?: EducationEntry[];
@@ -265,6 +274,22 @@ export default function ResumeEditorPage() {
   const updateContact = useCallback((field: keyof ContactInfo, value: string) => {
     setResumeData(prev => prev ? { ...prev, contact: { ...prev.contact, [field]: value } } : prev);
   }, []);
+
+  const updatePersonal = useCallback((field: string, value: string) => {
+    setResumeData(prev => prev ? { ...prev, personal: { ...prev.personal, [field]: value } } : prev);
+  }, []);
+
+  const handlePhotoUpload = useCallback(async (file: File) => {
+    const formData = new FormData();
+    formData.append('photo', file);
+    try {
+      const res = await fetch(`${API_URL}/api/resume/${resumeId}/photo`, { method: 'POST', body: formData });
+      const data = await res.json();
+      if (data.photo_url) {
+        setResumeData(prev => prev ? { ...prev, photo: data.photo_url } : prev);
+      }
+    } catch { /* silent fail */ }
+  }, [resumeId]);
 
   const updateSummary = useCallback((value: string) => {
     setResumeData(prev => prev ? { ...prev, summary: value } : prev);
@@ -580,6 +605,65 @@ export default function ResumeEditorPage() {
                   <label style={labelStyle}>Website</label>
                   <input style={inputStyle} value={contact.website || ''} onChange={e => updateContact('website', e.target.value)} />
                 </div>
+
+                {/* Campus template fields */}
+                {templateId === 'campus' && (
+                  <>
+                    <div style={{ borderTop: '1px solid #E5E7EB', marginTop: 16, paddingTop: 16 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f', marginBottom: 12 }}>Campus Placement Details</div>
+                      {/* Photo upload */}
+                      <div style={fieldGap}>
+                        <label style={labelStyle}>Photo</label>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          {resumeData?.photo ? (
+                            <img src={resumeData.photo} alt="Photo" style={{ width: 60, height: 72, objectFit: 'cover', borderRadius: 4, border: '1px solid #ddd' }} />
+                          ) : (
+                            <div style={{ width: 60, height: 72, border: '1px dashed #ccc', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#999' }}>No photo</div>
+                          )}
+                          <input type="file" accept="image/*" onChange={e => { if (e.target.files?.[0]) handlePhotoUpload(e.target.files[0]); }} style={{ fontSize: 12 }} />
+                        </div>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                        <div style={fieldGap}>
+                          <label style={labelStyle}>Date of Birth</label>
+                          <input style={inputStyle} value={resumeData?.personal?.dob || ''} onChange={e => updatePersonal('dob', e.target.value)} placeholder="01 Jan 2000" />
+                        </div>
+                        <div style={fieldGap}>
+                          <label style={labelStyle}>Gender</label>
+                          <select style={inputStyle} value={resumeData?.personal?.gender || ''} onChange={e => updatePersonal('gender', e.target.value)}>
+                            <option value="">Select</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                        <div style={fieldGap}>
+                          <label style={labelStyle}>Nationality</label>
+                          <input style={inputStyle} value={resumeData?.personal?.nationality || ''} onChange={e => updatePersonal('nationality', e.target.value)} placeholder="Indian" />
+                        </div>
+                        <div style={fieldGap}>
+                          <label style={labelStyle}>Father{"'"}s Name <span style={{ color: '#999', fontWeight: 400 }}>(optional)</span></label>
+                          <input style={inputStyle} value={resumeData?.personal?.father_name || ''} onChange={e => updatePersonal('father_name', e.target.value)} />
+                        </div>
+                      </div>
+                      <div style={{ borderTop: '1px solid #E5E7EB', marginTop: 12, paddingTop: 12 }}>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: '#666', marginBottom: 8 }}>Declaration</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                          <div style={fieldGap}>
+                            <label style={labelStyle}>Place</label>
+                            <input style={inputStyle} value={resumeData?.personal?.declaration_place || ''} onChange={e => updatePersonal('declaration_place', e.target.value)} placeholder="Tirupati" />
+                          </div>
+                          <div style={fieldGap}>
+                            <label style={labelStyle}>Date</label>
+                            <input style={inputStyle} type="date" value={resumeData?.personal?.declaration_date || ''} onChange={e => updatePersonal('declaration_date', e.target.value)} />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             )}
 
