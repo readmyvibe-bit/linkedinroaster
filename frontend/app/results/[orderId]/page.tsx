@@ -2356,7 +2356,19 @@ export default function ResultsPage() {
   // Upgrade handler for sidebar
   async function handleUpgrade() {
     try {
-      const res = await fetch(`${API_URL}/api/orders/${orderId}/upgrade`, { method: 'POST' });
+      if (!(window as any).Razorpay) {
+        alert('Payment system is loading. Please try again in a moment.');
+        return;
+      }
+      const res = await fetch(`${API_URL}/api/orders/${orderId}/upgrade`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert(err.error || 'Could not create upgrade order. Please try again.');
+        return;
+      }
       const d = await res.json();
       if (d.razorpay_order_id) {
         const rzp = new (window as any).Razorpay({
@@ -2367,8 +2379,12 @@ export default function ResultsPage() {
           modal: { ondismiss: () => { document.body.style.overflow = ''; } },
         });
         rzp.open();
+      } else {
+        alert(d.error || 'Upgrade not available. You may already be on Pro.');
       }
-    } catch { alert('Could not reach server'); }
+    } catch (e) {
+      alert('Could not reach server. Please check your connection and try again.');
+    }
   }
 
   // Resume CTA handler
