@@ -2076,6 +2076,8 @@ body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!importa
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   .entry{page-break-inside:avoid}
   .section-block{page-break-inside:avoid}
+  .two-col{min-height:auto!important}
+  [style*="min-height"]{min-height:auto!important}
 }
 </style></head><body style="-webkit-print-color-adjust:exact;print-color-adjust:exact"><div class="print-content-root">${body}</div></body></html>`;
 }
