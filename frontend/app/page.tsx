@@ -462,21 +462,22 @@ export default function Home() {
           Lost your results? Recover &rarr;
         </a>
       </div>
-      {/* ─── Hero (7/5 grid) ─── */}
+      {/* ─── Hero (full-bleed gradient) ─── */}
+      <div style={{ background: 'linear-gradient(135deg, #F8FAFF 0%, #EEF2FF 40%, #F0F7FF 100%)', borderBottom: '1px solid #E0E7F0' }}>
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
-        <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start', paddingTop: 40, paddingBottom: 24 }}>
+        <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start', paddingTop: 40, paddingBottom: 32 }}>
           {/* Left 7 cols — primary conversion */}
           <div style={{ flex: 7, minWidth: 0 }}>
 
         <section className="text-left" style={{ maxWidth: 680 }}>
           {/* CHANGE 1 — Headline */}
-          <h1 className="leading-tight mb-1" style={{ fontSize: 36, fontWeight: 900, color: '#191919' }}>
+          <h1 className="leading-tight mb-1" style={{ fontSize: 38, fontWeight: 900, color: '#0F172A' }}>
             Your LinkedIn Profile is Costing You
           </h1>
-          <div className="mb-3" style={{ fontSize: 40, fontWeight: 900, color: '#0A66C2' }}>
+          <div className="mb-3" style={{ fontSize: 42, fontWeight: 900, color: '#0A66C2' }}>
             &#8377;10 Lakhs Every Year.
           </div>
-          <p className="mb-4" style={{ fontSize: 18, color: '#666' }}>
+          <p className="mb-4" style={{ fontSize: 18, color: '#475569' }}>
             AI shows exactly why recruiters skip you. Fix it in 60 seconds.
           </p>
 
@@ -596,6 +597,7 @@ export default function Home() {
             <RoastSnapshot />
           </div>
         </div>
+      </div>
       </div>
 
       {/* ─── Credibility Strip (full width) ─── */}
