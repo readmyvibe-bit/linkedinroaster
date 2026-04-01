@@ -249,28 +249,47 @@ function FeatureCardSmall({ icon, title, stat, desc }: {
   );
 }
 
-// ─── Roast Snapshot (integrated right column) ───
-function RoastSnapshot() {
+// ─── Transformation Showcase (hero right column) ───
+function TransformationShowcase() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <RoastCardSmall
-        name="Priya M."
-        title="Software Engineer · Bangalore"
-        roast="Your headline lists every skill you have ever googled but forgets what you actually do."
-        score_before={28}
-        score_after={76}
-        originalHeadline="Software Engineer | Python | Java | AWS | Docker | React | Node.js | Seeking new opportunities"
-      />
-      <RewriteCardSmall
-        name="Sneha R."
-        location="HR Executive · Mumbai"
-        before="HR Executive | Talent Acquisition | HR Operations | Onboarding"
-        after="HR Executive | Built Hiring for 500+ Employees | Cut Time-to-Hire 40%"
-        score_before={38}
-        score_after={84}
-      />
-      <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 10, padding: '10px 14px', textAlign: 'center' }}>
-        <span style={{ fontSize: 13, fontWeight: 700, color: '#057642' }}>500+ profiles improved &bull; Avg +42 pts</span>
+    <div style={{ background: 'white', borderRadius: 16, border: '1px solid #E0E7F0', overflow: 'hidden', boxShadow: '0 4px 24px rgba(10,102,194,0.08)' }}>
+      {/* Header */}
+      <div style={{ background: '#0F172A', padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: 13, fontWeight: 700, color: 'white', letterSpacing: 0.5 }}>Real Profile Transformation</span>
+        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>Priya M. &bull; Bangalore</span>
+      </div>
+      {/* Before */}
+      <div style={{ padding: '16px 20px', borderBottom: '1px solid #F1F5F9' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <div style={{ background: '#FEE2E2', color: '#CC1016', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>BEFORE</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: '#CC1016' }}>28<span style={{ fontSize: 13, fontWeight: 400, color: '#999' }}>/100</span></div>
+        </div>
+        <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: '#666', fontStyle: 'italic', lineHeight: 1.5 }}>
+          &ldquo;Software Engineer | Python | Java | AWS | Docker | React | Node.js | Seeking new opportunities&rdquo;
+        </div>
+      </div>
+      {/* Roast */}
+      <div style={{ padding: '14px 20px', background: '#FFFBEB', borderBottom: '1px solid #F1F5F9' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, color: '#E16B00', letterSpacing: 1, marginBottom: 6 }}>&#128293; AI ROAST</div>
+        <div style={{ fontSize: 13, color: '#92400E', lineHeight: 1.6, fontStyle: 'italic' }}>
+          &ldquo;Your headline lists every skill you have ever googled but forgets what you actually do. Recruiters see a grocery list, not a professional.&rdquo;
+        </div>
+      </div>
+      {/* After */}
+      <div style={{ padding: '16px 20px', borderBottom: '1px solid #F1F5F9' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <div style={{ background: '#DCFCE7', color: '#057642', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 4 }}>AFTER</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: '#057642' }}>76<span style={{ fontSize: 13, fontWeight: 400, color: '#999' }}>/100</span></div>
+          <div style={{ background: '#057642', color: 'white', fontSize: 12, fontWeight: 700, padding: '2px 10px', borderRadius: 12 }}>+48 pts</div>
+        </div>
+        <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: '#057642', fontWeight: 600, lineHeight: 1.5 }}>
+          &ldquo;Full-Stack Engineer | Built 5 Production Apps Serving 50K+ Users | React + Node.js + AWS&rdquo;
+        </div>
+      </div>
+      {/* Footer stats */}
+      <div style={{ padding: '12px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8FAFC' }}>
+        <div style={{ fontSize: 12, color: '#64748B' }}>500+ profiles improved</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: '#0A66C2' }}>Avg +42 pts &uarr;</div>
       </div>
     </div>
   );
@@ -454,22 +473,28 @@ export default function Home() {
   return (
     <main className="min-h-screen pb-16">
       {/* ─── Top Bar ─── */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 24px', maxWidth: 1200, margin: '0 auto' }}>
-        <a href="/dashboard" style={{ fontSize: 14, color: '#0A66C2', textDecoration: 'none', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
-          &#128202; My Dashboard
-        </a>
-        <a href="/recover" style={{ fontSize: 13, color: '#666', textDecoration: 'none', fontWeight: 500 }}>
-          Lost your results? Recover &rarr;
-        </a>
+      <div style={{ background: 'white', borderBottom: '1px solid #E8E8E8', padding: '10px 40px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: 1400, margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <a href="/" style={{ textDecoration: 'none' }}>
+              <span style={{ fontSize: 18, fontWeight: 800, color: '#0A66C2' }}>Profile</span>
+              <span style={{ fontSize: 18, fontWeight: 800, color: '#191919' }}>Roaster</span>
+            </a>
+            <a href="/dashboard" style={{ fontSize: 13, color: '#666', textDecoration: 'none', fontWeight: 600 }}>Dashboard</a>
+          </div>
+          <a href="/recover" style={{ fontSize: 13, color: '#666', textDecoration: 'none', fontWeight: 500 }}>
+            Lost results? Recover &rarr;
+          </a>
+        </div>
       </div>
       {/* ─── Hero (full-bleed gradient) ─── */}
       <div style={{ background: 'linear-gradient(135deg, #F8FAFF 0%, #EEF2FF 40%, #F0F7FF 100%)', borderBottom: '1px solid #E0E7F0' }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
-        <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start', paddingTop: 40, paddingBottom: 32 }}>
-          {/* Left 7 cols — primary conversion */}
-          <div style={{ flex: 7, minWidth: 0 }}>
+      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '0 40px' }}>
+        <div style={{ display: 'flex', gap: 40, alignItems: 'center', paddingTop: 40, paddingBottom: 36 }}>
+          {/* Left 60% — primary conversion */}
+          <div style={{ width: '60%', flexShrink: 0 }}>
 
-        <section className="text-left" style={{ maxWidth: 680 }}>
+        <section className="text-left">
           {/* CHANGE 1 — Headline */}
           <h1 className="leading-tight mb-1" style={{ fontSize: 38, fontWeight: 900, color: '#0F172A' }}>
             Your LinkedIn Profile is Costing You
@@ -592,9 +617,9 @@ export default function Home() {
         </section>
 
           </div>
-          {/* Right 5 cols — roast snapshot (desktop only) */}
-          <div className="hidden lg:block" style={{ flex: 5, minWidth: 0, position: 'sticky', top: 24 }}>
-            <RoastSnapshot />
+          {/* Right 40% — transformation showcase (desktop only) */}
+          <div className="hidden lg:block" style={{ width: '40%', flexShrink: 0 }}>
+            <TransformationShowcase />
           </div>
         </div>
       </div>
@@ -950,21 +975,21 @@ export default function Home() {
       )}
 
 
-      {/* ─── How It Works (full-width white) ─── */}
-      <section style={{ background: 'white', borderTop: '1px solid #E8E8E8', borderBottom: '1px solid #E8E8E8', padding: '48px 16px' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto' }}>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: '#191919', textAlign: 'center', marginBottom: 28 }}>How It Works</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 24 }}>
+      {/* ─── How It Works (full-width dark) ─── */}
+      <section style={{ background: '#0F172A', padding: '48px 40px' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <h2 style={{ fontSize: 24, fontWeight: 800, color: 'white', textAlign: 'center', marginBottom: 32 }}>How It Works</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 24 }}>
             {[
               { num: '1', title: 'Get Roasted', desc: 'Paste your headline. AI tells you exactly what is wrong.', color: '#CC1016' },
               { num: '2', title: 'Get Rewritten', desc: 'AI rewrites your headline, about, and experience.', color: '#0A66C2' },
               { num: '3', title: 'See Your Score', desc: 'Before/after score shows exactly how much you improved.', color: '#057642' },
               { num: '4', title: 'Build Resume', desc: 'Turn your rewrite into an ATS resume for any job.', color: '#E16B00' },
             ].map((step, i) => (
-              <div key={i} style={{ textAlign: 'center', padding: '20px 12px', background: '#F9FAFB', borderRadius: 14 }}>
+              <div key={i} style={{ textAlign: 'center', padding: '24px 16px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14 }}>
                 <div style={{ width: 44, height: 44, borderRadius: '50%', background: step.color, color: 'white', fontSize: 18, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>{step.num}</div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#191919', marginBottom: 6 }}>{step.title}</div>
-                <div style={{ fontSize: 13, color: '#666', lineHeight: 1.5 }}>{step.desc}</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: 'white', marginBottom: 6 }}>{step.title}</div>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>{step.desc}</div>
               </div>
             ))}
           </div>
@@ -972,8 +997,8 @@ export default function Home() {
       </section>
 
       {/* ─── ATS Resume Showcase (full-width grey) ─── */}
-      <section style={{ background: '#F3F2EF', padding: '48px 16px' }}>
-        <div style={{ maxWidth: 800, margin: '0 auto' }}>
+      <section style={{ background: '#F3F2EF', padding: '48px 40px' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <h2 style={{ fontSize: 22, fontWeight: 800, color: '#191919', textAlign: 'center', marginBottom: 8 }}>ATS Resume Builder</h2>
           <p style={{ fontSize: 14, color: '#666', textAlign: 'center', marginBottom: 28 }}>Included in all paid plans. Your LinkedIn rewrite becomes a resume in 60 seconds.</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20 }}>
@@ -1015,9 +1040,9 @@ export default function Home() {
       </section>
 
       {/* ─── Testimonials (full-width white) ─── */}
-      <section style={{ background: 'white', borderTop: '1px solid #E8E8E8', padding: '48px 16px' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto' }}>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: '#191919', textAlign: 'center', marginBottom: 28 }}>Real Results From Real Professionals</h2>
+      <section style={{ background: 'white', borderTop: '1px solid #E8E8E8', padding: '48px 40px' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <h2 style={{ fontSize: 24, fontWeight: 800, color: '#191919', textAlign: 'center', marginBottom: 32 }}>Real Results From Real Professionals</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
             {[
               { name: 'Arjun T.', role: 'BDM, Pune', quote: 'My score went from 31 to 78. Got 3 recruiter messages within a week of updating my profile.', before: 31, after: 78 },
@@ -1047,8 +1072,8 @@ export default function Home() {
       </section>
 
       {/* ─── Urgency CTA (full-width blue) ─── */}
-      <section style={{ background: 'linear-gradient(135deg, #004182 0%, #0A66C2 100%)', padding: '56px 16px', textAlign: 'center' }}>
-        <div style={{ maxWidth: 700, margin: '0 auto' }}>
+      <section style={{ background: 'linear-gradient(135deg, #004182 0%, #0A66C2 100%)', padding: '56px 40px', textAlign: 'center' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto' }}>
           <div style={{ fontSize: 28, fontWeight: 900, color: 'white', marginBottom: 8 }}>Stop losing opportunities.</div>
           <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.8)', marginBottom: 28 }}>Every day with a weak profile is another recruiter who scrolled past you.</div>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 40, flexWrap: 'wrap', marginBottom: 28 }}>
@@ -1070,8 +1095,8 @@ export default function Home() {
       </section>
 
       {/* ─── Trust Badges (full-width grey) ─── */}
-      <section style={{ background: '#F3F2EF', padding: '40px 16px' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+      <section style={{ background: '#F3F2EF', padding: '40px 40px' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
             {[
               { icon: '\uD83D\uDD12', text: 'We never access your LinkedIn account' },
