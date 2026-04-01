@@ -45,7 +45,7 @@ export default function BuildLandingPage() {
         'Everything in Profile + Resume',
         '3 ATS resumes for different roles',
         '3 tailored cover letters',
-        'All 23 premium resume templates',
+        'All 25 premium resume templates',
         'Priority AI processing',
         'Target multiple companies at once',
       ],

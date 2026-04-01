@@ -79,7 +79,7 @@ interface TemplateDefinition {
 // ─── Template Definitions ────────────────────────────────────────────────────
 
 export const TEMPLATES: (TemplateDefinition & { proOnly?: boolean })[] = [
-  // Standard-accessible (15)
+  // Standard-accessible (15) + Pro-only (10) = 25 total
   { id: 'classic', name: 'Classic Professional', description: 'Traditional clean layout. Maximum ATS compatibility.', category: 'ATS-Friendly' },
   { id: 'modern', name: 'Modern Accent', description: 'Blue accent styling with skill tags. ATS safe.', category: 'ATS-Friendly' },
   { id: 'minimal', name: 'Minimalist', description: 'Ultra clean with maximum whitespace.', category: 'ATS-Friendly' },
@@ -104,6 +104,8 @@ export const TEMPLATES: (TemplateDefinition & { proOnly?: boolean })[] = [
   { id: 'campus', name: 'Campus Placement', description: 'Indian campus placement format. Photo, personal details, education-first.', category: 'India' },
   { id: 'fresher', name: 'Fresher & Intern', description: 'Projects-first layout for students and freshers with little work experience.', category: 'India' },
   { id: 'salesbd', name: 'Sales & BD', description: 'Metrics-forward layout for sales, BDR, and business development roles.', category: 'India' },
+  { id: 'operator', name: 'Operator Grid', description: 'Slate header, cyan accents, gridded skills. For PMs, founders, and operators.', category: 'Visual', proOnly: true },
+  { id: 'editorial', name: 'Editorial Canvas', description: 'Warm paper, terracotta accents. For marketing, content, and creative roles.', category: 'Visual', proOnly: true },
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -2018,6 +2020,159 @@ function renderSalesBD(data: ResumeData): React.ReactNode {
   );
 }
 
+// ─── Render: Operator Grid ─────────────────────────────────────────────────
+function renderOperator(data: ResumeData): React.ReactNode {
+  const c = data.contact || {};
+  const contactParts = [c.email, c.phone, c.location, c.linkedin].filter(Boolean);
+  const skillGroups = normalizeSkills(data.skills);
+  const hdr = (t: string) => (
+    <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '2px', color: '#0F172A', borderLeft: '3px solid #06B6D4', paddingLeft: '10px', marginBottom: '10px' }}>{t}</div>
+  );
+  return (
+    <div style={{ fontFamily: "'Segoe UI', Arial, sans-serif", fontSize: '13px', lineHeight: 1.55, color: '#334155', maxWidth: '800px' }}>
+      {/* Header band */}
+      <div style={{ background: '#0F172A', padding: '22px 28px', marginBottom: '0' }}>
+        <div style={{ fontSize: '28px', fontWeight: 800, color: 'white', letterSpacing: '-0.5px' }}>{c.name || 'Your Name'}</div>
+        {contactParts.length > 0 && <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.65)', marginTop: '5px' }}>{contactParts.join('  |  ')}</div>}
+      </div>
+      <div style={{ height: '3px', background: '#06B6D4' }} />
+      <div style={{ padding: '20px 28px' }}>
+        {data.summary && <div style={{ marginBottom: '18px' }}>{hdr('Summary')}<div style={{ fontSize: '13px', color: '#334155', lineHeight: 1.65 }}>{data.summary}</div></div>}
+        {data.experience && data.experience.length > 0 && (
+          <div style={{ marginBottom: '18px' }}>
+            {hdr('Experience')}
+            {data.experience.map((exp, i) => (
+              <div key={i} style={{ marginBottom: '14px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                  <span style={{ fontWeight: 700, color: '#0F172A', fontSize: '14px' }}>{getExpTitle(exp)}</span>
+                  <span style={{ fontSize: '11px', color: '#94A3B8', fontStyle: 'italic' }}>{getExpDates(exp)}</span>
+                </div>
+                <div style={{ color: '#64748B', fontSize: '12px' }}>{[exp.company, exp.location].filter(Boolean).join(' — ')}</div>
+                {exp.bullets && exp.bullets.length > 0 && (
+                  <div style={{ marginTop: '5px' }}>
+                    {exp.bullets.map((b, j) => <div key={j} style={{ paddingLeft: '12px', textIndent: '-12px', marginBottom: '3px', fontSize: '13px' }}>• {b}</div>)}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+        {/* Skills as grid cells */}
+        {skillGroups.length > 0 && (
+          <div style={{ marginBottom: '18px' }}>
+            {hdr('Skills')}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+              {skillGroups.map((g, i) => (
+                <div key={i} style={{ background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: '6px', padding: '8px 10px' }}>
+                  {skillGroups.length > 1 && <div style={{ fontSize: '10px', fontWeight: 700, color: '#06B6D4', marginBottom: '3px' }}>{g.label}</div>}
+                  <div style={{ fontSize: '11px', color: '#334155', lineHeight: 1.4 }}>{g.items.join(', ')}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {data.education && data.education.length > 0 && (
+          <div style={{ marginBottom: '18px' }}>
+            {hdr('Education')}
+            {data.education.map((edu, i) => (
+              <div key={i} style={{ marginBottom: '6px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                <div><span style={{ fontWeight: 700, color: '#0F172A' }}>{getEduDegree(edu)}</span> — <span style={{ color: '#64748B' }}>{getEduSchool(edu)}</span>{edu.gpa && <span style={{ color: '#94A3B8', fontSize: '11px' }}> — GPA: {edu.gpa}</span>}</div>
+                <span style={{ fontSize: '11px', color: '#94A3B8' }}>{getEduDates(edu)}</span>
+              </div>
+            ))}
+          </div>
+        )}
+        {data.achievements && data.achievements.length > 0 && (
+          <div style={{ background: 'rgba(6,182,212,0.06)', borderRadius: '8px', padding: '12px 14px' }}>
+            {hdr('Key Achievements')}
+            {data.achievements.map((a, i) => <div key={i} style={{ paddingLeft: '12px', textIndent: '-12px', marginBottom: '3px', fontSize: '13px' }}>▸ {a}</div>)}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Render: Editorial Canvas ──────────────────────────────────────────────
+function renderEditorial(data: ResumeData): React.ReactNode {
+  const c = data.contact || {};
+  const contactParts = [c.email, c.phone, c.location, c.linkedin].filter(Boolean);
+  const skillGroups = normalizeSkills(data.skills);
+  const hdr = (t: string) => (
+    <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '2px', color: '#9A3412', marginBottom: '10px' }}>{t}</div>
+  );
+  return (
+    <div style={{ fontFamily: "'Georgia', serif", fontSize: '13px', lineHeight: 1.6, color: '#292524', background: '#FFFAF5', maxWidth: '800px' }}>
+      {/* Header — asymmetric */}
+      <div style={{ padding: '28px 28px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: '36px', fontWeight: 700, color: '#171717', lineHeight: 1.1 }}>{c.name || 'Your Name'}</div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          {contactParts.map((p, i) => (
+            <div key={i} style={{ fontSize: '11px', color: '#78716C' }}>{p}</div>
+          ))}
+        </div>
+      </div>
+      <div style={{ height: '1px', background: '#C2410C', margin: '0 28px' }} />
+      <div style={{ padding: '20px 28px' }}>
+        {/* Summary as pull-quote */}
+        {data.summary && (
+          <div style={{ borderLeft: '4px solid #C2410C', paddingLeft: '16px', marginBottom: '20px' }}>
+            <div style={{ fontSize: '14px', color: '#292524', lineHeight: 1.7, fontStyle: 'italic' }}>{data.summary}</div>
+          </div>
+        )}
+        {data.experience && data.experience.length > 0 && (
+          <div style={{ marginBottom: '20px' }}>
+            {hdr('Experience')}
+            {data.experience.map((exp, i) => (
+              <div key={i} style={{ marginBottom: '14px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                  <span style={{ fontWeight: 700, color: '#171717', fontSize: '14px', fontFamily: "'Segoe UI', Arial, sans-serif" }}>{getExpTitle(exp)}</span>
+                  <span style={{ fontSize: '11px', color: '#78716C' }}>{getExpDates(exp)}</span>
+                </div>
+                <div style={{ color: '#C2410C', fontSize: '12px', fontWeight: 600 }}>{[exp.company, exp.location].filter(Boolean).join(' — ')}</div>
+                {exp.bullets && exp.bullets.length > 0 && (
+                  <div style={{ marginTop: '5px' }}>
+                    {exp.bullets.map((b, j) => <div key={j} style={{ paddingLeft: '14px', textIndent: '-14px', marginBottom: '3px', fontSize: '13px', color: '#44403C' }}>– {b}</div>)}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+        {skillGroups.length > 0 && (
+          <div style={{ marginBottom: '20px' }}>
+            {hdr('Skills')}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              {skillGroups.flatMap(g => g.items).map((s, i) => (
+                <span key={i} style={{ border: '1px solid #FDBA74', color: '#9A3412', borderRadius: '4px', padding: '3px 10px', fontSize: '12px', background: 'transparent' }}>{s}</span>
+              ))}
+            </div>
+          </div>
+        )}
+        {data.education && data.education.length > 0 && (
+          <div style={{ marginBottom: '20px' }}>
+            {hdr('Education')}
+            {data.education.map((edu, i) => (
+              <div key={i} style={{ marginBottom: '6px', paddingBottom: '6px', borderBottom: '1px solid #FED7AA', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                <div><span style={{ fontWeight: 700, color: '#171717' }}>{getEduDegree(edu)}</span> — <span style={{ color: '#78716C' }}>{getEduSchool(edu)}</span></div>
+                <span style={{ fontSize: '11px', color: '#A8A29E' }}>{getEduDates(edu)}</span>
+              </div>
+            ))}
+          </div>
+        )}
+        {data.achievements && data.achievements.length > 0 && (
+          <div>
+            {hdr('Achievements')}
+            {data.achievements.map((a, i) => <div key={i} style={{ paddingLeft: '14px', textIndent: '-14px', marginBottom: '3px', fontSize: '13px', color: '#44403C' }}>✦ {a}</div>)}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // ROUTER: renderResumeHTML
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -2046,6 +2201,8 @@ export function renderResumeHTML(data: ResumeData, templateId: string): React.Re
     case 'campus': return renderCampus(data);
     case 'fresher': return renderFresher(data);
     case 'salesbd': return renderSalesBD(data);
+    case 'operator': return renderOperator(data);
+    case 'editorial': return renderEditorial(data);
     case 'classic':
     default: return renderClassic(data);
   }
@@ -3002,6 +3159,92 @@ function printSalesBD(data: ResumeData): string {
   return printPageWrapper(h);
 }
 
+// ─── Print: Operator Grid ──────────────────────────────────────────────────
+function printOperator(data: ResumeData): string {
+  const c = data.contact || {};
+  const cp = [c.email, c.phone, c.location, c.linkedin].filter(Boolean).map(esc).join('  |  ');
+  const skillGroups = normalizeSkills(data.skills);
+  const hdr = (t: string) => `<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#0F172A;border-left:3px solid #06B6D4;padding-left:10px;margin-bottom:10px">${t}</div>`;
+  const dateS = 'font-size:11px;color:#94A3B8;font-style:italic';
+  const titleS = 'font-weight:700;color:#0F172A;font-size:14px';
+
+  let h = `<div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.55;color:#334155">`;
+  h += `<div style="background:#0F172A;padding:22px 28px"><div style="font-size:28px;font-weight:800;color:white;letter-spacing:-0.5px">${esc(c.name) || 'Your Name'}</div>`;
+  if (cp) h += `<div style="font-size:12px;color:rgba(255,255,255,0.65);margin-top:5px">${cp}</div>`;
+  h += `</div><div style="height:3px;background:#06B6D4"></div><div style="padding:20px 28px">`;
+  if (data.summary) h += `<div style="margin-bottom:18px">${hdr('Summary')}<div style="font-size:13px;color:#334155;line-height:1.65">${esc(data.summary)}</div></div>`;
+  if (data.experience?.length) {
+    h += `<div style="margin-bottom:18px">${hdr('Experience')}`;
+    h += buildExpHTML(data, '&bull;', dateS, 'color:#64748B;font-size:12px', titleS);
+    h += `</div>`;
+  }
+  if (skillGroups.length) {
+    h += `<div style="margin-bottom:18px">${hdr('Skills')}<div style="display:flex;flex-wrap:wrap;gap:8px">`;
+    skillGroups.forEach(g => {
+      h += `<div style="background:#F1F5F9;border:1px solid #E2E8F0;border-radius:6px;padding:8px 10px;flex:1;min-width:140px">`;
+      if (skillGroups.length > 1) h += `<div style="font-size:10px;font-weight:700;color:#06B6D4;margin-bottom:3px">${esc(g.label)}</div>`;
+      h += `<div style="font-size:11px;color:#334155">${g.items.map(esc).join(', ')}</div></div>`;
+    });
+    h += `</div></div>`;
+  }
+  if (data.education?.length) { h += `<div style="margin-bottom:18px">${hdr('Education')}${buildEduHTML(data, dateS)}</div>`; }
+  const ach = buildAchievementsHTML(data, '&#9658;');
+  if (ach) h += `<div style="background:rgba(6,182,212,0.06);border-radius:8px;padding:12px 14px">${hdr('Key Achievements')}${ach}</div>`;
+  h += `</div></div>`;
+  return printPageWrapper(h);
+}
+
+// ─── Print: Editorial Canvas ───────────────────────────────────────────────
+function printEditorial(data: ResumeData): string {
+  const c = data.contact || {};
+  const contactParts = [c.email, c.phone, c.location, c.linkedin].filter(Boolean);
+  const skillGroups = normalizeSkills(data.skills);
+  const hdr = (t: string) => `<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#9A3412;margin-bottom:10px">${t}</div>`;
+  const dateS = 'font-size:11px;color:#78716C';
+  const titleS = 'font-weight:700;color:#171717;font-size:14px;font-family:Segoe UI,Arial,sans-serif';
+
+  let h = `<div style="font-family:Georgia,serif;font-size:13px;line-height:1.6;color:#292524;background:#FFFAF5">`;
+  // Asymmetric header
+  h += `<div style="padding:28px 28px 16px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px">`;
+  h += `<div style="flex:1"><div style="font-size:36px;font-weight:700;color:#171717;line-height:1.1">${esc(c.name) || 'Your Name'}</div></div>`;
+  h += `<div style="text-align:right">`;
+  contactParts.forEach(p => { h += `<div style="font-size:11px;color:#78716C">${esc(p)}</div>`; });
+  h += `</div></div>`;
+  h += `<div style="height:1px;background:#C2410C;margin:0 28px"></div>`;
+  h += `<div style="padding:20px 28px">`;
+  // Summary as pull-quote
+  if (data.summary) h += `<div style="border-left:4px solid #C2410C;padding-left:16px;margin-bottom:20px"><div style="font-size:14px;color:#292524;line-height:1.7;font-style:italic">${esc(data.summary)}</div></div>`;
+  if (data.experience?.length) {
+    h += `<div style="margin-bottom:20px">${hdr('Experience')}`;
+    data.experience.forEach(exp => {
+      const title = esc(getExpTitle(exp));
+      const dates = esc(getExpDates(exp));
+      const company = [exp.company, exp.location].filter(Boolean).map(esc).join(' &mdash; ');
+      const bullets = (exp.bullets || []).map(b => `<div style="padding-left:14px;text-indent:-14px;margin-bottom:3px;font-size:13px;color:#44403C">&ndash; ${esc(b)}</div>`).join('');
+      h += `<div class="entry" style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;flex-wrap:wrap"><span style="${titleS}">${title}</span><span style="${dateS}">${dates}</span></div><div style="color:#C2410C;font-size:12px;font-weight:600">${company}</div>${bullets ? `<div style="margin-top:5px">${bullets}</div>` : ''}</div>`;
+    });
+    h += `</div>`;
+  }
+  if (skillGroups.length) {
+    h += `<div style="margin-bottom:20px">${hdr('Skills')}<div style="display:flex;flex-wrap:wrap;gap:6px">`;
+    skillGroups.flatMap(g => g.items).forEach(s => {
+      h += `<span style="border:1px solid #FDBA74;color:#9A3412;border-radius:4px;padding:3px 10px;font-size:12px;font-family:Segoe UI,Arial,sans-serif">${esc(s)}</span>`;
+    });
+    h += `</div></div>`;
+  }
+  if (data.education?.length) {
+    h += `<div style="margin-bottom:20px">${hdr('Education')}`;
+    data.education.forEach(edu => {
+      h += `<div style="margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid #FED7AA;display:flex;justify-content:space-between;flex-wrap:wrap"><div><span style="font-weight:700;color:#171717">${esc(getEduDegree(edu))}</span> &mdash; <span style="color:#78716C">${esc(getEduSchool(edu))}</span></div><span style="font-size:11px;color:#A8A29E">${esc(getEduDates(edu))}</span></div>`;
+    });
+    h += `</div>`;
+  }
+  const ach = buildAchievementsHTML(data, '&#10022;');
+  if (ach) h += `<div>${hdr('Achievements')}${ach}</div>`;
+  h += `</div></div>`;
+  return printPageWrapper(h);
+}
+
 export function buildPrintHTML(data: ResumeData, templateId: string, pageCount?: number): string {
   let html: string;
   switch (templateId) {
@@ -3027,6 +3270,8 @@ export function buildPrintHTML(data: ResumeData, templateId: string, pageCount?:
     case 'campus': html = printCampus(data); break;
     case 'fresher': html = printFresher(data); break;
     case 'salesbd': html = printSalesBD(data); break;
+    case 'operator': html = printOperator(data); break;
+    case 'editorial': html = printEditorial(data); break;
     case 'classic':
     default: html = printClassic(data); break;
   }

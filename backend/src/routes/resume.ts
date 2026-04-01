@@ -236,7 +236,7 @@ router.get('/:resumeId/download/docx', async (req: Request, res: Response) => {
     const resume = result.rows[0];
 
     // Check Pro template access
-    const PRO_TEMPLATES = ['crimson', 'ocean', 'slategold', 'indigo', 'sidebar', 'splitmodern', 'highlight', 'corporate'];
+    const PRO_TEMPLATES = ['crimson', 'ocean', 'slategold', 'indigo', 'sidebar', 'splitmodern', 'highlight', 'corporate', 'operator', 'editorial'];
     if (PRO_TEMPLATES.includes(resume.template_id)) {
       let orderPlan = await query('SELECT plan FROM orders WHERE id=$1', [resume.order_id]);
       if (!orderPlan.rows.length) orderPlan = await query('SELECT plan FROM build_orders WHERE id=$1', [resume.order_id]);

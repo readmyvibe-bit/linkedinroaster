@@ -666,7 +666,7 @@ export default function Home() {
                 Turn your LinkedIn rewrite into an ATS-optimized resume. Match keywords to any job description. Download as PDF or DOCX.
               </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {['23 Templates', 'ATS Score Match', 'PDF + DOCX', 'Live Editor'].map((t, i) => (
+                {['25 Templates', 'ATS Score Match', 'PDF + TXT', 'Live Editor'].map((t, i) => (
                   <span key={i} style={{ background: '#E8F0FE', color: '#0A66C2', fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 6 }}>{t}</span>
                 ))}
               </div>
@@ -952,7 +952,7 @@ export default function Home() {
               features={[
                 'Everything in Standard, plus:',
                 '3 ATS Resumes + 3 Cover Letters',
-                'All 23 premium templates',
+                'All 25 premium templates',
                 '4 visual sidebar layouts',
                 '5 headline variations',
                 'Resume upload + auto-parse',
@@ -1056,7 +1056,7 @@ export default function Home() {
             {/* Right — Features */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, justifyContent: 'center' }}>
               {[
-                { icon: '&#128196;', title: '23 Professional Templates', desc: 'ATS-friendly, modern, executive, creative — pick your style' },
+                { icon: '&#128196;', title: '25 Professional Templates', desc: 'ATS-friendly, modern, executive, creative — pick your style' },
                 { icon: '&#127919;', title: 'ATS Score & Keywords', desc: 'Real-time keyword matching against job descriptions' },
                 { icon: '&#9997;&#65039;', title: 'Live Editor', desc: 'Edit sections, drag to reorder, auto-save' },
                 { icon: '&#128229;', title: 'PDF + DOCX Download', desc: 'Download in both formats, ready for any application' },

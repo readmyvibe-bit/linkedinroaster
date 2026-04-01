@@ -76,6 +76,8 @@ const THEMES: Record<string, Theme> = {
   bold:        { font: 'Arial', nameSize: 72, nameColor: '111827', nameAlign: AlignmentType.LEFT, headerColor: '057642', headerSize: 28, headerBorder: true, bodySize: 24, bodyColor: '374151', accentColor: '057642' },
   salesbd:     { font: 'Arial', nameSize: 56, nameColor: 'FFFFFF', nameAlign: AlignmentType.LEFT, headerColor: 'E16B00', headerSize: 24, headerBorder: true, bodySize: 22, bodyColor: '374151', accentColor: 'E16B00', headerBandBg: '0F172A', headerBandText: 'FFFFFF' },
   campus:      { font: 'Arial', nameSize: 48, nameColor: '1e3a5f', nameAlign: AlignmentType.LEFT, headerColor: '1e3a5f', headerSize: 24, headerBorder: true, bodySize: 22, bodyColor: '333333', accentColor: '1e3a5f' },
+  operator:    { font: 'Arial', nameSize: 56, nameColor: 'FFFFFF', nameAlign: AlignmentType.LEFT, headerColor: '0F172A', headerSize: 24, headerBorder: true, bodySize: 22, bodyColor: '334155', accentColor: '06B6D4', headerBandBg: '0F172A', headerBandText: 'FFFFFF' },
+  editorial:   { font: 'Georgia', nameSize: 60, nameColor: '171717', nameAlign: AlignmentType.LEFT, headerColor: '9A3412', headerSize: 22, headerBorder: false, bodySize: 22, bodyColor: '292524', accentColor: 'C2410C' },
 };
 
 function getTheme(id?: string): Theme { return THEMES[id || 'classic'] || THEMES.classic; }
@@ -399,6 +401,8 @@ const BUILDER_MAP: Record<string, (data: ResumeData) => Promise<Buffer>> = {
   bold:        buildBoldDocx,
   salesbd:     buildSalesBdDocx,
   campus:      buildCampusDocx,
+  operator:    (d) => buildAccentHeaderDocx(d, getTheme('operator')),
+  editorial:   (d) => buildSingleColumnDocx(d, getTheme('editorial')),
 };
 
 export async function generateDocx(data: ResumeData, templateId?: string): Promise<Buffer> {

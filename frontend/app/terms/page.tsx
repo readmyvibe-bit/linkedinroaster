@@ -144,7 +144,7 @@ export default function TermsPage() {
             <h3 className="font-semibold mt-4 mb-2">6.1 LinkedIn Roast &amp; Rewrite</h3>
             <ul className="list-disc pl-6 space-y-1">
               <li><strong>Standard Plan:</strong> &#8377;299 (INR) &mdash; full roast, rewrite, 1 ATS resume, 15 templates</li>
-              <li><strong>Pro Plan:</strong> &#8377;799 (INR) &mdash; everything in Standard + 5 headline variations, ATS keywords, 3 resumes, all 23 templates, cover letters</li>
+              <li><strong>Pro Plan:</strong> &#8377;799 (INR) &mdash; everything in Standard + 5 headline variations, ATS keywords, 3 resumes, all 25 templates, cover letters</li>
               <li><strong>Upgrade (Standard to Pro):</strong> &#8377;500 (INR) &mdash; difference payment</li>
             </ul>
 
@@ -152,7 +152,7 @@ export default function TermsPage() {
             <ul className="list-disc pl-6 space-y-1">
               <li><strong>Starter:</strong> &#8377;199 (INR) &mdash; complete LinkedIn profile + setup guide</li>
               <li><strong>Plus:</strong> &#8377;399 (INR) &mdash; everything in Starter + 1 ATS resume, 1 cover letter, 15 templates</li>
-              <li><strong>Pro:</strong> &#8377;699 (INR) &mdash; everything in Plus + 3 resumes, 3 cover letters, all 23 templates</li>
+              <li><strong>Pro:</strong> &#8377;699 (INR) &mdash; everything in Plus + 3 resumes, 3 cover letters, all 25 templates</li>
             </ul>
 
             <p className="mt-4">
