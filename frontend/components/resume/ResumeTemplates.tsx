@@ -1855,14 +1855,14 @@ function renderCampus(data: ResumeData): React.ReactNode {
         </div>
       )}
       {/* Declaration */}
-      <div style={{ marginTop: '20px', borderTop: '1px solid #ddd', paddingTop: '12px' }}>
-        <div style={{ fontSize: '13px', fontWeight: 700, color: '#1e3a5f', marginBottom: '6px' }}>DECLARATION</div>
-        <div style={{ fontSize: '13px', color: '#555', lineHeight: 1.6 }}>
+      <div style={{ marginTop: '12px', borderTop: '1px solid #ddd', paddingTop: '8px' }}>
+        <div style={{ fontSize: '12px', fontWeight: 700, color: '#1e3a5f', marginBottom: '3px' }}>DECLARATION</div>
+        <div style={{ fontSize: '11px', color: '#555', lineHeight: 1.5 }}>
           I hereby declare that the information furnished above is true to the best of my knowledge and belief.
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px', fontSize: '13px', color: '#555' }}>
-          <div>Place: {p.declaration_place || '__________'}<br/>Date: {p.declaration_date || '__________'}</div>
-          <div style={{ textAlign: 'right' }}>Signature<br/><span style={{ fontWeight: 600, color: '#1e3a5f' }}>{c.name || '(Your Name)'}</span></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', fontSize: '11px', color: '#555' }}>
+          <div>Place: {p.declaration_place || '__________'} &nbsp; Date: {p.declaration_date || '__________'}</div>
+          <div style={{ textAlign: 'right' }}><span style={{ fontWeight: 600, color: '#1e3a5f' }}>{c.name || '(Your Name)'}</span></div>
         </div>
       </div>
     </div>
@@ -2071,6 +2071,7 @@ body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!importa
 .two-col-right{flex:1}
 @media print{
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  html,body{height:calc(297mm - 22mm);overflow:hidden}
   .entry{page-break-inside:avoid}
   .section-block{page-break-inside:avoid}
 }
@@ -2920,12 +2921,12 @@ function printCampus(data: ResumeData): string {
   const ach = buildAchievementsHTML(data, '&bull;');
   if (ach) h += `<div style="margin-bottom:12px">${hdr('Achievements &amp; Activities')}${ach}</div>`;
   // Declaration
-  h += `<div style="margin-top:20px;border-top:1px solid #ddd;padding-top:12px">`;
-  h += `<div style="font-size:13px;font-weight:700;color:#1e3a5f;margin-bottom:6px">DECLARATION</div>`;
-  h += `<div style="font-size:13px;color:#555;line-height:1.6">I hereby declare that the information furnished above is true to the best of my knowledge and belief.</div>`;
-  h += `<div style="display:flex;justify-content:space-between;margin-top:20px;font-size:13px;color:#555">`;
-  h += `<div>Place: ${esc(p.declaration_place) || '__________'}<br/>Date: ${esc(p.declaration_date) || '__________'}</div>`;
-  h += `<div style="text-align:right">Signature<br/><span style="font-weight:600;color:#1e3a5f">${esc(c.name) || '(Your Name)'}</span></div>`;
+  h += `<div style="margin-top:12px;border-top:1px solid #ddd;padding-top:8px">`;
+  h += `<div style="font-size:12px;font-weight:700;color:#1e3a5f;margin-bottom:3px">DECLARATION</div>`;
+  h += `<div style="font-size:11px;color:#555;line-height:1.5">I hereby declare that the information furnished above is true to the best of my knowledge and belief.</div>`;
+  h += `<div style="display:flex;justify-content:space-between;margin-top:10px;font-size:11px;color:#555">`;
+  h += `<div>Place: ${esc(p.declaration_place) || '__________'} &nbsp; Date: ${esc(p.declaration_date) || '__________'}</div>`;
+  h += `<div style="text-align:right"><span style="font-weight:600;color:#1e3a5f">${esc(c.name) || '(Your Name)'}</span></div>`;
   h += `</div></div>`;
   h += `</div>`;
   return printPageWrapper(h);
