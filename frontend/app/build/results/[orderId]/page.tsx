@@ -186,6 +186,23 @@ export default function BuildResultsPage() {
     );
   }
 
+  // Build full profile text for copy
+  const fullProfileText = (() => {
+    const hl = profile.headline_variations?.[0]?.text || '';
+    const about = profile.about || '';
+    const exp = (profile.experience || []).map((e: ExperienceEntry) => `${e.role} at ${e.company}\n${(e.bullets || []).map((b: string) => '• ' + b).join('\n')}`).join('\n\n');
+    const sk = [...(profile.skills?.technical || []), ...(profile.skills?.soft || []), ...(profile.skills?.tools || [])].join(', ');
+    return `HEADLINE:\n${hl}\n\nABOUT:\n${about}\n\nEXPERIENCE:\n${exp}\n\nSKILLS:\n${sk}`;
+  })();
+
+  const allSkillsText = [...(profile.skills?.technical || []), ...(profile.skills?.soft || []), ...(profile.skills?.tools || [])].join(', ');
+
+  const connTemplates = [
+    { label: 'For Alumni', text: `Hi! I'm a fellow ${profile.experience?.[0]?.role || 'professional'} and noticed we share a similar background. Would love to connect and learn from your journey.` },
+    { label: 'For Recruiters', text: `Hi! I'm actively looking for ${profile.experience?.[0]?.role || 'new'} opportunities. I'd love to connect and share how my experience might be a good fit for roles at your organization.` },
+    { label: 'For Hiring Managers', text: `Hi! I came across your team's work and I'm very interested in ${profile.experience?.[0]?.role || 'similar'} roles. I'd appreciate the chance to connect and learn more about opportunities on your team.` },
+  ];
+
   return (
     <main style={{ fontFamily: "'Inter', system-ui, sans-serif", background: '#F3F2EF', minHeight: '100vh', padding: '20px' }}>
       <div style={{ maxWidth: 760, margin: '0 auto' }}>
@@ -285,7 +302,10 @@ export default function BuildResultsPage() {
 
         {/* Section 4: Skills */}
         <div style={{ background: 'white', borderRadius: 14, padding: '24px 28px', marginBottom: 16, border: '1px solid #E0E0E0' }}>
-          <h2 style={{ fontSize: 18, fontWeight: 800, color: '#1E40AF', margin: '0 0 16px' }}>Recommended Skills</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 800, color: '#1E40AF', margin: 0 }}>Recommended Skills</h2>
+            <CopyButton text={allSkillsText} />
+          </div>
           {profile.skills?.technical?.length > 0 && (
             <div style={{ marginBottom: 14 }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Technical</div>
@@ -321,6 +341,30 @@ export default function BuildResultsPage() {
               <strong>How to add:</strong> LinkedIn → Profile → Skills → Add skill → Search and add each skill. Top 3 skills appear on your profile card.
             </p>
           </div>
+        </div>
+
+        {/* Copy Full Profile */}
+        <div style={{ background: 'white', borderRadius: 14, padding: '24px 28px', marginBottom: 16, border: '1px solid #E0E0E0' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 800, color: '#1E40AF', margin: 0 }}>Copy Full Profile</h2>
+            <CopyButton text={fullProfileText} />
+          </div>
+          <p style={{ fontSize: 13, color: '#666', margin: 0 }}>Copies your entire generated profile as plain text — headline, about, experience, and skills in one go.</p>
+        </div>
+
+        {/* Connection Request Templates */}
+        <div style={{ background: 'white', borderRadius: 14, padding: '24px 28px', marginBottom: 16, border: '1px solid #E0E0E0' }}>
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: '#1E40AF', margin: '0 0 16px' }}>Connection Request Templates</h2>
+          <p style={{ fontSize: 13, color: '#666', marginBottom: 16 }}>Copy-paste these when sending connection requests on LinkedIn</p>
+          {connTemplates.map((t, i) => (
+            <div key={i} style={{ background: '#F9FAFB', borderRadius: 10, padding: '14px 16px', marginBottom: i < 2 ? 10 : 0, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#0A66C2', marginBottom: 4 }}>{t.label}</div>
+                <div style={{ fontSize: 13, color: '#333', lineHeight: 1.5 }}>{t.text}</div>
+              </div>
+              <CopyButton text={t.text} />
+            </div>
+          ))}
         </div>
 
         {/* Section 5: Setup Guide */}

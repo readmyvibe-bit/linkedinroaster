@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
@@ -63,7 +63,13 @@ function TagInput({ tags, setTags, placeholder }: { tags: string[]; setTags: (t:
 function BuildFormContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const plan = searchParams.get('plan') || 'starter';
+  const planParam = searchParams.get('plan');
+  const plan = planParam || 'starter';
+
+  // Redirect to pricing if no plan specified
+  useEffect(() => {
+    if (!planParam) router.replace('/build#pricing');
+  }, [planParam, router]);
 
   // Personal info
   const [fullName, setFullName] = useState('');
@@ -85,6 +91,7 @@ function BuildFormContent() {
   const [skills, setSkills] = useState<string[]>([]);
   const [certifications, setCertifications] = useState<string[]>([]);
   const [achievements, setAchievements] = useState('');
+  const [projects, setProjects] = useState('');
 
   // Upload
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -185,7 +192,7 @@ function BuildFormContent() {
         target_industry: targetIndustry, tone,
         education: education.filter(e => e.institution || e.degree),
         experience: experience.filter(e => e.company || e.role),
-        skills, certifications, achievements,
+        skills, certifications, achievements, projects,
       };
 
       const res = await fetch(`${API_URL}/api/build/create-order`, {
@@ -277,7 +284,7 @@ function BuildFormContent() {
           {/* Personal Info */}
           <div style={sectionStyle}>
             <h3 style={{ fontSize: 16, fontWeight: 700, color: '#191919', margin: '0 0 16px' }}>About You</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14 }}>
               <div>
                 <label style={labelStyle}>Full Name *</label>
                 <input value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Rahul Sharma" style={inputStyle} required />
@@ -330,7 +337,7 @@ function BuildFormContent() {
                 {education.length > 1 && (
                   <button type="button" onClick={() => removeEducation(i)} style={{ position: 'absolute', top: 8, right: 8, background: 'none', border: 'none', color: '#CC1016', cursor: 'pointer', fontSize: 18 }}>&times;</button>
                 )}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 10 }}>
                   <div><label style={labelStyle}>Institution</label><input value={edu.institution} onChange={e => updateEducation(i, 'institution', e.target.value)} placeholder="IIT Delhi" style={inputStyle} /></div>
                   <div><label style={labelStyle}>Degree</label><input value={edu.degree} onChange={e => updateEducation(i, 'degree', e.target.value)} placeholder="B.Tech" style={inputStyle} /></div>
                   <div><label style={labelStyle}>Field of Study</label><input value={edu.field} onChange={e => updateEducation(i, 'field', e.target.value)} placeholder="Computer Science" style={inputStyle} /></div>
@@ -352,7 +359,7 @@ function BuildFormContent() {
                 {experience.length > 1 && (
                   <button type="button" onClick={() => removeExperience(i)} style={{ position: 'absolute', top: 8, right: 8, background: 'none', border: 'none', color: '#CC1016', cursor: 'pointer', fontSize: 18 }}>&times;</button>
                 )}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 10, marginBottom: 10 }}>
                   <div><label style={labelStyle}>Company / Project</label><input value={exp.company} onChange={e => updateExperience(i, 'company', e.target.value)} placeholder="TCS / College Hackathon" style={inputStyle} /></div>
                   <div><label style={labelStyle}>Role</label><input value={exp.role} onChange={e => updateExperience(i, 'role', e.target.value)} placeholder="Data Analyst Intern" style={inputStyle} /></div>
                   <div><label style={labelStyle}>Start Date</label><input value={exp.start_date} onChange={e => updateExperience(i, 'start_date', e.target.value)} placeholder="Jan 2024" style={inputStyle} /></div>
@@ -371,6 +378,13 @@ function BuildFormContent() {
               </div>
             ))}
             <button type="button" onClick={addExperience} style={{ background: '#E8F0FE', color: '#0A66C2', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>+ Add Experience</button>
+          </div>
+
+          {/* Projects (especially useful for students/freshers) */}
+          <div style={sectionStyle}>
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: '#191919', margin: '0 0 16px' }}>Projects & Portfolio <span style={{ fontSize: 12, fontWeight: 400, color: '#888' }}>(optional)</span></h3>
+            <p style={{ fontSize: 12, color: '#666', marginBottom: 12 }}>Great for students and freshers — list your key projects, hackathons, or portfolio work</p>
+            <textarea value={projects} onChange={e => setProjects(e.target.value)} placeholder={"E-commerce app using React + Node.js — built full-stack shopping cart with payment integration\nCollege placement portal — helped 200+ students find internships\nKaggle competition — top 10% in sentiment analysis challenge"} rows={4} style={{ ...inputStyle, resize: 'vertical' as const }} />
           </div>
 
           {/* Skills & Certifications */}
@@ -401,8 +415,8 @@ function BuildFormContent() {
           {submitting ? (
             <div style={{ textAlign: 'center', padding: '32px 0' }}>
               <div style={{ width: 40, height: 40, border: '4px solid #E0E0E0', borderTopColor: '#0A66C2', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }} />
-              <p style={{ fontSize: 15, fontWeight: 600, color: '#191919', marginBottom: 4 }}>{LOADING_STAGES[loadingStage]}</p>
-              <p style={{ fontSize: 12, color: '#888' }}>Complete payment to start generation</p>
+              <p style={{ fontSize: 15, fontWeight: 600, color: '#191919', marginBottom: 4 }}>Waiting for payment confirmation...</p>
+              <p style={{ fontSize: 12, color: '#888' }}>Complete payment in the Razorpay window to continue</p>
               <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
             </div>
           ) : (
