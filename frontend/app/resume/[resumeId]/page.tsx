@@ -315,159 +315,90 @@ export default function ResumePreviewPage() {
         </div>
       </div>
 
-      {/* ─── CONTENT ─── */}
-      <div style={{ maxWidth: 794, margin: '0 auto', padding: '24px 16px 40px' }}>
-
-        {/* ─── ATS SCORE CARD ─── */}
-        <div style={{
-          background: '#fff', borderRadius: 12, padding: 20, marginBottom: 16,
-          border: '1px solid #E0E0E0', display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap',
-        }}>
-          {/* Score Circle */}
-          <div style={{ textAlign: 'center', flexShrink: 0 }}>
-            <div style={{
-              width: 80, height: 80, borderRadius: '50%', border: `6px solid ${scoreColor}`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 28, fontWeight: 700, color: scoreColor,
-            }}>
-              {resume.ats_score}
-            </div>
-            <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>ATS Score</div>
-          </div>
-
-          {/* Keyword Stats */}
-          <div style={{ flex: 1, minWidth: 180 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#333', marginBottom: 6 }}>
-              {matched} of {total} keywords matched
-            </div>
-            <div style={{ height: 8, background: '#E5E7EB', borderRadius: 4, overflow: 'hidden', marginBottom: 4 }}>
-              <div style={{ height: '100%', width: `${matchRate}%`, background: '#057642', borderRadius: 4 }} />
-            </div>
-            <div style={{ fontSize: 13, color: '#666' }}>{matchRate}% match rate</div>
-          </div>
-
-          {/* Quick Stats */}
-          <div style={{ textAlign: 'right', flexShrink: 0 }}>
-            <div style={{ fontSize: 13, color: '#666', marginBottom: 8 }}>{missing} missing keywords</div>
-            <button
-              onClick={() => setShowKeywords(!showKeywords)}
-              style={{
-                padding: '6px 14px', background: '#F3F2EF', color: '#0A66C2', border: '1px solid #D0D0D0',
-                borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-              }}
-            >
-              {showKeywords ? 'Hide Details' : 'View Details'}
-            </button>
-          </div>
-        </div>
-
-        {/* ─── EXPANDABLE KEYWORD SECTION ─── */}
-        {showKeywords && (
-          <div style={{
-            background: '#fff', borderRadius: 12, padding: 20, marginBottom: 16,
-            border: '1px solid #E0E0E0',
-          }}>
-            <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', marginBottom: 16 }}>
-              {/* Keywords Found */}
-              <div style={{ flex: 1, minWidth: 200 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#333', marginBottom: 8 }}>Keywords Found</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {(resume.keywords_matched || []).map((kw, i) => (
-                    <span key={i} style={{
-                      background: '#DCFCE7', color: '#057642', borderRadius: 12,
-                      padding: '2px 10px', fontSize: 12,
-                    }}>{kw}</span>
-                  ))}
-                  {!resume.keywords_matched?.length && <span style={{ fontSize: 12, color: '#999' }}>None</span>}
-                </div>
-              </div>
-              {/* Keywords Missing */}
-              <div style={{ flex: 1, minWidth: 200 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#333', marginBottom: 8 }}>Keywords Missing</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {(resume.keywords_missing || []).map((kw, i) => (
-                    <span key={i} style={{
-                      background: '#FEE2E2', color: '#CC1016', borderRadius: 12,
-                      padding: '2px 10px', fontSize: 12,
-                    }}>{kw}</span>
-                  ))}
-                  {!resume.keywords_missing?.length && <span style={{ fontSize: 12, color: '#999' }}>None</span>}
-                </div>
-              </div>
-            </div>
-
-            {/* Recommendations */}
-            {resume.recommendations?.length > 0 && (
-              <div>
-                {resume.recommendations.map((rec, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 6 }}>
-                    <span style={{ fontSize: 14, flexShrink: 0 }}>💡</span>
-                    <span style={{ fontSize: 13, color: '#444', lineHeight: 1.5 }}>{rec}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ─── TEMPLATE SWITCHER ─── */}
-        <div style={{
-          background: '#fff', borderRadius: 12, padding: '12px 16px', marginBottom: 16,
-          border: '1px solid #E0E0E0', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap',
-        }}>
+      {/* ─── TEMPLATE SWITCHER (full-width band) ─── */}
+      <div style={{ background: 'white', borderBottom: '1px solid #E0E0E0', padding: '10px 16px' }}>
+        <div style={{ maxWidth: 1400, margin: '0 auto', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: '#333', marginRight: 4 }}>Template:</span>
           {TEMPLATES.map((t) => {
             const locked = orderPlan !== 'pro' && (t as any).proOnly;
             return (
-            <button
-              key={t.id}
-              onClick={() => setTemplateId(t.id)}
-              style={{
-                padding: '4px 12px', borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                border: templateId === t.id ? '2px solid #0A66C2' : '1px solid #D0D0D0',
-                background: templateId === t.id ? '#E8F0FE' : locked ? '#F9FAFB' : '#fff',
-                color: templateId === t.id ? '#0A66C2' : locked ? '#999' : '#666',
-                transition: 'all 0.15s',
-              }}
-            >
+            <button key={t.id} onClick={() => setTemplateId(t.id)}
+              style={{ padding: '4px 10px', borderRadius: 16, fontSize: 11, fontWeight: 600, cursor: 'pointer', border: templateId === t.id ? '2px solid #0A66C2' : '1px solid #D0D0D0', background: templateId === t.id ? '#E8F0FE' : locked ? '#F9FAFB' : '#fff', color: templateId === t.id ? '#0A66C2' : locked ? '#999' : '#666' }}>
               {t.name}{locked ? ' 🔒' : ''}
             </button>
           );})}
         </div>
+      </div>
 
-        {/* ─── PRINT CONTROLS ─── */}
-        <div style={{
-          background: '#fff', borderRadius: 12, padding: '10px 16px', marginBottom: 16,
-          border: '1px solid #E0E0E0', display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap',
-        }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#333' }}>Print:</span>
-          {/* Print Size */}
-          <div style={{ display: 'flex', gap: 0, borderRadius: 8, overflow: 'hidden', border: '1px solid #D0D0D0' }}>
-            {(['compact', 'standard', 'spacious'] as const).map(s => (
-              <button key={s} onClick={() => { setPrintSize(s); savePrintSettings(s, fitOnePage); }}
-                style={{
-                  padding: '5px 14px', fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer',
-                  background: printSize === s ? '#0A66C2' : '#fff',
-                  color: printSize === s ? '#fff' : '#666',
-                }}>
-                {s.charAt(0).toUpperCase() + s.slice(1)}
-              </button>
-            ))}
+      {/* ─── MAIN CONTENT: Left sidebar + Right preview ─── */}
+      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '20px 16px 40px', display: 'flex', gap: 20, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+
+        {/* LEFT SIDEBAR (260px) */}
+        <div className="hidden md:block" style={{ width: 260, flexShrink: 0, position: 'sticky', top: 60 }}>
+          {/* ATS Score */}
+          <div style={{ background: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, border: '1px solid #E0E0E0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+              <div style={{ width: 56, height: 56, borderRadius: '50%', border: `5px solid ${scoreColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 700, color: scoreColor, flexShrink: 0 }}>{resume.ats_score}</div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#333' }}>ATS Score</div>
+                <div style={{ fontSize: 11, color: '#666' }}>{matched}/{total} keywords • {matchRate}%</div>
+              </div>
+            </div>
+            <div style={{ height: 6, background: '#E5E7EB', borderRadius: 3, overflow: 'hidden', marginBottom: 8 }}>
+              <div style={{ height: '100%', width: `${matchRate}%`, background: '#057642', borderRadius: 3 }} />
+            </div>
+            <button onClick={() => setShowKeywords(!showKeywords)} style={{ width: '100%', padding: '6px', background: '#F3F2EF', color: '#0A66C2', border: '1px solid #D0D0D0', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+              {showKeywords ? 'Hide Keywords' : `View ${missing} Missing Keywords`}
+            </button>
+            {showKeywords && (
+              <div style={{ marginTop: 10 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#057642', marginBottom: 4 }}>Matched</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 8 }}>
+                  {(resume.keywords_matched || []).map((kw, i) => <span key={i} style={{ background: '#DCFCE7', color: '#057642', borderRadius: 10, padding: '1px 8px', fontSize: 10 }}>{kw}</span>)}
+                </div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#CC1016', marginBottom: 4 }}>Missing</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  {(resume.keywords_missing || []).map((kw, i) => <span key={i} style={{ background: '#FEE2E2', color: '#CC1016', borderRadius: 10, padding: '1px 8px', fontSize: 10 }}>{kw}</span>)}
+                </div>
+              </div>
+            )}
           </div>
-          {/* Pages */}
-          <div style={{ display: 'flex', gap: 0, borderRadius: 8, overflow: 'hidden', border: '1px solid #D0D0D0' }}>
-            <button onClick={() => { setFitOnePage(true); savePrintSettings(printSize, true); }}
-              style={{
-                padding: '5px 14px', fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer',
-                background: fitOnePage ? '#0A66C2' : '#fff', color: fitOnePage ? '#fff' : '#666',
-              }}>1 Page</button>
-            <button onClick={() => { setFitOnePage(false); savePrintSettings(printSize, false); }}
-              style={{
-                padding: '5px 14px', fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer',
-                background: !fitOnePage ? '#0A66C2' : '#fff', color: !fitOnePage ? '#fff' : '#666',
-              }}>2 Pages</button>
+
+          {/* Print Controls */}
+          <div style={{ background: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, border: '1px solid #E0E0E0' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#333', marginBottom: 10 }}>Print Settings</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: '#666', marginBottom: 6 }}>Size</div>
+            <div style={{ display: 'flex', gap: 0, borderRadius: 8, overflow: 'hidden', border: '1px solid #D0D0D0', marginBottom: 10 }}>
+              {(['compact', 'standard', 'spacious'] as const).map(s => (
+                <button key={s} onClick={() => { setPrintSize(s); savePrintSettings(s, fitOnePage); }}
+                  style={{ flex: 1, padding: '5px 0', fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer', background: printSize === s ? '#0A66C2' : '#fff', color: printSize === s ? '#fff' : '#666' }}>
+                  {s.charAt(0).toUpperCase() + s.slice(1)}
+                </button>
+              ))}
+            </div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: '#666', marginBottom: 6 }}>Pages</div>
+            <div style={{ display: 'flex', gap: 0, borderRadius: 8, overflow: 'hidden', border: '1px solid #D0D0D0' }}>
+              <button onClick={() => { setFitOnePage(true); savePrintSettings(printSize, true); }}
+                style={{ flex: 1, padding: '5px 0', fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer', background: fitOnePage ? '#0A66C2' : '#fff', color: fitOnePage ? '#fff' : '#666' }}>1 Page</button>
+              <button onClick={() => { setFitOnePage(false); savePrintSettings(printSize, false); }}
+                style={{ flex: 1, padding: '5px 0', fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer', background: !fitOnePage ? '#0A66C2' : '#fff', color: !fitOnePage ? '#fff' : '#666' }}>2 Pages</button>
+            </div>
           </div>
+
+          {/* Cover Letter Quick Actions */}
+          {resume.cover_letter && (
+            <div style={{ background: '#fff', borderRadius: 12, padding: 16, border: '1px solid #E0E0E0' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#333', marginBottom: 10 }}>Cover Letter</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <button onClick={handleCopyCoverLetter} style={{ width: '100%', padding: '6px', background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer' }}>{coverLetterCopied ? '✓ Copied!' : '📋 Copy'}</button>
+                <button onClick={handleDownloadCoverLetterPDF} style={{ width: '100%', padding: '6px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer' }}>&#128196; Download PDF</button>
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* RIGHT — Resume Preview (fluid) */}
+        <div style={{ flex: 1, minWidth: 0 }}>
 
         {/* ─── RESUME PREVIEW ─── */}
         <div style={{ position: 'relative' }}>
@@ -516,61 +447,31 @@ export default function ResumePreviewPage() {
           )}
         </div>
 
-        {/* ─── COVER LETTER ─── */}
-        {resume.cover_letter && (
-          <div style={{ maxWidth: 794, margin: '24px auto 0', background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', overflow: 'hidden' }}>
+        </div>
+      </div>
+
+      {/* ─── COVER LETTER (full-width band) ─── */}
+      {resume.cover_letter && (
+        <div style={{ background: '#F8FAFC', borderTop: '1px solid #E8E8E8', padding: '28px 16px' }}>
+          <div style={{ maxWidth: 800, margin: '0 auto', background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', overflow: 'hidden' }}>
             <div style={{ background: '#004182', padding: '12px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ color: 'white', fontSize: 15, fontWeight: 700 }}>Cover Letter</div>
               <div style={{ display: 'flex', gap: 8 }}>
-                <button
-                  onClick={handleCopyCoverLetter}
-                  style={{ background: 'white', color: '#004182', border: 'none', borderRadius: 16, padding: '4px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
-                >
-                  {coverLetterCopied ? 'Copied!' : 'Copy'}
-                </button>
-                <button
-                  onClick={handleDownloadCoverLetterPDF}
-                  style={{ background: 'white', color: '#004182', border: 'none', borderRadius: 16, padding: '4px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
-                >
-                  Download PDF
-                </button>
+                <button onClick={handleCopyCoverLetter} style={{ background: 'white', color: '#004182', border: 'none', borderRadius: 16, padding: '4px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{coverLetterCopied ? 'Copied!' : 'Copy'}</button>
+                <button onClick={handleDownloadCoverLetterPDF} style={{ background: 'white', color: '#004182', border: 'none', borderRadius: 16, padding: '4px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Download PDF</button>
               </div>
             </div>
-            <div style={{ padding: '24px', fontSize: 14, color: '#374151', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
-              {resume.cover_letter}
-            </div>
+            <div style={{ padding: '24px', fontSize: 14, color: '#374151', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>{resume.cover_letter}</div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* ─── BOTTOM ACTIONS ─── */}
-        <div style={{ textAlign: 'center', marginTop: 24, display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
-          <a
-            href={`/resume?orderId=${resume.order_id}`}
-            style={{
-              display: 'inline-block', padding: '10px 24px', background: '#0A66C2', color: '#fff',
-              borderRadius: 24, fontSize: 14, fontWeight: 600, textDecoration: 'none',
-            }}
-          >
-            Generate Another Resume
-          </a>
-          <a
-            href={resultsUrl}
-            style={{
-              display: 'inline-block', padding: '10px 24px', background: '#fff', color: '#666',
-              border: '1px solid #999', borderRadius: 24, fontSize: 14, fontWeight: 600, textDecoration: 'none',
-            }}
-          >
-            Back to Results
-          </a>
-          <a
-            href="/dashboard"
-            style={{
-              display: 'inline-block', padding: '10px 24px', background: '#0A66C2', color: 'white',
-              borderRadius: 24, fontSize: 14, fontWeight: 600, textDecoration: 'none',
-            }}
-          >
-            My Dashboard
-          </a>
+      {/* ─── BOTTOM ACTIONS (full-width band) ─── */}
+      <div style={{ background: 'white', borderTop: '1px solid #E8E8E8', padding: '20px 16px' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center', display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <a href={`/resume?orderId=${resume.order_id}`} style={{ display: 'inline-block', padding: '10px 24px', background: '#0A66C2', color: '#fff', borderRadius: 24, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>Generate Another Resume</a>
+          <a href={resultsUrl} style={{ display: 'inline-block', padding: '10px 24px', background: '#fff', color: '#666', border: '1px solid #999', borderRadius: 24, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>Back to Results</a>
+          <a href="/dashboard" style={{ display: 'inline-block', padding: '10px 24px', background: '#0A66C2', color: 'white', borderRadius: 24, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>My Dashboard</a>
         </div>
       </div>
     </div>
