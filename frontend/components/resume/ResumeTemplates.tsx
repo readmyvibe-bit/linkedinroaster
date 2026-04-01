@@ -1990,7 +1990,7 @@ function renderSalesBD(data: ResumeData): React.ReactNode {
           {hdr('Education')}
           {data.education.map((edu, i) => (
             <div key={i} style={{ marginBottom: '6px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-              <div><span style={{ fontWeight: 700, color: '#0F172A' }}>{getEduDegree(edu)}</span> — <span style={{ color: '#64748B' }}>{getEduSchool(edu)}</span></div>
+              <div><span style={{ fontWeight: 700, color: '#0F172A' }}>{getEduDegree(edu)}</span> — <span style={{ color: '#64748B' }}>{getEduSchool(edu)}</span>{edu.gpa && <span style={{ color: '#94A3B8', fontSize: '11px' }}> — GPA: {edu.gpa}</span>}</div>
               <span style={{ fontSize: '10px', color: '#94A3B8' }}>{getEduDates(edu)}</span>
             </div>
           ))}
@@ -2384,7 +2384,7 @@ function printSidebar(data: ResumeData): string {
   if (data.education?.length) {
     sidebar += `<div>${sideHdr('Education')}`;
     data.education.forEach(edu => {
-      sidebar += `<div style="margin-bottom:8px"><div style="font-weight:700;font-size:9px;color:#fff">${esc(getEduDegree(edu))}</div><div style="font-size:9px;color:rgba(255,255,255,0.7)">${esc(getEduSchool(edu))}</div></div>`;
+      sidebar += `<div style="margin-bottom:8px"><div style="font-weight:700;font-size:9px;color:#fff">${esc(getEduDegree(edu))}</div><div style="font-size:9px;color:rgba(255,255,255,0.7)">${esc(getEduSchool(edu))}</div><div style="font-size:8px;color:rgba(255,255,255,0.5)">${esc(getEduDates(edu))}${edu.gpa ? ` &mdash; GPA: ${esc(edu.gpa)}` : ''}</div></div>`;
     });
     sidebar += `</div>`;
   }
@@ -2551,44 +2551,6 @@ function printCorporate(data: ResumeData): string {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // Single-column styled print for visual templates (reliable PDF)
-function printVisualAsStyled(data: ResumeData, accentColor: string, headerBg: string, headerText: string): string {
-  const c = data.contact || {};
-  const cp = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean).map(esc).join('  |  ');
-  const skillGroups = normalizeSkills(data.skills);
-  const hdr = (t: string) => `<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:${accentColor};border-bottom:2px solid ${accentColor};padding-bottom:3px;margin:20px 0 8px">${t}</div>`;
-
-  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5">`;
-  // Styled header
-  h += `<div style="background:${headerBg};padding:20px 32px;margin:-10mm -12mm 16px;width:calc(100% + 24mm)"><div style="font-size:24px;font-weight:700;color:${headerText}">${esc(c.name) || 'Your Name'}</div>`;
-  if (cp) h += `<div style="font-size:10px;color:${headerText === '#fff' ? 'rgba(255,255,255,0.7)' : '#666'};margin-top:4px">${cp}</div>`;
-  h += `</div>`;
-  // Summary
-  if (data.summary) h += `${hdr('Professional Summary')}<div style="color:#374151">${esc(data.summary)}</div>`;
-  // Experience
-  if (data.experience?.length) h += `${hdr('Work Experience')}${buildExpHTML(data, '&bull;', 'font-size:10px;color:#888;font-style:italic', 'color:#666;font-style:italic;font-size:10px', 'font-weight:700;color:#111')}`;
-  // Skills
-  if (skillGroups.length) {
-    h += hdr('Skills');
-    skillGroups.forEach(g => {
-      h += `<div style="margin-bottom:6px">`;
-      if (skillGroups.length > 1) h += `<span style="font-weight:700;color:${accentColor}">${esc(g.label)}: </span>`;
-      h += `<span style="color:#374151">${g.items.map(esc).join(', ')}</span></div>`;
-    });
-  }
-  // Education
-  if (data.education?.length) {
-    h += hdr('Education');
-    data.education.forEach(edu => {
-      h += `<div style="margin-bottom:8px"><div style="font-weight:700;color:#111">${esc(getEduDegree(edu))}${getEduSchool(edu) ? ' — ' + esc(getEduSchool(edu)) : ''}</div><div style="font-size:10px;color:#666">${esc(getEduDates(edu))}${edu.gpa ? ' | GPA: ' + esc(edu.gpa) : ''}</div></div>`;
-    });
-  }
-  // Achievements
-  const ach = buildAchievementsHTML(data, '&bull;');
-  if (ach) h += `${hdr('Achievements')}${ach}`;
-  h += `</div>`;
-  return printPageWrapper(h);
-}
-
 // ─── Print: Monochrome Prestige ────────────────────────────────────────────
 
 function printMonochrome(data: ResumeData): string {
@@ -3021,7 +2983,7 @@ function printSalesBD(data: ResumeData): string {
   if (data.education?.length) {
     h += `<div style="margin-bottom:16px">${hdr('Education')}`;
     data.education.forEach(edu => {
-      h += `<div style="margin-bottom:6px;display:flex;justify-content:space-between;flex-wrap:wrap"><div><span style="font-weight:700;color:#0F172A">${esc(getEduDegree(edu))}</span> &mdash; <span style="color:#64748B">${esc(getEduSchool(edu))}</span></div><span style="font-size:11px;color:#94A3B8">${esc(getEduDates(edu))}</span></div>`;
+      h += `<div style="margin-bottom:6px;display:flex;justify-content:space-between;flex-wrap:wrap"><div><span style="font-weight:700;color:#0F172A">${esc(getEduDegree(edu))}</span> &mdash; <span style="color:#64748B">${esc(getEduSchool(edu))}</span>${edu.gpa ? ` <span style="color:#94A3B8;font-size:11px">&mdash; GPA: ${esc(edu.gpa)}</span>` : ''}</div><span style="font-size:11px;color:#94A3B8">${esc(getEduDates(edu))}</span></div>`;
     });
     h += `</div>`;
   }
