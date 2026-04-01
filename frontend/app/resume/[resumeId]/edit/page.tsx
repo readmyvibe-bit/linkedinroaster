@@ -418,67 +418,35 @@ export default function ResumeEditorPage() {
   // ─── Download PDF ───
   function handleDownloadPDF() {
     if (!resumeData) return;
-    const baseHtml = buildPrintHTML(resumeData, templateId);
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const compactCSS = 'body{font-size:92%!important;line-height:1.35!important}body div,body p{margin-bottom:2px!important}';
-    const spaciousCSS = 'body{font-size:108%!important;line-height:1.65!important}';
+    let html = buildPrintHTML(resumeData, templateId);
     const size = resumeData.printSize || 'standard';
 
-    let html = baseHtml;
-    if (isMobile) html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 8mm 8mm 8mm}');
-
-    const fitPage = resumeData.fitOnePage !== false;
-    if (!fitPage) {
-      if (size === 'compact') html = html.replace('</style>', compactCSS + '</style>');
-      else if (size === 'spacious') html = html.replace('</style>', spaciousCSS + '</style>');
-      const win = window.open('', '_blank');
-      if (!win) { alert('Please allow popups to download PDF.'); return; }
-      win.document.write(html);
-      win.document.close();
-      win.document.title = ' ';
-      setTimeout(() => win.print(), 800);
-      return;
+    // Apply print size CSS
+    if (size === 'compact') {
+      html = html.replace('</style>', 'body{font-size:92%!important;line-height:1.35!important}body div,body p{margin-bottom:2px!important}' + '</style>');
+    } else if (size === 'spacious') {
+      html = html.replace('</style>', 'body{font-size:108%!important;line-height:1.65!important}' + '</style>');
     }
 
-    // 1-page mode: smart pipeline
+    // 1-page mode: tighter margins
+    const fitPage = resumeData.fitOnePage !== false;
+    if (fitPage) {
+      html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 10mm 8mm 10mm}');
+    }
+
+    // Mobile: even tighter
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile) {
+      html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:6mm 8mm 6mm 8mm}');
+    }
+
+    // Open and print — no zoom, no measurement
     const win = window.open('', '_blank');
     if (!win) { alert('Please allow popups to download PDF.'); return; }
     win.document.write(html);
     win.document.close();
     win.document.title = ' ';
-
-    setTimeout(() => {
-      const body = win.document.body;
-      const A4_HEIGHT = 1122.5;
-      const marginPx = isMobile ? 60 : 83;
-      const available = A4_HEIGHT - marginPx - 10;
-      let contentHeight = body.scrollHeight;
-
-      if (contentHeight <= available) {
-        if (size === 'spacious') {
-          const s = win.document.createElement('style'); s.textContent = spaciousCSS; win.document.head.appendChild(s);
-          const nh = body.scrollHeight;
-          if (nh > available) (body.style as any).zoom = String(available / nh);
-        }
-        setTimeout(() => win.print(), 200);
-        return;
-      }
-
-      {
-        const s = win.document.createElement('style'); s.textContent = compactCSS; win.document.head.appendChild(s);
-        contentHeight = body.scrollHeight;
-      }
-
-      if (contentHeight <= available) { setTimeout(() => win.print(), 200); return; }
-
-      const scale = available / contentHeight;
-      if (scale >= 0.78) {
-        (body.style as any).zoom = String(scale);
-      } else {
-        alert('This resume has too much content for 1 page. Try "2 Pages" mode or remove some content.');
-      }
-      setTimeout(() => win.print(), 200);
-    }, 800);
+    setTimeout(() => win.print(), 600);
   }
 
   // ─── Loading ───

@@ -128,86 +128,33 @@ export default function ResumePreviewPage() {
       alert(`"${currentTemplate?.name}" is a Pro template. Upgrade to Pro for ₹500 to unlock all 23 templates.`);
       return;
     }
-    const baseHtml = buildPrintHTML(resume.resume_data, templateId);
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    let html = buildPrintHTML(resume.resume_data, templateId);
 
-    // CSS injectors
-    const compactCSS = 'body{font-size:92%!important;line-height:1.35!important}body div,body p{margin-bottom:2px!important}';
-    const spaciousCSS = 'body{font-size:108%!important;line-height:1.65!important}';
-
-    let html = baseHtml;
-    if (isMobile) html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 8mm 8mm 8mm}');
-
-    // 2-page mode: apply printSize directly, print naturally
-    if (!fitOnePage) {
-      if (printSize === 'compact') html = html.replace('</style>', compactCSS + '</style>');
-      else if (printSize === 'spacious') html = html.replace('</style>', spaciousCSS + '</style>');
-      const win = window.open('', '_blank');
-      if (!win) { alert('Please allow popups to download PDF.'); return; }
-      win.document.write(html);
-      win.document.close();
-      win.document.title = ' ';
-      setTimeout(() => win.print(), 800);
-      return;
+    // Apply print size CSS
+    if (printSize === 'compact') {
+      html = html.replace('</style>', 'body{font-size:92%!important;line-height:1.35!important}body div,body p{margin-bottom:2px!important}' + '</style>');
+    } else if (printSize === 'spacious') {
+      html = html.replace('</style>', 'body{font-size:108%!important;line-height:1.65!important}' + '</style>');
     }
 
-    // 1-page mode: smart pipeline — measure first at Standard, then apply size if needed
+    // 1-page mode: tighter margins to maximize printable area
+    if (fitOnePage) {
+      html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 10mm 8mm 10mm}');
+    }
+
+    // Mobile: even tighter margins
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile) {
+      html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:6mm 8mm 6mm 8mm}');
+    }
+
+    // Open and print — no zoom, no measurement, no scale
     const win = window.open('', '_blank');
     if (!win) { alert('Please allow popups to download PDF.'); return; }
-    win.document.write(html); // Standard size first (no compact/spacious yet)
+    win.document.write(html);
     win.document.close();
     win.document.title = ' ';
-
-    setTimeout(() => {
-      const body = win.document.body;
-      const A4_HEIGHT = 1122.5;
-      const marginPx = isMobile ? 60 : 83;
-      const available = A4_HEIGHT - marginPx - 10;
-      let contentHeight = body.scrollHeight;
-
-      // Step 1: Fits at Standard — print as-is, no zoom
-      if (contentHeight <= available) {
-        // Only apply Spacious if user explicitly chose it
-        if (printSize === 'spacious') {
-          const style = win.document.createElement('style');
-          style.textContent = spaciousCSS;
-          win.document.head.appendChild(style);
-          const newHeight = body.scrollHeight;
-          if (newHeight > available) {
-            (body.style as any).zoom = String(available / newHeight);
-          }
-        }
-        // Standard/Compact: content fits, print as-is — no zoom up/down
-        setTimeout(() => win.print(), 200);
-        return;
-      }
-
-      // Step 2: Content overflows — auto-apply Compact to try to fit
-      {
-        const style = win.document.createElement('style');
-        style.textContent = compactCSS;
-        win.document.head.appendChild(style);
-        contentHeight = body.scrollHeight;
-      }
-
-      // Step 3: After compact, check fit
-      if (contentHeight <= available) {
-        // Compact was enough — no zoom needed
-        setTimeout(() => win.print(), 200);
-        return;
-      }
-
-      // Step 4: Still overflows after compact — zoom down
-      const scale = available / contentHeight;
-      if (scale >= 0.78) {
-        (body.style as any).zoom = String(scale);
-        setTimeout(() => win.print(), 200);
-      } else {
-        // Needs >22% shrink — too much for 1 page, suggest 2 pages
-        alert('This resume has too much content for 1 page. Try "2 Pages" mode or remove some content in the editor.');
-        setTimeout(() => win.print(), 200);
-      }
-    }, 800);
+    setTimeout(() => win.print(), 600);
   }
 
   function handleDownloadCoverLetterPDF() {
