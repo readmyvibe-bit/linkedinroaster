@@ -129,53 +129,50 @@ export default function ResumePreviewPage() {
       return;
     }
     let html = buildPrintHTML(resume.resume_data, templateId);
-
-    // Apply printSize CSS
-    if (printSize === 'compact') {
-      html = html.replace('</style>', '.print-content-root{font-size:92%!important;line-height:1.35!important}.print-content-root div,.print-content-root p{margin-bottom:2px!important}' + '</style>');
-    } else if (printSize === 'spacious') {
-      html = html.replace('</style>', '.print-content-root{font-size:108%!important;line-height:1.65!important}' + '</style>');
-    }
-
-    // Mobile: reduce @page margins
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (isMobile) html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 8mm 8mm 8mm}');
 
+    // Apply printSize CSS
+    if (printSize === 'compact') {
+      html = html.replace('</style>', 'body{font-size:92%!important;line-height:1.35!important}body div,body p{margin-bottom:2px!important}' + '</style>');
+    } else if (printSize === 'spacious') {
+      html = html.replace('</style>', 'body{font-size:108%!important;line-height:1.65!important}' + '</style>');
+    }
+
+    if (!fitOnePage) {
+      // 2-page mode: just print, let content flow naturally
+      const win = window.open('', '_blank');
+      if (!win) { alert('Please allow popups to download PDF.'); return; }
+      win.document.write(html);
+      win.document.close();
+      win.document.title = ' ';
+      setTimeout(() => win.print(), 800);
+      return;
+    }
+
+    // 1-page mode: measure in print tab, apply zoom on BODY if needed
     const win = window.open('', '_blank');
     if (!win) { alert('Please allow popups to download PDF.'); return; }
     win.document.write(html);
     win.document.close();
     win.document.title = ' ';
 
-    const A4_HEIGHT = 1122.5;
-    const marginPx = isMobile ? 60 : 83;
-    const available = A4_HEIGHT - marginPx - 10;
-
-    if (!fitOnePage) {
-      // 2-page mode: ensure page 2 has substantial content (not just 1-2 lines)
-      setTimeout(() => {
-        const root = win.document.querySelector('.print-content-root') as HTMLElement;
-        if (!root) { win.print(); return; }
-        const contentHeight = root.scrollHeight;
-        const overflow = contentHeight - available;
-        // If 1-5 lines spill (< 100px overflow), expand spacing so more flows to page 2
-        if (overflow > 0 && overflow < 100) {
-          root.style.lineHeight = '1.75';
-          root.style.letterSpacing = '0.02em';
-        }
-        setTimeout(() => win.print(), 200);
-      }, 800);
-      return;
-    }
-
-    // Fit 1 page: measure in print tab and scale to fit
     setTimeout(() => {
-      const root = win.document.querySelector('.print-content-root') as HTMLElement;
-      if (!root) { win.print(); return; }
-      const contentHeight = root.scrollHeight;
-      if (contentHeight > available && contentHeight < available * 1.5) {
-        const scale = Math.max(0.78, available / contentHeight);
-        (root.style as any).zoom = String(scale);
+      const body = win.document.body;
+      const A4_HEIGHT = 1122.5;
+      const marginPx = isMobile ? 60 : 83;
+      const available = A4_HEIGHT - marginPx - 10;
+      const contentHeight = body.scrollHeight;
+
+      if (contentHeight > available) {
+        const scale = available / contentHeight;
+        if (scale >= 0.78) {
+          // Fits with reasonable zoom — apply on body
+          (body.style as any).zoom = String(scale);
+        } else {
+          // Too much content for 1 page (needs >22% shrink) — auto-switch to 2 pages
+          // Don't make text unreadably small
+        }
       }
       setTimeout(() => win.print(), 200);
     }, 800);

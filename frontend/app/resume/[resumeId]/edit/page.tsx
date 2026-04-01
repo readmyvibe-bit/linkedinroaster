@@ -419,53 +419,49 @@ export default function ResumeEditorPage() {
   function handleDownloadPDF() {
     if (!resumeData) return;
     let html = buildPrintHTML(resumeData, templateId);
-
-    // Apply printSize CSS
-    const size = resumeData.printSize || 'standard';
-    if (size === 'compact') {
-      html = html.replace('</style>', '.print-content-root{font-size:92%!important;line-height:1.35!important}.print-content-root div,.print-content-root p{margin-bottom:2px!important}' + '</style>');
-    } else if (size === 'spacious') {
-      html = html.replace('</style>', '.print-content-root{font-size:108%!important;line-height:1.65!important}' + '</style>');
-    }
-
-    // Mobile: reduce @page margins
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (isMobile) html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 8mm 8mm 8mm}');
 
+    // Apply printSize CSS on body
+    const size = resumeData.printSize || 'standard';
+    if (size === 'compact') {
+      html = html.replace('</style>', 'body{font-size:92%!important;line-height:1.35!important}body div,body p{margin-bottom:2px!important}' + '</style>');
+    } else if (size === 'spacious') {
+      html = html.replace('</style>', 'body{font-size:108%!important;line-height:1.65!important}' + '</style>');
+    }
+
+    const fitPage = resumeData.fitOnePage !== false;
+    if (!fitPage) {
+      // 2-page mode: just print naturally
+      const win = window.open('', '_blank');
+      if (!win) { alert('Please allow popups to download PDF.'); return; }
+      win.document.write(html);
+      win.document.close();
+      win.document.title = ' ';
+      setTimeout(() => win.print(), 800);
+      return;
+    }
+
+    // 1-page mode: measure in print tab, apply zoom on BODY
     const win = window.open('', '_blank');
     if (!win) { alert('Please allow popups to download PDF.'); return; }
     win.document.write(html);
     win.document.close();
     win.document.title = ' ';
 
-    const A4_HEIGHT = 1122.5;
-    const marginPx = isMobile ? 60 : 83;
-    const available = A4_HEIGHT - marginPx - 10;
-
-    const fitPage = resumeData.fitOnePage !== false;
-    if (!fitPage) {
-      // 2-page mode: ensure page 2 has substantial content
-      setTimeout(() => {
-        const root = win.document.querySelector('.print-content-root') as HTMLElement;
-        if (!root) { win.print(); return; }
-        const overflow = root.scrollHeight - available;
-        if (overflow > 0 && overflow < 100) {
-          root.style.lineHeight = '1.75';
-          root.style.letterSpacing = '0.02em';
-        }
-        setTimeout(() => win.print(), 200);
-      }, 800);
-      return;
-    }
-
-    // Fit 1 page: measure and scale
     setTimeout(() => {
-      const root = win.document.querySelector('.print-content-root') as HTMLElement;
-      if (!root) { win.print(); return; }
-      const contentHeight = root.scrollHeight;
-      if (contentHeight > available && contentHeight < available * 1.5) {
-        const scale = Math.max(0.78, available / contentHeight);
-        (root.style as any).zoom = String(scale);
+      const body = win.document.body;
+      const A4_HEIGHT = 1122.5;
+      const marginPx = isMobile ? 60 : 83;
+      const available = A4_HEIGHT - marginPx - 10;
+      const contentHeight = body.scrollHeight;
+
+      if (contentHeight > available) {
+        const scale = available / contentHeight;
+        if (scale >= 0.78) {
+          (body.style as any).zoom = String(scale);
+        }
+        // If scale < 0.78: too much content, let it flow to 2 pages naturally
       }
       setTimeout(() => win.print(), 200);
     }, 800);
