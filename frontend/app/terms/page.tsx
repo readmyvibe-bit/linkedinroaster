@@ -67,9 +67,9 @@ export default function TermsPage() {
             <p>Available as part of paid plans:</p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li>AI-generated ATS-optimized resume from LinkedIn profile data or build data</li>
-              <li>20 professional resume templates (12 standard + 8 Pro-exclusive)</li>
+              <li>25 professional resume templates (15 standard + 10 Pro-exclusive)</li>
               <li>Cover letter generation</li>
-              <li>PDF and DOCX download</li>
+              <li>PDF and TXT download</li>
               <li>Live resume editor with drag-to-reorder</li>
               <li>ATS score and keyword analysis</li>
             </ul>
@@ -193,10 +193,10 @@ export default function TermsPage() {
             <h2 className="text-lg font-bold mb-3">8. Resume Builder Terms</h2>
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li><strong>Resume limits:</strong> Standard/Plus plans include 1 resume per order. Pro plans include 3 resumes per order. Limits are enforced per order, not per user.</li>
-              <li><strong>Template access:</strong> 15 templates are available to all plans. 8 additional premium templates are exclusive to Pro plans. Attempting to use a Pro template on a non-Pro plan will be blocked.</li>
+              <li><strong>Template access:</strong> 15 templates are available to all plans. 10 additional premium templates are exclusive to Pro plans. Attempting to use a Pro template on a non-Pro plan will be blocked.</li>
               <li><strong>Resume editing:</strong> Users may edit generated resumes at any time via the live editor. Edits are saved automatically.</li>
               <li><strong>Data accuracy:</strong> The AI generates resume content based on the data you provide. We do not fabricate education, certifications, or employment history. Users must verify all content for accuracy before using it in job applications.</li>
-              <li><strong>PDF/DOCX download:</strong> Users may download resumes in PDF (via browser print) and DOCX format. Downloaded files are yours to use without restriction.</li>
+              <li><strong>PDF/TXT download:</strong> Users may download resumes in PDF (via browser print) and TXT format. Downloaded files are yours to use without restriction.</li>
             </ul>
           </section>
 

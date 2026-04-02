@@ -771,7 +771,7 @@ export default function Home() {
                 <div style={{ fontSize: 18, fontWeight: 800, color: '#191919' }}>ATS Resume Builder</div>
               </div>
               <div style={{ fontSize: 14, color: '#555', lineHeight: 1.65, marginBottom: 16, flex: 1 }}>
-                Turn your LinkedIn rewrite into an ATS-optimized resume. Match keywords to any job description. Download as PDF or DOCX.
+                Turn your LinkedIn rewrite into an ATS-optimized resume. Match keywords to any job description. Download as PDF + TXT.
               </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {['25 Templates', 'ATS Score Match', 'PDF + TXT', 'Live Editor'].map((t, i) => (
@@ -1162,7 +1162,7 @@ export default function Home() {
                 { icon: '&#128196;', title: '25 Professional Templates', desc: 'ATS-friendly, modern, executive, creative — pick your style' },
                 { icon: '&#127919;', title: 'ATS Score & Keywords', desc: 'Real-time keyword matching against job descriptions' },
                 { icon: '&#9997;&#65039;', title: 'Live Editor', desc: 'Edit sections, drag to reorder, auto-save' },
-                { icon: '&#128229;', title: 'PDF + DOCX Download', desc: 'Download in both formats, ready for any application' },
+                { icon: '&#128229;', title: 'PDF + TXT Download', desc: 'Download in both formats, ready for any application' },
               ].map((f, i) => (
                 <div key={i} style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, padding: '14px 18px', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                   <span style={{ fontSize: 22, flexShrink: 0 }} dangerouslySetInnerHTML={{ __html: f.icon }} />

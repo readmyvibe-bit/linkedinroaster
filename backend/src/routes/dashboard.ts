@@ -152,6 +152,20 @@ router.get('/data', dashAuth, async (req: Request, res: Response) => {
       [email],
     );
 
+    // Interview preps — joined via resumes
+    const interviewPreps = await query(
+      `SELECT ip.id, ip.target_role, ip.target_company, ip.status, ip.created_at
+       FROM interview_preps ip
+       JOIN resumes r ON r.id = ip.resume_id
+       WHERE r.order_id IN (
+         SELECT id FROM orders WHERE email=$1
+         UNION
+         SELECT id FROM build_orders WHERE email=$1
+       )
+       ORDER BY ip.created_at DESC`,
+      [email],
+    );
+
     res.json({
       roastOrders: roastOrders.rows.map((o: any) => ({
         id: o.id, plan: o.plan, status: o.processing_status,
@@ -170,6 +184,10 @@ router.get('/data', dashAuth, async (req: Request, res: Response) => {
         atsScore: r.ats_score, hasCoverLetter: r.has_cover_letter,
         jobDescription: r.job_description?.slice(0, 200) || '',
         createdAt: r.created_at,
+      })),
+      interviewPreps: interviewPreps.rows.map((ip: any) => ({
+        id: ip.id, targetRole: ip.target_role, targetCompany: ip.target_company,
+        status: ip.status, createdAt: ip.created_at,
       })),
     });
   } catch (err: any) {

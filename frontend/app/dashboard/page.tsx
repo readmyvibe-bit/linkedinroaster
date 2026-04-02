@@ -123,7 +123,7 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
-  const [tab, setTab] = useState<'all' | 'roasts' | 'builds' | 'resumes'>('all');
+  const [tab, setTab] = useState<'all' | 'roasts' | 'builds' | 'resumes' | 'preps'>('all');
 
   const load = useCallback(async () => {
     try {
@@ -164,6 +164,7 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
   const roasts = data.roastOrders || [];
   const builds = data.buildOrders || [];
   const resumes = data.resumes || [];
+  const interviewPreps = data.interviewPreps || [];
   const totalOrders = roasts.length + builds.length;
 
   const tabs = [
@@ -171,6 +172,7 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
     { key: 'roasts' as const, label: `Roasts (${roasts.length})` },
     { key: 'builds' as const, label: `Builds (${builds.length})` },
     { key: 'resumes' as const, label: `Resumes (${resumes.length})` },
+    { key: 'preps' as const, label: `Interview Preps (${interviewPreps.length})` },
   ];
 
   return (
@@ -317,6 +319,33 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
                         <a href={`/resume/${r.id}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize: 12, color: '#E16B00', fontWeight: 600, textDecoration: 'none' }}>Cover Letter</a>
                       )}
                     </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Interview Preps */}
+        {(tab === 'all' || tab === 'preps') && interviewPreps.length > 0 && (
+          <div style={{ marginBottom: 28 }}>
+            {tab === 'all' && <h2 style={{ fontSize: 16, fontWeight: 700, color: '#191919', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><span>&#127908;</span> Interview Preps</h2>}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 }}>
+              {interviewPreps.map((ip: any) => (
+                <div key={ip.id} onClick={() => window.open(`/interview-prep/${ip.id}`, '_blank')}
+                  style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, padding: '18px 20px', cursor: 'pointer', transition: 'box-shadow 0.2s' }}
+                  onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)')}
+                  onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 8 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: '#191919' }}>{ip.targetRole || 'Interview Prep'}</div>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: ip.status === 'ready' ? '#057642' : ip.status === 'failed' ? '#CC1016' : '#E16B00', background: ip.status === 'ready' ? '#DCFCE7' : ip.status === 'failed' ? '#FEF2F2' : '#FEF3C7', padding: '2px 8px', borderRadius: 4 }}>{ip.status}</span>
+                  </div>
+                  {ip.targetCompany && (
+                    <div style={{ fontSize: 13, color: '#0A66C2', fontWeight: 600, marginBottom: 6 }}>{ip.targetCompany}</div>
+                  )}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: 11, color: '#888' }}>{new Date(ip.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                    <a href={`/interview-prep/${ip.id}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize: 12, color: '#0A66C2', fontWeight: 600, textDecoration: 'none' }}>View</a>
                   </div>
                 </div>
               ))}
