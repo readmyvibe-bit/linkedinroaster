@@ -112,6 +112,96 @@ app.use('/api/build', buildRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/interview-prep', interviewPrepRouter);
 
+// ==================== REDEEM CODE ====================
+
+// POST /api/redeem-code — Redeem a one-time referral code
+app.post('/api/redeem-code', async (req: Request, res: Response) => {
+  try {
+    const { code, email, headline, form_input } = req.body;
+    if (!code || !email)
+      return res.status(400).json({ error: 'code and email are required' });
+    if (!validateEmail(email))
+      return res.status(400).json({ error: 'Invalid email address' });
+
+    // Look up code
+    const codeResult = await query(
+      "SELECT * FROM referral_codes WHERE code=$1 AND status='active'",
+      [code.trim().toUpperCase()],
+    );
+    if (!codeResult.rows.length)
+      return res.status(400).json({ error: 'Invalid or already redeemed code' });
+
+    const rc = codeResult.rows[0];
+
+    if (rc.product === 'roast') {
+      // Create a roast order
+      if (!headline || headline.trim().length < 10)
+        return res.status(400).json({ error: 'Please provide your LinkedIn headline (at least 10 characters)' });
+
+      const hash = crypto.createHash('sha256')
+        .update(JSON.stringify({ raw_paste: headline.trim() })).digest('hex');
+
+      const amounts: Record<string, number> = { standard: 29900, pro: 79900 };
+      const result = await query(
+        `INSERT INTO orders (email, plan, amount_paise, payment_status, payment_type,
+         profile_input, profile_hash, ip_address, processing_status)
+         VALUES ($1, $2, $3, 'paid', 'referral_code', $4, $5, $6, 'queued') RETURNING id`,
+        [
+          email, rc.plan, amounts[rc.plan] || 29900,
+          JSON.stringify({ raw_paste: headline.trim() }), hash, req.ip,
+        ],
+      );
+      const orderId = result.rows[0].id;
+
+      // Mark code as redeemed
+      await query(
+        "UPDATE referral_codes SET status='redeemed', redeemed_at=NOW(), redeemed_by_email=$1, order_id=$2 WHERE code=$3",
+        [email, orderId, rc.code],
+      );
+
+      // Enqueue for processing
+      await profileQueue.add('job', { order_id: orderId });
+
+      return res.json({ order_id: orderId, redirect_url: `/results/${orderId}` });
+    }
+
+    if (rc.product === 'build') {
+      // Create a build order
+      const amounts: Record<string, number> = { starter: 19900, plus: 39900, pro: 69900 };
+      const result = await query(
+        `INSERT INTO build_orders (email, plan, amount_paise, payment_status, payment_type,
+         form_input, ip_address, processing_status)
+         VALUES ($1, $2, $3, 'paid', 'referral_code', $4, $5, 'queued') RETURNING id`,
+        [
+          email, rc.plan, amounts[rc.plan] || 19900,
+          form_input ? JSON.stringify(form_input) : null, req.ip,
+        ],
+      );
+      const orderId = result.rows[0].id;
+
+      // Mark code as redeemed
+      await query(
+        "UPDATE referral_codes SET status='redeemed', redeemed_at=NOW(), redeemed_by_email=$1, order_id=$2 WHERE code=$3",
+        [email, orderId, rc.code],
+      );
+
+      if (form_input) {
+        // Enqueue for processing if form data provided
+        await buildQueue.add('job', { order_id: orderId });
+        return res.json({ order_id: orderId, redirect_url: `/build/results/${orderId}` });
+      }
+
+      // Otherwise redirect to form
+      return res.json({ order_id: orderId, redirect_url: `/build/form?plan=${rc.plan}&orderId=${orderId}` });
+    }
+
+    return res.status(400).json({ error: 'Invalid product type on code' });
+  } catch (err) {
+    console.error('POST /api/redeem-code error:', err);
+    res.status(500).json({ error: 'Failed to redeem code' });
+  }
+});
+
 // ==================== ROUTES ====================
 
 // POST /api/webhooks/razorpay — Webhook handler with HMAC verification
@@ -168,6 +258,53 @@ app.post('/api/webhooks/razorpay', async (req: Request, res: Response) => {
           [payment.id, payment.order_id]);
 
         await buildQueue.add('job', { razorpay_order_id: payment.order_id });
+
+        // Credit influencer for build orders
+        const buildOrder = await query(
+          'SELECT influencer_slug, plan FROM build_orders WHERE razorpay_order_id=$1',
+          [payment.order_id],
+        );
+        if (buildOrder.rows[0]?.influencer_slug) {
+          const slug = buildOrder.rows[0].influencer_slug;
+          const bPlan = buildOrder.rows[0].plan || 'starter';
+          const commFieldMap: Record<string, string> = {
+            starter: 'commission_build_starter',
+            plus: 'commission_build_plus',
+            pro: 'commission_build_pro',
+          };
+          const commField = commFieldMap[bPlan] || 'commission_build_starter';
+          const inf = await query(
+            `SELECT email, ${commField} as commission FROM influencers WHERE slug=$1`,
+            [slug],
+          );
+          if (inf.rows.length) {
+            const commission = inf.rows[0].commission || 0;
+            await query(
+              `UPDATE influencers SET total_referrals=total_referrals+1,
+               total_earnings=total_earnings+$1 WHERE slug=$2`,
+              [commission, slug],
+            );
+            if (inf.rows[0].email) {
+              try {
+                const { Resend } = require('resend');
+                const resendClient = new Resend(process.env.RESEND_API_KEY);
+                await resendClient.emails.send({
+                  from: `Profile Roaster <${process.env.FROM_EMAIL || 'support@profileroaster.in'}>`,
+                  to: inf.rows[0].email,
+                  subject: `New referral! You earned Rs ${commission} from ProfileRoaster`,
+                  html: `<div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px">
+                    <h2 style="color:#057642;margin-bottom:16px">New Referral Conversion!</h2>
+                    <p style="color:#333;font-size:15px">Someone purchased the <strong>${bPlan}</strong> Build plan using your referral link.</p>
+                    <p style="color:#333;font-size:15px">Commission: <strong>Rs ${commission}</strong></p>
+                  </div>`,
+                });
+              } catch (emailErr) {
+                console.error('Failed to send influencer email:', emailErr);
+              }
+            }
+          }
+        }
+
         return res.json({ status: 'build_queued' });
       }
 
@@ -203,13 +340,54 @@ app.post('/api/webhooks/razorpay', async (req: Request, res: Response) => {
 
       // Credit referral
       const fullOrder = await query(
-        'SELECT referral_code, email, plan FROM orders WHERE razorpay_order_id=$1',
+        'SELECT referral_code, email, plan, influencer_slug FROM orders WHERE razorpay_order_id=$1',
         [payment.order_id]);
       if (fullOrder.rows[0]?.referral_code) {
         await query(
           `UPDATE referrals SET uses_count=uses_count+1,
            earnings_paise=earnings_paise+5000 WHERE referral_code=$1`,
           [fullOrder.rows[0].referral_code]);
+      }
+
+      // Credit influencer
+      if (fullOrder.rows[0]?.influencer_slug) {
+        const slug = fullOrder.rows[0].influencer_slug;
+        const orderPlan = fullOrder.rows[0].plan || 'standard';
+        const commField = orderPlan === 'pro' ? 'commission_pro' : 'commission_standard';
+        const inf = await query(
+          `SELECT email, ${commField} as commission FROM influencers WHERE slug=$1`,
+          [slug],
+        );
+        if (inf.rows.length) {
+          const commission = inf.rows[0].commission || 0;
+          await query(
+            `UPDATE influencers SET total_referrals=total_referrals+1,
+             total_earnings=total_earnings+$1 WHERE slug=$2`,
+            [commission, slug],
+          );
+          // Email influencer about the conversion
+          if (inf.rows[0].email) {
+            try {
+              const { Resend } = require('resend');
+              const resendClient = new Resend(process.env.RESEND_API_KEY);
+              const updatedInf = await query('SELECT total_earnings FROM influencers WHERE slug=$1', [slug]);
+              await resendClient.emails.send({
+                from: `Profile Roaster <${process.env.FROM_EMAIL || 'support@profileroaster.in'}>`,
+                to: inf.rows[0].email,
+                subject: `New referral! You earned Rs ${commission} from ProfileRoaster`,
+                html: `<div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px">
+                  <h2 style="color:#057642;margin-bottom:16px">New Referral Conversion!</h2>
+                  <p style="color:#333;font-size:15px">Someone purchased the <strong>${orderPlan}</strong> plan using your referral link.</p>
+                  <p style="color:#333;font-size:15px">Commission: <strong>Rs ${commission}</strong></p>
+                  <p style="color:#333;font-size:15px">Total earnings: <strong>Rs ${updatedInf.rows[0]?.total_earnings || commission}</strong></p>
+                  <p style="color:#666;font-size:13px;margin-top:20px">Keep sharing your link to earn more!</p>
+                </div>`,
+              });
+            } catch (emailErr) {
+              console.error('Failed to send influencer email:', emailErr);
+            }
+          }
+        }
       }
 
       trackPaymentCompleted(
@@ -322,13 +500,24 @@ app.post('/api/orders', async (req: Request, res: Response) => {
     if (existing.rows.length)
       return res.json({ cached: true, order_id: existing.rows[0].id });
 
+    // Validate referral code or influencer slug
+    let influencerSlug: string | null = null;
     if (req.query.ref) {
-      const refCheck = await query(
-        'SELECT id FROM referrals WHERE referral_code=$1',
+      // Check if it's an influencer slug first
+      const infCheck = await query(
+        "SELECT slug FROM influencers WHERE slug=$1 AND status='active'",
         [req.query.ref],
       );
-      if (!refCheck.rows.length)
-        return res.status(400).json({ error: 'Invalid referral code' });
+      if (infCheck.rows.length) {
+        influencerSlug = infCheck.rows[0].slug;
+      } else {
+        const refCheck = await query(
+          'SELECT id FROM referrals WHERE referral_code=$1',
+          [req.query.ref],
+        );
+        if (!refCheck.rows.length)
+          return res.status(400).json({ error: 'Invalid referral code' });
+      }
     }
 
     const amounts: Record<string, number> = { standard: 29900, pro: 79900 };
@@ -342,14 +531,15 @@ app.post('/api/orders', async (req: Request, res: Response) => {
     const result = await query(
       `INSERT INTO orders (email,plan,amount_paise,razorpay_order_id,
        profile_input,job_description,teaser_id,profile_hash,ip_address,
-       utm_source,utm_medium,utm_campaign,referral_code)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING id`,
+       utm_source,utm_medium,utm_campaign,referral_code,influencer_slug)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING id`,
       [
         email, plan, amounts[plan], rzpOrder.id,
         JSON.stringify(profile_data), job_description || null,
         teaser_id || null, hash, req.ip,
         req.query.utm_source || null, req.query.utm_medium || null,
         req.query.utm_campaign || null, req.query.ref || null,
+        influencerSlug,
       ],
     );
 

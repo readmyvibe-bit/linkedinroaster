@@ -785,4 +785,134 @@ router.get('/email-sequences/preview/:emailKey/:orderId', async (req: Request, r
   }
 });
 
+// ═══════════════════════════════════════════
+// REFERRAL CODES (one-time influencer trials)
+// ═══════════════════════════════════════════
+
+router.use('/referral-codes', adminAuth);
+
+// POST /api/admin/referral-codes/generate
+router.post('/referral-codes/generate', async (req: Request, res: Response) => {
+  try {
+    const { product, plan, notes } = req.body;
+    if (!product || !plan) return res.status(400).json({ error: 'product and plan required' });
+    if (!['roast', 'build'].includes(product)) return res.status(400).json({ error: 'product must be roast or build' });
+
+    const productPrefix = product === 'roast' ? 'ROAST' : 'BUILD';
+    const planPrefix = plan.slice(0, 3).toUpperCase();
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let random = '';
+    for (let i = 0; i < 5; i++) random += chars[Math.floor(Math.random() * chars.length)];
+    const code = `${productPrefix}-${planPrefix}-${random}`;
+
+    await query(
+      'INSERT INTO referral_codes (code, product, plan, notes) VALUES ($1, $2, $3, $4)',
+      [code, product, plan, notes || null],
+    );
+
+    res.json({ code, product, plan });
+  } catch (err: any) {
+    console.error('Generate referral code error:', err.message);
+    res.status(500).json({ error: 'Failed to generate code' });
+  }
+});
+
+// GET /api/admin/referral-codes
+router.get('/referral-codes', async (_req: Request, res: Response) => {
+  try {
+    const result = await query(
+      'SELECT * FROM referral_codes ORDER BY created_at DESC LIMIT 200',
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch referral codes' });
+  }
+});
+
+// POST /api/admin/referral-codes/deactivate
+router.post('/referral-codes/deactivate', async (req: Request, res: Response) => {
+  try {
+    const { code } = req.body;
+    if (!code) return res.status(400).json({ error: 'code required' });
+    const result = await query(
+      "UPDATE referral_codes SET status='deactivated' WHERE code=$1 RETURNING *",
+      [code],
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'Code not found' });
+    res.json({ deactivated: true, code });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to deactivate code' });
+  }
+});
+
+// ═══════════════════════════════════════════
+// INFLUENCERS
+// ═══════════════════════════════════════════
+
+router.use('/influencers', adminAuth);
+
+// POST /api/admin/influencers/create
+router.post('/influencers/create', async (req: Request, res: Response) => {
+  try {
+    const { name, slug, email, commissions } = req.body;
+    if (!name || !slug) return res.status(400).json({ error: 'name and slug required' });
+
+    const c = commissions || {};
+    const result = await query(
+      `INSERT INTO influencers (name, slug, email, commission_standard, commission_pro,
+       commission_build_starter, commission_build_plus, commission_build_pro)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+      [
+        name, slug.toLowerCase(), email || null,
+        c.standard ?? 50, c.pro ?? 100,
+        c.build_starter ?? 25, c.build_plus ?? 50, c.build_pro ?? 100,
+      ],
+    );
+
+    res.json(result.rows[0]);
+  } catch (err: any) {
+    if (err.message?.includes('duplicate key')) {
+      return res.status(400).json({ error: 'Slug already exists' });
+    }
+    console.error('Create influencer error:', err.message);
+    res.status(500).json({ error: 'Failed to create influencer' });
+  }
+});
+
+// GET /api/admin/influencers
+router.get('/influencers', async (_req: Request, res: Response) => {
+  try {
+    const result = await query(
+      'SELECT * FROM influencers ORDER BY total_earnings DESC, created_at DESC',
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch influencers' });
+  }
+});
+
+// GET /api/admin/influencers/:slug/referrals
+router.get('/influencers/:slug/referrals', async (req: Request, res: Response) => {
+  try {
+    const roastOrders = await query(
+      `SELECT id, email, plan, amount_paise, payment_status, created_at
+       FROM orders WHERE influencer_slug=$1 AND payment_status='paid'
+       ORDER BY created_at DESC LIMIT 100`,
+      [req.params.slug],
+    );
+    const buildOrders = await query(
+      `SELECT id, email, plan, amount_paise, payment_status, created_at
+       FROM build_orders WHERE influencer_slug=$1 AND payment_status='paid'
+       ORDER BY created_at DESC LIMIT 100`,
+      [req.params.slug],
+    );
+    res.json({
+      roast_orders: roastOrders.rows,
+      build_orders: buildOrders.rows,
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch influencer referrals' });
+  }
+});
+
 export default router;

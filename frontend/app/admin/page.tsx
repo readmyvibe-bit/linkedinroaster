@@ -1431,7 +1431,299 @@ function EmailsScreen() {
   );
 }
 
-type Screen = 'overview' | 'orders' | 'build-orders' | 'teasers' | 'quality' | 'revenue' | 'referrals' | 'emails';
+// ─── Influencers Screen ───
+function InfluencersScreen() {
+  const [influencers, setInfluencers] = useState<any[]>([]);
+  const [name, setName] = useState('');
+  const [slug, setSlug] = useState('');
+  const [infEmail, setInfEmail] = useState('');
+  const [creating, setCreating] = useState(false);
+  const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
+  const [referralOrders, setReferralOrders] = useState<any>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  useEffect(() => {
+    apiFetchJson('/api/admin/influencers').then(data => setInfluencers(Array.isArray(data) ? data : [])).catch(() => {});
+  }, []);
+
+  async function createInfluencer() {
+    if (!name || !slug) return;
+    setCreating(true);
+    try {
+      const res = await apiFetch('/api/admin/influencers/create', {
+        method: 'POST',
+        body: JSON.stringify({ name, slug: slug.toLowerCase(), email: infEmail || undefined }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setInfluencers(prev => [data, ...prev]);
+        setName(''); setSlug(''); setInfEmail('');
+        setToast({ message: 'Influencer created!', type: 'success' });
+      } else {
+        setToast({ message: data.error || 'Failed', type: 'error' });
+      }
+    } catch {
+      setToast({ message: 'Failed to create influencer', type: 'error' });
+    }
+    setCreating(false);
+  }
+
+  async function viewReferrals(s: string) {
+    setSelectedSlug(s);
+    try {
+      const data = await apiFetchJson(`/api/admin/influencers/${s}/referrals`);
+      setReferralOrders(data);
+    } catch {
+      setReferralOrders(null);
+    }
+  }
+
+  return (
+    <div>
+      <h2 className="text-lg font-bold mb-4">Influencers</h2>
+
+      {/* Create form */}
+      <div className="li-card p-4 mb-6">
+        <h3 className="text-sm font-bold mb-3">Create Influencer</h3>
+        <div className="flex flex-wrap gap-2">
+          <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Name"
+            className="px-3 py-2 rounded text-sm outline-none" style={{ border: '1px solid var(--li-border)', width: 160 }} />
+          <input type="text" value={slug} onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))} placeholder="slug (URL)"
+            className="px-3 py-2 rounded text-sm outline-none font-mono" style={{ border: '1px solid var(--li-border)', width: 160 }} />
+          <input type="email" value={infEmail} onChange={e => setInfEmail(e.target.value)} placeholder="Email (optional)"
+            className="px-3 py-2 rounded text-sm outline-none" style={{ border: '1px solid var(--li-border)', width: 200 }} />
+          <button onClick={createInfluencer} disabled={creating || !name || !slug}
+            className="px-4 py-2 rounded-full text-white font-semibold text-sm cursor-pointer border-none disabled:opacity-50"
+            style={{ background: 'var(--li-blue)' }}>
+            {creating ? 'Creating...' : 'Create'}
+          </button>
+        </div>
+      </div>
+
+      {/* List */}
+      <div className="li-card overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr style={{ background: 'var(--li-gray)' }}>
+              <th className="text-left p-3">Name</th>
+              <th className="text-left p-3">Slug</th>
+              <th className="text-left p-3">Email</th>
+              <th className="text-left p-3">Referrals</th>
+              <th className="text-left p-3">Earnings</th>
+              <th className="text-left p-3">Status</th>
+              <th className="text-left p-3">Link</th>
+              <th className="text-left p-3">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {influencers.map((inf, idx) => (
+              <tr key={inf.id} style={{
+                borderBottom: '1px solid var(--li-border)',
+                background: idx % 2 === 0 ? 'white' : 'var(--li-gray)',
+              }}>
+                <td className="p-3 font-semibold">{inf.name}</td>
+                <td className="p-3 font-mono text-xs">{inf.slug}</td>
+                <td className="p-3 text-xs">{inf.email || '-'}</td>
+                <td className="p-3">{inf.total_referrals}</td>
+                <td className="p-3 font-semibold">Rs {inf.total_earnings}</td>
+                <td className="p-3">
+                  <span className="px-2 py-0.5 rounded text-xs font-semibold"
+                    style={{ background: inf.status === 'active' ? '#DCFCE7' : '#FEE2E2', color: inf.status === 'active' ? '#057642' : '#CC1016' }}>
+                    {inf.status}
+                  </span>
+                </td>
+                <td className="p-3 text-xs">
+                  <span className="font-mono">?ref={inf.slug}</span>
+                </td>
+                <td className="p-3">
+                  <button onClick={() => viewReferrals(inf.slug)}
+                    className="text-xs px-2 py-1 rounded cursor-pointer border-none"
+                    style={{ background: 'var(--li-gray)', color: 'var(--li-blue)' }}>View Orders</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {influencers.length === 0 && <p className="text-sm text-center p-6" style={{ color: 'var(--li-text-secondary)' }}>No influencers yet.</p>}
+      </div>
+
+      {/* Referral orders modal */}
+      {selectedSlug && referralOrders && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelectedSlug(null)}>
+          <div className="li-card p-6 max-w-2xl w-full" style={{ maxHeight: '70vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-bold">Referrals: {selectedSlug}</h3>
+              <button onClick={() => setSelectedSlug(null)} className="text-lg cursor-pointer bg-transparent border-none p-1">x</button>
+            </div>
+            <h4 className="text-sm font-bold mb-2">Roast Orders ({referralOrders.roast_orders?.length || 0})</h4>
+            {referralOrders.roast_orders?.map((o: any) => (
+              <div key={o.id} className="text-xs p-2 mb-1 rounded" style={{ background: 'var(--li-gray)' }}>
+                {o.email} - {o.plan} - Rs {(o.amount_paise / 100).toFixed(0)} - {formatIST(o.created_at)}
+              </div>
+            ))}
+            <h4 className="text-sm font-bold mt-4 mb-2">Build Orders ({referralOrders.build_orders?.length || 0})</h4>
+            {referralOrders.build_orders?.map((o: any) => (
+              <div key={o.id} className="text-xs p-2 mb-1 rounded" style={{ background: 'var(--li-gray)' }}>
+                {o.email} - {o.plan} - Rs {(o.amount_paise / 100).toFixed(0)} - {formatIST(o.created_at)}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+    </div>
+  );
+}
+
+// ─── Codes Screen ───
+function CodesScreen() {
+  const [codes, setCodes] = useState<any[]>([]);
+  const [product, setProduct] = useState('roast');
+  const [plan, setPlan] = useState('standard');
+  const [notes, setNotes] = useState('');
+  const [generating, setGenerating] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  useEffect(() => {
+    apiFetchJson('/api/admin/referral-codes').then(data => setCodes(Array.isArray(data) ? data : [])).catch(() => {});
+  }, []);
+
+  const planOptions: Record<string, string[]> = {
+    roast: ['standard', 'pro'],
+    build: ['starter', 'plus', 'pro'],
+  };
+
+  async function generateCode() {
+    setGenerating(true);
+    try {
+      const res = await apiFetch('/api/admin/referral-codes/generate', {
+        method: 'POST',
+        body: JSON.stringify({ product, plan, notes: notes || undefined }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setToast({ message: `Code generated: ${data.code}`, type: 'success' });
+        setNotes('');
+        // Refresh list
+        apiFetchJson('/api/admin/referral-codes').then(d => setCodes(Array.isArray(d) ? d : []));
+      } else {
+        setToast({ message: data.error || 'Failed', type: 'error' });
+      }
+    } catch {
+      setToast({ message: 'Failed to generate code', type: 'error' });
+    }
+    setGenerating(false);
+  }
+
+  async function deactivateCode(code: string) {
+    if (!confirm(`Deactivate code ${code}?`)) return;
+    try {
+      const res = await apiFetch('/api/admin/referral-codes/deactivate', {
+        method: 'POST',
+        body: JSON.stringify({ code }),
+      });
+      if (res.ok) {
+        setCodes(prev => prev.map(c => c.code === code ? { ...c, status: 'deactivated' } : c));
+        setToast({ message: 'Code deactivated', type: 'success' });
+      }
+    } catch {
+      setToast({ message: 'Failed to deactivate', type: 'error' });
+    }
+  }
+
+  return (
+    <div>
+      <h2 className="text-lg font-bold mb-4">Referral Codes</h2>
+
+      {/* Generate form */}
+      <div className="li-card p-4 mb-6">
+        <h3 className="text-sm font-bold mb-3">Generate Code</h3>
+        <div className="flex flex-wrap gap-2 items-end">
+          <div>
+            <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--li-text-secondary)' }}>Product</label>
+            <select value={product} onChange={e => { setProduct(e.target.value); setPlan(planOptions[e.target.value][0]); }}
+              className="px-3 py-2 rounded text-sm outline-none" style={{ border: '1px solid var(--li-border)' }}>
+              <option value="roast">Roast</option>
+              <option value="build">Build</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--li-text-secondary)' }}>Plan</label>
+            <select value={plan} onChange={e => setPlan(e.target.value)}
+              className="px-3 py-2 rounded text-sm outline-none" style={{ border: '1px solid var(--li-border)' }}>
+              {planOptions[product].map(p => <option key={p} value={p}>{p}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--li-text-secondary)' }}>Notes</label>
+            <input type="text" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Optional notes"
+              className="px-3 py-2 rounded text-sm outline-none" style={{ border: '1px solid var(--li-border)', width: 200 }} />
+          </div>
+          <button onClick={generateCode} disabled={generating}
+            className="px-4 py-2 rounded-full text-white font-semibold text-sm cursor-pointer border-none disabled:opacity-50"
+            style={{ background: 'var(--li-blue)' }}>
+            {generating ? 'Generating...' : 'Generate Code'}
+          </button>
+        </div>
+      </div>
+
+      {/* List */}
+      <div className="li-card overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr style={{ background: 'var(--li-gray)' }}>
+              <th className="text-left p-3">Code</th>
+              <th className="text-left p-3">Product</th>
+              <th className="text-left p-3">Plan</th>
+              <th className="text-left p-3">Status</th>
+              <th className="text-left p-3">Redeemed By</th>
+              <th className="text-left p-3">Redeemed At</th>
+              <th className="text-left p-3">Notes</th>
+              <th className="text-left p-3">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {codes.map((c, idx) => (
+              <tr key={c.id} style={{
+                borderBottom: '1px solid var(--li-border)',
+                background: idx % 2 === 0 ? 'white' : 'var(--li-gray)',
+              }}>
+                <td className="p-3 font-mono text-xs font-semibold">{c.code}</td>
+                <td className="p-3">{c.product}</td>
+                <td className="p-3">{c.plan}</td>
+                <td className="p-3">
+                  <span className="px-2 py-0.5 rounded text-xs font-semibold"
+                    style={{
+                      background: c.status === 'active' ? '#DCFCE7' : c.status === 'redeemed' ? '#E8F4FD' : '#FEE2E2',
+                      color: c.status === 'active' ? '#057642' : c.status === 'redeemed' ? '#0A66C2' : '#CC1016',
+                    }}>
+                    {c.status}
+                  </span>
+                </td>
+                <td className="p-3 text-xs">{c.redeemed_by_email || '-'}</td>
+                <td className="p-3 text-xs whitespace-nowrap">{c.redeemed_at ? formatIST(c.redeemed_at) : '-'}</td>
+                <td className="p-3 text-xs">{c.notes || '-'}</td>
+                <td className="p-3">
+                  {c.status === 'active' && (
+                    <button onClick={() => deactivateCode(c.code)}
+                      className="text-xs px-2 py-1 rounded cursor-pointer border-none"
+                      style={{ background: '#FEE2E2', color: '#CC1016' }}>Deactivate</button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {codes.length === 0 && <p className="text-sm text-center p-6" style={{ color: 'var(--li-text-secondary)' }}>No codes generated yet.</p>}
+      </div>
+
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+    </div>
+  );
+}
+
+type Screen = 'overview' | 'orders' | 'build-orders' | 'teasers' | 'quality' | 'revenue' | 'referrals' | 'emails' | 'influencers' | 'codes';
 
 const NAV: { key: Screen; label: string }[] = [
   { key: 'overview', label: 'Overview' },
@@ -1441,6 +1733,8 @@ const NAV: { key: Screen; label: string }[] = [
   { key: 'quality', label: 'Quality' },
   { key: 'revenue', label: 'Revenue' },
   { key: 'referrals', label: 'Referrals' },
+  { key: 'influencers', label: 'Influencers' },
+  { key: 'codes', label: 'Codes' },
   { key: 'emails', label: 'Emails' },
 ];
 
@@ -1510,6 +1804,8 @@ export default function AdminPage() {
         {screen === 'quality' && <QualityScreen />}
         {screen === 'revenue' && <RevenueScreen />}
         {screen === 'referrals' && <ReferralsScreen />}
+        {screen === 'influencers' && <InfluencersScreen />}
+        {screen === 'codes' && <CodesScreen />}
         {screen === 'emails' && <EmailsScreen />}
       </div>
     </main>

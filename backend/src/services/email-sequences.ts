@@ -73,12 +73,12 @@ const ROAST_SEQUENCE: SequenceEmail[] = [
           <p style="font-size:16px;font-weight:700;color:#191919">Your LinkedIn rewrite also makes a great resume 📄</p>
           <p style="font-size:14px;line-height:1.6;color:#555">
             ${d.has_resume
-              ? 'You already built a resume — nice! Make sure you download it in PDF and DOCX before applying.'
+              ? 'You already built a resume — nice! Make sure you download it in PDF + TXT before applying.'
               : `Your ${d.plan === 'pro' ? '3 resume slots' : '1 resume slot'} are included in your plan. Don't let them go to waste.`
             }
           </p>
           <p style="font-size:14px;line-height:1.6;color:#555">
-            Paste any job description and AI builds a targeted, ATS-optimized resume in 60 seconds. 23 templates, PDF + DOCX + TXT downloads.
+            Paste any job description and AI builds a targeted, ATS-optimized resume in 60 seconds. 23 templates, PDF + TXT downloads.
           </p>
           <div style="text-align:center;margin:24px 0">
             <a href="${BASE_URL}/results/${d.id}" style="display:inline-block;padding:12px 32px;background:#057642;color:white;border-radius:50px;font-size:15px;font-weight:700;text-decoration:none">
@@ -135,7 +135,7 @@ const ROAST_SEQUENCE: SequenceEmail[] = [
           <p style="font-size:14px;line-height:1.6;color:#555"><strong>Before that happens, make sure you:</strong></p>
           <ul style="font-size:14px;line-height:1.8;color:#555;padding-left:20px">
             <li>Paste your rewrite into LinkedIn</li>
-            <li>Download your resume (PDF + DOCX + TXT)</li>
+            <li>Download your resume (PDF + TXT)</li>
             <li>Download your cover letter</li>
             <li>Save your roast card</li>
           </ul>

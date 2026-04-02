@@ -2,6 +2,100 @@
 
 import { useState } from 'react';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
+function ReferralCodeRedeemer() {
+  const [showForm, setShowForm] = useState(false);
+  const [code, setCode] = useState('');
+  const [redeemEmail, setRedeemEmail] = useState('');
+  const [redeeming, setRedeeming] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleRedeem() {
+    if (!code.trim() || !redeemEmail.trim()) {
+      setError('Please enter both code and email.');
+      return;
+    }
+    setRedeeming(true);
+    setError('');
+    try {
+      const res = await fetch(`${API_URL}/api/redeem-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: code.trim(),
+          email: redeemEmail.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Failed to redeem code');
+        return;
+      }
+      if (data.redirect_url) {
+        window.location.href = data.redirect_url;
+      }
+    } catch {
+      setError('Could not reach the server. Please try again.');
+    } finally {
+      setRedeeming(false);
+    }
+  }
+
+  if (!showForm) {
+    return (
+      <div style={{ textAlign: 'center', marginTop: 16 }}>
+        <button
+          onClick={() => setShowForm(true)}
+          style={{ background: 'none', border: 'none', color: '#666', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}
+        >
+          Have a referral code?
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ maxWidth: 400, margin: '16px auto 0', padding: '16px 20px', background: '#F8FAFC', border: '1px solid #E0E7F0', borderRadius: 12 }}>
+      <div style={{ fontSize: 14, fontWeight: 600, color: '#191919', marginBottom: 10 }}>Redeem Referral Code</div>
+      {error && <div style={{ fontSize: 12, color: '#CC1016', marginBottom: 8 }}>{error}</div>}
+      <input
+        type="email"
+        value={redeemEmail}
+        onChange={(e) => setRedeemEmail(e.target.value)}
+        placeholder="Your email *"
+        style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #E0E0E0', fontSize: 13, marginBottom: 8, boxSizing: 'border-box' as const }}
+      />
+      <input
+        type="text"
+        value={code}
+        onChange={(e) => setCode(e.target.value.toUpperCase())}
+        placeholder="Enter code (e.g. BUILD-PLU-XXXXX)"
+        style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #E0E0E0', fontSize: 13, marginBottom: 8, fontFamily: 'monospace', boxSizing: 'border-box' as const }}
+      />
+      <div style={{ display: 'flex', gap: 8 }}>
+        <button
+          onClick={handleRedeem}
+          disabled={redeeming}
+          style={{
+            flex: 1, padding: '8px 16px', borderRadius: 20, border: 'none', cursor: 'pointer',
+            background: '#0A66C2', color: 'white', fontSize: 13, fontWeight: 600,
+            opacity: redeeming ? 0.6 : 1,
+          }}
+        >
+          {redeeming ? 'Redeeming...' : 'Redeem'}
+        </button>
+        <button
+          onClick={() => setShowForm(false)}
+          style={{ padding: '8px 16px', borderRadius: 20, border: '1px solid #E0E0E0', background: 'white', fontSize: 13, cursor: 'pointer', color: '#666' }}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function BuildLandingPage() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
@@ -291,6 +385,9 @@ export default function BuildLandingPage() {
               </button>
             </div>
           )}
+
+          {/* Referral Code */}
+          <ReferralCodeRedeemer />
         </div>
       </section>
 

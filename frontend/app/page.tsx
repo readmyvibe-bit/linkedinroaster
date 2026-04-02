@@ -346,6 +346,114 @@ function StatsRow() {
   );
 }
 
+// ─── Referral Code Redeemer ───
+function ReferralCodeRedeemer({ product }: { product: 'roast' | 'build' }) {
+  const [showForm, setShowForm] = useState(false);
+  const [code, setCode] = useState('');
+  const [redeemEmail, setRedeemEmail] = useState('');
+  const [headline, setHeadline] = useState('');
+  const [redeeming, setRedeeming] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleRedeem() {
+    if (!code.trim() || !redeemEmail.trim()) {
+      setError('Please enter both code and email.');
+      return;
+    }
+    if (product === 'roast' && (!headline.trim() || headline.trim().length < 10)) {
+      setError('Please paste your LinkedIn headline (at least 10 characters).');
+      return;
+    }
+    setRedeeming(true);
+    setError('');
+    try {
+      const res = await fetch(`${API_URL}/api/redeem-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: code.trim(),
+          email: redeemEmail.trim(),
+          headline: product === 'roast' ? headline.trim() : undefined,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Failed to redeem code');
+        return;
+      }
+      if (data.redirect_url) {
+        window.location.href = data.redirect_url;
+      }
+    } catch {
+      setError('Could not reach the server. Please try again.');
+    } finally {
+      setRedeeming(false);
+    }
+  }
+
+  if (!showForm) {
+    return (
+      <div style={{ textAlign: 'center', marginTop: 16 }}>
+        <button
+          onClick={() => setShowForm(true)}
+          style={{ background: 'none', border: 'none', color: 'var(--li-text-secondary)', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}
+        >
+          Have a referral code?
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ maxWidth: 400, margin: '16px auto 0', padding: '16px 20px', background: '#F8FAFC', border: '1px solid #E0E7F0', borderRadius: 12 }}>
+      <div style={{ fontSize: 14, fontWeight: 600, color: '#191919', marginBottom: 10 }}>Redeem Referral Code</div>
+      {error && <div style={{ fontSize: 12, color: '#CC1016', marginBottom: 8 }}>{error}</div>}
+      <input
+        type="email"
+        value={redeemEmail}
+        onChange={(e) => setRedeemEmail(e.target.value)}
+        placeholder="Your email *"
+        style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #E0E0E0', fontSize: 13, marginBottom: 8, boxSizing: 'border-box' }}
+      />
+      <input
+        type="text"
+        value={code}
+        onChange={(e) => setCode(e.target.value.toUpperCase())}
+        placeholder="Enter code (e.g. ROAST-STD-XXXXX)"
+        style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #E0E0E0', fontSize: 13, marginBottom: 8, fontFamily: 'monospace', boxSizing: 'border-box' }}
+      />
+      {product === 'roast' && (
+        <textarea
+          value={headline}
+          onChange={(e) => setHeadline(e.target.value)}
+          placeholder="Paste your LinkedIn headline or full profile *"
+          rows={3}
+          style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #E0E0E0', fontSize: 13, marginBottom: 8, resize: 'none', boxSizing: 'border-box' }}
+        />
+      )}
+      <div style={{ display: 'flex', gap: 8 }}>
+        <button
+          onClick={handleRedeem}
+          disabled={redeeming}
+          style={{
+            flex: 1, padding: '8px 16px', borderRadius: 20, border: 'none', cursor: 'pointer',
+            background: 'var(--li-blue)', color: 'white', fontSize: 13, fontWeight: 600,
+            opacity: redeeming ? 0.6 : 1,
+          }}
+        >
+          {redeeming ? 'Redeeming...' : 'Redeem'}
+        </button>
+        <button
+          onClick={() => setShowForm(false)}
+          style={{ padding: '8px 16px', borderRadius: 20, border: '1px solid #E0E0E0', background: 'white', fontSize: 13, cursor: 'pointer', color: '#666' }}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Page ───
 export default function Home() {
   const [headline, setHeadline] = useState('');
@@ -958,6 +1066,7 @@ export default function Home() {
           <p className="text-center text-sm mt-6" style={{ color: 'var(--li-text-secondary)', maxWidth: 600, margin: '24px auto 0' }}>
             Resume writers charge &#8377;3,000–15,000 and take days. We do roast + rewrite + resume in 90 seconds for &#8377;299.
           </p>
+          <ReferralCodeRedeemer product="roast" />
         </div>
         </section>
       )}
