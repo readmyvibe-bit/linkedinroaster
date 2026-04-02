@@ -48,7 +48,7 @@ function determineCareerStage(experienceCount: number): string {
 }
 
 async function geminiCall(systemPrompt: string, userPrompt: string): Promise<any> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
   const result = await model.generateContent({
     contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
     systemInstruction: { role: 'system', parts: [{ text: systemPrompt }] },
