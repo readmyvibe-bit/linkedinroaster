@@ -28,7 +28,7 @@ const INDUSTRIES = [
   'Technology / IT', 'Data Science / Analytics', 'Finance / Banking', 'Marketing / Advertising',
   'Sales / Business Development', 'Human Resources', 'Operations / Supply Chain',
   'Consulting', 'Healthcare', 'Education', 'Manufacturing', 'E-commerce / Retail',
-  'Media / Entertainment', 'Government / Public Sector', 'Other',
+  'Media / Entertainment', 'Government / Public Sector', 'Aviation', 'Law / Legal', 'Medical', 'Other',
 ];
 
 // ─── Tag Input Component ───
