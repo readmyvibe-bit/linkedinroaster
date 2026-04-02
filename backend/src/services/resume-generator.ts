@@ -169,6 +169,40 @@ FRESHER / STUDENT RULES (when candidate has 0-1 work experience entries):
 - Do NOT use "WORK EXPERIENCE" header if there's no real work — use "PROJECTS & EXPERIENCE" instead.
 - If NO job description is provided (general resume): use the target role to infer relevant keywords, typical requirements, and structure the resume around that role's common expectations. For example, if target role is "Frontend Developer", emphasize HTML/CSS/JS projects, UI/UX skills, and responsive design even if not explicitly in a JD.
 
+FRESHER RESUME MUST LOOK PROFESSIONAL AND COMPLETE:
+- The resume MUST fill at least 80% of an A4 page. A half-empty resume is unacceptable.
+- If content is thin, ADD these sections to fill space:
+  a) CAREER OBJECTIVE (3 sentences: what role, what value you bring, what you want to learn)
+  b) EDUCATION with Relevant Coursework (list 6 subjects, not just degree name)
+  c) PROJECTS section with 5-6 bullets per project (tech stack, problem, solution, outcome)
+  d) TECHNICAL SKILLS in categories: Programming Languages, Frameworks, Databases, Tools, Operating Systems
+  e) SOFT SKILLS: list 5-6 with brief context (e.g., "Team Collaboration — worked in 4-member project team")
+  f) CERTIFICATIONS / ONLINE COURSES (if any mentioned in profile)
+  g) EXTRACURRICULAR ACTIVITIES (if any mentioned)
+  h) LANGUAGES KNOWN
+
+- For the SKILLS section specifically:
+  Generate TWO skill subsections:
+  "Technical Skills: Java, Python, SQL, HTML/CSS, Git, MySQL, Eclipse IDE, IntelliJ IDEA"
+  "Soft Skills: Problem Solving, Team Collaboration, Analytical Thinking, Communication, Time Management"
+
+- Each skill should be ONLY those the candidate actually has (from resume/profile data).
+- Do NOT invent skills not mentioned in the profile.
+
+- For EDUCATION:
+  Format: "B.Tech in Information Technology | SVPCET, Puttur | 2009-2013 | CGPA: 6.9/10"
+  Below: "Relevant Coursework: Data Structures, Object-Oriented Programming, Database Management Systems, Software Engineering, Computer Networks, Operating Systems"
+
+- The overall structure for a fresher resume should be:
+  1. CAREER OBJECTIVE
+  2. EDUCATION (with coursework)
+  3. PROJECTS & EXPERIENCE (detailed bullets)
+  4. TECHNICAL SKILLS
+  5. SOFT SKILLS
+  6. ACHIEVEMENTS (if any)
+  7. CERTIFICATIONS (if any)
+  8. LANGUAGES KNOWN
+
 KEYWORD ANALYSIS:
 Extract ALL important keywords from the job description.
 For each, note whether it appears in the resume content.

@@ -1,12 +1,43 @@
 import { Router, Request, Response } from 'express';
 import multer from 'multer';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { query } from '../db';
 import { generateResume, parseUploadedResume } from '../services/resume-generator';
 import { generateDocx } from '../services/resume-docx';
 
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!);
+
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
 const router = Router();
+
+// POST /api/resume/ai-enhance — AI-enhance a text snippet for resume editing
+router.post('/ai-enhance', async (req: Request, res: Response) => {
+  try {
+    const { text, context } = req.body;
+    if (!text || !context) return res.status(400).json({ error: 'Missing text or context' });
+
+    const prompts: Record<string, string> = {
+      summary: 'Rewrite this professional summary. Fix grammar, improve impact, use power verbs, make concise and ATS-friendly. Keep the same facts — don\'t add anything not mentioned. Return ONLY the improved text, no explanation.',
+      bullet: 'Rewrite this resume bullet point. Fix grammar, start with a strong action verb, add metrics where possible (use ~ for estimates if exact numbers aren\'t provided), make it concise (max 20 words). Return ONLY the improved bullet, no explanation.',
+      achievement: 'Rewrite this achievement. Fix grammar, quantify impact, make specific and impressive. Return ONLY the improved text, no explanation.',
+      project: 'Rewrite this project description into polished bullet points. Fix grammar, highlight tech stack, what was built, problem solved, and outcome. Return ONLY the improved text, no explanation.',
+      skill_suggest: 'Based on this text describing someone\'s experience, suggest 5-8 relevant technical skills they likely have but haven\'t listed. Return ONLY a comma-separated list of skills, nothing else.',
+    };
+
+    const systemPrompt = prompts[context];
+    if (!systemPrompt) return res.status(400).json({ error: 'Invalid context. Use: summary, bullet, achievement, project, skill_suggest' });
+
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const result = await model.generateContent(`${systemPrompt}\n\nText:\n${text}`);
+    const enhanced = result.response.text().trim();
+
+    res.json({ enhanced });
+  } catch (err: any) {
+    console.error('AI enhance error:', err.message);
+    res.status(500).json({ error: 'AI enhancement failed' });
+  }
+});
 
 // GET /api/resume/by-order/:orderId — list resumes for an order
 router.get('/by-order/:orderId', async (req: Request, res: Response) => {

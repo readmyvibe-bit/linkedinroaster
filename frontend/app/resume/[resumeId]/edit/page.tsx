@@ -398,6 +398,26 @@ export default function ResumeEditorPage() {
     setResumeData(prev => prev ? { ...prev, achievements: (prev.achievements || []).filter((_, i) => i !== index) } : prev);
   }, []);
 
+  // ─── AI Enhance ───
+  const [enhancingFields, setEnhancingFields] = useState<Record<string, boolean>>({});
+
+  async function aiEnhance(text: string, context: string): Promise<string> {
+    const res = await fetch(`${API_URL}/api/resume/ai-enhance`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, context }),
+    });
+    if (!res.ok) throw new Error('AI enhance failed');
+    const data = await res.json();
+    return data.enhanced;
+  }
+
+  const enhanceButtonStyle: React.CSSProperties = {
+    background: 'none', border: 'none', cursor: 'pointer',
+    fontSize: 16, padding: '2px 4px', opacity: 0.6,
+    transition: 'opacity 0.2s',
+  };
+
   const updateCustomSection = useCallback((index: number, field: 'title' | 'content', value: string) => {
     setResumeData(prev => {
       if (!prev) return prev;
@@ -663,7 +683,27 @@ export default function ResumeEditorPage() {
             {activeTab === 'summary' && (
               <div>
                 <div style={fieldGap}>
-                  <label style={labelStyle}>Professional Summary</label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <label style={labelStyle}>Professional Summary</label>
+                    <button
+                      style={enhanceButtonStyle}
+                      onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+                      onMouseLeave={e => e.currentTarget.style.opacity = '0.6'}
+                      disabled={!!enhancingFields['summary']}
+                      onClick={async () => {
+                        if (!rd.summary?.trim()) return;
+                        setEnhancingFields(prev => ({ ...prev, summary: true }));
+                        try {
+                          const enhanced = await aiEnhance(rd.summary, 'summary');
+                          updateSummary(enhanced);
+                        } catch { /* silent */ }
+                        setEnhancingFields(prev => ({ ...prev, summary: false }));
+                      }}
+                      title="AI Enhance"
+                    >
+                      {enhancingFields['summary'] ? '...' : '\u2728'}
+                    </button>
+                  </div>
                   <textarea
                     rows={6}
                     style={{ ...inputStyle, resize: 'vertical' }}
@@ -901,6 +941,24 @@ export default function ResumeEditorPage() {
                                 value={b}
                                 onChange={e => updateBullet(i, j, e.target.value)}
                               />
+                              <button
+                                style={{ ...enhanceButtonStyle, flexShrink: 0 }}
+                                onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+                                onMouseLeave={e => e.currentTarget.style.opacity = '0.6'}
+                                disabled={!!enhancingFields[`bullet-${i}-${j}`]}
+                                onClick={async () => {
+                                  if (!b.trim()) return;
+                                  setEnhancingFields(prev => ({ ...prev, [`bullet-${i}-${j}`]: true }));
+                                  try {
+                                    const enhanced = await aiEnhance(b, 'bullet');
+                                    updateBullet(i, j, enhanced);
+                                  } catch { /* silent */ }
+                                  setEnhancingFields(prev => ({ ...prev, [`bullet-${i}-${j}`]: false }));
+                                }}
+                                title="AI Enhance"
+                              >
+                                {enhancingFields[`bullet-${i}-${j}`] ? '...' : '\u2728'}
+                              </button>
                               {(exp.bullets || []).length > 1 && (
                                 <button
                                   onClick={() => removeBullet(i, j)}
@@ -1064,6 +1122,24 @@ export default function ResumeEditorPage() {
                         value={a}
                         onChange={e => updateAchievement(i, e.target.value)}
                       />
+                      <button
+                        style={{ ...enhanceButtonStyle, flexShrink: 0 }}
+                        onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+                        onMouseLeave={e => e.currentTarget.style.opacity = '0.6'}
+                        disabled={!!enhancingFields[`achievement-${i}`]}
+                        onClick={async () => {
+                          if (!a.trim()) return;
+                          setEnhancingFields(prev => ({ ...prev, [`achievement-${i}`]: true }));
+                          try {
+                            const enhanced = await aiEnhance(a, 'achievement');
+                            updateAchievement(i, enhanced);
+                          } catch { /* silent */ }
+                          setEnhancingFields(prev => ({ ...prev, [`achievement-${i}`]: false }));
+                        }}
+                        title="AI Enhance"
+                      >
+                        {enhancingFields[`achievement-${i}`] ? '...' : '\u2728'}
+                      </button>
                       <button
                         onClick={() => removeAchievement(i)}
                         style={{

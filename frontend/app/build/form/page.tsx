@@ -102,6 +102,26 @@ function BuildFormContent() {
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // AI Enhance
+  const [enhancingFields, setEnhancingFields] = useState<Record<string, boolean>>({});
+
+  async function aiEnhance(text: string, context: string): Promise<string> {
+    const res = await fetch(`${API_URL}/api/resume/ai-enhance`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, context }),
+    });
+    if (!res.ok) throw new Error('AI enhance failed');
+    const data = await res.json();
+    return data.enhanced;
+  }
+
+  const enhanceButtonStyle: React.CSSProperties = {
+    background: 'none', border: 'none', cursor: 'pointer',
+    fontSize: 16, padding: '2px 4px', opacity: 0.6,
+    transition: 'opacity 0.2s',
+  };
+
   // Submit
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
@@ -396,7 +416,28 @@ function BuildFormContent() {
           {/* Projects (especially useful for students/freshers) */}
           <div style={sectionStyle}>
             <h3 style={{ fontSize: 16, fontWeight: 700, color: '#191919', margin: '0 0 16px' }}>Projects & Portfolio <span style={{ fontSize: 12, fontWeight: 400, color: '#888' }}>(optional)</span></h3>
-            <p style={{ fontSize: 12, color: '#666', marginBottom: 12 }}>Great for students and freshers — list your key projects, hackathons, or portfolio work</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <p style={{ fontSize: 12, color: '#666', marginBottom: 12 }}>Great for students and freshers — list your key projects, hackathons, or portfolio work</p>
+              <button
+                style={enhanceButtonStyle}
+                onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+                onMouseLeave={e => e.currentTarget.style.opacity = '0.6'}
+                disabled={!!enhancingFields['projects']}
+                onClick={async () => {
+                  if (!projects.trim()) return;
+                  setEnhancingFields(prev => ({ ...prev, projects: true }));
+                  try {
+                    const enhanced = await aiEnhance(projects, 'project');
+                    setProjects(enhanced);
+                  } catch { /* silent */ }
+                  setEnhancingFields(prev => ({ ...prev, projects: false }));
+                }}
+                title="AI Enhance"
+                type="button"
+              >
+                {enhancingFields['projects'] ? '...' : '\u2728'}
+              </button>
+            </div>
             <textarea value={projects} onChange={e => setProjects(e.target.value)} placeholder={"E-commerce app using React + Node.js — built full-stack shopping cart with payment integration\nCollege placement portal — helped 200+ students find internships\nKaggle competition — top 10% in sentiment analysis challenge"} rows={4} style={{ ...inputStyle, resize: 'vertical' as const }} />
           </div>
 
@@ -412,7 +453,28 @@ function BuildFormContent() {
               <TagInput tags={certifications} setTags={setCertifications} placeholder="AWS Certified, Google Analytics..." />
             </div>
             <div>
-              <label style={labelStyle}>Key Achievements (optional)</label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label style={labelStyle}>Key Achievements (optional)</label>
+                <button
+                  style={enhanceButtonStyle}
+                  onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+                  onMouseLeave={e => e.currentTarget.style.opacity = '0.6'}
+                  disabled={!!enhancingFields['achievements']}
+                  onClick={async () => {
+                    if (!achievements.trim()) return;
+                    setEnhancingFields(prev => ({ ...prev, achievements: true }));
+                    try {
+                      const enhanced = await aiEnhance(achievements, 'achievement');
+                      setAchievements(enhanced);
+                    } catch { /* silent */ }
+                    setEnhancingFields(prev => ({ ...prev, achievements: false }));
+                  }}
+                  title="AI Enhance"
+                  type="button"
+                >
+                  {enhancingFields['achievements'] ? '...' : '\u2728'}
+                </button>
+              </div>
               <textarea value={achievements} onChange={e => setAchievements(e.target.value)} placeholder="Won college hackathon, published research paper, 500+ LeetCode problems solved, led a team of 5..." rows={3} style={{ ...inputStyle, resize: 'vertical' as const }} />
             </div>
           </div>
