@@ -2634,10 +2634,10 @@ export default function ResultsPage() {
             <div style={{ fontSize: 16, fontWeight: 700, color: '#191919', marginBottom: 12 }}>Quick Actions</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <button onClick={() => handleCopy(rewrite.rewritten_headline, 'sidebar-headline')} style={{ width: '100%', padding: '10px 14px', background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#0B69C7', cursor: 'pointer', textAlign: 'left' }}>
-                {copiedField === 'sidebar-headline' ? '&#10003; Copied!' : '&#128203; Copy Headline'}
+                {copiedField === 'sidebar-headline' ? '✓ Copied!' : '📋 Copy Headline'}
               </button>
               <button onClick={() => handleCopy(rewrite.rewritten_about, 'sidebar-about')} style={{ width: '100%', padding: '10px 14px', background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#0B69C7', cursor: 'pointer', textAlign: 'left' }}>
-                {copiedField === 'sidebar-about' ? '&#10003; Copied!' : '&#128203; Copy About'}
+                {copiedField === 'sidebar-about' ? '✓ Copied!' : '📋 Copy About'}
               </button>
               <button onClick={handleShareLinkedIn} style={{ width: '100%', padding: '10px 14px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#191919', cursor: 'pointer', textAlign: 'left' }}>&#128279; Share on LinkedIn</button>
               <button onClick={handleShareWhatsApp} style={{ width: '100%', padding: '10px 14px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#057642', cursor: 'pointer', textAlign: 'left' }}>&#128172; WhatsApp</button>
