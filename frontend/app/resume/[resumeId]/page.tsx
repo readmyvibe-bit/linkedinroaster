@@ -356,6 +356,34 @@ export default function ResumePreviewPage() {
             </div>
           </div>
 
+          {/* Interview Prep */}
+          <div style={{ background: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, border: '1px solid #E0E0E0' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#333', marginBottom: 10 }}>Interview Prep</div>
+            <p style={{ fontSize: 12, color: '#666', marginBottom: 10, lineHeight: 1.5 }}>AI generates 15 interview questions + answers from your resume &amp; JD</p>
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch(`${API_URL}/api/interview-prep`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ resume_id: resume.id }),
+                  });
+                  const data = await res.json();
+                  if (data.id) {
+                    window.open(`/interview-prep/${data.id}`, '_blank');
+                  } else {
+                    alert(data.error || 'Failed to start interview prep');
+                  }
+                } catch {
+                  alert('Failed to start interview prep. Please try again.');
+                }
+              }}
+              style={{ width: '100%', padding: '8px', background: '#057642', color: 'white', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+            >
+              Prepare for Interview
+            </button>
+          </div>
+
           {/* Cover Letter */}
           {resume.cover_letter && (
             <div style={{ background: '#fff', borderRadius: 12, padding: 16, border: '1px solid #E0E0E0' }}>
