@@ -156,15 +156,18 @@ STRICT ATS RULES:
 10. Use exact company names and job titles from the LinkedIn data
 
 FRESHER / STUDENT RULES (when candidate has 0-1 work experience entries):
+- CAREER OBJECTIVE: Add a "CAREER OBJECTIVE" section at the very top (before summary). Write 2-3 sentences about what the fresher wants to achieve in their target role/industry. Make it specific to the target role, not generic.
 - Summary: 3-4 sentences (not 2). Highlight education, skills, projects, and career objective.
 - Projects section: MANDATORY. Expand each project with 4-5 bullets including tech stack, what was built, impact/outcome.
-- If only 1 project exists, generate 5 detailed bullets for it.
-- Education: EXPANDED format — include degree, institution, year, GPA/percentage, AND relevant coursework (3-4 subjects).
+- If only 1 project exists, generate 5-6 DETAILED bullets covering: (a) what was built and its purpose, (b) full tech stack used, (c) who it was built for or what audience, (d) what problem it solved, (e) measurable outcome or result, (f) any deployment or real-world usage.
+- Education: EXPANDED format — include degree, institution, year, GPA/percentage, AND a "Relevant Coursework" subsection listing 4-6 subjects directly relevant to the target role.
+- Skills section: display in 2-COLUMN CATEGORY FORMAT — "Technical Skills" category on one side (programming languages, frameworks, databases) and "Soft Skills" category on the other (communication, teamwork, leadership). List tools separately.
 - Add a "RELEVANT COURSEWORK" or "ACADEMIC PROJECTS" section if needed to fill the page.
 - Skills: list ALL skills with categories (Technical, Tools, Soft Skills, Languages).
 - Target 400-550 words to fill the page properly. Do NOT make it sparse.
-- Use section headers: PROFESSIONAL SUMMARY, EDUCATION, PROJECTS, SKILLS, ACHIEVEMENTS (if any).
+- Use section headers: CAREER OBJECTIVE, PROFESSIONAL SUMMARY, EDUCATION, PROJECTS, SKILLS, ACHIEVEMENTS (if any).
 - Do NOT use "WORK EXPERIENCE" header if there's no real work — use "PROJECTS & EXPERIENCE" instead.
+- If NO job description is provided (general resume): use the target role to infer relevant keywords, typical requirements, and structure the resume around that role's common expectations. For example, if target role is "Frontend Developer", emphasize HTML/CSS/JS projects, UI/UX skills, and responsive design even if not explicitly in a JD.
 
 KEYWORD ANALYSIS:
 Extract ALL important keywords from the job description.

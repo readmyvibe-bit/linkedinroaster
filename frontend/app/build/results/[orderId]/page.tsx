@@ -79,6 +79,8 @@ export default function BuildResultsPage() {
   const [rating, setRating] = useState(0);
   const [feedbackText, setFeedbackText] = useState('');
   const [feedbackSent, setFeedbackSent] = useState(false);
+  const [existingResumes, setExistingResumes] = useState<any[]>([]);
+  const [resumeCountLoaded, setResumeCountLoaded] = useState(false);
 
   const fetchResults = useCallback(async () => {
     try {
@@ -106,6 +108,20 @@ export default function BuildResultsPage() {
     }, 3000);
     return () => clearInterval(interval);
   }, [orderId, fetchResults]);
+
+  useEffect(() => {
+    async function fetchResumes() {
+      try {
+        const res = await fetch(`${API_URL}/api/resume/by-order/${orderId}`);
+        if (res.ok) {
+          const resumes = await res.json();
+          setExistingResumes(Array.isArray(resumes) ? resumes : []);
+        }
+      } catch {}
+      setResumeCountLoaded(true);
+    }
+    fetchResumes();
+  }, [orderId]);
 
   function toggleStep(step: number) {
     setExpandedGuideStep(expandedGuideStep === step ? null : step);
@@ -229,9 +245,14 @@ export default function BuildResultsPage() {
         <div style={{ maxWidth: 1100, margin: '0 auto 20px', background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', overflow: 'hidden' }}>
           {/* Banner */}
           <div style={{ background: 'linear-gradient(135deg, #004182, #0B69C7)', padding: '32px 28px 48px', position: 'relative' }}>
-            <p style={{ fontSize: 16, fontWeight: 600, color: 'white', margin: 0, lineHeight: 1.5, maxWidth: 700, opacity: 0.95 }}>
-              {profile.headline_variations?.[0]?.text || 'Your LinkedIn Profile is Ready'}
-            </p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+              <p style={{ fontSize: 16, fontWeight: 600, color: 'white', margin: 0, lineHeight: 1.5, maxWidth: 700, opacity: 0.95 }}>
+                {profile.headline_variations?.[0]?.text || 'Your LinkedIn Profile is Ready'}
+              </p>
+              {profile.headline_variations?.[0]?.text && (
+                <CopyButton text={profile.headline_variations[0].text} />
+              )}
+            </div>
           </div>
           {/* Avatar + Info */}
           <div style={{ padding: '0 28px 24px', position: 'relative' }}>
@@ -428,20 +449,65 @@ export default function BuildResultsPage() {
           {/* RIGHT COLUMN */}
           <div className="w-full lg:w-auto lg:max-w-[340px]" style={{ flex: '0 0 320px' }}>
             {/* ATS Resume Builder */}
-            {(plan === 'plus' || plan === 'pro') && (
-              <div style={{ ...cardStyle, background: '#EFF6FF', borderLeft: '4px solid #0B69C7' }}>
-                <h3 style={{ fontSize: 16, fontWeight: 800, color: '#1E40AF', margin: '0 0 8px' }}>ATS Resume Builder</h3>
-                <p style={{ fontSize: 13, color: '#444', lineHeight: 1.6, margin: '0 0 12px' }}>
-                  Build a matching ATS-optimized resume using the same data.
-                </p>
-                <a href={`/resume?orderId=${orderId}&source=build`} style={{ display: 'inline-block', background: '#0B69C7', color: 'white', padding: '10px 24px', borderRadius: 50, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
-                  Build My Resume &rarr;
-                </a>
-                <p style={{ fontSize: 12, color: '#888', marginTop: 8, marginBottom: 0 }}>
-                  {plan === 'pro' ? '3 resumes + 3 cover letters + all 25 templates' : '1 resume + 1 cover letter + 15 templates'} included in your plan
-                </p>
-              </div>
-            )}
+            {(plan === 'plus' || plan === 'pro') && (() => {
+              const maxResumes = plan === 'pro' ? 3 : 1;
+              const usedCount = existingResumes.length;
+              const remaining = Math.max(0, maxResumes - usedCount);
+              return (
+                <div style={{ ...cardStyle, background: '#EFF6FF', borderLeft: '4px solid #0B69C7' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 800, color: '#1E40AF', margin: 0 }}>ATS Resume Builder</h3>
+                    {resumeCountLoaded && (
+                      <span style={{ fontSize: 12, fontWeight: 600, color: remaining > 0 ? '#057642' : '#CC1016', background: remaining > 0 ? '#F0FDF4' : '#FEF2F2', padding: '2px 10px', borderRadius: 12 }}>
+                        {usedCount}/{maxResumes} used
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Existing resumes list */}
+                  {existingResumes.length > 0 && (
+                    <div style={{ marginBottom: 12 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Your Resumes ({usedCount}/{maxResumes})</div>
+                      {existingResumes.map((r: any, i: number) => (
+                        <div key={r.id || i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', borderRadius: 8, padding: '8px 12px', marginBottom: 4, border: '1px solid #E5E7EB' }}>
+                          <div style={{ fontSize: 13, color: '#191919', fontWeight: 500 }}>
+                            {r.target_role || `Resume ${i + 1}`}
+                            {r.ats_score ? <span style={{ fontSize: 11, color: '#057642', marginLeft: 6 }}>ATS: {r.ats_score}%</span> : null}
+                          </div>
+                          <div style={{ display: 'flex', gap: 6 }}>
+                            <a href={`/resume/${r.id}/edit`} style={{ fontSize: 12, color: '#0B69C7', textDecoration: 'none', fontWeight: 600 }}>Edit</a>
+                            <a href={`/resume/${r.id}`} style={{ fontSize: 12, color: '#0B69C7', textDecoration: 'none', fontWeight: 600 }}>View</a>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {remaining > 0 ? (
+                    <>
+                      <p style={{ fontSize: 13, color: '#444', lineHeight: 1.6, margin: '0 0 12px' }}>
+                        Build a matching ATS-optimized resume using the same data.
+                      </p>
+                      <a href={`/resume?orderId=${orderId}&source=build`} style={{ display: 'inline-block', background: '#0B69C7', color: 'white', padding: '10px 24px', borderRadius: 50, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+                        {usedCount > 0 ? `Build another resume (${remaining} remaining)` : 'Build My Resume'} &rarr;
+                      </a>
+                    </>
+                  ) : (
+                    <div style={{ background: '#FEF2F2', borderRadius: 8, padding: '10px 14px', marginTop: 4 }}>
+                      <p style={{ fontSize: 13, color: '#CC1016', fontWeight: 600, margin: '0 0 4px' }}>Resume limit reached</p>
+                      <p style={{ fontSize: 12, color: '#666', margin: 0 }}>
+                        You&apos;ve used all {maxResumes} resume{maxResumes > 1 ? 's' : ''}.{' '}
+                        {plan === 'plus' && <a href="/build#pricing" style={{ color: '#0B69C7', fontWeight: 600 }}>Upgrade to Pro for 3 resumes</a>}
+                      </p>
+                    </div>
+                  )}
+
+                  <p style={{ fontSize: 12, color: '#888', marginTop: 8, marginBottom: 0 }}>
+                    {plan === 'pro' ? '3 resumes + 3 cover letters + all 25 templates' : '1 resume + 1 cover letter + 15 templates'} included in your plan
+                  </p>
+                </div>
+              );
+            })()}
 
             {plan === 'starter' && (
               <div style={{ ...cardStyle, background: '#EFF6FF', borderLeft: '4px solid #0B69C7' }}>
