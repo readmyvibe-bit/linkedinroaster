@@ -685,9 +685,12 @@ export default function Home() {
           </div>
 
           {/* Don't have LinkedIn CTA */}
-          <div style={{ textAlign: 'center', marginTop: 18 }}>
-            <a href="/build" target="_blank" rel="noreferrer" style={{ fontSize: 16, color: '#0A66C2', fontWeight: 700, textDecoration: 'none' }}>
-              Don{"'"}t have a LinkedIn profile yet? Build one from scratch &rarr;
+          <div style={{ textAlign: 'center', marginTop: 18, display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <a href="/build" target="_blank" rel="noreferrer" style={{ fontSize: 14, color: '#0B69C7', fontWeight: 700, textDecoration: 'none' }}>
+              No LinkedIn? Build profile from scratch &rarr;
+            </a>
+            <a href="/pricing" style={{ fontSize: 14, color: '#057642', fontWeight: 700, textDecoration: 'none' }}>
+              Just need a resume? See plans &rarr;
             </a>
           </div>
 
