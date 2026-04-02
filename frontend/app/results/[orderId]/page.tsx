@@ -2414,8 +2414,8 @@ export default function ResultsPage() {
       });
   }
 
-  const userName = data.parsed_profile?.name || 'Your Name';
-  const userLocation = data.parsed_profile?.location || '';
+  const userName = (data as any).parsed_profile?.name || 'Your Profile';
+  const userLocation = (data as any).parsed_profile?.location || '';
 
   return (
     <main style={{ fontFamily: "'Inter', system-ui, sans-serif", background: '#F3F2EF', minHeight: '100vh', paddingBottom: 0 }}>
