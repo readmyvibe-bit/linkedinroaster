@@ -1232,6 +1232,18 @@ function BuildOrdersScreen() {
                 Approve Order
               </button>
             )}
+            {selected.payment_status === 'paid' && selected.processing_status !== 'done' && (
+              <button onClick={async () => {
+                if (!confirm('Reprocess this build order?')) return;
+                try {
+                  const d = await apiFetchJson(`/api/admin/reprocess-build-order/${selected.id}`, { method: 'POST' });
+                  setToast({ message: d.message || 'Reprocessing started', type: 'success' });
+                  load();
+                } catch { setToast({ message: 'Failed to reprocess', type: 'error' }); }
+              }} className="text-xs font-semibold px-3 py-1.5 rounded-full border-none cursor-pointer" style={{ background: '#0A66C2', color: 'white' }}>
+                Reprocess Order
+              </button>
+            )}
             {selected.processing_status !== 'failed' && selected.payment_status !== 'refunded' && (
               <button onClick={async () => {
                 if (!confirm('Cancel this build order?')) return;

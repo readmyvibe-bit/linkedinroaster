@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { query } from '../db';
 import { sendResultsEmail } from '../services/email';
 import { profileQueue } from '../queue';
+import { buildQueue } from '../queue/build-queue';
 
 const router = Router();
 
@@ -58,6 +59,7 @@ router.use('/referrals', adminAuth);
 router.use('/send-email', adminAuth);
 router.use('/approve-order', adminAuth);
 router.use('/reprocess-order', adminAuth);
+router.use('/reprocess-build-order', adminAuth);
 
 // GET /api/admin/overview
 router.get('/overview', async (_req: Request, res: Response) => {
@@ -366,6 +368,22 @@ router.post('/reprocess-order/:id', async (req: Request, res: Response) => {
     res.json({ reprocessed: true, orderId: order.id });
   } catch (err) {
     console.error('Admin reprocess error:', err);
+    res.status(500).json({ error: 'Failed to reprocess' });
+  }
+});
+
+// POST /api/admin/reprocess-build-order/:id
+router.post('/reprocess-build-order/:id', async (req: Request, res: Response) => {
+  try {
+    const result = await query('SELECT * FROM build_orders WHERE id=$1', [req.params.id]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Build order not found' });
+    const order = result.rows[0];
+    if (order.processing_status === 'done') return res.status(400).json({ error: 'Already completed' });
+    await query("UPDATE build_orders SET processing_status='queued' WHERE id=$1", [req.params.id]);
+    await buildQueue.add('job', { order_id: order.id });
+    res.json({ reprocessed: true, orderId: order.id });
+  } catch (err) {
+    console.error('Admin reprocess build error:', err);
     res.status(500).json({ error: 'Failed to reprocess' });
   }
 });
