@@ -200,4 +200,29 @@ router.post('/:orderId/feedback', async (req: Request, res: Response) => {
   }
 });
 
+// POST /api/build/update-and-process — for referral code pre-paid orders
+router.post('/update-and-process', async (req: Request, res: Response) => {
+  try {
+    const { order_id, form_input } = req.body;
+    if (!order_id || !form_input) return res.status(400).json({ error: 'order_id and form_input required' });
+
+    const result = await query('SELECT * FROM build_orders WHERE id=$1', [order_id]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Order not found' });
+
+    const order = result.rows[0];
+    if (order.payment_status !== 'paid') return res.status(400).json({ error: 'Order not paid' });
+
+    await query(
+      "UPDATE build_orders SET form_input=$1, processing_status='queued' WHERE id=$2",
+      [JSON.stringify(form_input), order_id],
+    );
+
+    await buildQueue.add('job', { order_id });
+    res.json({ success: true, order_id });
+  } catch (err: any) {
+    console.error('Build update-and-process error:', err.message);
+    res.status(500).json({ error: 'Failed to process' });
+  }
+});
+
 export default router;

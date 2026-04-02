@@ -65,6 +65,7 @@ function BuildFormContent() {
   const router = useRouter();
   const planParam = searchParams.get('plan');
   const plan = planParam || 'starter';
+  const prePaidOrderId = searchParams.get('orderId'); // from referral code redemption
 
   // Redirect to pricing if no plan specified
   useEffect(() => {
@@ -194,6 +195,18 @@ function BuildFormContent() {
         experience: experience.filter(e => e.company || e.role),
         skills, certifications, achievements, projects,
       };
+
+      // If pre-paid via referral code, update existing order and process
+      if (prePaidOrderId) {
+        const updateRes = await fetch(`${API_URL}/api/build/update-and-process`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order_id: prePaidOrderId, form_input }),
+        });
+        if (!updateRes.ok) { const err = await updateRes.json().catch(() => ({})); throw new Error(err.error || 'Failed to process'); }
+        router.push(`/build/results/${prePaidOrderId}`);
+        return;
+      }
 
       const res = await fetch(`${API_URL}/api/build/create-order`, {
         method: 'POST',
