@@ -2176,6 +2176,7 @@ export default function ResultsPage() {
   const [copiedField, setCopiedField] = useState('');
   const [showAllRoasts, setShowAllRoasts] = useState(false);
   const [headlineTab, setHeadlineTab] = useState(0);
+  const [showAllRoastsExpand, setShowAllRoastsExpand] = useState(false);
 
   const fetchOrder = useCallback(async () => {
     try {
@@ -2413,203 +2414,148 @@ export default function ResultsPage() {
       });
   }
 
+  const userName = data.parsed_profile?.name || 'Your Name';
+  const userLocation = data.parsed_profile?.location || '';
+
   return (
     <main style={{ fontFamily: "'Inter', system-ui, sans-serif", background: '#F3F2EF', minHeight: '100vh', paddingBottom: 0 }}>
       {/* Header */}
-      <header style={{ background: 'white', borderBottom: '1px solid #E0E0E0', padding: '12px 16px' }}>
-        <div style={{ maxWidth: 1240, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <header style={{ background: '#0B69C7', padding: '10px 16px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <a href="/dashboard" style={{ fontSize: 13, color: '#0A66C2', textDecoration: 'none', fontWeight: 600 }}>&larr; My Dashboard</a>
-            <span style={{ color: '#E0E0E0' }}>|</span>
+            <a href="/dashboard" style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', textDecoration: 'none', fontWeight: 600 }}>&larr; Dashboard</a>
+            <span style={{ color: 'rgba(255,255,255,0.3)' }}>|</span>
             <a href="/" style={{ textDecoration: 'none' }}>
-              <span style={{ fontSize: 16, fontWeight: 800, color: '#0A66C2' }}>Profile</span>
-              <span style={{ fontSize: 16, fontWeight: 800, color: '#191919' }}>Roaster</span>
+              <span style={{ fontSize: 16, fontWeight: 800, color: 'white' }}>Profile</span>
+              <span style={{ fontSize: 16, fontWeight: 800, color: 'rgba(255,255,255,0.85)' }}>Roaster</span>
             </a>
           </div>
-          {isPro && <span style={{ fontSize: 11, fontWeight: 700, color: 'white', background: '#0A66C2', padding: '3px 10px', borderRadius: 12 }}>PRO</span>}
+          {isPro && <span style={{ fontSize: 11, fontWeight: 700, color: '#0B69C7', background: 'white', padding: '3px 10px', borderRadius: 12 }}>PRO</span>}
         </div>
       </header>
 
-      {/* ═══ SECTION 1: Hero — Score + Resume + Actions (full-bleed gradient) ═══ */}
-      <section style={{ background: 'linear-gradient(135deg, #F0F7FF 0%, #E8F0FE 50%, #F0FDF4 100%)', padding: '24px 16px', borderBottom: '1px solid #E0E7F0' }}>
-        <div style={{ maxWidth: 1240, margin: '0 auto' }}>
+      {/* ═══ PROFILE CARD ═══ */}
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '20px 16px 0' }}>
+        <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', overflow: 'hidden', marginBottom: 16 }}>
 
-          {/* Score row — compact horizontal */}
-          <div style={{ textAlign: 'center', marginBottom: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 8 }}>
+          {/* Banner */}
+          <div style={{ background: 'linear-gradient(135deg, #004182 0%, #0B69C7 50%, #057642 100%)', padding: '24px 28px 20px', color: 'white' }}>
+            {/* Score row */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 12 }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 40, fontWeight: 800, color: '#CC1016', lineHeight: 1 }}>{scores.before.overall}</div>
-                <div style={{ fontSize: 10, fontWeight: 600, color: '#CC1016', textTransform: 'uppercase', letterSpacing: 1 }}>Before</div>
+                <div style={{ fontSize: 36, fontWeight: 800, lineHeight: 1, opacity: 0.7 }}>{scores.before.overall}</div>
+                <div style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, opacity: 0.6 }}>Before</div>
               </div>
-              <div style={{ fontSize: 24, color: '#ccc' }}>&rarr;</div>
+              <div style={{ fontSize: 22, opacity: 0.5 }}>&rarr;</div>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 52, fontWeight: 800, color: '#057642', lineHeight: 1 }}>{scores.after.overall}</div>
-                <div style={{ fontSize: 10, fontWeight: 600, color: '#057642', textTransform: 'uppercase', letterSpacing: 1 }}>After</div>
+                <div style={{ fontSize: 48, fontWeight: 800, lineHeight: 1 }}>{scores.after.overall}</div>
+                <div style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, opacity: 0.8 }}>After</div>
               </div>
-              <div style={{ background: '#DCFCE7', color: '#057642', fontSize: 15, fontWeight: 800, padding: '5px 14px', borderRadius: 20 }}>+{improvement}</div>
+              <div style={{ background: 'rgba(255,255,255,0.2)', fontSize: 14, fontWeight: 800, padding: '4px 14px', borderRadius: 20 }}>+{improvement}</div>
             </div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: afterScore >= 70 ? '#057642' : '#92400E' }}>
-              Your profile is now in the <strong>{rankLabel}</strong> of LinkedIn profiles
+            {/* Dimension chips */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}>
+              {[
+                { label: 'HL', b: scores.before.headline, a: scores.after.headline },
+                { label: 'AB', b: scores.before.about, a: scores.after.about },
+                { label: 'EX', b: scores.before.experience, a: scores.after.experience },
+                { label: 'ATS', b: scores.before.ats || 0, a: scores.after.ats || 0 },
+              ].map(s => (
+                <span key={s.label} style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: '3px 10px', fontSize: 11, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                  {s.label} {s.b}&rarr;{s.a} <span style={{ color: '#A7F3D0', fontWeight: 700 }}>+{s.a - s.b}</span>
+                </span>
+              ))}
             </div>
           </div>
 
-          {/* Dimension bars — horizontal grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 8, marginBottom: 16 }}>
-            {[
-              { label: 'Headline', b: scores.before.headline, a: scores.after.headline },
-              { label: 'About', b: scores.before.about, a: scores.after.about },
-              { label: 'Experience', b: scores.before.experience, a: scores.after.experience },
-              { label: 'ATS', b: scores.before.ats || 0, a: scores.after.ats || 0 },
-            ].map(s => (
-              <div key={s.label} style={{ background: 'white', borderRadius: 8, padding: '8px 12px', border: '1px solid #E0E7F0' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 4 }}>
-                  <span style={{ color: '#666' }}>{s.label}</span>
-                  <span style={{ fontWeight: 700, color: '#057642' }}>+{s.a - s.b}</span>
-                </div>
-                <div style={{ height: 6, background: '#F3F4F6', borderRadius: 3 }}>
-                  <div style={{ width: `${s.a}%`, height: '100%', background: '#0A66C2', borderRadius: 3 }} />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Resume + Quick Actions — side by side */}
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-start' }}>
-            {/* Resume card */}
-            <div style={{ flex: '1 1 300px', background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '16px 20px' }}>
-              <div id="resume-section">
-                <ResumeBuilderSection orderId={orderId} maxResumes={isPro ? 3 : 1} plan={plan} />
+          {/* Avatar + name area */}
+          <div style={{ padding: '0 28px 20px' }}>
+            {/* Avatar circle overlapping banner */}
+            <div style={{ marginTop: -36, marginBottom: 12 }}>
+              <div style={{
+                width: 72, height: 72, borderRadius: '50%', background: '#0B69C7',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 28, fontWeight: 800, color: 'white',
+                border: '4px solid white', boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+              }}>
+                {userName.charAt(0).toUpperCase()}
               </div>
             </div>
-            {/* Quick Actions — vertical on desktop, 2x2 grid on mobile */}
-            <div className="hidden lg:flex" style={{ flex: '0 0 240px', flexDirection: 'column', gap: 6 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#191919', marginBottom: 2 }}>Quick Actions</div>
-              <button onClick={() => handleCopy(rewrite.rewritten_headline, 'sidebar-headline')} style={{ width: '100%', padding: '8px 12px', background: 'white', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'left' }}>
-                {copiedField === 'sidebar-headline' ? '✓ Copied!' : '📋 Copy Headline'}
-              </button>
-              <button onClick={() => handleCopy(rewrite.rewritten_about, 'sidebar-about')} style={{ width: '100%', padding: '8px 12px', background: 'white', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'left' }}>
-                {copiedField === 'sidebar-about' ? '✓ Copied!' : '📋 Copy About'}
-              </button>
-              <button onClick={handleShareLinkedIn} style={{ width: '100%', padding: '8px 12px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'left' }}>&#128279; Share on LinkedIn</button>
-              <button onClick={handleShareWhatsApp} style={{ width: '100%', padding: '8px 12px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#057642', cursor: 'pointer', textAlign: 'left' }}>&#128172; WhatsApp</button>
-              <button onClick={handleDownloadCard} style={{ width: '100%', padding: '8px 12px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'left' }}>&#11015; Download Roast Card</button>
+            <div style={{ fontSize: 22, fontWeight: 700, color: '#191919', marginBottom: 4 }}>{userName}</div>
+            <div style={{ fontSize: 14, color: '#333', lineHeight: 1.5, marginBottom: 4 }}>{rewrite.rewritten_headline}</div>
+            {userLocation && <div style={{ fontSize: 13, color: '#666', marginBottom: 4 }}>{userLocation}</div>}
+            <div style={{ fontSize: 13, fontWeight: 600, color: afterScore >= 70 ? '#057642' : '#92400E' }}>
+              {rankLabel} of LinkedIn profiles
             </div>
-            {/* Mobile: 2x2 grid */}
-            <div className="flex lg:hidden" style={{ flex: '1 1 300px', gap: 8, flexWrap: 'wrap' }}>
-              <button onClick={() => handleCopy(rewrite.rewritten_headline, 'sidebar-headline')} style={{ flex: '1 1 45%', padding: '10px', background: 'white', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'center' }}>
-                {copiedField === 'sidebar-headline' ? '✓ Copied!' : '📋 Headline'}
-              </button>
-              <button onClick={() => handleCopy(rewrite.rewritten_about, 'sidebar-about')} style={{ flex: '1 1 45%', padding: '10px', background: 'white', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer', textAlign: 'center' }}>
-                {copiedField === 'sidebar-about' ? '✓ Copied!' : '📋 About'}
-              </button>
-              <button onClick={handleShareLinkedIn} style={{ flex: '1 1 45%', padding: '10px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'center' }}>&#128279; Share</button>
-              <button onClick={handleDownloadCard} style={{ flex: '1 1 45%', padding: '10px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer', textAlign: 'center' }}>&#11015; Card</button>
-            </div>
-          </div>
 
-        </div>
-      </section>
-
-      {/* ═══ SECTION 2: Top 3 Roasts (full-bleed white) ═══ */}
-      <section style={{ background: 'white', padding: '28px 16px', borderBottom: '1px solid #E8E8E8' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto' }}>
-
-        {/* SECTION 2: Top 3 Roast Cards */}
-        <div style={{ marginBottom: 20 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 800, color: '#191919', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span>&#128293;</span> AI Roasted Your Profile
-          </h2>
-          {/* T-layout: 2 cards on top row */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
-            {top3Roasts.slice(0, 2).map((p, i) => (
-              <div key={i} style={{ background: 'white', borderRadius: 14, border: '1px solid #E0E0E0', padding: '20px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ fontSize: 20 }}>{sectionIcon(p.section_targeted)}</span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: '#0A66C2', textTransform: 'uppercase', letterSpacing: 1 }}>{p.section_targeted}</span>
+            {/* Roast highlight */}
+            {top3Roasts[0] && (
+              <div style={{ marginTop: 16, background: '#FFF7ED', border: '1px solid #FDBA74', borderRadius: 10, padding: '14px 16px' }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#C2410C', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span>&#128293;</span> Top Roast
                 </div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#191919', lineHeight: 1.5, flex: 1 }}>{p.roast}</div>
-                {getFixPreview(p.section_targeted) && (
-                  <div style={{ fontSize: 12, color: '#057642', background: '#F0FDF4', borderRadius: 6, padding: '6px 10px' }}>
-                    Fix: {getFixPreview(p.section_targeted)}
-                  </div>
+                <p style={{ fontSize: 14, color: '#191919', fontStyle: 'italic', lineHeight: 1.6, margin: 0 }}>
+                  &ldquo;{top3Roasts[0].roast}&rdquo;
+                </p>
+                {!showAllRoastsExpand && (roast.roast_points || []).length > 1 && (
+                  <button onClick={() => setShowAllRoastsExpand(true)} style={{ marginTop: 10, background: 'none', border: 'none', color: '#0B69C7', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: 0 }}>
+                    See all {(roast.roast_points || []).length} roasts &#8595;
+                  </button>
                 )}
-              </div>
-            ))}
-          </div>
-          {/* 3rd card full-width below */}
-          {top3Roasts[2] && (
-            <div style={{ background: 'white', borderRadius: 14, border: '1px solid #E0E0E0', padding: '20px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 20 }}>{sectionIcon(top3Roasts[2].section_targeted)}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#0A66C2', textTransform: 'uppercase', letterSpacing: 1 }}>{top3Roasts[2].section_targeted}</span>
-              </div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: '#191919', lineHeight: 1.5 }}>{top3Roasts[2].roast}</div>
-              {getFixPreview(top3Roasts[2].section_targeted) && (
-                <div style={{ fontSize: 12, color: '#057642', background: '#F0FDF4', borderRadius: 6, padding: '6px 10px' }}>
-                  Fix: {getFixPreview(top3Roasts[2].section_targeted)}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        </div>
-      </section>
-
-      {/* ═══ SECTION 3: Your New Profile (full-bleed tinted) ═══ */}
-      <section style={{ background: '#F8FAFC', padding: '28px 16px', borderBottom: '1px solid #E8E8E8' }}>
-        <div style={{ maxWidth: 1240, margin: '0 auto' }}>
-        <div style={{ background: 'white', borderRadius: 16, padding: '28px 32px', border: '1px solid #E0E0E0' }} id="rewrite-section">
-          <h2 style={{ fontSize: 18, fontWeight: 800, color: '#191919', marginBottom: 20 }}>Your New Profile</h2>
-
-          {/* Headline */}
-          <div style={{ marginBottom: 24 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-              <span style={{ fontSize: 14, fontWeight: 700, color: '#0A66C2', textTransform: 'uppercase', letterSpacing: 1 }}>Headline</span>
-              <CopyBtn text={isPro && rewrite.headline_variations?.length ? rewrite.headline_variations[headlineTab]?.headline : rewrite.rewritten_headline} field="headline" />
-            </div>
-            {isPro && rewrite.headline_variations && rewrite.headline_variations.length > 1 ? (
-              <>
-                <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
-                  {rewrite.headline_variations.map((v, i) => (
-                    <button key={i} onClick={() => setHeadlineTab(i)} style={{ padding: '4px 12px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, background: headlineTab === i ? '#0A66C2' : '#F3F4F6', color: headlineTab === i ? 'white' : '#666' }}>
-                      {i + 1}. {v.style}
-                    </button>
-                  ))}
-                </div>
-                <div style={{ background: '#F0F7FF', borderRadius: 10, padding: '14px 18px', fontSize: 16, fontWeight: 600, color: '#191919', lineHeight: 1.5 }}>
-                  {rewrite.headline_variations[headlineTab]?.headline}
-                </div>
-              </>
-            ) : (
-              <div style={{ background: '#F0F7FF', borderRadius: 10, padding: '14px 18px', fontSize: 16, fontWeight: 600, color: '#191919', lineHeight: 1.5 }}>
-                {rewrite.rewritten_headline}
+                {showAllRoastsExpand && (roast.roast_points || []).slice(1).map((p, i) => (
+                  <div key={i} style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #FDBA74' }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#C2410C', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                      {sectionIcon(p.section_targeted)} {p.section_targeted}
+                    </div>
+                    <p style={{ fontSize: 14, color: '#191919', fontStyle: 'italic', lineHeight: 1.6, margin: 0 }}>
+                      &ldquo;{p.roast}&rdquo;
+                    </p>
+                    {p.underlying_issue && (
+                      <p style={{ fontSize: 12, color: '#78350F', marginTop: 4, marginBottom: 0 }}>
+                        Why it matters: {p.underlying_issue}
+                      </p>
+                    )}
+                  </div>
+                ))}
+                {showAllRoastsExpand && (
+                  <button onClick={() => setShowAllRoastsExpand(false)} style={{ marginTop: 10, background: 'none', border: 'none', color: '#0B69C7', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: 0 }}>
+                    Show less &#8593;
+                  </button>
+                )}
               </div>
             )}
           </div>
+        </div>
+      </div>
 
-          {/* About */}
-          <div style={{ marginBottom: 24 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-              <span style={{ fontSize: 14, fontWeight: 700, color: '#0A66C2', textTransform: 'uppercase', letterSpacing: 1 }}>About</span>
+      {/* ═══ TWO-COLUMN LAYOUT ═══ */}
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 16px 20px', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+
+        {/* LEFT COLUMN */}
+        <div style={{ flex: '1 1 550px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+          {/* About card */}
+          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }} id="rewrite-section">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <span style={{ fontSize: 16, fontWeight: 700, color: '#191919' }}>About</span>
               <CopyBtn text={rewrite.rewritten_about} field="about" />
             </div>
-            <div style={{ background: '#F9FAFB', borderRadius: 10, padding: '16px 18px', fontSize: 14, color: '#333', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}
+            <div style={{ fontSize: 14, color: '#333', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}
               dangerouslySetInnerHTML={{ __html: highlightPlaceholders(highlightATSKeywords(rewrite.rewritten_about, rewrite.ats_keywords || [])) }}
             />
             {isPro && rewrite.ats_keywords && rewrite.ats_keywords.length > 0 && (
-              <details style={{ marginTop: 8 }}>
-                <summary style={{ fontSize: 12, color: '#0A66C2', fontWeight: 600, cursor: 'pointer' }}>ATS Keywords ({rewrite.ats_keywords.length})</summary>
+              <details style={{ marginTop: 10 }}>
+                <summary style={{ fontSize: 12, color: '#0B69C7', fontWeight: 600, cursor: 'pointer' }}>ATS Keywords ({rewrite.ats_keywords.length})</summary>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
-                  {rewrite.ats_keywords.map((k, i) => <span key={i} style={{ background: '#E8F0FE', color: '#0A66C2', padding: '3px 10px', borderRadius: 12, fontSize: 12, fontWeight: 500 }}>{k}</span>)}
+                  {rewrite.ats_keywords.map((k, i) => <span key={i} style={{ background: '#E8F0FE', color: '#0B69C7', padding: '3px 10px', borderRadius: 12, fontSize: 12, fontWeight: 500 }}>{k}</span>)}
                 </div>
               </details>
             )}
           </div>
 
-          {/* Experience */}
-          <div style={{ marginBottom: 24 }}>
-            <span style={{ fontSize: 14, fontWeight: 700, color: '#0A66C2', textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 12 }}>Experience</span>
+          {/* Experience card */}
+          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }}>
+            <span style={{ fontSize: 16, fontWeight: 700, color: '#191919', display: 'block', marginBottom: 14 }}>Experience</span>
             {rewrite.rewritten_experience?.map((exp, i) => (
               <div key={i} style={{ background: '#F9FAFB', borderRadius: 10, padding: '16px 18px', marginBottom: 10 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
@@ -2622,7 +2568,7 @@ export default function ResultsPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {exp.bullets.map((b, j) => (
                     <div key={j} style={{ display: 'flex', gap: 8, fontSize: 14, color: '#333', lineHeight: 1.7 }}>
-                      <span style={{ color: '#0A66C2', fontWeight: 700, flexShrink: 0 }}>&bull;</span>
+                      <span style={{ color: '#0B69C7', fontWeight: 700, flexShrink: 0 }}>&bull;</span>
                       <span dangerouslySetInnerHTML={{ __html: highlightPowerVerbs(highlightPlaceholders(b)) }} />
                     </div>
                   ))}
@@ -2631,11 +2577,11 @@ export default function ResultsPage() {
             ))}
           </div>
 
-          {/* Skills */}
+          {/* Skills card */}
           {rewrite.suggested_skills?.length > 0 && (
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#0A66C2', textTransform: 'uppercase', letterSpacing: 1 }}>Skills</span>
+            <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <span style={{ fontSize: 16, fontWeight: 700, color: '#191919' }}>Skills</span>
                 <CopyBtn text={rewrite.suggested_skills.map(s => s.skill).join(', ')} field="skills" />
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -2645,43 +2591,92 @@ export default function ResultsPage() {
               </div>
             </div>
           )}
-        </div>
 
-        </div>
-      </section>
-
-      {/* ═══ SECTION 4: What AI Loved (full-bleed green tint) ═══ */}
-      <section style={{ background: '#F0FDF4', padding: '28px 16px', borderBottom: '1px solid #BBF7D0' }}>
-        <div style={{ maxWidth: 1240, margin: '0 auto' }}>
-        <div style={{ background: 'white', borderRadius: 16, padding: '24px 28px', border: '1px solid #BBF7D0' }}>
-          <h2 style={{ fontSize: 16, fontWeight: 800, color: '#057642', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span>&#128154;</span> What AI Loved About Your Profile
-          </h2>
-          <p style={{ fontSize: 15, color: '#333', lineHeight: 1.7, marginBottom: 16 }}>{roast.closing_compliment}</p>
-          {roast.hidden_strengths && roast.hidden_strengths.length > 0 && (
-            <div style={{ background: 'white', borderRadius: 10, padding: '16px 18px', border: '1px solid #BBF7D0' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#057642', marginBottom: 6 }}>Hidden Strength: {roast.hidden_strengths[0].strength}</div>
-              <div style={{ fontSize: 13, color: '#555', lineHeight: 1.6, marginBottom: 6 }}>Evidence: {roast.hidden_strengths[0].evidence}</div>
-              <div style={{ fontSize: 13, color: '#057642', fontWeight: 600 }}>How to leverage: {roast.hidden_strengths[0].how_to_show_it}</div>
+          {/* Headline Variations card (Pro only) */}
+          {isPro && rewrite.headline_variations && rewrite.headline_variations.length > 1 && (
+            <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <span style={{ fontSize: 16, fontWeight: 700, color: '#191919' }}>Headline Variations</span>
+                <CopyBtn text={rewrite.headline_variations[headlineTab]?.headline || ''} field="headline" />
+              </div>
+              <div style={{ display: 'flex', gap: 4, marginBottom: 10, flexWrap: 'wrap' }}>
+                {rewrite.headline_variations.map((v, i) => (
+                  <button key={i} onClick={() => setHeadlineTab(i)} style={{ padding: '4px 12px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, background: headlineTab === i ? '#0B69C7' : '#F3F4F6', color: headlineTab === i ? 'white' : '#666' }}>
+                    {i + 1}. {v.style}
+                  </button>
+                ))}
+              </div>
+              <div style={{ background: '#F0F7FF', borderRadius: 10, padding: '14px 18px', fontSize: 16, fontWeight: 600, color: '#191919', lineHeight: 1.5 }}>
+                {rewrite.headline_variations[headlineTab]?.headline}
+              </div>
+              <p style={{ fontSize: 12, color: '#666', marginTop: 6, marginBottom: 0 }}>Best for: {rewrite.headline_variations[headlineTab]?.best_for}</p>
             </div>
           )}
         </div>
-        </div>
-      </section>
 
+        {/* RIGHT COLUMN */}
+        <div style={{ flex: '0 0 320px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-      {/* ═══ SECTION 6: Feedback (full-bleed white) ═══ */}
-      <section style={{ background: 'white', padding: '28px 16px', borderBottom: '1px solid #E8E8E8' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto' }}>
-          <div style={{ background: 'white', borderRadius: 16, padding: '24px 28px' }}>
+          {/* Resume card */}
+          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }} id="resume-section">
+            <ResumeBuilderSection orderId={orderId} maxResumes={isPro ? 3 : 1} plan={plan} />
+          </div>
+
+          {/* Quick Actions card */}
+          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#191919', marginBottom: 12 }}>Quick Actions</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <button onClick={() => handleCopy(rewrite.rewritten_headline, 'sidebar-headline')} style={{ width: '100%', padding: '10px 14px', background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#0B69C7', cursor: 'pointer', textAlign: 'left' }}>
+                {copiedField === 'sidebar-headline' ? '&#10003; Copied!' : '&#128203; Copy Headline'}
+              </button>
+              <button onClick={() => handleCopy(rewrite.rewritten_about, 'sidebar-about')} style={{ width: '100%', padding: '10px 14px', background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#0B69C7', cursor: 'pointer', textAlign: 'left' }}>
+                {copiedField === 'sidebar-about' ? '&#10003; Copied!' : '&#128203; Copy About'}
+              </button>
+              <button onClick={handleShareLinkedIn} style={{ width: '100%', padding: '10px 14px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#191919', cursor: 'pointer', textAlign: 'left' }}>&#128279; Share on LinkedIn</button>
+              <button onClick={handleShareWhatsApp} style={{ width: '100%', padding: '10px 14px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#057642', cursor: 'pointer', textAlign: 'left' }}>&#128172; WhatsApp</button>
+              <button onClick={handleDownloadCard} style={{ width: '100%', padding: '10px 14px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#191919', cursor: 'pointer', textAlign: 'left' }}>&#11015; Download Roast Card</button>
+            </div>
+          </div>
+
+          {/* What AI Loved card */}
+          <div style={{ background: '#F0FDF4', borderRadius: 12, border: '1px solid #BBF7D0', padding: '20px 24px' }}>
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: '#057642', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span>&#128154;</span> What AI Loved
+            </h3>
+            <p style={{ fontSize: 14, color: '#333', lineHeight: 1.7, marginBottom: 12, marginTop: 0 }}>{roast.closing_compliment}</p>
+            {roast.hidden_strengths && roast.hidden_strengths.length > 0 && (
+              <div style={{ background: 'white', borderRadius: 10, padding: '14px 16px', border: '1px solid #BBF7D0' }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#057642', marginBottom: 4 }}>Hidden Strength: {roast.hidden_strengths[0].strength}</div>
+                <div style={{ fontSize: 12, color: '#555', lineHeight: 1.6, marginBottom: 4 }}>Evidence: {roast.hidden_strengths[0].evidence}</div>
+                <div style={{ fontSize: 12, color: '#057642', fontWeight: 600 }}>How to leverage: {roast.hidden_strengths[0].how_to_show_it}</div>
+              </div>
+            )}
+          </div>
+
+          {/* Feedback card */}
+          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }}>
             <FeedbackWidget orderId={orderId} />
           </div>
-        </div>
-      </section>
 
-      {/* ═══ Disclaimer + Footer ═══ */}
+          {/* Upgrade card (Standard only) */}
+          {!isPro && (
+            <div style={{ background: 'linear-gradient(135deg, #004182, #0B69C7)', borderRadius: 12, padding: '20px 24px', color: 'white' }}>
+              <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>Upgrade to Pro</div>
+              <div style={{ fontSize: 13, opacity: 0.85, marginBottom: 12, lineHeight: 1.5 }}>
+                Get 5 headline variants, ATS keywords, JD matcher &amp; cover letter
+              </div>
+              <button onClick={handleUpgrade} style={{ padding: '10px 24px', background: 'white', color: '#0B69C7', border: 'none', borderRadius: 50, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+                Upgrade &#8212; &#8377;500
+              </button>
+              <div style={{ fontSize: 11, opacity: 0.6, marginTop: 6 }}>You paid &#8377;299 &mdash; only &#8377;500 more</div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ═══ Disclaimer ═══ */}
       <section style={{ background: '#F3F2EF', padding: '20px 16px' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ background: '#FFFBEB', border: '1px solid #F59E0B', borderRadius: 10, padding: '12px 16px', fontSize: 12, color: '#78350F', lineHeight: 1.6 }}>
             <strong>AI-Generated Content:</strong> Please review all content for accuracy before publishing. Verify company names, job titles, dates, and metrics are factually correct.
           </div>
