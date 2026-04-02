@@ -261,7 +261,36 @@ Return ONLY valid JSON:
   });
 
   const text = (response.content[0] as any).text || '';
-  return safeJsonParse(text);
+  const parsed = safeJsonParse(text) as BuildResult;
+
+  // Post-generation validation: ensure critical fields are not empty
+  if (!parsed.about || parsed.about.trim().length < 50) {
+    console.warn('[BUILD] About section empty or too short, regenerating...');
+    // Regenerate just the about section with Gemini (fast, cheap)
+    const aboutModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const aboutResult = await aboutModel.generateContent({
+      contents: [{ role: 'user', parts: [{ text: `Write a LinkedIn About section (250-350 words) for:
+Name: ${formInput.full_name}, Target Role: ${formInput.target_role}, Career Stage: ${formInput.career_stage}
+Education: ${formInput.education.map(e => `${e.degree} ${e.field} from ${e.institution}`).join(', ')}
+Experience: ${formInput.experience.map(e => `${e.role} at ${e.company}`).join(', ') || 'Fresher/student'}
+Skills: ${formInput.skills.join(', ') || 'Not specified'}
+Achievements: ${formInput.achievements || 'Not specified'}
+RULES: Start with a HOOK (not "I am..."). Short paragraphs. Tone: ${formInput.tone}. Return ONLY the about text.` }] }],
+      generationConfig: { temperature: 0.3, maxOutputTokens: 2000 },
+    });
+    parsed.about = aboutResult.response.text().trim();
+  }
+
+  if (!parsed.headline_variations || parsed.headline_variations.length === 0) {
+    console.warn('[BUILD] No headline variations generated, adding fallback');
+    parsed.headline_variations = [{
+      text: `${formInput.target_role} | ${formInput.education?.[0]?.degree || ''} ${formInput.education?.[0]?.field || ''} Graduate`,
+      style: 'Role-focused',
+      best_for: 'General use',
+    }];
+  }
+
+  return parsed;
 }
 
 // ═══════════════════════════════════════════
