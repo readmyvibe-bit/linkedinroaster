@@ -1561,7 +1561,7 @@ function InfluencersScreen() {
                   </span>
                 </td>
                 <td className="p-3 text-xs">
-                  <span className="font-mono">?ref={inf.slug}</span>
+                  <a href={`https://profileroaster.in/?ref=${inf.slug}`} target="_blank" rel="noreferrer" className="font-mono" style={{ color: '#0B69C7', textDecoration: 'none' }}>profileroaster.in/?ref={inf.slug}</a>
                 </td>
                 <td className="p-3">
                   <button onClick={() => viewReferrals(inf.slug)}
