@@ -703,13 +703,44 @@ export default function Home() {
                 </div>
               )}
 
+              {/* PDF parsed + rate limited = show pricing CTA */}
+              {pdfParsed && rateLimited && !teaser && (
+                <div style={{ marginTop: 12, padding: 16, borderRadius: 10, background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
+                  <div style={{ fontSize: 13, color: '#057642', marginBottom: 4, fontWeight: 700 }}>&#9989; Profile parsed successfully!</div>
+                  <div style={{ fontSize: 12, color: '#666', marginBottom: 10 }}>Free preview limit reached. Get your full AI roast + rewrite + resume:</div>
+                  <button
+                    onClick={scrollToPricing}
+                    style={{
+                      width: '100%', padding: '12px 20px', borderRadius: 50, border: 'none',
+                      background: 'linear-gradient(135deg, #0A66C2, #004182)', color: 'white',
+                      fontSize: 14, fontWeight: 700, cursor: 'pointer',
+                    }}
+                  >
+                    Get Full Report for &#8377;299 &rarr;
+                  </button>
+                </div>
+              )}
+
               <div style={{ fontSize: 12, color: '#057642', textAlign: 'center', marginTop: 10, fontWeight: 600 }}>
                 &#9889; Free profile score in seconds
               </div>
 
               {rateLimited && (
-                <div style={{ marginTop: 12, padding: 12, borderRadius: 10, background: '#FEF3C7', border: '1px solid #F59E0B', fontSize: 13, color: '#92400E' }}>
-                  <strong>5 free previews used today.</strong> Come back tomorrow or get your full roast + resume for &#8377;299.
+                <div style={{ marginTop: 12, padding: 16, borderRadius: 10, background: '#FEF3C7', border: '1px solid #F59E0B' }}>
+                  <div style={{ fontSize: 13, color: '#92400E', marginBottom: 10 }}>
+                    <strong>5 free previews used today.</strong> Get the full roast + rewrite + resume now:
+                  </div>
+                  <button
+                    onClick={scrollToPricing}
+                    style={{
+                      width: '100%', padding: '12px 20px', borderRadius: 50, border: 'none',
+                      background: 'linear-gradient(135deg, #0A66C2, #004182)', color: 'white',
+                      fontSize: 14, fontWeight: 700, cursor: 'pointer',
+                      boxShadow: '0 4px 12px rgba(10,102,194,0.3)',
+                    }}
+                  >
+                    Get Full Report for &#8377;299 &rarr;
+                  </button>
                 </div>
               )}
             </div>

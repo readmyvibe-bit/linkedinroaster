@@ -186,7 +186,11 @@ export default function BuildResultsPage() {
     );
   }
 
-  const profile = data.generated_profile;
+  // Handle both direct object and possibly stringified JSON
+  let profile = data.generated_profile;
+  if (typeof profile === 'string') {
+    try { profile = JSON.parse(profile); } catch { /* keep as-is */ }
+  }
   const plan = data.plan;
 
   if (!profile) {
@@ -247,7 +251,7 @@ export default function BuildResultsPage() {
           <div style={{ background: 'linear-gradient(135deg, #004182, #0B69C7)', padding: '32px 28px 48px', position: 'relative' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
               <p style={{ fontSize: 16, fontWeight: 600, color: 'white', margin: 0, lineHeight: 1.5, maxWidth: 700, opacity: 0.95 }}>
-                {profile.headline_variations?.[0]?.text || 'Your LinkedIn Profile is Ready'}
+                {profile.headline_variations?.[0]?.text || (profile as any).headline || data.form_input?.target_role || 'Your LinkedIn Profile is Ready'}
               </p>
               {profile.headline_variations?.[0]?.text && (
                 <CopyButton text={profile.headline_variations[0].text} />
@@ -280,7 +284,7 @@ export default function BuildResultsPage() {
                 <CopyButton text={profile.about || ''} />
               </div>
               <div style={{ background: '#F9FAFB', borderRadius: 10, padding: '18px 20px', lineHeight: 1.7, fontSize: 14, color: '#333', whiteSpace: 'pre-wrap' }}>
-                {profile.about}
+                {profile.about || <span style={{ color: '#CC1016', fontStyle: 'italic' }}>About section not generated. Please contact support@profileroaster.in</span>}
               </div>
               <div style={{ display: 'flex', gap: 12, marginTop: 10, fontSize: 12, color: '#888' }}>
                 <span>{(profile.about || '').split(/\s+/).length} words</span>
