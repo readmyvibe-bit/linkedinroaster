@@ -114,8 +114,8 @@ export default function BuildResultsPage() {
       try {
         const res = await fetch(`${API_URL}/api/resume/by-order/${orderId}`);
         if (res.ok) {
-          const resumes = await res.json();
-          setExistingResumes(Array.isArray(resumes) ? resumes : []);
+          const data = await res.json();
+          setExistingResumes(data.resumes || (Array.isArray(data) ? data : []));
         }
       } catch {}
       setResumeCountLoaded(true);
