@@ -56,6 +56,8 @@ router.use('/teasers', adminAuth);
 router.use('/revenue', adminAuth);
 router.use('/referrals', adminAuth);
 router.use('/send-email', adminAuth);
+router.use('/approve-order', adminAuth);
+router.use('/reprocess-order', adminAuth);
 
 // GET /api/admin/overview
 router.get('/overview', async (_req: Request, res: Response) => {
@@ -343,12 +345,28 @@ router.post('/approve-order/:id', async (req: Request, res: Response) => {
       [req.params.id],
     );
 
-    await profileQueue.add('job', { razorpay_order_id: order.razorpay_order_id });
+    await profileQueue.add('job', { order_id: order.id, razorpay_order_id: order.razorpay_order_id });
 
     res.json({ approved: true, orderId: order.id, email: order.email });
   } catch (err) {
     console.error('Admin approve-order error:', err);
     res.status(500).json({ error: 'Failed to approve order' });
+  }
+});
+
+// POST /api/admin/reprocess-order/:id — re-enqueue a stuck/queued order
+router.post('/reprocess-order/:id', async (req: Request, res: Response) => {
+  try {
+    const result = await query('SELECT * FROM orders WHERE id=$1', [req.params.id]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Order not found' });
+    const order = result.rows[0];
+    if (order.processing_status === 'done') return res.status(400).json({ error: 'Already completed' });
+    await query("UPDATE orders SET processing_status='queued' WHERE id=$1", [req.params.id]);
+    await profileQueue.add('job', { order_id: order.id });
+    res.json({ reprocessed: true, orderId: order.id });
+  } catch (err) {
+    console.error('Admin reprocess error:', err);
+    res.status(500).json({ error: 'Failed to reprocess' });
   }
 });
 

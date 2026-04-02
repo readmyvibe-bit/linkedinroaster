@@ -19,14 +19,15 @@ export const upgradeQueue = new Queue('process-upgrade', { connection });
 export const profileWorker = new Worker(
   'process-profile',
   async (job: Job) => {
-    const { razorpay_order_id } = job.data;
-    const orderResult = await query(
-      'SELECT id FROM orders WHERE razorpay_order_id=$1',
-      [razorpay_order_id],
-    );
-    if (!orderResult.rows[0])
-      throw new Error('Order not found: ' + razorpay_order_id);
-    await runPipeline(orderResult.rows[0].id);
+    const { razorpay_order_id, order_id } = job.data;
+    let orderId = order_id;
+    if (!orderId && razorpay_order_id) {
+      const orderResult = await query('SELECT id FROM orders WHERE razorpay_order_id=$1', [razorpay_order_id]);
+      if (!orderResult.rows[0]) throw new Error('Order not found: ' + razorpay_order_id);
+      orderId = orderResult.rows[0].id;
+    }
+    if (!orderId) throw new Error('No order_id or razorpay_order_id provided');
+    await runPipeline(orderId);
   },
   { connection, concurrency: 8 },
 );
