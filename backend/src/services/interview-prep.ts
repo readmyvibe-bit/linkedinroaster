@@ -168,8 +168,14 @@ Return this exact JSON structure:
   ]
 }
 
-Generate exactly 15 questions in the plan: 5 behavioral, 5 role_specific, 3 situational, 2 culture.
-Each question_plan entry must have an id from 1-15.`;
+CRITICAL: Generate EXACTLY 15 questions. NOT 10. NOT 12. Exactly 15.
+The breakdown MUST be:
+- IDs 1-5: category "behavioral" (tell me about a time... / STAR format)
+- IDs 6-10: category "role_specific" (technical/domain questions for this specific role)
+- IDs 11-13: category "situational" (hypothetical scenarios: "what would you do if...")
+- IDs 14-15: category "culture" (why this company, career motivation, values alignment)
+
+Do NOT skip situational or culture categories. All 4 categories are MANDATORY.`;
 
     console.log(`[interview-prep] ${prepId}: Starting Call 1 — Brief + Question Plan`);
     const call1Result = await geminiCall(systemPrompt1, userPrompt1);
@@ -217,7 +223,7 @@ Return this exact JSON structure:
   ]
 }
 
-Generate all 15 expanded questions matching the plan IDs.`;
+CRITICAL: Generate ALL 15 questions from the plan. Every single ID must be present. Include behavioral, role_specific, situational, AND culture categories. Do NOT skip any.`;
 
     console.log(`[interview-prep] ${prepId}: Starting Call 2 — Expand Questions`);
     const call2Result = await geminiCall(systemPrompt2, userPrompt2);

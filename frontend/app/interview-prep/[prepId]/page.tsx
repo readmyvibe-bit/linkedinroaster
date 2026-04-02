@@ -234,7 +234,7 @@ export default function InterviewPrepPage() {
   const tabs = [
     { id: 'brief', label: 'Company Brief' },
     { id: 'questions', label: `Questions (${questions.length})` },
-    { id: 'ask_them', label: 'Ask Them' },
+    { id: 'ask_them', label: 'Your Questions' },
     { id: 'cheat_sheet', label: 'Cheat Sheet' },
     { id: 'quiz', label: 'Quiz' },
   ];
@@ -460,7 +460,7 @@ export default function InterviewPrepPage() {
         {/* TAB: Ask Them */}
         {activeTab === 'ask_them' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div style={{ fontSize: 14, color: '#666', marginBottom: 4 }}>Questions to ask your interviewer:</div>
+            <div style={{ fontSize: 14, color: '#666', marginBottom: 8 }}>Smart questions to ask at the end of your interview — shows you{"'"}re prepared and thoughtful:</div>
             {(data.ask_them || []).map((item, i) => (
               <div key={i} style={{ background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #E0E0E0' }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', marginBottom: 8 }}>{item.question}</div>
