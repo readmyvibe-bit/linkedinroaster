@@ -155,6 +155,17 @@ STRICT ATS RULES:
    - Education: 1 line per entry (degree — institution — year). No descriptions unless PhD/research.
 10. Use exact company names and job titles from the LinkedIn data
 
+FRESHER / STUDENT RULES (when candidate has 0-1 work experience entries):
+- Summary: 3-4 sentences (not 2). Highlight education, skills, projects, and career objective.
+- Projects section: MANDATORY. Expand each project with 4-5 bullets including tech stack, what was built, impact/outcome.
+- If only 1 project exists, generate 5 detailed bullets for it.
+- Education: EXPANDED format — include degree, institution, year, GPA/percentage, AND relevant coursework (3-4 subjects).
+- Add a "RELEVANT COURSEWORK" or "ACADEMIC PROJECTS" section if needed to fill the page.
+- Skills: list ALL skills with categories (Technical, Tools, Soft Skills, Languages).
+- Target 400-550 words to fill the page properly. Do NOT make it sparse.
+- Use section headers: PROFESSIONAL SUMMARY, EDUCATION, PROJECTS, SKILLS, ACHIEVEMENTS (if any).
+- Do NOT use "WORK EXPERIENCE" header if there's no real work — use "PROJECTS & EXPERIENCE" instead.
+
 KEYWORD ANALYSIS:
 Extract ALL important keywords from the job description.
 For each, note whether it appears in the resume content.
