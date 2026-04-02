@@ -159,6 +159,9 @@ export default function BuildResultsPage() {
 
   if (!data || data.processing_status !== 'done') {
     const status = data?.processing_status || 'pending';
+    const formEmpty = data?.form_input && Object.keys(data.form_input).length === 0;
+    const isPending = status === 'pending';
+
     return (
       <div style={{ minHeight: '100vh', background: '#F3F2EF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Inter', sans-serif" }}>
         <div style={{ background: 'white', borderRadius: 14, padding: '40px 32px', textAlign: 'center', maxWidth: 440 }}>
@@ -167,6 +170,21 @@ export default function BuildResultsPage() {
               <div style={{ fontSize: 36, marginBottom: 12 }}>&#9888;&#65039;</div>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: '#CC1016', margin: '0 0 8px' }}>Generation Failed</h2>
               <p style={{ fontSize: 14, color: '#666' }}>{data?.processing_error || 'Please contact support@profileroaster.in'}</p>
+            </>
+          ) : isPending && formEmpty ? (
+            <>
+              <div style={{ fontSize: 36, marginBottom: 12 }}>&#128221;</div>
+              <h2 style={{ fontSize: 18, fontWeight: 700, color: '#191919', margin: '0 0 8px' }}>Complete Your Profile Details</h2>
+              <p style={{ fontSize: 14, color: '#666', marginBottom: 16, lineHeight: 1.6 }}>
+                Your order is ready! Fill in your details so we can build your LinkedIn profile.
+              </p>
+              <a
+                href={`/build/form?plan=${data?.plan || 'starter'}&orderId=${orderId}`}
+                style={{ display: 'inline-block', background: '#0A66C2', color: 'white', padding: '12px 28px', borderRadius: 50, fontSize: 15, fontWeight: 700, textDecoration: 'none' }}
+              >
+                Fill Your Details &rarr;
+              </a>
+              <p style={{ fontSize: 12, color: '#999', marginTop: 12 }}>Order ID: {orderId}</p>
             </>
           ) : (
             <>
@@ -519,8 +537,8 @@ export default function BuildResultsPage() {
                 <p style={{ fontSize: 13, color: '#444', lineHeight: 1.6, margin: '0 0 12px' }}>
                   Want an ATS-optimized resume built from your profile data?
                 </p>
-                <a href="/build#pricing" style={{ display: 'inline-block', background: '#0B69C7', color: 'white', padding: '10px 24px', borderRadius: 50, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
-                  Want an ATS Resume? See Plans &rarr;
+                <a href={`/resume?orderId=${orderId}&source=build`} style={{ display: 'inline-block', background: '#0B69C7', color: 'white', padding: '10px 24px', borderRadius: 50, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+                  Build ATS Resume &rarr;
                 </a>
               </div>
             )}
@@ -553,12 +571,12 @@ export default function BuildResultsPage() {
             {/* Upgrade CTA for starter */}
             {plan === 'starter' && (
               <div style={{ background: 'linear-gradient(135deg, #004182, #0B69C7)', borderRadius: 12, padding: '20px 24px', marginBottom: 16, textAlign: 'center' }}>
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: '0 0 6px' }}>Upgrade Your Plan</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: '0 0 6px' }}>Want an ATS Resume?</h3>
                 <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', margin: '0 0 14px' }}>
-                  Get resume + cover letter built from your LinkedIn profile data.
+                  Build a professional resume + cover letter from your profile data.
                 </p>
-                <a href="/build#pricing" style={{ display: 'inline-block', background: 'white', color: '#0B69C7', padding: '10px 24px', borderRadius: 50, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
-                  See Plans &rarr;
+                <a href={`/resume?orderId=${orderId}&source=build`} style={{ display: 'inline-block', background: 'white', color: '#0B69C7', padding: '10px 24px', borderRadius: 50, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+                  Build Resume &rarr;
                 </a>
               </div>
             )}

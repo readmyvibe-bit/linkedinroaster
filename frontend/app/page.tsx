@@ -51,6 +51,30 @@ function ReferralCodeRedeemer({ product }: { product: 'roast' | 'build' }) {
   const [headline, setHeadline] = useState('');
   const [redeeming, setRedeeming] = useState(false);
   const [error, setError] = useState('');
+  const [refPdfUploading, setRefPdfUploading] = useState(false);
+  const [refPdfName, setRefPdfName] = useState('');
+  const [showPaste, setShowPaste] = useState(false);
+  const refPdfInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleRefPdf(file: File) {
+    if (file.type !== 'application/pdf') { setError('Please upload a PDF file.'); return; }
+    setRefPdfUploading(true);
+    setRefPdfName(file.name);
+    setError('');
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch(`${API_URL}/api/linkedin-pdf/parse`, { method: 'POST', body: formData });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || 'Failed to parse PDF'); return; }
+      setHeadline(data.raw_paste || data.headline || '');
+    } catch {
+      setError('Could not parse PDF. Please paste your profile text instead.');
+      setShowPaste(true);
+    } finally {
+      setRefPdfUploading(false);
+    }
+  }
 
   async function handleRedeem() {
     if (!code.trim() || !redeemEmail.trim()) {
@@ -58,7 +82,7 @@ function ReferralCodeRedeemer({ product }: { product: 'roast' | 'build' }) {
       return;
     }
     if (product === 'roast' && !headline.trim()) {
-      setError('Please paste your LinkedIn headline or profile.');
+      setError('Please upload your LinkedIn PDF or paste your profile.');
       return;
     }
     setRedeeming(true);
@@ -123,13 +147,36 @@ function ReferralCodeRedeemer({ product }: { product: 'roast' | 'build' }) {
         style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #E0E0E0', fontSize: 13, marginBottom: 8, fontFamily: 'monospace', boxSizing: 'border-box' }}
       />
       {product === 'roast' && (
-        <textarea
-          value={headline}
-          onChange={(e) => setHeadline(e.target.value)}
-          placeholder="Paste your LinkedIn headline or full profile *"
-          rows={3}
-          style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #E0E0E0', fontSize: 13, marginBottom: 8, resize: 'none', boxSizing: 'border-box' }}
-        />
+        <>
+          {/* PDF Upload for referral */}
+          <div
+            onClick={() => refPdfInputRef.current?.click()}
+            style={{ border: '2px dashed #94B8DB', borderRadius: 8, padding: '12px 16px', textAlign: 'center', marginBottom: 6, background: headline && !showPaste ? '#F0FDF4' : '#F0F7FF', cursor: refPdfUploading ? 'wait' : 'pointer', fontSize: 12 }}
+          >
+            <input ref={refPdfInputRef} type="file" accept=".pdf" onChange={e => { const f = e.target.files?.[0]; if (f) handleRefPdf(f); }} style={{ display: 'none' }} />
+            {refPdfUploading ? (
+              <span style={{ color: '#0A66C2', fontWeight: 600 }}>&#9881; Parsing PDF...</span>
+            ) : headline && !showPaste ? (
+              <span style={{ color: '#057642', fontWeight: 600 }}>&#9989; LinkedIn PDF loaded ({refPdfName})</span>
+            ) : (
+              <span style={{ color: '#0A66C2', fontWeight: 600 }}>&#128228; Upload LinkedIn PDF</span>
+            )}
+          </div>
+          {!showPaste && !headline ? (
+            <div onClick={() => setShowPaste(true)} style={{ fontSize: 11, color: '#94A3B8', textAlign: 'center', marginBottom: 8, cursor: 'pointer' }}>
+              or <u>paste profile text instead</u>
+            </div>
+          ) : null}
+          {(showPaste || (!refPdfName && headline)) && (
+            <textarea
+              value={headline}
+              onChange={(e) => setHeadline(e.target.value)}
+              placeholder="Paste your LinkedIn headline or full profile *"
+              rows={3}
+              style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #E0E0E0', fontSize: 13, marginBottom: 8, resize: 'none', boxSizing: 'border-box' }}
+            />
+          )}
+        </>
       )}
       <div style={{ display: 'flex', gap: 8 }}>
         <button
@@ -703,7 +750,7 @@ export default function Home() {
                 </div>
               )}
 
-              {/* PDF parsed + rate limited = show pricing CTA */}
+              {/* PDF parsed + rate limited = show single pricing CTA (not duplicated) */}
               {pdfParsed && rateLimited && !teaser && (
                 <div style={{ marginTop: 12, padding: 16, borderRadius: 10, background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
                   <div style={{ fontSize: 13, color: '#057642', marginBottom: 4, fontWeight: 700 }}>&#9989; Profile parsed successfully!</div>
@@ -721,11 +768,8 @@ export default function Home() {
                 </div>
               )}
 
-              <div style={{ fontSize: 12, color: '#057642', textAlign: 'center', marginTop: 10, fontWeight: 600 }}>
-                &#9889; Free profile score in seconds
-              </div>
-
-              {rateLimited && (
+              {/* Rate limited (no PDF) = show pricing CTA */}
+              {rateLimited && !pdfParsed && (
                 <div style={{ marginTop: 12, padding: 16, borderRadius: 10, background: '#FEF3C7', border: '1px solid #F59E0B' }}>
                   <div style={{ fontSize: 13, color: '#92400E', marginBottom: 10 }}>
                     <strong>5 free previews used today.</strong> Get the full roast + rewrite + resume now:
@@ -743,6 +787,11 @@ export default function Home() {
                   </button>
                 </div>
               )}
+
+              <div style={{ fontSize: 12, color: '#057642', textAlign: 'center', marginTop: 10, fontWeight: 600 }}>
+                &#9889; Free profile score in seconds
+              </div>
+
             </div>
 
             {/* PATH B: Starting Fresh */}
