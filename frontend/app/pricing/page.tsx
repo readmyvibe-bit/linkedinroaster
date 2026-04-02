@@ -27,7 +27,7 @@ const roastPlans: Plan[] = [
     price: '\u20B9299',
     features: [
       { text: 'Complete LinkedIn Roast + Rewrite', included: true },
-      { text: 'ATS Resume Builder (any job, 15 templates, PDF + TXT)', included: true },
+      { text: 'ATS Resume Builder (any job, 18 templates, PDF + TXT)', included: true },
       { text: '1 Cover Letter', included: true },
       { text: 'Free rescore anytime', included: true },
       { text: 'Shareable roast card', included: true },
@@ -42,7 +42,7 @@ const roastPlans: Plan[] = [
     features: [
       { text: 'Everything in Standard', included: true },
       { text: '5 Headline Variations', included: true },
-      { text: 'All 25 premium templates', included: true },
+      { text: 'All 28 premium templates', included: true },
       { text: '3 Cover Letters (one per target job)', included: true },
       { text: 'Advanced ATS keyword matching', included: true },
       { text: 'Priority processing', included: true },
@@ -77,7 +77,7 @@ const buildPlans: Plan[] = [
     highlighted: true,
     features: [
       { text: 'Everything in Starter', included: true },
-      { text: 'ATS Resume Builder (any job, 15 templates, PDF + TXT)', included: true },
+      { text: 'ATS Resume Builder (any job, 18 templates, PDF + TXT)', included: true },
       { text: '1 Cover Letter', included: true },
       { text: 'Job description targeting', included: true },
     ],
@@ -90,7 +90,7 @@ const buildPlans: Plan[] = [
     features: [
       { text: 'Everything in Profile + Resume', included: true },
       { text: '3 Cover Letters (one per target job)', included: true },
-      { text: 'All 25 premium templates', included: true },
+      { text: 'All 28 premium templates', included: true },
       { text: 'Priority processing', included: true },
     ],
     ctaLabel: 'Get Started \u2192',

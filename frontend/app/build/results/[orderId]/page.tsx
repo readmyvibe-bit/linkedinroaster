@@ -503,7 +503,7 @@ export default function BuildResultsPage() {
                   )}
 
                   <p style={{ fontSize: 12, color: '#888', marginTop: 8, marginBottom: 0 }}>
-                    {plan === 'pro' ? '3 resumes + 3 cover letters + all 25 templates' : '1 resume + 1 cover letter + 15 templates'} included in your plan
+                    {plan === 'pro' ? '3 resumes + 3 cover letters + all 28 templates' : '1 resume + 1 cover letter + 18 templates'} included in your plan
                   </p>
                 </div>
               );

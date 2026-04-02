@@ -226,7 +226,7 @@ function ResumeFormContent() {
     // Check if selected template is Pro-only
     const selectedTemplate = TEMPLATES.find(t => t.id === template);
     if (orderPlan !== 'pro' && (selectedTemplate as any)?.proOnly) {
-      setSubmitError(`"${selectedTemplate?.name}" is a Pro template. Upgrade to Pro for ₹500 to unlock all 25 templates + 3 resumes. Your Standard payment of ₹299 will be adjusted.`);
+      setSubmitError(`"${selectedTemplate?.name}" is a Pro template. Upgrade to Pro for ₹500 to unlock all 28 templates + 3 resumes. Your Standard payment of ₹299 will be adjusted.`);
       return;
     }
     setSubmitError('');

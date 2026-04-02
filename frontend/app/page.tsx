@@ -777,7 +777,7 @@ export default function Home() {
                 Turn your LinkedIn rewrite into an ATS-optimized resume. Match keywords to any job description. Download as PDF + TXT.
               </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {['25 Templates', 'ATS Score Match', 'PDF + TXT', 'Live Editor'].map((t, i) => (
+                {['28 Templates', 'ATS Score Match', 'PDF + TXT', 'Live Editor'].map((t, i) => (
                   <span key={i} style={{ background: '#E8F0FE', color: '#0A66C2', fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 6 }}>{t}</span>
                 ))}
               </div>
@@ -1044,7 +1044,7 @@ export default function Home() {
               price="&#8377;299"
               features={[
                 'Complete LinkedIn Roast + Rewrite',
-                'ATS Resume Builder (any job, 15 templates, PDF + TXT)',
+                'ATS Resume Builder (any job, 18 templates, PDF + TXT)',
                 '1 Cover Letter',
                 'Free rescore anytime',
                 'Shareable roast card',
@@ -1058,7 +1058,7 @@ export default function Home() {
               features={[
                 'Everything in Standard',
                 '5 Headline Variations',
-                'All 25 premium templates',
+                'All 28 premium templates',
                 '3 Cover Letters (one per target job)',
                 'Advanced ATS keyword matching',
                 'Priority processing',
@@ -1162,7 +1162,7 @@ export default function Home() {
             {/* Right — Features */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, justifyContent: 'center' }}>
               {[
-                { icon: '&#128196;', title: '25 Professional Templates', desc: 'ATS-friendly, modern, executive, creative — pick your style' },
+                { icon: '&#128196;', title: '28 Professional Templates', desc: 'ATS-friendly, modern, executive, creative — pick your style' },
                 { icon: '&#127919;', title: 'ATS Score & Keywords', desc: 'Real-time keyword matching against job descriptions' },
                 { icon: '&#9997;&#65039;', title: 'Live Editor', desc: 'Edit sections, drag to reorder, auto-save' },
                 { icon: '&#128229;', title: 'PDF + TXT Download', desc: 'Download in both formats, ready for any application' },

@@ -123,7 +123,7 @@ export default function BuildLandingPage() {
       popular: true,
       features: [
         'Everything in Starter',
-        'ATS Resume Builder (any job, 15 templates, PDF + TXT)',
+        'ATS Resume Builder (any job, 18 templates, PDF + TXT)',
         '1 Cover Letter',
         'Job description targeting',
         'Best for: Students applying to internships',
@@ -138,7 +138,7 @@ export default function BuildLandingPage() {
       features: [
         'Everything in Profile + Resume',
         '3 Cover Letters (one per target job)',
-        'All 25 premium templates',
+        'All 28 premium templates',
         'Priority processing',
         'Best for: Targeting multiple companies strategically',
       ],
