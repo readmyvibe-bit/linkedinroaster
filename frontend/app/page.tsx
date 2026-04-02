@@ -477,8 +477,10 @@ export default function Home() {
       if (data.headline && data.headline.trim().length >= 10) {
         await runTeaser(data.headline.trim());
       }
-    } catch {
-      setPdfError('Could not reach the server. Please try again or paste your profile text.');
+    } catch (err: any) {
+      console.error('PDF upload error:', err);
+      setPdfError('Could not reach the server. Please check your internet connection and try again, or paste your profile text.');
+      setShowPasteInput(true);
     } finally {
       setPdfUploading(false);
     }
@@ -560,7 +562,17 @@ export default function Home() {
               onMouseEnter={e => { e.currentTarget.style.borderColor = '#0A66C2'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(10,102,194,0.12)'; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = '#E0E7F0'; e.currentTarget.style.boxShadow = 'none'; }}
             >
-              <div style={{ width: 52, height: 52, borderRadius: 14, background: '#E8F0FE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, marginBottom: 14 }}>&#128196;</div>
+              {/* Card illustration */}
+              <div style={{ background: 'linear-gradient(135deg, #E8F0FE, #DBEAFE)', borderRadius: 12, padding: '16px 20px', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{ width: 48, height: 48, borderRadius: 10, background: '#0A66C2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="white" strokeWidth="2"/><path d="M7 8h10M7 12h6M7 16h8" stroke="white" strokeWidth="1.5" strokeLinecap="round"/><circle cx="18" cy="16" r="3" fill="#057642" stroke="white" strokeWidth="1.5"/><path d="M17 16l1 1 2-2" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </div>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0A66C2' }}>LinkedIn PDF</div>
+                  <div style={{ fontSize: 11, color: '#64748B' }}>AI reads your profile in seconds</div>
+                </div>
+              </div>
+
               <div style={{ fontSize: 22, fontWeight: 800, color: '#191919', marginBottom: 6 }}>I have a LinkedIn profile</div>
               <div style={{ fontSize: 14, color: '#666', lineHeight: 1.6, marginBottom: 20 }}>
                 Upload your LinkedIn PDF. AI extracts everything automatically.
@@ -599,9 +611,7 @@ export default function Home() {
                     </div>
                     {pdfParsed.experience?.length > 0 && (
                       <div style={{ fontSize: 11, color: '#888', marginTop: 4 }}>
-                        {pdfParsed.experience.length} experience{pdfParsed.experience.length > 1 ? 's' : ''} &bull;
-                        {pdfParsed.education?.length || 0} education &bull;
-                        {pdfParsed.skills?.length || 0} skills extracted
+                        {pdfParsed.experience.length} experience{pdfParsed.experience.length > 1 ? 's' : ''} &bull; {pdfParsed.education?.length || 0} education &bull; {pdfParsed.skills?.length || 0} skills extracted
                       </div>
                     )}
                     <div
@@ -635,18 +645,18 @@ export default function Home() {
                 </div>
               )}
 
-              {/* Paste fallback */}
+              {/* Paste fallback + Get Free Score button */}
               {!pdfParsed && !pdfUploading && (
                 <>
                   {!showPasteInput ? (
                     <div
                       onClick={() => setShowPasteInput(true)}
-                      style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', marginBottom: 16, cursor: 'pointer' }}
+                      style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', marginBottom: 12, cursor: 'pointer' }}
                     >
                       Don{"'"}t have your PDF? <u>Paste profile text instead</u>
                     </div>
                   ) : (
-                    <div style={{ marginBottom: 16 }}>
+                    <div style={{ marginBottom: 12 }}>
                       <div style={{ fontSize: 12, color: '#666', fontWeight: 600, marginBottom: 6 }}>Paste your LinkedIn headline:</div>
                       <textarea
                         ref={textareaRef}
@@ -665,21 +675,23 @@ export default function Home() {
                     </div>
                   )}
 
-                  {showPasteInput && (
-                    <button
-                      onClick={handleTeaserSubmit}
-                      disabled={loading || headline.trim().length < 10}
-                      style={{
-                        width: '100%', padding: '14px 24px', borderRadius: 50, border: 'none',
-                        background: 'linear-gradient(135deg, #0A66C2, #004182)', color: 'white',
-                        fontSize: 15, fontWeight: 700, cursor: 'pointer',
-                        opacity: loading || headline.trim().length < 10 ? 0.5 : 1,
-                        boxShadow: '0 4px 16px rgba(10,102,194,0.35)',
-                      }}
-                    >
-                      {loading ? 'Analyzing...' : 'Get Free Score \u2192'}
-                    </button>
-                  )}
+                  {/* Always show CTA button */}
+                  <button
+                    onClick={() => {
+                      if (!showPasteInput) { setShowPasteInput(true); return; }
+                      handleTeaserSubmit();
+                    }}
+                    disabled={loading || (showPasteInput && headline.trim().length < 10)}
+                    style={{
+                      width: '100%', padding: '14px 24px', borderRadius: 50, border: 'none',
+                      background: 'linear-gradient(135deg, #0A66C2, #004182)', color: 'white',
+                      fontSize: 15, fontWeight: 700, cursor: 'pointer',
+                      opacity: loading || (showPasteInput && headline.trim().length < 10) ? 0.5 : 1,
+                      boxShadow: '0 4px 16px rgba(10,102,194,0.35)',
+                    }}
+                  >
+                    {loading ? 'Analyzing...' : showPasteInput ? 'Get Free Score \u2192' : 'Get Free Score \u2192'}
+                  </button>
                 </>
               )}
 
@@ -707,7 +719,17 @@ export default function Home() {
               onMouseEnter={e => { e.currentTarget.style.borderColor = '#057642'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(5,118,66,0.12)'; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = '#E0E7F0'; e.currentTarget.style.boxShadow = 'none'; }}
             >
-              <div style={{ width: 52, height: 52, borderRadius: 14, background: '#DCFCE7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, marginBottom: 14 }}>&#128221;</div>
+              {/* Card illustration */}
+              <div style={{ background: 'linear-gradient(135deg, #DCFCE7, #D1FAE5)', borderRadius: 12, padding: '16px 20px', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{ width: 48, height: 48, borderRadius: 10, background: '#057642', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="4" y="2" width="16" height="20" rx="2" stroke="white" strokeWidth="2"/><path d="M8 6h8M8 10h5M8 14h7" stroke="white" strokeWidth="1.5" strokeLinecap="round"/><circle cx="12" cy="19" r="1.5" fill="white"/></svg>
+                </div>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#057642' }}>Build from Scratch</div>
+                  <div style={{ fontSize: 11, color: '#64748B' }}>Quick form or resume upload</div>
+                </div>
+              </div>
+
               <div style={{ fontSize: 22, fontWeight: 800, color: '#191919', marginBottom: 6 }}>I{"'"}m starting fresh</div>
               <div style={{ fontSize: 14, color: '#666', lineHeight: 1.6, marginBottom: 20 }}>
                 No LinkedIn? No problem. Upload an old resume or fill a quick form.
@@ -715,17 +737,17 @@ export default function Home() {
 
               {/* Resume upload area */}
               <div style={{ border: '2px dashed #86EFAC', borderRadius: 12, padding: 20, textAlign: 'center', marginBottom: 12, background: '#F0FDF4', cursor: 'pointer' }}
-                onClick={() => window.open('/build', '_blank')}
+                onClick={() => window.open('/build/form?plan=starter', '_blank')}
               >
                 <div style={{ fontSize: 28, marginBottom: 6 }}>&#128195;</div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#057642' }}>Upload your existing resume</div>
-                <div style={{ fontSize: 11, color: '#86EFAC', marginTop: 2 }}>.pdf or .docx &bull; We{"'"}ll extract everything</div>
+                <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>.pdf or .docx &bull; We{"'"}ll extract everything</div>
               </div>
 
               <div style={{ textAlign: 'center', fontSize: 12, color: '#aaa', fontWeight: 600, margin: '10px 0' }}>&mdash; or &mdash;</div>
 
               <a
-                href="/build"
+                href="/build/form?plan=starter"
                 target="_blank"
                 rel="noreferrer"
                 style={{ display: 'block', textAlign: 'center', fontSize: 13, color: '#057642', fontWeight: 600, textDecoration: 'none', marginBottom: 16, cursor: 'pointer' }}
@@ -734,7 +756,7 @@ export default function Home() {
               </a>
 
               <a
-                href="/build"
+                href="/build/form?plan=starter"
                 target="_blank"
                 rel="noreferrer"
                 style={{
@@ -1229,22 +1251,68 @@ export default function Home() {
             {showPdfGuide && (
               <div style={{ maxWidth: 900, margin: '24px auto 0' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
-                  {[
-                    { num: 'Step 1', title: 'Go to your LinkedIn profile', desc: 'Open LinkedIn \u2192 Click your photo \u2192 "View Profile"' },
-                    { num: 'Step 2', title: 'Click "More" \u2192 "Save to PDF"', desc: 'Below your headline, click the "More..." button, then "Save to PDF"' },
-                    { num: 'Step 3', title: 'Upload the downloaded PDF', desc: 'Drop it into the upload box on this page. Done!' },
-                  ].map((s, i) => (
-                    <div key={i} style={{ background: '#F8FAFC', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden' }}>
-                      <div style={{ background: '#E2E8F0', height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, color: '#94A3B8', fontWeight: 600, borderBottom: '1px solid #E5E7EB' }}>
-                        [ Screenshot placeholder ]
-                      </div>
-                      <div style={{ padding: 14 }}>
-                        <div style={{ fontSize: 10, fontWeight: 700, color: '#0A66C2', textTransform: 'uppercase' as const, letterSpacing: 1, marginBottom: 3 }}>{s.num}</div>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: '#191919', marginBottom: 3 }}>{s.title}</div>
-                        <div style={{ fontSize: 11, color: '#666', lineHeight: 1.5 }}>{s.desc}</div>
-                      </div>
+                  {/* Step 1 — LinkedIn Profile */}
+                  <div style={{ background: '#F8FAFC', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden' }}>
+                    <div style={{ background: '#E8F0FE', height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #E5E7EB' }}>
+                      <svg width="100" height="80" viewBox="0 0 100 80" fill="none">
+                        <rect x="10" y="5" width="80" height="70" rx="6" fill="white" stroke="#CBD5E1" strokeWidth="1.5"/>
+                        <rect x="10" y="5" width="80" height="22" rx="6" fill="#0A66C2"/>
+                        <circle cx="35" cy="30" r="12" fill="white" stroke="#E0E0E0" strokeWidth="2"/>
+                        <circle cx="35" cy="28" r="4" fill="#94A3B8"/><path d="M29 36c0-3.3 2.7-6 6-6s6 2.7 6 6" fill="#94A3B8"/>
+                        <rect x="52" y="30" width="30" height="4" rx="2" fill="#E2E8F0"/>
+                        <rect x="52" y="38" width="22" height="3" rx="1.5" fill="#E2E8F0"/>
+                        <rect x="18" y="50" width="64" height="3" rx="1.5" fill="#F1F5F9"/>
+                        <rect x="18" y="57" width="50" height="3" rx="1.5" fill="#F1F5F9"/>
+                        <rect x="18" y="64" width="56" height="3" rx="1.5" fill="#F1F5F9"/>
+                      </svg>
                     </div>
-                  ))}
+                    <div style={{ padding: 14 }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: '#0A66C2', textTransform: 'uppercase' as const, letterSpacing: 1, marginBottom: 3 }}>Step 1</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#191919', marginBottom: 3 }}>Go to your LinkedIn profile</div>
+                      <div style={{ fontSize: 11, color: '#666', lineHeight: 1.5 }}>Open LinkedIn &rarr; Click your photo &rarr; &ldquo;View Profile&rdquo;</div>
+                    </div>
+                  </div>
+
+                  {/* Step 2 — More → Save to PDF */}
+                  <div style={{ background: '#F8FAFC', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden' }}>
+                    <div style={{ background: '#E8F0FE', height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #E5E7EB' }}>
+                      <svg width="100" height="80" viewBox="0 0 100 80" fill="none">
+                        <rect x="15" y="10" width="70" height="60" rx="6" fill="white" stroke="#CBD5E1" strokeWidth="1.5"/>
+                        <rect x="22" y="18" width="35" height="8" rx="4" fill="#0A66C2"/>
+                        <text x="27" y="24.5" fill="white" fontSize="6" fontWeight="700" fontFamily="sans-serif">More...</text>
+                        <rect x="22" y="30" width="56" height="34" rx="4" fill="white" stroke="#CBD5E1" strokeWidth="1"/>
+                        <rect x="26" y="34" width="48" height="7" rx="2" fill="#F8FAFC"/>
+                        <text x="30" y="39.5" fill="#666" fontSize="5" fontFamily="sans-serif">Share profile via...</text>
+                        <rect x="26" y="44" width="48" height="7" rx="2" fill="#E8F0FE" stroke="#0A66C2" strokeWidth="0.5"/>
+                        <text x="30" y="49.5" fill="#0A66C2" fontSize="5" fontWeight="700" fontFamily="sans-serif">Save to PDF</text>
+                        <rect x="26" y="54" width="48" height="7" rx="2" fill="#F8FAFC"/>
+                        <text x="30" y="59.5" fill="#666" fontSize="5" fontFamily="sans-serif">Build a resume</text>
+                      </svg>
+                    </div>
+                    <div style={{ padding: 14 }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: '#0A66C2', textTransform: 'uppercase' as const, letterSpacing: 1, marginBottom: 3 }}>Step 2</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#191919', marginBottom: 3 }}>Click &ldquo;More&rdquo; &rarr; &ldquo;Save to PDF&rdquo;</div>
+                      <div style={{ fontSize: 11, color: '#666', lineHeight: 1.5 }}>Below your headline, click the &ldquo;More...&rdquo; button, then &ldquo;Save to PDF&rdquo;</div>
+                    </div>
+                  </div>
+
+                  {/* Step 3 — Upload */}
+                  <div style={{ background: '#F8FAFC', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden' }}>
+                    <div style={{ background: '#E8F0FE', height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #E5E7EB' }}>
+                      <svg width="100" height="80" viewBox="0 0 100 80" fill="none">
+                        <rect x="20" y="15" width="60" height="50" rx="8" fill="white" stroke="#94B8DB" strokeWidth="2" strokeDasharray="5 3"/>
+                        <path d="M50 30L50 50" stroke="#0A66C2" strokeWidth="2.5" strokeLinecap="round"/>
+                        <path d="M42 38L50 30L58 38" stroke="#0A66C2" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        <rect x="35" y="52" width="30" height="6" rx="3" fill="#DCFCE7"/>
+                        <text x="39" y="56.5" fill="#057642" fontSize="4.5" fontWeight="700" fontFamily="sans-serif">Profile.pdf</text>
+                      </svg>
+                    </div>
+                    <div style={{ padding: 14 }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: '#0A66C2', textTransform: 'uppercase' as const, letterSpacing: 1, marginBottom: 3 }}>Step 3</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#191919', marginBottom: 3 }}>Upload the downloaded PDF</div>
+                      <div style={{ fontSize: 11, color: '#666', lineHeight: 1.5 }}>Drop it into the upload box on this page. Done!</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
