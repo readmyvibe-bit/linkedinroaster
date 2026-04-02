@@ -2478,12 +2478,14 @@ export default function ResultsPage() {
                 fontSize: 28, fontWeight: 800, color: 'white',
                 border: '4px solid white', boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
               }}>
-                {userName.charAt(0).toUpperCase()}
+                {rewrite.rewritten_headline?.charAt(0)?.toUpperCase() || 'P'}
               </div>
             </div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: '#191919', marginBottom: 4 }}>{userName}</div>
-            <div style={{ fontSize: 14, color: '#333', lineHeight: 1.5, marginBottom: 4 }}>{rewrite.rewritten_headline}</div>
-            {userLocation && <div style={{ fontSize: 13, color: '#666', marginBottom: 4 }}>{userLocation}</div>}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+              <div style={{ fontSize: 14, color: '#333', lineHeight: 1.5, flex: 1 }}>{rewrite.rewritten_headline}</div>
+              <CopyBtn text={rewrite.rewritten_headline} field="headline-top" />
+            </div>
+            {userLocation && <div style={{ fontSize: 13, color: '#666', marginTop: 4, marginBottom: 4 }}>{userLocation}</div>}
             <div style={{ fontSize: 13, fontWeight: 600, color: afterScore >= 70 ? '#057642' : '#92400E' }}>
               {rankLabel} of LinkedIn profiles
             </div>
@@ -2497,12 +2499,12 @@ export default function ResultsPage() {
                 <p style={{ fontSize: 14, color: '#191919', fontStyle: 'italic', lineHeight: 1.6, margin: 0 }}>
                   &ldquo;{top3Roasts[0].roast}&rdquo;
                 </p>
-                {!showAllRoastsExpand && (roast.roast_points || []).length > 1 && (
+                {!showAllRoastsExpand && top3Roasts.length > 1 && (
                   <button onClick={() => setShowAllRoastsExpand(true)} style={{ marginTop: 10, background: 'none', border: 'none', color: '#0B69C7', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: 0 }}>
-                    See all {(roast.roast_points || []).length} roasts &#8595;
+                    See all {top3Roasts.length} roasts &#8595;
                   </button>
                 )}
-                {showAllRoastsExpand && (roast.roast_points || []).slice(1).map((p, i) => (
+                {showAllRoastsExpand && top3Roasts.slice(1).map((p, i) => (
                   <div key={i} style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #FDBA74' }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: '#C2410C', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>
                       {sectionIcon(p.section_targeted)} {p.section_targeted}
@@ -2612,10 +2614,24 @@ export default function ResultsPage() {
               <p style={{ fontSize: 12, color: '#666', marginTop: 6, marginBottom: 0 }}>Best for: {rewrite.headline_variations[headlineTab]?.best_for}</p>
             </div>
           )}
+
+          {/* Feedback + Upgrade side by side */}
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <div style={{ flex: '1 1 250px', background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }}>
+              <FeedbackWidget orderId={orderId} />
+            </div>
+            {!isPro && (
+              <div style={{ flex: '1 1 250px', background: 'linear-gradient(135deg, #004182, #0B69C7)', borderRadius: 12, padding: '20px 24px', color: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>Upgrade to Pro</div>
+                <div style={{ fontSize: 13, opacity: 0.85, marginBottom: 12, lineHeight: 1.5 }}>5 headlines, ATS keywords, 3 resumes + cover letters</div>
+                <button onClick={handleUpgrade} style={{ padding: '10px 24px', background: 'white', color: '#0B69C7', border: 'none', borderRadius: 50, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>Upgrade &#8212; &#8377;500</button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* RIGHT COLUMN */}
-        <div style={{ flex: '0 0 320px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ flex: '1 1 300px', maxWidth: 340, display: 'flex', flexDirection: 'column', gap: 16 }}>
 
           {/* Resume card */}
           <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }} id="resume-section">
@@ -2653,24 +2669,6 @@ export default function ResultsPage() {
             )}
           </div>
 
-          {/* Feedback card */}
-          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }}>
-            <FeedbackWidget orderId={orderId} />
-          </div>
-
-          {/* Upgrade card (Standard only) */}
-          {!isPro && (
-            <div style={{ background: 'linear-gradient(135deg, #004182, #0B69C7)', borderRadius: 12, padding: '20px 24px', color: 'white' }}>
-              <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>Upgrade to Pro</div>
-              <div style={{ fontSize: 13, opacity: 0.85, marginBottom: 12, lineHeight: 1.5 }}>
-                Get 5 headline variants, ATS keywords, JD matcher &amp; cover letter
-              </div>
-              <button onClick={handleUpgrade} style={{ padding: '10px 24px', background: 'white', color: '#0B69C7', border: 'none', borderRadius: 50, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
-                Upgrade &#8212; &#8377;500
-              </button>
-              <div style={{ fontSize: 11, opacity: 0.6, marginTop: 6 }}>You paid &#8377;299 &mdash; only &#8377;500 more</div>
-            </div>
-          )}
         </div>
       </div>
 
