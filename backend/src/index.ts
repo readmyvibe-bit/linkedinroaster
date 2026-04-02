@@ -112,6 +112,152 @@ app.use('/api/build', buildRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/interview-prep', interviewPrepRouter);
 
+// ==================== LINKEDIN PDF PARSE ====================
+import multer from 'multer';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+const linkedinPdfUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
+const linkedinGenAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!);
+
+// POST /api/linkedin-pdf/parse — Upload LinkedIn "Save to PDF" file, extract structured profile data
+app.post('/api/linkedin-pdf/parse', rateLimiter('linkedin-pdf', 10, 3600),
+  linkedinPdfUpload.single('file'), async (req: Request, res: Response) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    if (req.file.mimetype !== 'application/pdf')
+      return res.status(400).json({ error: 'Only PDF files are supported. Please upload your LinkedIn PDF.' });
+
+    // Step 1: Extract raw text from PDF using Gemini with inline data
+    const base64 = req.file.buffer.toString('base64');
+    const model = linkedinGenAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+    const extractResult = await model.generateContent({
+      contents: [{
+        role: 'user',
+        parts: [
+          { inlineData: { mimeType: 'application/pdf', data: base64 } },
+          { text: `Extract ALL text content from this LinkedIn "Save to PDF" profile document.
+Return the raw text exactly as it appears, preserving sections like:
+- Name, Headline, Location
+- About/Summary
+- Experience (company, role, dates, descriptions)
+- Education (institution, degree, dates)
+- Skills
+- Certifications, Licenses
+- Volunteer Experience
+- Languages
+
+Return ONLY the extracted text, no commentary. Preserve line breaks between sections.` },
+        ],
+      }],
+      generationConfig: { temperature: 0.0, maxOutputTokens: 8000 },
+    });
+
+    const rawText = extractResult.response.text().trim();
+    if (!rawText || rawText.length < 50) {
+      return res.status(400).json({ error: 'Could not extract enough text from this PDF. Is this a LinkedIn "Save to PDF" file?' });
+    }
+
+    // Step 2: Parse extracted text into structured profile data using Gemini
+    const parseResult = await model.generateContent({
+      contents: [{
+        role: 'user',
+        parts: [{ text: `Parse this LinkedIn profile text into structured JSON.
+
+TEXT:
+${rawText.slice(0, 10000)}
+
+Return ONLY valid JSON (no markdown, no \`\`\`, no commentary) with this exact structure:
+{
+  "full_name": "string",
+  "headline": "string (the professional headline/tagline)",
+  "location": "string or null",
+  "about": "string or null (the About/Summary section)",
+  "experience": [
+    {
+      "title": "string",
+      "company": "string",
+      "duration": "string or null (e.g. 'Jan 2020 - Present')",
+      "description": "string or null"
+    }
+  ],
+  "education": [
+    {
+      "institution": "string",
+      "degree": "string or null",
+      "field": "string or null",
+      "year": "string or null"
+    }
+  ],
+  "skills": ["string array of skills"],
+  "certifications": ["string array"],
+  "languages": ["string array"],
+  "raw_text_length": number
+}
+
+RULES:
+- Extract EVERY experience entry, not just the first one
+- Extract ALL skills listed
+- If a section is missing, use null or empty array
+- For headline, extract the professional tagline (usually right below the name)
+- Keep experience descriptions as-is, don't summarize
+- raw_text_length should be the approximate character count of the full profile` }],
+      }],
+      generationConfig: { temperature: 0.0, maxOutputTokens: 6000 },
+    });
+
+    let parseText = parseResult.response.text().trim();
+    // Strip markdown code fences if present
+    parseText = parseText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
+
+    let parsed;
+    try {
+      parsed = JSON.parse(parseText);
+    } catch {
+      try {
+        const { jsonrepair: jr } = require('jsonrepair');
+        parsed = JSON.parse(jr(parseText));
+      } catch {
+        return res.status(500).json({ error: 'Failed to parse profile structure. Please try pasting your profile text instead.' });
+      }
+    }
+
+    // Build raw_paste from structured data (for order creation compatibility)
+    const sections: string[] = [];
+    if (parsed.full_name) sections.push(parsed.full_name);
+    if (parsed.headline) sections.push(parsed.headline);
+    if (parsed.location) sections.push(parsed.location);
+    if (parsed.about) sections.push(`About:\n${parsed.about}`);
+    if (parsed.experience?.length) {
+      sections.push('Experience:');
+      for (const exp of parsed.experience) {
+        sections.push(`${exp.title} at ${exp.company}${exp.duration ? ` (${exp.duration})` : ''}`);
+        if (exp.description) sections.push(exp.description);
+      }
+    }
+    if (parsed.education?.length) {
+      sections.push('Education:');
+      for (const edu of parsed.education) {
+        sections.push(`${edu.degree || ''} ${edu.field || ''} - ${edu.institution}${edu.year ? ` (${edu.year})` : ''}`);
+      }
+    }
+    if (parsed.skills?.length) sections.push(`Skills: ${parsed.skills.join(', ')}`);
+    if (parsed.certifications?.length) sections.push(`Certifications: ${parsed.certifications.join(', ')}`);
+
+    const rawPaste = sections.join('\n');
+
+    res.json({
+      parsed,
+      headline: parsed.headline || parsed.full_name || '',
+      raw_paste: rawPaste,
+      raw_text: rawText.slice(0, 8000),
+      raw_text_length: rawText.length,
+    });
+  } catch (err: any) {
+    console.error('LinkedIn PDF parse error:', err.message, err.stack?.slice(0, 300));
+    res.status(500).json({ error: `Failed to parse LinkedIn PDF: ${err.message?.slice(0, 100)}` });
+  }
+});
+
 // ==================== REDEEM CODE ====================
 
 // POST /api/redeem-code — Redeem a one-time referral code
