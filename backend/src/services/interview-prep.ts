@@ -142,156 +142,83 @@ ${jobDescription || 'No job description provided'}
 `.trim();
 
     // ─── CALL 1: Brief + Question Plan ───
-    const systemPrompt1 = `You are an expert interview coach specializing in the Indian job market. Generate interview preparation based on the candidate's resume and the target job description. Return ONLY valid JSON, no markdown.`;
+    const systemPrompt1 = `You are an expert interview coach specializing in the Indian job market. Return ONLY valid JSON, no markdown.`;
 
-    const userPrompt1 = `Analyze the following job description and candidate profile, then generate a company brief and interview question plan.
+    const userPrompt1 = `Analyze this JD and candidate, then generate a company brief.
 
 ${jdContext}
 
 ${resumeContext}
 
-Return this exact JSON structure:
+Return this JSON:
 {
   "company_brief": {
-    "what_jd_emphasizes": ["string array of key themes from JD"],
-    "interview_style": "string — inferred style (behavioral/technical/mixed)",
-    "what_they_value": ["string array — mapped to JD phrases"],
-    "red_flags": ["string array — what they screen against"]
+    "what_jd_emphasizes": ["3-5 key themes from JD"],
+    "interview_style": "behavioral / technical / mixed",
+    "what_they_value": ["3-5 values mapped to JD phrases"],
+    "red_flags": ["3-4 things they screen against"]
   },
-  "question_plan": [
-    {
-      "id": 1,
-      "category": "behavioral|role_specific|situational|culture",
-      "theme": "string — what this tests",
-      "jd_anchor": "string — specific JD phrase this relates to"
-    }
+  "questions": [
+    {"id":1,"category":"behavioral","question":"Tell me about a time you [specific to JD]...","why_they_ask":"linked to JD","suggested_answer":{"situation":"from resume","task":"from resume","action":"from resume","result":"from resume"},"common_mistakes":["1-2 items"],"follow_ups":["2 items"]},
+    {"id":2,"category":"behavioral","question":"...","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":3,"category":"behavioral","question":"...","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":4,"category":"behavioral","question":"...","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":5,"category":"behavioral","question":"...","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":6,"category":"role_specific","question":"How would you [role-specific task from JD]?","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":7,"category":"role_specific","question":"...","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":8,"category":"role_specific","question":"...","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":9,"category":"role_specific","question":"...","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":10,"category":"role_specific","question":"...","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":11,"category":"situational","question":"What would you do if [hypothetical scenario from JD]?","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":12,"category":"situational","question":"...","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":13,"category":"situational","question":"...","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":14,"category":"culture","question":"Why [this company / this role]?","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":15,"category":"culture","question":"...","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]}
+  ],
+  "ask_them": [
+    {"question":"Short 1-line question (max 15 words)","why_it_matters":"1-2 sentences"},
+    {"question":"Short question","why_it_matters":"1-2 sentences"},
+    {"question":"Short question","why_it_matters":"1-2 sentences"},
+    {"question":"Short question","why_it_matters":"1-2 sentences"},
+    {"question":"Short question","why_it_matters":"1-2 sentences"}
+  ],
+  "cheat_sheet": {
+    "key_numbers": ["ONLY numbers from resume — no fabrication"],
+    "power_stories": [{"title":"story title","hook":"1-line hook","jd_theme":"which JD theme"}],
+    "jd_keywords": ["keywords from JD to use in answers"],
+    "avoid_phrases": [{"avoid":"bad phrase","use_instead":"better phrase"}]
+  },
+  "mcq": [
+    {"question":"stem","options":["A","B","C","D"],"correct":0,"explanation":"why","jd_link":"JD connection"},
+    {"question":"...","options":["...","...","...","..."],"correct":0,"explanation":"...","jd_link":"..."},
+    {"question":"...","options":["...","...","...","..."],"correct":0,"explanation":"...","jd_link":"..."},
+    {"question":"...","options":["...","...","...","..."],"correct":0,"explanation":"...","jd_link":"..."},
+    {"question":"...","options":["...","...","...","..."],"correct":0,"explanation":"...","jd_link":"..."},
+    {"question":"...","options":["...","...","...","..."],"correct":0,"explanation":"...","jd_link":"..."},
+    {"question":"...","options":["...","...","...","..."],"correct":0,"explanation":"...","jd_link":"..."},
+    {"question":"...","options":["...","...","...","..."],"correct":0,"explanation":"...","jd_link":"..."},
+    {"question":"...","options":["...","...","...","..."],"correct":0,"explanation":"...","jd_link":"..."},
+    {"question":"...","options":["...","...","...","..."],"correct":0,"explanation":"...","jd_link":"..."}
   ]
 }
 
-CRITICAL: Generate EXACTLY 15 questions. NOT 10. NOT 12. Exactly 15.
-The breakdown MUST be:
-- IDs 1-5: category "behavioral" (tell me about a time... / STAR format)
-- IDs 6-10: category "role_specific" (technical/domain questions for this specific role)
-- IDs 11-13: category "situational" (hypothetical scenarios: "what would you do if...")
-- IDs 14-15: category "culture" (why this company, career motivation, values alignment)
-
-Do NOT skip situational or culture categories. All 4 categories are MANDATORY.`;
+RULES:
+- suggested_answer uses ONLY facts from the resume. NO fabricated metrics.
+- ask_them questions must be SHORT (max 15 words). Not long complex sentences.
+- ask_them are questions the CANDIDATE asks the INTERVIEWER at the end. Simple, confident, shows interest.
+- For ${careerStage} candidates: adjust question difficulty and answer depth accordingly.
+- Fill in ALL 15 questions, 5 ask_them, 10 MCQs. Do not leave any as "...".`;
 
     console.log(`[interview-prep] ${prepId}: Starting Call 1 — Brief + Question Plan`);
     const call1Result = await geminiCall(systemPrompt1, userPrompt1);
 
-    // Save partial results
-    await query(`UPDATE interview_preps SET prep_data=$1 WHERE id=$2`,
-      [JSON.stringify({ company_brief: call1Result.company_brief, question_plan: call1Result.question_plan }), prepId]);
-
-    // ─── CALL 2: Expand Questions ───
-    const systemPrompt2 = `You are an expert interview coach. Expand the question plan into full interview questions with STAR-format suggested answers.
-CRITICAL RULES:
-- Suggested answers MUST use ONLY facts from the resume. No fabricated metrics or numbers.
-- If the resume lacks metrics, use qualitative framing — not fake numbers.
-- For freshers: answers focus on projects, coursework, learning, potential.
-- For senior candidates: answers focus on strategy, leadership, business impact.
-- Every answer must reference specific JD requirements.
-Return ONLY valid JSON, no markdown.`;
-
-    const userPrompt2 = `Given this question plan and candidate profile, expand each question into a full interview question with suggested answer.
-
-QUESTION PLAN:
-${JSON.stringify(call1Result.question_plan, null, 2)}
-
-${resumeContext}
-
-${jdContext}
-
-Return this exact JSON structure:
-{
-  "questions": [
-    {
-      "id": 1,
-      "category": "behavioral",
-      "question": "string",
-      "why_they_ask": "string — linked to JD requirement",
-      "suggested_answer": {
-        "situation": "string",
-        "task": "string",
-        "action": "string",
-        "result": "string"
-      },
-      "common_mistakes": ["string array, 1-2 items"],
-      "follow_ups": ["string array, 2-3 items"]
-    }
-  ]
-}
-
-CRITICAL: Generate ALL 15 questions from the plan. Every single ID must be present. Include behavioral, role_specific, situational, AND culture categories. Do NOT skip any.`;
-
-    console.log(`[interview-prep] ${prepId}: Starting Call 2 — Expand Questions`);
-    const call2Result = await geminiCall(systemPrompt2, userPrompt2);
-
-    // Save partial results (calls 1+2)
-    await query(`UPDATE interview_preps SET prep_data=$1 WHERE id=$2`,
-      [JSON.stringify({
-        company_brief: call1Result.company_brief,
-        question_plan: call1Result.question_plan,
-        questions: call2Result.questions,
-      }), prepId]);
-
-    // ─── CALL 3: Closing Pack ───
-    const systemPrompt3 = `You are an expert interview coach. Generate a closing interview preparation pack including questions to ask the interviewer, a cheat sheet, and MCQ quiz questions.
-CRITICAL RULES:
-- key_numbers must ONLY contain numbers/metrics found in the resume. No fabrication.
-- power_stories must be based on actual resume experience.
-- MCQ questions should test understanding of the JD requirements and role.
-Return ONLY valid JSON, no markdown.`;
-
-    const userPrompt3 = `Generate a closing interview preparation pack for this candidate and role.
-
-${resumeContext}
-
-${jdContext}
-
-COMPANY BRIEF:
-${JSON.stringify(call1Result.company_brief, null, 2)}
-
-Return this exact JSON structure:
-{
-  "ask_them": [
-    { "question": "string", "why_it_matters": "string" }
-  ],
-  "cheat_sheet": {
-    "key_numbers": ["string array — ONLY from resume, no fabrication"],
-    "power_stories": [
-      { "title": "string", "hook": "string", "jd_theme": "string" }
-    ],
-    "jd_keywords": ["string array"],
-    "avoid_phrases": [
-      { "avoid": "string", "use_instead": "string" }
-    ]
-  },
-  "mcq": [
-    {
-      "question": "string",
-      "options": ["A string", "B string", "C string", "D string"],
-      "correct": 0,
-      "explanation": "string",
-      "jd_link": "string"
-    }
-  ]
-}
-
-Generate exactly 5 ask_them questions, 3 power_stories, 10 MCQs.`;
-
-    console.log(`[interview-prep] ${prepId}: Starting Call 3 — Closing Pack`);
-    const call3Result = await geminiCall(systemPrompt3, userPrompt3);
-
-    // Merge all results
+    // Single call generates everything — merge into final structure
     const finalPrepData = {
       company_brief: call1Result.company_brief,
-      question_plan: call1Result.question_plan,
-      questions: call2Result.questions,
-      ask_them: call3Result.ask_them,
-      cheat_sheet: call3Result.cheat_sheet,
-      mcq: call3Result.mcq,
+      questions: call1Result.questions || [],
+      ask_them: call1Result.ask_them || [],
+      cheat_sheet: call1Result.cheat_sheet || {},
+      mcq: call1Result.mcq || [],
     };
 
     await query(

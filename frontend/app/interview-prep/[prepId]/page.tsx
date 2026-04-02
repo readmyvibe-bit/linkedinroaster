@@ -212,7 +212,7 @@ export default function InterviewPrepPage() {
         <div style={{ textAlign: 'center', background: '#fff', borderRadius: 12, padding: '40px 32px', border: '1px solid #E0E0E0', maxWidth: 400 }}>
           <div style={{ fontSize: 18, fontWeight: 700, color: '#CC1016', marginBottom: 8 }}>Something went wrong</div>
           <div style={{ fontSize: 14, color: '#666', marginBottom: 20 }}>{error || 'Failed to generate interview prep.'}</div>
-          <button onClick={() => window.history.back()} style={{
+          <button onClick={() => { if (prep?.resume_id) window.location.href = `/resume/${prep.resume_id}`; else window.history.back(); }} style={{
             padding: '10px 24px', background: '#0A66C2', color: '#fff', border: 'none',
             borderRadius: 24, fontSize: 14, fontWeight: 600, cursor: 'pointer',
           }}>Go Back</button>
@@ -261,7 +261,7 @@ export default function InterviewPrepPage() {
               padding: '6px 14px', background: '#F3F2EF', color: '#666', border: '1px solid #D0D0D0',
               borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer',
             }}>Print / PDF</button>
-            <button onClick={() => window.history.back()} style={{
+            <button onClick={() => { if (prep?.resume_id) window.location.href = `/resume/${prep.resume_id}`; else window.history.back(); }} style={{
               padding: '6px 14px', background: '#fff', color: '#666', border: '1px solid #ccc',
               borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer',
             }}>Back</button>
