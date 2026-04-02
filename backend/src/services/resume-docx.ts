@@ -78,6 +78,9 @@ const THEMES: Record<string, Theme> = {
   campus:      { font: 'Arial', nameSize: 48, nameColor: '1e3a5f', nameAlign: AlignmentType.LEFT, headerColor: '1e3a5f', headerSize: 24, headerBorder: true, bodySize: 22, bodyColor: '333333', accentColor: '1e3a5f' },
   operator:    { font: 'Arial', nameSize: 56, nameColor: 'FFFFFF', nameAlign: AlignmentType.LEFT, headerColor: '0F172A', headerSize: 24, headerBorder: true, bodySize: 22, bodyColor: '334155', accentColor: '06B6D4', headerBandBg: '0F172A', headerBandText: 'FFFFFF' },
   editorial:   { font: 'Georgia', nameSize: 60, nameColor: '171717', nameAlign: AlignmentType.LEFT, headerColor: '9A3412', headerSize: 22, headerBorder: false, bodySize: 22, bodyColor: '292524', accentColor: 'C2410C' },
+  skylight:    { font: 'Georgia', nameSize: 48, nameColor: 'FFFFFF', nameAlign: AlignmentType.LEFT, headerColor: '1E3A5F', headerSize: 22, headerBorder: true, bodySize: 22, bodyColor: '1F2937', accentColor: 'C5A572', headerBandBg: '1E3A5F', headerBandText: 'FFFFFF' },
+  ramp:        { font: 'Arial', nameSize: 48, nameColor: '27272A', nameAlign: AlignmentType.LEFT, headerColor: '27272A', headerSize: 22, headerBorder: true, bodySize: 22, bodyColor: '27272A', accentColor: 'EA580C', sidebarBg: 'F4F4F5', sidebarText: '27272A', sidebarMuted: '71717A', sidebarWidth: 28 },
+  clinical:    { font: 'Georgia', nameSize: 44, nameColor: '1F2937', nameAlign: AlignmentType.LEFT, headerColor: '1F2937', headerSize: 22, headerBorder: true, bodySize: 22, bodyColor: '1F2937', accentColor: '0F766E' },
 };
 
 function getTheme(id?: string): Theme { return THEMES[id || 'classic'] || THEMES.classic; }
@@ -403,6 +406,9 @@ const BUILDER_MAP: Record<string, (data: ResumeData) => Promise<Buffer>> = {
   campus:      buildCampusDocx,
   operator:    (d) => buildAccentHeaderDocx(d, getTheme('operator')),
   editorial:   (d) => buildSingleColumnDocx(d, getTheme('editorial')),
+  skylight:    (d) => buildAccentHeaderDocx(d, getTheme('skylight')),
+  ramp:        (d) => buildSidebarDocx(d, getTheme('ramp')),
+  clinical:    (d) => buildSingleColumnDocx(d, getTheme('clinical')),
 };
 
 export async function generateDocx(data: ResumeData, templateId?: string): Promise<Buffer> {
