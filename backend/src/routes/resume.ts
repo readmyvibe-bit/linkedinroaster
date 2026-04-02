@@ -18,11 +18,11 @@ router.post('/ai-enhance', async (req: Request, res: Response) => {
     if (!text || !context) return res.status(400).json({ error: 'Missing text or context' });
 
     const prompts: Record<string, string> = {
-      summary: 'Rewrite this professional summary. Fix grammar, improve impact, use power verbs, make concise and ATS-friendly. Keep the same facts — don\'t add anything not mentioned. Return ONLY the improved text, no explanation.',
-      bullet: 'Rewrite this resume bullet point. Fix grammar, start with a strong action verb, add metrics where possible (use ~ for estimates if exact numbers aren\'t provided), make it concise (max 20 words). Return ONLY the improved bullet, no explanation.',
-      achievement: 'Rewrite this achievement. Fix grammar, quantify impact, make specific and impressive. Return ONLY the improved text, no explanation.',
-      project: 'Rewrite this project description into polished bullet points. Fix grammar, highlight tech stack, what was built, problem solved, and outcome. Return ONLY the improved text, no explanation.',
-      skill_suggest: 'Based on this text describing someone\'s experience, suggest 5-8 relevant technical skills they likely have but haven\'t listed. Return ONLY a comma-separated list of skills, nothing else.',
+      summary: 'Rewrite this professional summary. Fix grammar, improve impact, use power verbs, make concise and ATS-friendly. Keep the same facts — do NOT add anything not mentioned. Return ONLY plain text. No markdown, no bold, no asterisks, no bullet symbols, no headers.',
+      bullet: 'Rewrite this resume bullet point. Fix grammar, start with a strong action verb, add metrics where possible (use ~ for estimates if exact numbers are not provided), make it concise (max 20 words). Return ONLY the improved bullet as plain text. No markdown, no bold, no asterisks.',
+      achievement: 'Rewrite this achievement. Fix grammar, quantify impact, make specific. Do NOT add facts not in the original. Return ONLY plain text. No markdown, no bold, no asterisks.',
+      project: 'Rewrite this project description. Fix grammar, make it clear and professional. Each point on a new line starting with a dash. Do NOT add technologies or details not mentioned in the original text. Return ONLY plain text. No markdown, no bold, no asterisks, no ** symbols.',
+      skill_suggest: 'Based on this text describing someone\'s experience, suggest 5-8 relevant technical skills they likely have but haven\'t listed. Return ONLY a comma-separated list of skills, nothing else. No markdown.',
     };
 
     const systemPrompt = prompts[context];
@@ -30,7 +30,12 @@ router.post('/ai-enhance', async (req: Request, res: Response) => {
 
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     const result = await model.generateContent(`${systemPrompt}\n\nText:\n${text}`);
-    const enhanced = result.response.text().trim();
+    // Strip any markdown that Gemini might still add
+    let enhanced = result.response.text().trim()
+      .replace(/\*\*/g, '')
+      .replace(/\*/g, '')
+      .replace(/^#+\s*/gm, '')
+      .replace(/^>\s*/gm, '');
 
     res.json({ enhanced });
   } catch (err: any) {

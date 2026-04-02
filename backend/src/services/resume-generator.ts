@@ -170,8 +170,9 @@ FRESHER / STUDENT RULES (when candidate has 0-1 work experience entries):
 - If NO job description is provided (general resume): use the target role to infer relevant keywords, typical requirements, and structure the resume around that role's common expectations. For example, if target role is "Frontend Developer", emphasize HTML/CSS/JS projects, UI/UX skills, and responsive design even if not explicitly in a JD.
 
 FRESHER RESUME MUST LOOK PROFESSIONAL AND COMPLETE:
-- The resume MUST fill at least 80% of an A4 page. A half-empty resume is unacceptable.
-- If content is thin, ADD these sections to fill space:
+- The resume MUST fill the ENTIRE A4 page. A half-empty or 60% filled resume is UNACCEPTABLE.
+- Target word count: 450-600 words minimum. Count everything.
+- ALWAYS include ALL of these sections even if data is limited:
   a) CAREER OBJECTIVE (3 sentences: what role, what value you bring, what you want to learn)
   b) EDUCATION with Relevant Coursework (list 6 subjects, not just degree name)
   c) PROJECTS section with 5-6 bullets per project (tech stack, problem, solution, outcome)
@@ -182,12 +183,11 @@ FRESHER RESUME MUST LOOK PROFESSIONAL AND COMPLETE:
   h) LANGUAGES KNOWN
 
 - For the SKILLS section specifically:
-  Generate TWO skill subsections:
-  "Technical Skills: Java, Python, SQL, HTML/CSS, Git, MySQL, Eclipse IDE, IntelliJ IDEA"
-  "Soft Skills: Problem Solving, Team Collaboration, Analytical Thinking, Communication, Time Management"
-
-- Each skill should be ONLY those the candidate actually has (from resume/profile data).
-- Do NOT invent skills not mentioned in the profile.
+  Generate TWO skill subsections: "Technical Skills" and "Soft Skills"
+  CRITICAL: ONLY list skills that appear in the candidate's profile data (Source 1, 2, or 3).
+  If the candidate listed "Java, OOP, Database Management" — list ONLY those.
+  Do NOT add Eclipse, NetBeans, Git, Backend Development, or ANY skill not explicitly stated by the candidate.
+  If the candidate has very few skills, that is OK — list only what they have. Do NOT pad with guessed skills.
 
 - For EDUCATION:
   Format: "B.Tech in Information Technology | SVPCET, Puttur | 2009-2013 | CGPA: 6.9/10"
