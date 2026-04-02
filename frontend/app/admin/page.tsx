@@ -535,6 +535,22 @@ function OrderDetailModal({
               Approve Order
             </button>
           )}
+          {s.payment_status === 'paid' && s.processing_status !== 'done' && (
+            <button
+              onClick={async () => {
+                if (!confirm('Reprocess this order? It will be re-queued for AI processing.')) return;
+                try {
+                  const res = await apiFetch(`/api/admin/reprocess-order/${s.id}`, { method: 'POST' });
+                  if (res.ok) { onToast('Order reprocessing started!', 'success'); onClose(); }
+                  else { const b = await res.json().catch(() => ({})); onToast(b.error || 'Failed', 'error'); }
+                } catch { onToast('Failed to reprocess', 'error'); }
+              }}
+              className="px-5 py-2 rounded-full text-white font-semibold text-sm cursor-pointer border-none"
+              style={{ background: '#0A66C2' }}
+            >
+              Reprocess Order
+            </button>
+          )}
           {s.processing_status !== 'done' && s.processing_status !== 'failed' && (
             <button
               onClick={async () => {
