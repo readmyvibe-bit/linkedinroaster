@@ -101,43 +101,29 @@ export default function BuildLandingPage() {
 
   const plans = [
     {
-      id: 'starter',
-      name: 'Profile Starter',
-      price: 199,
-      popular: false,
-      features: [
-        'AI-generated headline (3 variations)',
-        'Professional About section',
-        'Experience bullets from projects & internships',
-        'Skills list ranked by industry',
-        '10-step LinkedIn setup guide',
-        'Connection request templates',
-        'Free rescore anytime',
-      ],
-      notIncluded: ['ATS Resume', 'Cover Letter', 'Premium templates'],
-    },
-    {
-      id: 'plus',
-      name: 'Profile + Resume',
-      price: 399,
+      id: 'standard',
+      name: 'Standard',
+      price: 499,
       popular: true,
       features: [
-        'Everything in Starter',
-        'ATS Resume Builder (any job, 18 templates, PDF + TXT)',
-        '1 Cover Letter',
-        'Job description targeting',
-        'Best for: Students applying to internships',
+        'AI-generated LinkedIn profile (headline, about, experience, skills)',
+        '10-step LinkedIn setup guide',
+        '10 ATS Resumes (18 standard templates)',
+        '10 Cover Letters',
+        '10 Interview Preps (15 questions + quiz)',
+        'AI Enhance Editor',
+        'Connection request templates',
       ],
       notIncluded: [],
     },
     {
       id: 'pro',
-      name: 'Profile Pro',
-      price: 699,
+      name: 'Pro',
+      price: 999,
       popular: false,
       features: [
-        'Everything in Profile + Resume',
-        '3 Cover Letters (one per target job)',
+        'Everything in Standard',
+        '25 Resumes + 25 Cover Letters + 25 Interview Preps',
         'All 28 premium templates',
         'Priority processing',
         'Best for: Targeting multiple companies strategically',
@@ -186,7 +172,7 @@ export default function BuildLandingPage() {
           </p>
           <p style={{ fontSize: 14, opacity: 0.7, marginBottom: 24 }}>5-min form &rarr; AI generates in ~60 sec &rarr; paste with our guide in ~10 min</p>
           <a href="#pricing" style={{ display: 'inline-block', background: 'white', color: '#0A66C2', padding: '14px 36px', borderRadius: 50, fontSize: 16, fontWeight: 700, textDecoration: 'none' }}>
-            See Plans — From &#8377;199 &rarr;
+            See Plans — From &#8377;499 &rarr;
           </a>
           <p style={{ fontSize: 13, opacity: 0.7, marginTop: 12 }}>500+ profiles built &bull; One-time payment &bull; No LinkedIn login needed</p>
         </div>

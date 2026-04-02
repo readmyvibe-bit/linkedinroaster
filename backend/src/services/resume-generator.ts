@@ -40,12 +40,12 @@ export async function generateResume(input: ResumeInput): Promise<{ resumeId: st
   }
   if (!order) throw new Error('Order not found');
 
-  // Quota: starter=0 resumes, plus=1, pro=3 (build) | standard=1, pro=3 (roast)
+  // Quota: starter=0, plus=10, standard=10, pro=25 (build) | standard=10, pro=25 (roast)
   const maxResumes = orderSource === 'build'
-    ? (order.plan === 'pro' ? 3 : order.plan === 'plus' ? 1 : 0)
-    : (order.plan === 'pro' ? 3 : 1);
+    ? (order.plan === 'pro' ? 25 : order.plan === 'standard' ? 10 : order.plan === 'plus' ? 10 : 0)
+    : (order.plan === 'pro' ? 25 : 10);
   if (maxResumes === 0) {
-    throw new Error('Resume not included in Starter plan. Upgrade to Plus or Pro.');
+    throw new Error('Resume not included in Starter plan. Upgrade to Standard or Pro.');
   }
   const existingCount = await query('SELECT COUNT(*)::int AS cnt FROM resumes WHERE order_id=$1', [input.orderId]);
   if (existingCount.rows[0].cnt >= maxResumes) {

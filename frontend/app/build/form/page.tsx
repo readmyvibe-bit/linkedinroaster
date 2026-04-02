@@ -64,7 +64,7 @@ function BuildFormContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const planParam = searchParams.get('plan');
-  const plan = planParam || 'starter';
+  const plan = planParam || 'standard';
   const prePaidOrderId = searchParams.get('orderId'); // from referral code redemption
 
   // Redirect to pricing if no plan specified
@@ -266,7 +266,7 @@ function BuildFormContent() {
     }
   }
 
-  const planLabels: Record<string, string> = { starter: 'Profile Starter — Rs 199', plus: 'Profile + Resume — Rs 399', pro: 'Profile Pro — Rs 699' };
+  const planLabels: Record<string, string> = { standard: 'Standard — Rs 499', pro: 'Pro — Rs 999', starter: 'Profile Starter — Rs 199', plus: 'Profile + Resume — Rs 399' };
   const inputStyle = { width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #D1D5DB', fontSize: 14, boxSizing: 'border-box' as const };
   const labelStyle = { display: 'block', fontSize: 13, fontWeight: 600 as const, color: '#374151', marginBottom: 6 };
   const sectionStyle = { background: 'white', borderRadius: 14, padding: '24px 28px', marginBottom: 16, border: '1px solid #E0E0E0' };

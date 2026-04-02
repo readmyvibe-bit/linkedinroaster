@@ -1916,7 +1916,6 @@ function ErrorState({ type, onRetry }: { type: string; onRetry?: () => void }) {
 function ResultsNavColumn() {
   const navItems = [
     { id: 'score-section', label: 'Score', icon: '📊' },
-    { id: 'roast-section', label: 'Roast (6 pts)', icon: '🔥' },
     { id: 'strength-section', label: 'Your Strength', icon: '💪' },
     { id: 'rewrite-section', label: 'Rewrite', icon: '✍️' },
     { id: 'resume-section', label: 'Resume Builder', icon: '📄' },
@@ -2023,7 +2022,7 @@ function ResultsContextColumn({ scores, isPro, orderId }: { scores: any; isPro: 
   const ranking = afterScore >= 80 ? 'Top 10%' : afterScore >= 70 ? 'Top 20%' : afterScore >= 60 ? 'Top 35%' : afterScore >= 50 ? 'Top 50%' : 'Improving';
 
   function handleResumeCTA() {
-    const maxResumes = isPro ? 3 : 1;
+    const maxResumes = isPro ? 25 : 10;
     fetch(`${API_URL}/api/resume/by-order/${orderId}`)
       .then(r => r.json())
       .then(d => {
@@ -2490,40 +2489,12 @@ export default function ResultsPage() {
               {rankLabel} of LinkedIn profiles
             </div>
 
-            {/* Roast highlight */}
-            {top3Roasts[0] && (
-              <div style={{ marginTop: 16, background: '#FFF7ED', border: '1px solid #FDBA74', borderRadius: 10, padding: '14px 16px' }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#C2410C', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span>&#128293;</span> Top Roast
+            {/* Score improvement note */}
+            {improvement > 0 && (
+              <div style={{ marginTop: 16, background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 10, padding: '14px 16px' }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#057642' }}>
+                  &#9989; Your profile improved by {improvement} points. Copy your rewritten sections below.
                 </div>
-                <p style={{ fontSize: 14, color: '#191919', fontStyle: 'italic', lineHeight: 1.6, margin: 0 }}>
-                  &ldquo;{top3Roasts[0].roast}&rdquo;
-                </p>
-                {!showAllRoastsExpand && top3Roasts.length > 1 && (
-                  <button onClick={() => setShowAllRoastsExpand(true)} style={{ marginTop: 10, background: 'none', border: 'none', color: '#0B69C7', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: 0 }}>
-                    See all {top3Roasts.length} roasts &#8595;
-                  </button>
-                )}
-                {showAllRoastsExpand && top3Roasts.slice(1).map((p, i) => (
-                  <div key={i} style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #FDBA74' }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#C2410C', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                      {sectionIcon(p.section_targeted)} {p.section_targeted}
-                    </div>
-                    <p style={{ fontSize: 14, color: '#191919', fontStyle: 'italic', lineHeight: 1.6, margin: 0 }}>
-                      &ldquo;{p.roast}&rdquo;
-                    </p>
-                    {p.underlying_issue && (
-                      <p style={{ fontSize: 12, color: '#78350F', marginTop: 4, marginBottom: 0 }}>
-                        Why it matters: {p.underlying_issue}
-                      </p>
-                    )}
-                  </div>
-                ))}
-                {showAllRoastsExpand && (
-                  <button onClick={() => setShowAllRoastsExpand(false)} style={{ marginTop: 10, background: 'none', border: 'none', color: '#0B69C7', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: 0 }}>
-                    Show less &#8593;
-                  </button>
-                )}
               </div>
             )}
           </div>
@@ -2626,7 +2597,7 @@ export default function ResultsPage() {
 
           {/* Resume card */}
           <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }} id="resume-section">
-            <ResumeBuilderSection orderId={orderId} maxResumes={isPro ? 3 : 1} plan={plan} />
+            <ResumeBuilderSection orderId={orderId} maxResumes={isPro ? 25 : 10} plan={plan} />
           </div>
 
           {/* Quick Actions card */}

@@ -471,8 +471,8 @@ export default function BuildResultsPage() {
           {/* RIGHT COLUMN */}
           <div className="w-full lg:w-auto lg:max-w-[340px]" style={{ flex: '0 0 320px' }}>
             {/* ATS Resume Builder */}
-            {(plan === 'plus' || plan === 'pro') && (() => {
-              const maxResumes = plan === 'pro' ? 3 : 1;
+            {(plan === 'standard' || plan === 'plus' || plan === 'pro') && (() => {
+              const maxResumes = plan === 'pro' ? 25 : 10;
               const usedCount = existingResumes.length;
               const remaining = Math.max(0, maxResumes - usedCount);
               return (
@@ -518,14 +518,14 @@ export default function BuildResultsPage() {
                     <div style={{ background: '#FEF2F2', borderRadius: 8, padding: '10px 14px', marginTop: 4 }}>
                       <p style={{ fontSize: 13, color: '#CC1016', fontWeight: 600, margin: '0 0 4px' }}>Resume limit reached</p>
                       <p style={{ fontSize: 12, color: '#666', margin: 0 }}>
-                        You&apos;ve used all {maxResumes} resume{maxResumes > 1 ? 's' : ''}.{' '}
-                        {plan === 'plus' && <a href="/build#pricing" style={{ color: '#0B69C7', fontWeight: 600 }}>Upgrade to Pro for 3 resumes</a>}
+                        You&apos;ve used all {maxResumes} resumes.{' '}
+                        {plan !== 'pro' && <span>Upgrade to Pro for 25 resumes.</span>}
                       </p>
                     </div>
                   )}
 
                   <p style={{ fontSize: 12, color: '#888', marginTop: 8, marginBottom: 0 }}>
-                    {plan === 'pro' ? '3 resumes + 3 cover letters + all 28 templates' : '1 resume + 1 cover letter + 18 templates'} included in your plan
+                    {plan === 'pro' ? '25 resumes + 25 cover letters + all 28 templates' : '10 resumes + 10 cover letters + 18 templates'} included in your plan
                   </p>
                 </div>
               );

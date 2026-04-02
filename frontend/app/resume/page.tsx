@@ -94,6 +94,7 @@ function ResumeFormContent() {
   const [orderData, setOrderData] = useState<Record<string, unknown> | null>(null);
   const [quotaUsed, setQuotaUsed] = useState(false);
   const [existingResumes, setExistingResumes] = useState<any[]>([]);
+  const [maxResumesQuota, setMaxResumesQuota] = useState(10);
 
   // Form fields
   const [fullName, setFullName] = useState('');
@@ -179,8 +180,9 @@ function ResumeFormContent() {
 
         // Check resume quota
         const maxResumes = source === 'build'
-          ? (data.plan === 'pro' ? 3 : data.plan === 'plus' ? 1 : 0)
-          : (data.plan === 'pro' ? 3 : 1);
+          ? (data.plan === 'pro' ? 25 : data.plan === 'starter' ? 0 : 10)
+          : (data.plan === 'pro' ? 25 : 10);
+        setMaxResumesQuota(maxResumes);
         if (maxResumes === 0) { setQuotaUsed(true); }
         else {
           try {
@@ -365,8 +367,16 @@ function ResumeFormContent() {
           background: '#004182', borderRadius: '12px 12px 0 0', padding: '24px 28px',
           color: '#fff',
         }}>
-          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700 }}>Build Your ATS Resume</h1>
-          <p style={{ margin: '4px 0 0', fontSize: 13, opacity: 0.8 }}>profileroaster.in</p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700 }}>Build Your ATS Resume</h1>
+              <p style={{ margin: '4px 0 0', fontSize: 13, opacity: 0.8 }}>profileroaster.in</p>
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: '6px 12px', textAlign: 'center' }}>
+              <div style={{ fontSize: 18, fontWeight: 800 }}>{existingResumes.length}/{maxResumesQuota}</div>
+              <div style={{ fontSize: 10, opacity: 0.8 }}>Resumes Used</div>
+            </div>
+          </div>
         </div>
 
         {/* Card Body */}

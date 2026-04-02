@@ -166,17 +166,58 @@ router.get('/data', dashAuth, async (req: Request, res: Response) => {
       [email],
     );
 
+    // Per-order usage stats
+    const allOrderIds = [
+      ...roastOrders.rows.map((o: any) => o.id),
+      ...buildOrders.rows.map((o: any) => o.id),
+    ];
+
+    let resumeCountMap: Record<string, number> = {};
+    let interviewPrepCountMap: Record<string, number> = {};
+
+    if (allOrderIds.length > 0) {
+      const resumeCounts = await query(
+        `SELECT order_id, COUNT(*)::int as count FROM resumes WHERE order_id = ANY($1) GROUP BY order_id`,
+        [allOrderIds],
+      );
+      for (const row of resumeCounts.rows) {
+        resumeCountMap[row.order_id] = row.count;
+      }
+
+      const interviewPrepCounts = await query(
+        `SELECT r.order_id, COUNT(ip.id)::int as count FROM interview_preps ip JOIN resumes r ON r.id = ip.resume_id WHERE r.order_id = ANY($1) GROUP BY r.order_id`,
+        [allOrderIds],
+      );
+      for (const row of interviewPrepCounts.rows) {
+        interviewPrepCountMap[row.order_id] = row.count;
+      }
+    }
+
+    // Quota helper
+    const getMaxResumes = (plan: string, source: 'roast' | 'build') => {
+      if (source === 'build') {
+        return plan === 'pro' ? 25 : plan === 'standard' ? 10 : plan === 'plus' ? 10 : 0;
+      }
+      return plan === 'pro' ? 25 : 10;
+    };
+
     res.json({
       roastOrders: roastOrders.rows.map((o: any) => ({
         id: o.id, plan: o.plan, status: o.processing_status,
         beforeScore: o.before_score, afterScore: o.after_score,
         roastTitle: o.roast_title, cardImageUrl: o.card_image_url,
         rating: o.user_rating, createdAt: o.created_at, completedAt: o.processing_done_at,
+        resumesUsed: resumeCountMap[o.id] || 0,
+        interviewPrepsUsed: interviewPrepCountMap[o.id] || 0,
+        maxResumes: getMaxResumes(o.plan, 'roast'),
       })),
       buildOrders: buildOrders.rows.map((o: any) => ({
         id: o.id, plan: o.plan, status: o.processing_status,
         headline: o.headline, rating: o.user_rating,
         createdAt: o.created_at, completedAt: o.processing_done_at,
+        resumesUsed: resumeCountMap[o.id] || 0,
+        interviewPrepsUsed: interviewPrepCountMap[o.id] || 0,
+        maxResumes: getMaxResumes(o.plan, 'build'),
       })),
       resumes: resumes.rows.map((r: any) => ({
         id: r.id, orderId: r.order_id, targetRole: r.target_role,

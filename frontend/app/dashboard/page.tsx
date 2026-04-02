@@ -253,6 +253,12 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
                       <span style={{ background: '#DCFCE7', color: '#057642', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 10, marginLeft: 'auto' }}>+{o.afterScore - o.beforeScore} pts</span>
                     </div>
                   )}
+                  {o.maxResumes > 0 && (
+                    <div style={{ display: 'flex', gap: 12, marginTop: 8, fontSize: 11, color: '#666' }}>
+                      <span>Resumes: {o.resumesUsed || 0}/{o.maxResumes}</span>
+                      <span>Preps: {o.interviewPrepsUsed || 0}/{o.maxResumes}</span>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -274,7 +280,13 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
                     <span style={{ fontSize: 11, fontWeight: 600, color: o.status === 'done' ? '#057642' : '#E16B00', background: o.status === 'done' ? '#DCFCE7' : '#FEF3C7', padding: '2px 8px', borderRadius: 4 }}>{o.status}</span>
                   </div>
                   <div style={{ fontSize: 14, fontWeight: 600, color: '#191919', marginBottom: 4 }}>{o.headline || 'LinkedIn Profile Build'}</div>
-                  <div style={{ fontSize: 11, color: '#888' }}>{new Date(o.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                  <div style={{ fontSize: 11, color: '#888', marginBottom: 6 }}>{new Date(o.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                  {o.maxResumes > 0 && (
+                    <div style={{ display: 'flex', gap: 12, fontSize: 11, color: '#666' }}>
+                      <span>Resumes: {o.resumesUsed || 0}/{o.maxResumes}</span>
+                      <span>Preps: {o.interviewPrepsUsed || 0}/{o.maxResumes}</span>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

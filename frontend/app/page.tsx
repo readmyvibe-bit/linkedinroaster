@@ -281,7 +281,7 @@ function ProfileInputForm({
         {initialRawPaste ? 'Your LinkedIn Profile (from PDF)' : 'Paste Your LinkedIn Profile'}
       </h3>
       <p style={{ fontSize: 13, color: '#666', marginBottom: 4 }}>
-        {plan === 'pro' ? 'Pro Plan \u2014 \u20b9799' : 'Standard Plan \u2014 \u20b9299'}
+        {plan === 'pro' ? 'Pro Plan \u2014 \u20b9999' : 'Standard Plan \u2014 \u20b9499'}
         {teaserId && <span style={{ opacity: 0.6, marginLeft: 8 }}>(teaser linked)</span>}
       </p>
       {initialRawPaste ? (
@@ -334,7 +334,7 @@ function ProfileInputForm({
             boxShadow: '0 4px 16px rgba(10,102,194,0.35)',
           }}
         >
-          {submitting ? 'Creating order...' : `Pay \u20b9${plan === 'pro' ? '799' : '299'} & Get Roasted`}
+          {submitting ? 'Creating order...' : `Pay \u20b9${plan === 'pro' ? '999' : '499'} & Get Roasted`}
         </button>
       </div>
     </div>
@@ -763,7 +763,7 @@ export default function Home() {
                       fontSize: 14, fontWeight: 700, cursor: 'pointer',
                     }}
                   >
-                    Get Full Report for &#8377;299 &rarr;
+                    Get Full Report for &#8377;499 &rarr;
                   </button>
                 </div>
               )}
@@ -783,7 +783,7 @@ export default function Home() {
                       boxShadow: '0 4px 12px rgba(10,102,194,0.3)',
                     }}
                   >
-                    Get Full Report for &#8377;299 &rarr;
+                    Get Full Report for &#8377;499 &rarr;
                   </button>
                 </div>
               )}
@@ -1021,17 +1021,17 @@ export default function Home() {
               </div>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#0A66C2', textTransform: 'uppercase' as const, letterSpacing: 1.5, marginBottom: 8, marginTop: 8 }}>Standard</div>
               <div style={{ fontSize: 48, fontWeight: 900, color: '#191919', marginBottom: 4 }}>
-                &#8377;299 <span style={{ fontSize: 18, fontWeight: 500, color: '#999' }}>one-time</span>
+                &#8377;499 <span style={{ fontSize: 18, fontWeight: 500, color: '#999' }}>one-time</span>
               </div>
               <div style={{ fontSize: 13, color: '#999', marginBottom: 24 }}>Pay once. Download forever.</div>
               <ul style={{ listStyle: 'none', textAlign: 'left', marginBottom: 28, padding: 0 }}>
                 {[
-                  { text: 'AI Profile Score', free: true },
-                  { text: 'AI Roast + Complete Profile Rewrite', free: true },
-                  { text: 'ATS Resume (18 templates)', free: false },
-                  { text: 'Cover Letter Generator', free: false },
-                  { text: 'Interview Prep (15 questions + quiz)', free: false },
-                  { text: 'Shareable Profile Card', free: false },
+                  { text: 'AI Profile Score + Roast', free: true },
+                  { text: 'Complete Profile Rewrite', free: true },
+                  { text: '10 ATS Resumes (18 templates)', free: false },
+                  { text: '10 Cover Letters', free: false },
+                  { text: '10 Interview Preps (15 questions + quiz)', free: false },
+                  { text: 'AI Enhance Editor', free: false },
                   { text: 'PDF + TXT Export', free: false },
                 ].map((f, i) => (
                   <li key={i} style={{ fontSize: 14, color: '#333', padding: '8px 0', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -1050,7 +1050,7 @@ export default function Home() {
                   boxShadow: '0 4px 16px rgba(10,102,194,0.35)',
                 }}
               >
-                Get Everything for &#8377;299 &rarr;
+                Get Everything for &#8377;499 &rarr;
               </button>
               <div style={{ fontSize: 12, color: '#999', marginTop: 12 }}>Secure payment via Razorpay (UPI / Card / Net Banking)</div>
             </div>
@@ -1058,8 +1058,8 @@ export default function Home() {
             {/* Pro Plan */}
             <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 16, padding: 24, textAlign: 'center' }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#191919' }}>Want Pro Features?</div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#191919', margin: '4px 0' }}>&#8377;799</div>
-              <div style={{ fontSize: 13, color: '#666', marginBottom: 12 }}>5 headline variations + all 28 templates + 3 cover letters + priority processing</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#191919', margin: '4px 0' }}>&#8377;999</div>
+              <div style={{ fontSize: 13, color: '#666', marginBottom: 12 }}>25 resumes + 25 cover letters + all 28 templates + priority processing</div>
               <button
                 onClick={() => handlePlanSelect('pro')}
                 style={{ padding: '10px 24px', borderRadius: 50, border: '2px solid #0A66C2', background: 'white', color: '#0A66C2', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
@@ -1069,7 +1069,7 @@ export default function Home() {
             </div>
 
             <p style={{ fontSize: 13, color: '#666', marginTop: 24 }}>
-              Resume writers charge &#8377;3,000&ndash;15,000 and take days. We do everything in under 3 minutes for &#8377;299.
+              Resume writers charge &#8377;3,000&ndash;15,000 and take days. We do everything in under 3 minutes for &#8377;499.
             </p>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', marginTop: 16, padding: '10px 16px', background: '#F0FDF4', borderRadius: 8 }}>
@@ -1270,16 +1270,16 @@ export default function Home() {
               <div style={{ background: 'white', border: '2px solid #0A66C2', borderRadius: 20, padding: '36px 32px', position: 'relative', marginBottom: 16 }}>
                 <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: '#0A66C2', color: 'white', fontSize: 12, fontWeight: 700, padding: '4px 16px', borderRadius: 20, whiteSpace: 'nowrap' }}>Most Popular</div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#0A66C2', textTransform: 'uppercase' as const, letterSpacing: 1.5, marginBottom: 8, marginTop: 8 }}>Standard</div>
-                <div style={{ fontSize: 48, fontWeight: 900, color: '#191919', marginBottom: 4 }}>&#8377;299 <span style={{ fontSize: 18, fontWeight: 500, color: '#999' }}>one-time</span></div>
+                <div style={{ fontSize: 48, fontWeight: 900, color: '#191919', marginBottom: 4 }}>&#8377;499 <span style={{ fontSize: 18, fontWeight: 500, color: '#999' }}>one-time</span></div>
                 <div style={{ fontSize: 13, color: '#999', marginBottom: 24 }}>Pay once. Download forever.</div>
                 <ul style={{ listStyle: 'none', textAlign: 'left', marginBottom: 28, padding: 0 }}>
                   {[
                     'AI Profile Score + Roast',
                     'Complete Profile Rewrite',
-                    'ATS Resume (18 templates)',
-                    'Cover Letter Generator',
-                    'Interview Prep (15 questions + quiz)',
-                    'PDF + TXT Export',
+                    '10 ATS Resumes (18 templates)',
+                    '10 Cover Letters',
+                    '10 Interview Preps (15 questions + quiz)',
+                    'AI Enhance + PDF + TXT Export',
                   ].map((f, i) => (
                     <li key={i} style={{ fontSize: 14, color: '#333', padding: '8px 0', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', gap: 10 }}>
                       <span style={{ color: '#057642', fontWeight: 700, fontSize: 16, flexShrink: 0 }}>&#10003;</span>{f}
@@ -1295,15 +1295,15 @@ export default function Home() {
                     boxShadow: '0 4px 16px rgba(10,102,194,0.35)',
                   }}
                 >
-                  Get Started &mdash; &#8377;299 &rarr;
+                  Get Started &mdash; &#8377;499 &rarr;
                 </button>
                 <div style={{ fontSize: 12, color: '#999', marginTop: 12 }}>Secure payment via Razorpay</div>
               </div>
 
               <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 16, padding: 24 }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#191919' }}>Want Pro Features?</div>
-                <div style={{ fontSize: 28, fontWeight: 800, color: '#191919', margin: '4px 0' }}>&#8377;799</div>
-                <div style={{ fontSize: 13, color: '#666', marginBottom: 12 }}>5 headline variations + all 28 templates + 3 cover letters + priority</div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: '#191919', margin: '4px 0' }}>&#8377;999</div>
+                <div style={{ fontSize: 13, color: '#666', marginBottom: 12 }}>25 resumes + 25 cover letters + all 28 templates + priority processing</div>
                 <button
                   onClick={() => { heroRef.current?.scrollIntoView({ behavior: 'smooth' }); }}
                   style={{ padding: '10px 24px', borderRadius: 50, border: '2px solid #0A66C2', background: 'white', color: '#0A66C2', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
@@ -1313,7 +1313,7 @@ export default function Home() {
               </div>
 
               <p style={{ fontSize: 13, color: '#666', marginTop: 24 }}>
-                Resume writers charge &#8377;3,000&ndash;15,000 and take days. We do everything in under 3 minutes for &#8377;299.
+                Resume writers charge &#8377;3,000&ndash;15,000 and take days. We do everything in under 3 minutes for &#8377;499.
               </p>
             </div>
           </section>
@@ -1436,7 +1436,7 @@ export default function Home() {
                 {[
                   { stat: '2,000+', label: 'Profiles improved' },
                   { stat: '+42 pts', label: 'Average score increase' },
-                  { stat: '\u20b9299', label: 'One time, no subscription' },
+                  { stat: '\u20b9499', label: 'One time, no subscription' },
                 ].map((s, i) => (
                   <div key={i} style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: 32, fontWeight: 800, color: 'white' }}>{s.stat}</div>

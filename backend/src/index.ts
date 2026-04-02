@@ -92,7 +92,7 @@ function rateLimiter(key: string, limit: number, windowSecs: number) {
       return res.status(429).json({
         error: 'rate_limit_exceeded',
         retry_after_seconds: ttl,
-        message: `${limit} requests per ${windowSecs / 3600} hour(s). Try the full roast for ₹299.`,
+        message: `${limit} requests per ${windowSecs / 3600} hour(s). Try the full roast for ₹499.`,
       });
     }
     next();
@@ -287,7 +287,7 @@ app.post('/api/redeem-code', async (req: Request, res: Response) => {
       const hash = crypto.createHash('sha256')
         .update(JSON.stringify({ raw_paste: headline.trim() })).digest('hex');
 
-      const amounts: Record<string, number> = { standard: 29900, pro: 79900 };
+      const amounts: Record<string, number> = { standard: 49900, pro: 99900 };
       const result = await query(
         `INSERT INTO orders (email, plan, amount_paise, payment_status, payment_type,
          profile_input, profile_hash, ip_address, processing_status)
@@ -313,7 +313,7 @@ app.post('/api/redeem-code', async (req: Request, res: Response) => {
 
     if (rc.product === 'build') {
       // Create a build order — form_input defaults to empty object (NOT NULL constraint)
-      const amounts: Record<string, number> = { starter: 19900, plus: 39900, pro: 69900 };
+      const amounts: Record<string, number> = { standard: 49900, pro: 99900, starter: 19900, plus: 39900 };
       const formData = form_input ? JSON.stringify(form_input) : JSON.stringify({});
       const result = await query(
         `INSERT INTO build_orders (email, plan, amount_paise, payment_status, payment_type,
@@ -382,6 +382,25 @@ app.post('/api/webhooks/razorpay', async (req: Request, res: Response) => {
         return res.json({ status: 'upgrade_queued' });
       }
 
+      // ── BUILD UPGRADE PAYMENT ──
+      if (paymentType === 'build_upgrade') {
+        const originalOrderId = payment.notes?.original_order_id;
+        if (!originalOrderId)
+          return res.status(400).json({ error: 'missing_order_id' });
+
+        const check = await query(
+          'SELECT upgraded_to_pro FROM build_orders WHERE id=$1', [originalOrderId]);
+        if (check.rows[0]?.upgraded_to_pro)
+          return res.json({ status: 'already_upgraded' });
+
+        await query(
+          `UPDATE build_orders SET plan='pro', upgraded_to_pro=TRUE,
+           upgrade_order_id=$1 WHERE id=$2`,
+          [payment.order_id, originalOrderId]);
+
+        return res.json({ status: 'build_upgrade_done' });
+      }
+
       // ── BUILD ORDER PAYMENT ──
       if (paymentType === 'build') {
         const buildCheck = await query(
@@ -408,6 +427,7 @@ app.post('/api/webhooks/razorpay', async (req: Request, res: Response) => {
           const commFieldMap: Record<string, string> = {
             starter: 'commission_build_starter',
             plus: 'commission_build_plus',
+            standard: 'commission_build_plus',
             pro: 'commission_build_pro',
           };
           const commField = commFieldMap[bPlan] || 'commission_build_starter';
@@ -658,7 +678,7 @@ app.post('/api/orders', async (req: Request, res: Response) => {
       }
     }
 
-    const amounts: Record<string, number> = { standard: 29900, pro: 79900 };
+    const amounts: Record<string, number> = { standard: 49900, pro: 99900 };
     const rzpOrder = await razorpay.orders.create({
       amount: amounts[plan],
       currency: 'INR',
@@ -811,6 +831,38 @@ app.post('/api/orders/:id/upgrade', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('POST /api/orders/:id/upgrade error:', err);
     res.status(500).json({ error: 'Failed to create upgrade order' });
+  }
+});
+
+// POST /api/build/:id/upgrade — Upgrade a build order to Pro
+app.post('/api/build/:id/upgrade', async (req: Request, res: Response) => {
+  try {
+    const orderResult = await query(
+      'SELECT * FROM build_orders WHERE id=$1 AND payment_status=$2',
+      [req.params.id, 'paid']);
+    if (!orderResult.rows[0])
+      return res.status(404).json({ error: 'Order not found' });
+    if (orderResult.rows[0].plan === 'pro')
+      return res.status(400).json({ error: 'Already Pro' });
+    if (orderResult.rows[0].upgraded_to_pro)
+      return res.status(400).json({ error: 'Already upgraded' });
+
+    const rzpOrder = await razorpay.orders.create({
+      amount: 50000,
+      currency: 'INR',
+      receipt: `bupg_${req.params.id.slice(0, 32)}`,
+      notes: { original_order_id: req.params.id, type: 'build_upgrade' } as any,
+    }) as any;
+
+    res.json({
+      razorpay_order_id: rzpOrder.id,
+      razorpay_key: process.env.RAZORPAY_KEY_ID,
+      amount: 50000,
+      currency: 'INR',
+    });
+  } catch (err) {
+    console.error('POST /api/build/:id/upgrade error:', err);
+    res.status(500).json({ error: 'Failed to create build upgrade order' });
   }
 });
 
