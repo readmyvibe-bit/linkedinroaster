@@ -1495,7 +1495,7 @@ function ResumeBuilderSection({ orderId, maxResumes = 3, plan = 'standard' }: { 
         <div style={{ background: 'linear-gradient(135deg, #004182, #0A66C2)', borderRadius: 10, padding: '16px 20px', marginTop: 4 }}>
           <p style={{ fontSize: 14, fontWeight: 700, color: 'white', margin: '0 0 4px' }}>Want more resumes?</p>
           <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', margin: '0 0 12px', lineHeight: 1.5 }}>
-            Upgrade to Pro for 3 resumes, cover letters + all 25 templates
+            5 headline variations, all 25 templates, 3 cover letters, ATS keywords
           </p>
           <button
             onClick={handleUpgrade}
@@ -1845,7 +1845,7 @@ function UpsellBanner({ orderId }: { orderId: string }) {
     >
       <p className="text-white text-sm font-bold mb-1">Upgrade to Pro for ₹500</p>
       <p className="text-white/80 text-xs mb-3">
-        Get 5 headline variants, ATS keywords, JD matcher & cover letter
+        5 headline variations, all 25 templates, 3 cover letters, ATS keywords
       </p>
       <button
         onClick={handleUpgrade}
@@ -2669,7 +2669,7 @@ export default function ResultsPage() {
           {!isPro && (
             <div style={{ background: 'linear-gradient(135deg, #004182, #0B69C7)', borderRadius: 12, padding: '20px 24px', color: 'white' }}>
               <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>Upgrade to Pro</div>
-              <div style={{ fontSize: 13, opacity: 0.85, marginBottom: 12, lineHeight: 1.5 }}>5 headlines, ATS keywords, 3 resumes + cover letters</div>
+              <div style={{ fontSize: 13, opacity: 0.85, marginBottom: 12, lineHeight: 1.5 }}>5 headline variations, all 25 templates, 3 cover letters, ATS keywords</div>
               <button onClick={handleUpgrade} style={{ padding: '10px 24px', background: 'white', color: '#0B69C7', border: 'none', borderRadius: 50, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>Upgrade &#8212; &#8377;500</button>
             </div>
           )}

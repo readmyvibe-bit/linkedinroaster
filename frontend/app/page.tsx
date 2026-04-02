@@ -932,16 +932,11 @@ export default function Home() {
               plan="Standard"
               price="&#8377;299"
               features={[
-                '6-point brutal AI roast',
-                'Before & After score breakdown',
-                'Full headline + about + experience rewrite',
-                '1 ATS Resume + 1 Cover Letter',
-                '15 resume templates',
-                'ATS score + keyword analysis',
+                'Complete LinkedIn Roast + Rewrite',
+                'ATS Resume Builder (any job, 15 templates, PDF + TXT)',
+                '1 Cover Letter',
+                'Free rescore anytime',
                 'Shareable roast card',
-                'PDF + DOCX download',
-                'Resume editor with live preview',
-                'Results recovery page',
               ]}
               onSelect={() => handlePlanSelect('standard')}
             />
@@ -950,20 +945,19 @@ export default function Home() {
               price="&#8377;799"
               highlighted
               features={[
-                'Everything in Standard, plus:',
-                '3 ATS Resumes + 3 Cover Letters',
+                'Everything in Standard',
+                '5 Headline Variations',
                 'All 25 premium templates',
-                '4 visual sidebar layouts',
-                '5 headline variations',
-                'Resume upload + auto-parse',
-                '15+ ATS keywords + JD matcher',
-                'Drag-reorder resume sections',
-                'Missing keyword quick-add',
+                '3 Cover Letters (one per target job)',
+                'Advanced ATS keyword matching',
                 'Priority processing',
               ]}
               onSelect={() => handlePlanSelect('pro')}
             />
           </div>
+          <p className="text-center text-sm mt-6" style={{ color: 'var(--li-text-secondary)', maxWidth: 600, margin: '24px auto 0' }}>
+            Resume writers charge &#8377;3,000–15,000 and take days. We do roast + rewrite + resume in 90 seconds for &#8377;299.
+          </p>
         </div>
         </section>
       )}
