@@ -111,6 +111,7 @@ function ResumeFormContent() {
   const [totalExperience, setTotalExperience] = useState('');
   const [template, setTemplate] = useState('classic');
   const [templateFilter, setTemplateFilter] = useState('All');
+  const [noJd, setNoJd] = useState(false);
   const [resumeLength, setResumeLength] = useState('2');
 
   // Additional section collapsed
@@ -167,8 +168,13 @@ function ResumeFormContent() {
           if (data.parsed_profile?.location) setLocation(data.parsed_profile.location);
           if (data.linkedin_url) setLinkedinUrl(data.linkedin_url);
         } else {
-          if (data.form_input?.full_name) setFullName(data.form_input.full_name);
-          if (data.form_input?.location) setLocation(data.form_input.location);
+          // Build order — pre-fill ALL available data
+          const fi = data.form_input || {};
+          if (fi.full_name) setFullName(fi.full_name);
+          if (fi.location) setLocation(fi.location);
+          if (fi.phone) setPhone(fi.phone);
+          if (fi.target_role) setTargetRole(fi.target_role);
+          if (fi.target_industry) setTargetCompany(fi.target_industry);
         }
 
         // Check resume quota
@@ -213,8 +219,8 @@ function ResumeFormContent() {
   // ─── Submit ───
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (jobDescription.length < 100) {
-      setSubmitError('Job description must be at least 100 characters.');
+    if (!noJd && jobDescription.length < 100) {
+      setSubmitError('Job description must be at least 100 characters. Or check "I don\'t have a specific JD" below.');
       return;
     }
     // Check if selected template is Pro-only
@@ -238,7 +244,7 @@ function ResumeFormContent() {
         },
         targetRole,
         targetCompany,
-        jobDescription,
+        jobDescription: noJd ? `General resume for ${targetRole || 'job applications'}. No specific job description provided. Build a well-rounded resume highlighting the candidate's education, skills, projects, and any experience. Optimize for campus placements, job portals (Naukri, LinkedIn, Internshala), and general applications.` : jobDescription,
         additionalAchievements: keyAchievements,
         certifications,
         languages,
@@ -499,18 +505,31 @@ function ResumeFormContent() {
             </div>
           </div>
           <div style={{ marginBottom: 28 }}>
-            <label style={labelStyle}>Job Description <span style={{ color: '#CC1016' }}>*</span></label>
-            <textarea
-              required
-              rows={8}
-              value={jobDescription}
-              onChange={(e) => setJobDescription(e.target.value)}
-              placeholder="Paste the full job description here (min 100 characters)"
-              style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }}
-            />
-            <div style={{ fontSize: 12, color: jobDescription.length < 100 ? '#CC1016' : '#666', marginTop: 4, textAlign: 'right' }}>
-              {jobDescription.length} characters{jobDescription.length < 100 ? ` (min 100)` : ''}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <label style={labelStyle}>Job Description {!noJd && <span style={{ color: '#CC1016' }}>*</span>}</label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#0B69C7', cursor: 'pointer', fontWeight: 600 }}>
+                <input type="checkbox" checked={noJd} onChange={e => setNoJd(e.target.checked)} style={{ accentColor: '#0B69C7' }} />
+                No specific JD — make a general resume
+              </label>
             </div>
+            {!noJd ? (
+              <>
+                <textarea
+                  rows={8}
+                  value={jobDescription}
+                  onChange={(e) => setJobDescription(e.target.value)}
+                  placeholder="Paste the full job description here (min 100 characters)"
+                  style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }}
+                />
+                <div style={{ fontSize: 12, color: jobDescription.length < 100 ? '#CC1016' : '#666', marginTop: 4, textAlign: 'right' }}>
+                  {jobDescription.length} characters{jobDescription.length < 100 ? ` (min 100)` : ''}
+                </div>
+              </>
+            ) : (
+              <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 8, padding: '12px 16px', fontSize: 13, color: '#057642', lineHeight: 1.6 }}>
+                AI will build a general-purpose resume from your profile data — suitable for campus placements, job portals, and general applications. You can always generate a targeted resume later with a specific JD.
+              </div>
+            )}
           </div>
 
           {/* SECTION 3 - Additional Details (collapsible) */}
