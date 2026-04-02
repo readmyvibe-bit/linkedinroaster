@@ -2622,7 +2622,7 @@ export default function ResultsPage() {
         </div>
 
         {/* RIGHT COLUMN */}
-        <div style={{ flex: '1 1 300px', maxWidth: 340, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="w-full lg:w-auto lg:max-w-[340px]" style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
           {/* Resume card */}
           <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }} id="resume-section">
