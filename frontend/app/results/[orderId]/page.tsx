@@ -2615,18 +2615,9 @@ export default function ResultsPage() {
             </div>
           )}
 
-          {/* Feedback + Upgrade side by side */}
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <div style={{ flex: '1 1 250px', background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }}>
-              <FeedbackWidget orderId={orderId} />
-            </div>
-            {!isPro && (
-              <div style={{ flex: '1 1 250px', background: 'linear-gradient(135deg, #004182, #0B69C7)', borderRadius: 12, padding: '20px 24px', color: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>Upgrade to Pro</div>
-                <div style={{ fontSize: 13, opacity: 0.85, marginBottom: 12, lineHeight: 1.5 }}>5 headlines, ATS keywords, 3 resumes + cover letters</div>
-                <button onClick={handleUpgrade} style={{ padding: '10px 24px', background: 'white', color: '#0B69C7', border: 'none', borderRadius: 50, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>Upgrade &#8212; &#8377;500</button>
-              </div>
-            )}
+          {/* Rate Your Roast — full width left column, desktop only */}
+          <div className="hidden lg:block" style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }}>
+            <FeedbackWidget orderId={orderId} />
           </div>
         </div>
 
@@ -2668,6 +2659,20 @@ export default function ResultsPage() {
               </div>
             )}
           </div>
+
+          {/* Rate Your Roast — mobile only (desktop shows in left column) */}
+          <div className="block lg:hidden" style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }}>
+            <FeedbackWidget orderId={orderId} />
+          </div>
+
+          {/* Upgrade to Pro */}
+          {!isPro && (
+            <div style={{ background: 'linear-gradient(135deg, #004182, #0B69C7)', borderRadius: 12, padding: '20px 24px', color: 'white' }}>
+              <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>Upgrade to Pro</div>
+              <div style={{ fontSize: 13, opacity: 0.85, marginBottom: 12, lineHeight: 1.5 }}>5 headlines, ATS keywords, 3 resumes + cover letters</div>
+              <button onClick={handleUpgrade} style={{ padding: '10px 24px', background: 'white', color: '#0B69C7', border: 'none', borderRadius: 50, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>Upgrade &#8212; &#8377;500</button>
+            </div>
+          )}
 
         </div>
       </div>
