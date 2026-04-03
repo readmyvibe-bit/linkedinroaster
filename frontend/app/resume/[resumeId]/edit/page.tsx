@@ -498,91 +498,69 @@ export default function ResumeEditorPage() {
 
   // ─── Render ───
   return (
-    <div style={{ height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-      {/* ─── TOP BAR ─── */}
-      <div style={{
-        minHeight: 48, background: '#fff', borderBottom: '1px solid #E0E0E0',
-        padding: isMobile ? '8px 12px' : '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        flexWrap: 'wrap', gap: 6,
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          {!isMobile && <div style={{ fontSize: 14, fontWeight: 700, color: '#004182' }}>Resume Editor</div>}
-          <div style={{ fontSize: 12, fontWeight: 600, color: savedStatusColor }}>{savedStatusText}</div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-          {isMobile && (
-            <div style={{ display: 'flex', gap: 4, background: '#F3F2EF', borderRadius: 20, padding: 2 }}>
-              <button onClick={() => setMobileView('edit')} style={{
-                padding: '4px 14px', borderRadius: 18, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                background: mobileView === 'edit' ? '#0A66C2' : 'transparent',
-                color: mobileView === 'edit' ? '#fff' : '#666',
-              }}>Edit</button>
-              <button onClick={() => setMobileView('preview')} style={{
-                padding: '4px 14px', borderRadius: 18, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                background: mobileView === 'preview' ? '#0A66C2' : 'transparent',
-                color: mobileView === 'preview' ? '#fff' : '#666',
-              }}>Preview</button>
+    <div style={{ height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', background: 'var(--bg-canvas)' }}>
+      {/* ═══ HEADER ═══ */}
+      <header style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)', boxShadow: 'var(--shadow-sm)', flexShrink: 0, zIndex: 50 }}>
+        <div style={{ padding: '0 16px' }}>
+          {/* Row 1: Breadcrumb + status + actions */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 48, gap: 8, flexWrap: 'wrap', padding: '4px 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+              <a href={`/resume/${resumeId}`} style={{ fontSize: 13, color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 500, whiteSpace: 'nowrap' }}>&larr; Resume</a>
+              <span className="hidden sm:inline" style={{ color: 'var(--border-default)' }}>&rsaquo;</span>
+              <span className="hidden sm:inline" style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>Edit</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: savedStatusColor, whiteSpace: 'nowrap' }}>&bull; {savedStatusText}</span>
             </div>
-          )}
+            {/* Mobile: Edit/Preview toggle */}
+            {isMobile && (
+              <div style={{ display: 'flex', gap: 2, background: 'var(--bg-subtle)', borderRadius: 'var(--radius-pill)', padding: 2 }}>
+                <button onClick={() => setMobileView('edit')} style={{ padding: '5px 16px', borderRadius: 'var(--radius-pill)', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: mobileView === 'edit' ? 'var(--accent)' : 'transparent', color: mobileView === 'edit' ? '#fff' : 'var(--text-secondary)', transition: 'all var(--transition)' }}>Edit</button>
+                <button onClick={() => setMobileView('preview')} style={{ padding: '5px 16px', borderRadius: 'var(--radius-pill)', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: mobileView === 'preview' ? 'var(--accent)' : 'transparent', color: mobileView === 'preview' ? '#fff' : 'var(--text-secondary)', transition: 'all var(--transition)' }}>Preview</button>
+              </div>
+            )}
+            {/* Actions */}
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
+              <select value={templateId} onChange={e => setTemplateId(e.target.value)} style={{ padding: '5px 8px', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-sm)', fontSize: 12, outline: 'none', maxWidth: isMobile ? 110 : 180, color: 'var(--text-secondary)', background: 'var(--bg-surface)', cursor: 'pointer' }}>
+                {TEMPLATES.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+              </select>
+              <button onClick={handleDownloadPDF} className="saas-btn saas-btn-primary" style={{ padding: '5px 14px', fontSize: 12 }}>Export PDF</button>
+              <a href={`${API_URL}/api/resume/${resumeId}/download/txt`} className="saas-btn saas-btn-ghost hidden sm:inline-flex" style={{ padding: '5px 12px', fontSize: 12 }}>TXT</a>
+            </div>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-          <select
-            value={templateId}
-            onChange={e => setTemplateId(e.target.value)}
-            style={{ padding: '5px 8px', border: '1px solid #D0D0D0', borderRadius: 6, fontSize: 12, outline: 'none', maxWidth: isMobile ? 120 : 200 }}
-          >
-            {TEMPLATES.map(t => (
-              <option key={t.id} value={t.id}>{t.name}</option>
-            ))}
-          </select>
-          <button
-            onClick={handleDownloadPDF}
-            style={{
-              padding: '5px 12px', background: '#0A66C2', color: '#fff', border: 'none',
-              borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap',
-            }}
-          >
-            PDF
-          </button>
-          <a
-            href={`${API_URL}/api/resume/${resumeId}/download/txt`}
-            style={{
-              padding: '5px 12px', background: '#F3F2EF', color: '#666', border: '1px solid #D0D0D0',
-              borderRadius: 16, fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
-            }}
-          >
-            TXT
-          </a>
-          <a
-            href={`/resume/${resumeId}`}
-            style={{ fontSize: 12, fontWeight: 600, color: '#666', textDecoration: 'none', whiteSpace: 'nowrap' }}
-          >
-            Back
-          </a>
-        </div>
-      </div>
+      </header>
 
-      {/* ─── TWO PANELS ─── */}
+      {/* ═══ MAIN PANELS ═══ */}
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        {/* ─── LEFT PANEL ─── */}
-        <div style={{ width: isMobile ? '100%' : '45%', display: (!isMobile || mobileView === 'edit') ? 'block' : 'none', background: '#fff', overflowY: 'auto', height: isMobile ? 'calc(100vh - 100px)' : 'calc(100vh - 56px)', padding: 16 }}>
-          {/* Tab Bar */}
-          <div style={{ display: 'flex', borderBottom: '1px solid #E0E0E0', marginBottom: 0, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+
+        {/* Section Nav (desktop only — vertical rail) */}
+        {!isMobile && (
+          <div style={{ width: 160, flexShrink: 0, background: 'var(--bg-surface)', borderRight: '1px solid var(--border-default)', padding: '16px 0', overflowY: 'auto' }}>
             {tabs.map(tab => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                style={{
-                  flex: isMobile ? 'none' : 1, padding: isMobile ? '8px 12px' : '10px 0', background: 'none', border: 'none', whiteSpace: 'nowrap',
-                  borderBottom: activeTab === tab.key ? '2px solid #0A66C2' : '2px solid transparent',
-                  color: activeTab === tab.key ? '#0A66C2' : '#666',
-                  fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                }}
-              >
+              <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{
+                display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '10px 16px', background: activeTab === tab.key ? 'var(--accent-subtle)' : 'transparent', border: 'none', borderLeft: activeTab === tab.key ? '3px solid var(--accent)' : '3px solid transparent', color: activeTab === tab.key ? 'var(--accent)' : 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer', textAlign: 'left', transition: 'all var(--transition)',
+              }}>
                 {tab.label}
               </button>
             ))}
+            <div style={{ borderTop: '1px solid var(--border-default)', margin: '12px 16px', paddingTop: 12 }}>
+              <a href="/dashboard" target="_blank" rel="noreferrer" style={{ display: 'block', padding: '8px 16px', fontSize: 12, color: 'var(--text-muted)', textDecoration: 'none', fontWeight: 500 }}>Dashboard</a>
+              <a href={`/resume/${resumeId}`} style={{ display: 'block', padding: '8px 16px', fontSize: 12, color: 'var(--text-muted)', textDecoration: 'none', fontWeight: 500 }}>Back to Preview</a>
+            </div>
           </div>
+        )}
+
+        {/* Form Panel */}
+        <div style={{ width: isMobile ? '100%' : 0, flex: isMobile ? undefined : '1 1 0', display: (!isMobile || mobileView === 'edit') ? 'block' : 'none', background: 'var(--bg-surface)', overflowY: 'auto', height: 'calc(100vh - 56px)', padding: '16px 20px', maxWidth: isMobile ? undefined : 560 }}>
+          {/* Mobile tab bar (horizontal) */}
+          {isMobile && (
+            <div style={{ display: 'flex', borderBottom: '1px solid var(--border-default)', marginBottom: 0, overflowX: 'auto', WebkitOverflowScrolling: 'touch', gap: 0 }}>
+              {tabs.map(tab => (
+                <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{
+                  flexShrink: 0, padding: '8px 12px', background: 'none', border: 'none', whiteSpace: 'nowrap', borderBottom: activeTab === tab.key ? '2px solid var(--accent)' : '2px solid transparent', color: activeTab === tab.key ? 'var(--accent)' : 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                }}>{tab.label}</button>
+              ))}
+            </div>
+          )}
 
           {/* Tab Content */}
           <div style={{ padding: '16px 0' }}>
@@ -1195,21 +1173,20 @@ export default function ResumeEditorPage() {
           </div>
         </div>
 
-        {/* ─── RIGHT PANEL ─── */}
-        <div style={{ width: isMobile ? '100%' : '55%', display: (!isMobile || mobileView === 'preview') ? 'block' : 'none', background: '#F3F2EF', overflowY: 'auto', height: isMobile ? 'calc(100vh - 100px)' : 'calc(100vh - 56px)', padding: 20 }}>
-          {/* ATS Score Mini Widget */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-            <span style={{
-              display: 'inline-block', padding: '4px 12px', borderRadius: 12, fontSize: 13, fontWeight: 700,
-              color: '#fff', background: getScoreColor(atsScore),
-            }}>
-              ATS Score: {atsScore}%
-            </span>
-            <span style={{ fontSize: 12, color: '#666' }}>{matched} keywords matched</span>
+        {/* ═══ PREVIEW WELL ═══ */}
+        <div style={{ flex: 1, display: (!isMobile || mobileView === 'preview') ? 'flex' : 'none', flexDirection: 'column', background: 'var(--bg-subtle)', overflowY: 'auto', height: 'calc(100vh - 56px)' }}>
+          {/* ATS compact strip */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 20px', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)', flexShrink: 0, flexWrap: 'wrap' }}>
+            <span className="saas-metric" style={{ background: atsScore >= 80 ? 'var(--success-subtle)' : atsScore >= 60 ? 'var(--accent-subtle)' : 'var(--warning-subtle)', color: atsScore >= 80 ? 'var(--success)' : atsScore >= 60 ? 'var(--accent)' : 'var(--warning)' }}>ATS {atsScore}</span>
+            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{matched} keywords matched</span>
+            {keywordsMissing.length > 0 && <span style={{ fontSize: 12, color: 'var(--warning)' }}>{keywordsMissing.length} missing</span>}
           </div>
-
-          {/* Resume Preview */}
-          {renderResumeHTML(resumeData, templateId)}
+          {/* Paper preview */}
+          <div style={{ flex: 1, padding: 24, overflowY: 'auto' }}>
+            <div style={{ maxWidth: 794, margin: '0 auto', background: 'var(--bg-surface)', borderRadius: 4, boxShadow: 'var(--shadow-md)', overflow: 'hidden' }}>
+              {renderResumeHTML(resumeData, templateId)}
+            </div>
+          </div>
         </div>
       </div>
     </div>
