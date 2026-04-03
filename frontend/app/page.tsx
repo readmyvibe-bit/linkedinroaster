@@ -567,208 +567,206 @@ export default function Home() {
       {/* HERO — Two Paths                   */}
       {/* ═══════════════════════════════════ */}
       <section ref={heroRef} style={{ background: 'linear-gradient(135deg, #F8FAFF 0%, #EEF2FF 40%, #F0F7FF 100%)', borderBottom: '1px solid #E0E7F0', padding: '48px 24px 56px' }}>
-        <div style={{ maxWidth: 640, margin: '0 auto', textAlign: 'center' }}>
-          <h1 style={{ fontSize: 38, fontWeight: 900, color: '#0F172A', marginBottom: 6, lineHeight: 1.15 }}>
-            Recruiters Scroll Past Your Profile <span style={{ color: '#CC1016' }}>in 3 Seconds</span>
-          </h1>
-          <h2 style={{ fontSize: 32, fontWeight: 900, color: '#0A66C2', marginTop: 0, marginBottom: 16, lineHeight: 1.15 }}>
-            Fix It in 2 Minutes with AI
-          </h2>
-          <p style={{ fontSize: 16, color: '#475569', marginBottom: 20, maxWidth: 540, marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.6 }}>
-            Upload your LinkedIn PDF. See your score, get a complete rewrite, ATS resume, and interview prep &mdash; instantly.
-          </p>
+        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
 
-          {/* PRIMARY ACTION: Upload PDF */}
-          <div style={{ background: 'white', borderRadius: 20, border: '2px solid #0A66C2', padding: '32px 28px', maxWidth: 520, margin: '0 auto', textAlign: 'left', boxShadow: '0 8px 32px rgba(10,102,194,0.1)' }}>
+          {/* Two-column hero: Left = value prop, Right = form */}
+          <div style={{ display: 'flex', gap: 40, alignItems: 'flex-start', flexWrap: 'wrap' }}>
 
-            {/* Free hook */}
-            <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, padding: '10px 14px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 20, flexShrink: 0 }}>&#127873;</span>
-              <div style={{ fontSize: 13, color: '#92400E', fontWeight: 600, lineHeight: 1.4 }}>
-                <strong style={{ color: '#B45309' }}>See exactly why recruiters ignore your profile &mdash; FREE.</strong> No payment needed.
+            {/* LEFT: Value Proposition */}
+            <div style={{ flex: '1 1 380px', minWidth: 0 }}>
+              <h1 style={{ fontSize: 36, fontWeight: 900, color: '#0F172A', marginBottom: 6, lineHeight: 1.15 }}>
+                Recruiters Scroll Past Your Profile <span style={{ color: '#CC1016' }}>in 3 Seconds</span>
+              </h1>
+              <h2 style={{ fontSize: 28, fontWeight: 900, color: '#0A66C2', marginTop: 0, marginBottom: 16, lineHeight: 1.2 }}>
+                Fix It in 2 Minutes with AI
+              </h2>
+              <p style={{ fontSize: 15, color: '#475569', marginBottom: 24, lineHeight: 1.7 }}>
+                Upload your LinkedIn PDF. See your score, get a complete rewrite, ATS resume, and interview prep &mdash; instantly.
+              </p>
+
+              {/* What you get */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+                {[
+                  { icon: '&#127919;', text: 'Profile score + AI-suggested headline' },
+                  { icon: '&#9997;&#65039;', text: 'Complete rewrite (headline, about, experience)' },
+                  { icon: '&#128196;', text: 'ATS resume + cover letter' },
+                  { icon: '&#127908;', text: '15 personalized interview questions' },
+                ].map((item, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 18, flexShrink: 0 }} dangerouslySetInnerHTML={{ __html: item.icon }} />
+                    <span style={{ fontSize: 14, color: '#334155', fontWeight: 500 }}>{item.text}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Before/After */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20, flexWrap: 'wrap' }}>
+                <div style={{ background: '#FEF2F2', borderRadius: 10, padding: '8px 16px', textAlign: 'center' }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: '#CC1016', letterSpacing: 1 }}>BEFORE</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: '#CC1016' }}>42</div>
+                </div>
+                <div style={{ fontSize: 18, color: '#CBD5E1' }}>&rarr;</div>
+                <div style={{ background: '#F0FDF4', borderRadius: 10, padding: '8px 16px', textAlign: 'center' }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: '#057642', letterSpacing: 1 }}>AFTER</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: '#057642' }}>87</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#191919' }}>+45 points</div>
+                  <div style={{ fontSize: 11, color: '#666' }}>Average improvement</div>
+                </div>
+              </div>
+
+              {/* Trust */}
+              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 12, color: '#64748B', fontWeight: 500 }}>
+                <span>&#128274; No signup</span>
+                <span>&#9889; Instant results</span>
+                <span>&#127873; 100% free analysis</span>
+              </div>
+
+              {/* Build link */}
+              <div style={{ marginTop: 16 }}>
+                <a href="/build" style={{ fontSize: 13, color: '#057642', fontWeight: 600, textDecoration: 'none' }}>
+                  No LinkedIn? <u>Build your profile from scratch</u> &rarr;
+                </a>
               </div>
             </div>
 
-            {/* Upload Area */}
-            <div
-              onClick={handlePdfClick}
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              style={{
-                border: `2px dashed ${dragOver ? '#0A66C2' : pdfParsed ? '#057642' : '#94B8DB'}`,
-                borderRadius: 14, padding: 24, textAlign: 'center', marginBottom: 8,
-                background: dragOver ? '#E8F0FE' : pdfParsed ? '#F0FDF4' : '#F0F7FF',
-                cursor: pdfUploading ? 'wait' : 'pointer', transition: 'all 0.2s',
-              }}
-            >
-              <input ref={pdfInputRef} type="file" accept=".pdf" onChange={handlePdfChange} style={{ display: 'none' }} />
+            {/* RIGHT: Upload Form Card */}
+            <div style={{ flex: '1 1 400px', minWidth: 0, maxWidth: 480 }}>
+              <div style={{ background: 'white', borderRadius: 20, border: '2px solid #0A66C2', padding: '28px 24px', boxShadow: '0 8px 32px rgba(10,102,194,0.1)' }}>
 
-              {pdfUploading ? (
-                <>
-                  <div style={{ fontSize: 32, marginBottom: 8, animation: 'spin 1s linear infinite' }}>&#9881;</div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: '#0A66C2' }}>Parsing your LinkedIn PDF...</div>
-                  <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>Extracting profile data with AI &bull; 5-10 seconds</div>
-                  <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-                </>
-              ) : pdfParsed ? (
-                <>
-                  <div style={{ fontSize: 32, marginBottom: 8 }}>&#9989;</div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: '#057642' }}>
-                    {pdfParsed.full_name ? `${pdfParsed.full_name}'s profile parsed!` : 'LinkedIn PDF parsed!'}
+                {/* Free hook */}
+                <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, padding: '10px 14px', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontSize: 18, flexShrink: 0 }}>&#127873;</span>
+                  <div style={{ fontSize: 13, color: '#92400E', fontWeight: 600, lineHeight: 1.4 }}>
+                    <strong style={{ color: '#B45309' }}>See why recruiters ignore your profile &mdash; FREE</strong>
                   </div>
-                  <div style={{ fontSize: 12, color: '#057642', marginTop: 4 }}>
-                    {pdfParsed.headline && <span>{pdfParsed.headline.slice(0, 80)}{pdfParsed.headline.length > 80 ? '...' : ''}</span>}
-                  </div>
-                  {pdfParsed.experience?.length > 0 && (
-                    <div style={{ fontSize: 11, color: '#888', marginTop: 4 }}>
-                      {pdfParsed.experience.length} experience{pdfParsed.experience.length > 1 ? 's' : ''} &bull; {pdfParsed.education?.length || 0} education &bull; {pdfParsed.skills?.length || 0} skills extracted
-                    </div>
+                </div>
+
+                {/* Upload Area */}
+                <div
+                  onClick={handlePdfClick}
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  style={{
+                    border: `2px dashed ${dragOver ? '#0A66C2' : pdfParsed ? '#057642' : '#94B8DB'}`,
+                    borderRadius: 14, padding: 20, textAlign: 'center', marginBottom: 8,
+                    background: dragOver ? '#E8F0FE' : pdfParsed ? '#F0FDF4' : '#F0F7FF',
+                    cursor: pdfUploading ? 'wait' : 'pointer', transition: 'all 0.2s',
+                  }}
+                >
+                  <input ref={pdfInputRef} type="file" accept=".pdf" onChange={handlePdfChange} style={{ display: 'none' }} />
+                  {pdfUploading ? (
+                    <>
+                      <div style={{ fontSize: 28, marginBottom: 6, animation: 'spin 1s linear infinite' }}>&#9881;</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#0A66C2' }}>Parsing your LinkedIn PDF...</div>
+                      <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 4 }}>Extracting profile data &bull; 5-10 seconds</div>
+                      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+                    </>
+                  ) : pdfParsed ? (
+                    <>
+                      <div style={{ fontSize: 28, marginBottom: 6 }}>&#9989;</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#057642' }}>
+                        {pdfParsed.full_name ? `${pdfParsed.full_name}'s profile parsed!` : 'LinkedIn PDF parsed!'}
+                      </div>
+                      {pdfParsed.headline && <div style={{ fontSize: 11, color: '#057642', marginTop: 4 }}>{pdfParsed.headline.slice(0, 70)}{pdfParsed.headline.length > 70 ? '...' : ''}</div>}
+                      {(pdfParsed.experience?.length > 0 || pdfParsed.education?.length > 0) && (
+                        <div style={{ fontSize: 11, color: '#888', marginTop: 4 }}>
+                          {pdfParsed.experience?.length || 0} experiences &bull; {pdfParsed.education?.length || 0} education &bull; {pdfParsed.skills?.length || 0} skills
+                        </div>
+                      )}
+                      <div onClick={(e) => { e.stopPropagation(); setPdfParsed(null); setPdfFileName(''); setPdfRawPaste(''); setHeadline(''); setTeaser(null); }} style={{ fontSize: 11, color: '#0A66C2', marginTop: 6, cursor: 'pointer', textDecoration: 'underline' }}>Upload a different PDF</div>
+                    </>
+                  ) : (
+                    <>
+                      <div style={{ fontSize: 36, marginBottom: 6 }}>&#128228;</div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: '#0A66C2' }}>{dragOver ? 'Drop your PDF here!' : 'Drop your LinkedIn PDF here'}</div>
+                      <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 4 }}>or click to browse &bull; .pdf only</div>
+                    </>
                   )}
-                  <div
-                    onClick={(e) => { e.stopPropagation(); setPdfParsed(null); setPdfFileName(''); setPdfRawPaste(''); setHeadline(''); setTeaser(null); }}
-                    style={{ fontSize: 12, color: '#0A66C2', marginTop: 8, cursor: 'pointer', textDecoration: 'underline' }}
-                  >
-                    Upload a different PDF
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div style={{ fontSize: 40, marginBottom: 8 }}>&#128228;</div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: '#0A66C2' }}>
-                    {dragOver ? 'Drop your PDF here!' : 'Drop your LinkedIn PDF here'}
-                  </div>
-                  <div style={{ fontSize: 13, color: '#94A3B8', marginTop: 4 }}>or click to browse &bull; .pdf only</div>
-                </>
-              )}
-            </div>
+                </div>
 
-            {/* PDF error */}
-            {pdfError && (
-              <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, padding: '8px 12px', marginBottom: 8, fontSize: 12, color: '#DC2626' }}>
-                {pdfError}
-                <span onClick={() => { setPdfError(''); setShowPasteInput(true); }} style={{ color: '#0A66C2', cursor: 'pointer', marginLeft: 8, textDecoration: 'underline' }}>Paste text instead</span>
-              </div>
-            )}
-
-            {/* Paste fallback */}
-            {!pdfParsed && !pdfUploading && (
-              <>
-                {!showPasteInput ? (
-                  <div onClick={() => setShowPasteInput(true)} style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', marginBottom: 12, cursor: 'pointer' }}>
-                    Don{"'"}t have your PDF? <u>Paste your headline instead</u>
-                  </div>
-                ) : (
-                  <div style={{ marginBottom: 12 }}>
-                    <div style={{ fontSize: 12, color: '#666', fontWeight: 600, marginBottom: 6 }}>Paste your LinkedIn headline:</div>
-                    <textarea
-                      ref={textareaRef}
-                      value={headline}
-                      onChange={e => setHeadline(e.target.value)}
-                      placeholder={"e.g. Senior Manager | B2B Sales | 6+ Years | Fortune 500 Clients"}
-                      rows={2}
-                      maxLength={500}
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E0E0E0', fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box', lineHeight: 1.6 }}
-                    />
-                    {headline.length > 0 && headline.trim().length < 10 && (
-                      <p style={{ fontSize: 12, color: '#CC1016', marginTop: 4 }}>Please paste your complete headline &mdash; at least a few words.</p>
-                    )}
+                {/* PDF error */}
+                {pdfError && (
+                  <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, padding: '8px 12px', marginBottom: 8, fontSize: 12, color: '#DC2626' }}>
+                    {pdfError}
+                    <span onClick={() => { setPdfError(''); setShowPasteInput(true); }} style={{ color: '#0A66C2', cursor: 'pointer', marginLeft: 8, textDecoration: 'underline' }}>Paste text instead</span>
                   </div>
                 )}
 
-                <button
-                  onClick={() => { if (!showPasteInput) { setShowPasteInput(true); return; } handleTeaserSubmit(); }}
-                  disabled={loading || (showPasteInput && headline.trim().length < 10)}
-                  style={{
-                    width: '100%', padding: '16px 24px', borderRadius: 50, border: 'none',
-                    background: 'linear-gradient(135deg, #0A66C2, #004182)', color: 'white',
-                    fontSize: 16, fontWeight: 700, cursor: 'pointer',
-                    opacity: loading || (showPasteInput && headline.trim().length < 10) ? 0.5 : 1,
-                    boxShadow: '0 4px 16px rgba(10,102,194,0.35)',
-                  }}
-                >
-                  {loading ? 'Analyzing...' : 'Get My Free Score \u2192'}
-                </button>
-              </>
-            )}
+                {/* Paste fallback */}
+                {!pdfParsed && !pdfUploading && (
+                  <>
+                    {!showPasteInput ? (
+                      <div onClick={() => setShowPasteInput(true)} style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center', marginBottom: 10, cursor: 'pointer' }}>
+                        Don{"'"}t have your PDF? <u>Paste your headline instead</u>
+                      </div>
+                    ) : (
+                      <div style={{ marginBottom: 10 }}>
+                        <div style={{ fontSize: 12, color: '#666', fontWeight: 600, marginBottom: 6 }}>Paste your LinkedIn headline:</div>
+                        <textarea ref={textareaRef} value={headline} onChange={e => setHeadline(e.target.value)}
+                          placeholder="e.g. Senior Manager | B2B Sales | 6+ Years" rows={2} maxLength={500}
+                          style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #E0E0E0', fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box', lineHeight: 1.5 }}
+                        />
+                        {headline.length > 0 && headline.trim().length < 10 && (
+                          <p style={{ fontSize: 11, color: '#CC1016', marginTop: 4 }}>Please paste your complete headline.</p>
+                        )}
+                      </div>
+                    )}
+                    <button
+                      onClick={() => { if (!showPasteInput) { setShowPasteInput(true); return; } handleTeaserSubmit(); }}
+                      disabled={loading || (showPasteInput && headline.trim().length < 10)}
+                      style={{
+                        width: '100%', padding: '14px 24px', borderRadius: 50, border: 'none',
+                        background: 'linear-gradient(135deg, #0A66C2, #004182)', color: 'white',
+                        fontSize: 15, fontWeight: 700, cursor: 'pointer',
+                        opacity: loading || (showPasteInput && headline.trim().length < 10) ? 0.5 : 1,
+                        boxShadow: '0 4px 16px rgba(10,102,194,0.35)',
+                      }}
+                    >
+                      {loading ? 'Analyzing...' : 'Get My Free Score \u2192'}
+                    </button>
+                  </>
+                )}
 
-            {/* Loading state for PDF auto-teaser */}
-            {loading && pdfParsed && (
-              <div style={{ textAlign: 'center', padding: '12px 0' }}>
-                <div style={{ fontSize: 14, color: '#0A66C2', fontWeight: 600 }}>Analyzing your profile...</div>
-                <div style={{ fontSize: 12, color: '#999', marginTop: 4 }}>Generating your free score</div>
+                {/* Loading */}
+                {loading && pdfParsed && (
+                  <div style={{ textAlign: 'center', padding: '10px 0' }}>
+                    <div style={{ fontSize: 14, color: '#0A66C2', fontWeight: 600 }}>Analyzing your profile...</div>
+                    <div style={{ fontSize: 11, color: '#999', marginTop: 4 }}>Generating your free score</div>
+                  </div>
+                )}
+
+                {/* Rate limited */}
+                {pdfParsed && rateLimited && !teaser && (
+                  <div style={{ marginTop: 10, padding: 12, borderRadius: 10, background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
+                    <div style={{ fontSize: 12, color: '#057642', fontWeight: 700 }}>&#9989; Profile parsed!</div>
+                    <button onClick={scrollToPricing} style={{ width: '100%', marginTop: 8, padding: '10px', borderRadius: 50, border: 'none', background: 'linear-gradient(135deg, #0A66C2, #004182)', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Get Full Report &#8377;499 &rarr;</button>
+                  </div>
+                )}
+                {rateLimited && !pdfParsed && (
+                  <div style={{ marginTop: 10, padding: 12, borderRadius: 10, background: '#FEF3C7', border: '1px solid #F59E0B' }}>
+                    <div style={{ fontSize: 12, color: '#92400E', fontWeight: 600 }}>5 free previews used today.</div>
+                    <button onClick={scrollToPricing} style={{ width: '100%', marginTop: 8, padding: '10px', borderRadius: 50, border: 'none', background: 'linear-gradient(135deg, #0A66C2, #004182)', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Get Full Report &#8377;499 &rarr;</button>
+                  </div>
+                )}
+
+                <div style={{ fontSize: 11, color: '#94A3B8', textAlign: 'center', marginTop: 10 }}>
+                  &#9889; Free &bull; No signup &bull; Results in seconds
+                </div>
               </div>
-            )}
-
-            {/* Rate limited states */}
-            {pdfParsed && rateLimited && !teaser && (
-              <div style={{ marginTop: 12, padding: 14, borderRadius: 10, background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
-                <div style={{ fontSize: 13, color: '#057642', marginBottom: 4, fontWeight: 700 }}>&#9989; Profile parsed!</div>
-                <div style={{ fontSize: 12, color: '#666', marginBottom: 10 }}>Free preview limit reached.</div>
-                <button onClick={scrollToPricing} style={{ width: '100%', padding: '12px 20px', borderRadius: 50, border: 'none', background: 'linear-gradient(135deg, #0A66C2, #004182)', color: 'white', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
-                  Get Full Report for &#8377;499 &rarr;
-                </button>
-              </div>
-            )}
-            {rateLimited && !pdfParsed && (
-              <div style={{ marginTop: 12, padding: 14, borderRadius: 10, background: '#FEF3C7', border: '1px solid #F59E0B' }}>
-                <div style={{ fontSize: 13, color: '#92400E', marginBottom: 10 }}><strong>5 free previews used today.</strong></div>
-                <button onClick={scrollToPricing} style={{ width: '100%', padding: '12px 20px', borderRadius: 50, border: 'none', background: 'linear-gradient(135deg, #0A66C2, #004182)', color: 'white', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
-                  Get Full Report for &#8377;499 &rarr;
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Secondary: Build from scratch */}
-          <div style={{ marginTop: 20, textAlign: 'center' }}>
-            <a href="/build" style={{ fontSize: 14, color: '#057642', fontWeight: 600, textDecoration: 'none' }}>
-              Don{"'"}t have LinkedIn? <u>Build your profile from scratch</u> &rarr;
-            </a>
-          </div>
-
-          <div style={{ marginTop: 12, fontSize: 12, color: '#94A3B8', textAlign: 'center' }}>
-            &#9889; Free score in seconds &bull; No login needed &bull; Starting at &#8377;499
+            </div>
           </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════ */}
-      {/* BEFORE/AFTER + TRUST                */}
-      {/* ═══════════════════════════════════ */}
-      <div style={{ background: 'white', borderBottom: '1px solid #E8E8E8', padding: '24px 24px 20px' }}>
-        <div style={{ maxWidth: 600, margin: '0 auto', textAlign: 'center' }}>
-          {/* Before/After example */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
-            <div style={{ background: '#FEF2F2', borderRadius: 10, padding: '10px 18px', textAlign: 'center' }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: '#CC1016', letterSpacing: 1, marginBottom: 2 }}>BEFORE</div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#CC1016' }}>42</div>
-            </div>
-            <div style={{ fontSize: 20, color: '#CBD5E1' }}>&rarr;</div>
-            <div style={{ background: '#F0FDF4', borderRadius: 10, padding: '10px 18px', textAlign: 'center' }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: '#057642', letterSpacing: 1, marginBottom: 2 }}>AFTER</div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#057642' }}>87</div>
-            </div>
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#191919' }}>+45 points</div>
-              <div style={{ fontSize: 11, color: '#666' }}>Average improvement</div>
-            </div>
-          </div>
-          {/* Trust signals */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 20, flexWrap: 'wrap', fontSize: 12, color: '#666', fontWeight: 500 }}>
-            <span>&#128274; No signup needed</span>
-            <span>&#9889; Instant results</span>
-            <span>&#128179; 100% free analysis</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ═══════════════════════════════════ */}
       {/* TEASER RESULT                       */}
       {/* ═══════════════════════════════════ */}
       {teaser && (
-        <section ref={resultRef} style={{ background: '#F8FAFC', borderBottom: '1px solid #E8E8E8', padding: '20px 12px', animation: 'resultAppear 0.5s ease forwards' }}>
-          <div style={{ maxWidth: 560, margin: '0 auto', width: '100%', boxSizing: 'border-box' as const }}>
+        <section ref={resultRef} style={{ background: '#F8FAFC', borderBottom: '1px solid #E8E8E8', padding: '28px 16px', animation: 'resultAppear 0.5s ease forwards' }}>
+          <div style={{ maxWidth: 700, margin: '0 auto', width: '100%', boxSizing: 'border-box' as const }}>
             {/* Score card */}
             <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 14, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', padding: '20px 16px', marginBottom: 12 }}>
               <p style={{ fontSize: 13, fontWeight: 600, color: '#666', marginBottom: 8, textTransform: 'uppercase' as const, letterSpacing: 1 }}>Your Profile Score</p>
