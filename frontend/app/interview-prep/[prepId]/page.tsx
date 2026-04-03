@@ -231,13 +231,22 @@ export default function InterviewPrepPage() {
     ([idx, ans]) => mcqs[Number(idx)]?.correct === ans
   ).length;
 
+  const hasAskThem = (data.ask_them || []).length > 0;
+  const hasCheatSheet = data.cheat_sheet && (
+    (data.cheat_sheet.key_numbers?.length > 0) ||
+    (data.cheat_sheet.power_stories?.length > 0) ||
+    (data.cheat_sheet.jd_keywords?.length > 0) ||
+    (data.cheat_sheet.avoid_phrases?.length > 0)
+  );
+  const hasMcqs = mcqs.length > 0;
+
   const tabs = [
-    { id: 'brief', label: 'Company Brief' },
-    { id: 'questions', label: `Questions (${questions.length})` },
-    { id: 'ask_them', label: 'Your Questions' },
-    { id: 'cheat_sheet', label: 'Cheat Sheet' },
-    { id: 'quiz', label: 'Quiz' },
-  ];
+    { id: 'brief', label: 'Company Brief', show: true },
+    { id: 'questions', label: `Questions (${questions.length})`, show: questions.length > 0 },
+    { id: 'ask_them', label: 'Your Questions', show: hasAskThem },
+    { id: 'cheat_sheet', label: 'Cheat Sheet', show: hasCheatSheet },
+    { id: 'quiz', label: 'Quiz', show: hasMcqs },
+  ].filter(t => t.show);
 
   return (
     <div style={{ minHeight: '100vh', background: '#F3F2EF' }}>
@@ -461,6 +470,11 @@ export default function InterviewPrepPage() {
         {activeTab === 'ask_them' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div style={{ fontSize: 14, color: '#666', marginBottom: 8 }}>Smart questions to ask at the end of your interview — shows you{"'"}re prepared and thoughtful:</div>
+            {(!data.ask_them || data.ask_them.length === 0) && (
+              <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 10, padding: 16, textAlign: 'center' }}>
+                <p style={{ fontSize: 13, color: '#92400E', margin: 0 }}>No questions generated for this prep. Try generating a new interview prep with a specific job description for better results.</p>
+              </div>
+            )}
             {(data.ask_them || []).map((item, i) => (
               <div key={i} style={{ background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #E0E0E0' }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a', marginBottom: 8 }}>{item.question}</div>
@@ -547,7 +561,11 @@ export default function InterviewPrepPage() {
         {/* TAB: Quiz */}
         {activeTab === 'quiz' && (
           <div>
-            {quizComplete ? (
+            {mcqs.length === 0 ? (
+              <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 10, padding: 16, textAlign: 'center' }}>
+                <p style={{ fontSize: 13, color: '#92400E', margin: 0 }}>No quiz questions generated for this prep. Try generating a new interview prep with a specific job description for better results.</p>
+              </div>
+            ) : quizComplete ? (
               /* Final Score */
               <div style={{ background: '#fff', borderRadius: 12, padding: 32, border: '1px solid #E0E0E0', textAlign: 'center' }}>
                 <div style={{ fontSize: 48, fontWeight: 800, color: quizScore >= 7 ? '#057642' : quizScore >= 5 ? '#E67E22' : '#CC1016', marginBottom: 8 }}>

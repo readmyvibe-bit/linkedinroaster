@@ -385,13 +385,18 @@ export default function ResumePreviewPage() {
           </div>
 
           {/* Cover Letter */}
-          {resume.cover_letter && (
+          {resume.cover_letter ? (
             <div style={{ background: '#fff', borderRadius: 12, padding: 16, border: '1px solid #E0E0E0' }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#333', marginBottom: 10 }}>Cover Letter</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <button onClick={handleCopyCoverLetter} style={{ width: '100%', padding: '6px', background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer' }}>{coverLetterCopied ? '✓ Copied!' : '📋 Copy Cover Letter'}</button>
                 <button onClick={handleDownloadCoverLetterPDF} style={{ width: '100%', padding: '6px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer' }}>&#128196; Cover Letter PDF</button>
               </div>
+            </div>
+          ) : (
+            <div style={{ background: '#FEF3C7', borderRadius: 12, padding: 14, border: '1px solid #FDE68A' }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#92400E', marginBottom: 4 }}>No Cover Letter</div>
+              <div style={{ fontSize: 11, color: '#92400E', lineHeight: 1.5 }}>Add a job description when generating your next resume to get a targeted cover letter.</div>
             </div>
           )}
         </div>

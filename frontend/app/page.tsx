@@ -559,7 +559,6 @@ export default function Home() {
           <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
             <a href="/dashboard" style={{ fontSize: 12, color: '#666', textDecoration: 'none', fontWeight: 600 }}>Dashboard</a>
             <a href="/pricing" className="hidden sm:inline" style={{ fontSize: 12, color: '#666', textDecoration: 'none', fontWeight: 600 }}>Pricing</a>
-            <a href="/recover" className="hidden sm:inline" style={{ fontSize: 12, color: '#666', textDecoration: 'none', fontWeight: 500 }}>Lost results?</a>
           </div>
         </div>
       </nav>
@@ -1031,7 +1030,6 @@ export default function Home() {
               <span style={{ fontSize: 13, color: '#057642', fontWeight: 600 }}>Your data is encrypted, never shared, and you can delete it anytime</span>
             </div>
 
-            <ReferralCodeRedeemer product="roast" />
           </div>
         </section>
       )}
@@ -1392,17 +1390,6 @@ export default function Home() {
               >
                 &#128640; Get Your Free Score First &rarr;
               </button>
-            </div>
-          </section>
-
-          {/* ═══════════════════════════════════ */}
-          {/* REFERRAL CODE                       */}
-          {/* ═══════════════════════════════════ */}
-          <section style={{ padding: '28px 24px', background: '#F8FAFC', borderBottom: '1px solid #E8E8E8', textAlign: 'center' }}>
-            <div style={{ maxWidth: 440, margin: '0 auto' }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#191919' }}>Have a referral code?</div>
-              <div style={{ fontSize: 12, color: '#666', marginTop: 3 }}>From your college placement cell or career coach</div>
-              <ReferralCodeRedeemer product="roast" />
             </div>
           </section>
 

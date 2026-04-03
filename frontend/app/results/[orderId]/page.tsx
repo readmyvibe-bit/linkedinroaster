@@ -1507,7 +1507,7 @@ function ResumeBuilderSection({ orderId, maxResumes = 3, plan = 'standard' }: { 
           >
             Upgrade to Pro — &#8377;500 &rarr;
           </button>
-          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', margin: '6px 0 0' }}>You paid &#8377;299 — only &#8377;500 more</p>
+          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', margin: '6px 0 0' }}>You paid &#8377;499 — only &#8377;500 more</p>
         </div>
       )}
 
@@ -1515,7 +1515,7 @@ function ResumeBuilderSection({ orderId, maxResumes = 3, plan = 'standard' }: { 
       {quotaFull && plan === 'pro' && (
         <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 10, padding: '14px 18px', marginTop: 4 }}>
           <p style={{ fontSize: 14, fontWeight: 600, color: '#057642', margin: 0 }}>
-            You{"'"}re on the Pro plan — all 3 resume slots used. View or edit your resumes above.
+            You{"'"}re on the Pro plan — all resume slots used. View or edit your resumes above.
           </p>
         </div>
       )}
@@ -2552,8 +2552,7 @@ export default function ResultsPage() {
               <button onClick={() => handleCopy(rewrite.rewritten_about, 'sidebar-about')} style={{ width: '100%', padding: '10px 14px', background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#0B69C7', cursor: 'pointer', textAlign: 'left' }}>
                 {copiedField === 'sidebar-about' ? '✓ Copied!' : '📋 Copy About'}
               </button>
-              <button onClick={handleShareLinkedIn} style={{ width: '100%', padding: '10px 14px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#191919', cursor: 'pointer', textAlign: 'left' }}>&#128279; Share on LinkedIn</button>
-              <button onClick={handleShareWhatsApp} style={{ width: '100%', padding: '10px 14px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#057642', cursor: 'pointer', textAlign: 'left' }}>&#128172; WhatsApp</button>
+              <button onClick={() => { window.location.href = `/resume?orderId=${orderId}`; }} style={{ width: '100%', padding: '10px 14px', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#057642', cursor: 'pointer', textAlign: 'left' }}>&#128196; Generate Resume</button>
               <a href="/dashboard" style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#191919', cursor: 'pointer', textAlign: 'left', textDecoration: 'none', boxSizing: 'border-box' }}>&#128200; Dashboard</a>
             </div>
           </div>
