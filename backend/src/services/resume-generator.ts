@@ -255,13 +255,17 @@ Return ONLY valid JSON with this exact structure:
   const atsAnalysis = resumeData.ats_analysis || { score: 0, keywords_matched: [], keywords_missing: [], recommendations: [] };
   delete resumeData.ats_analysis;
 
-  // 5. Generate cover letter
-  const coverLetterResponse = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 1500,
-    messages: [{
-      role: 'user',
-      content: `Write a professional cover letter for this job application.
+  // 5. Generate cover letter (only if JD provided)
+  const hasJobDescription = input.jobDescription && input.jobDescription.trim().length > 20;
+  let coverLetter = '';
+
+  if (hasJobDescription) {
+    const coverLetterResponse = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1500,
+      messages: [{
+        role: 'user',
+        content: `Write a professional cover letter for this job application.
 
 APPLICANT: ${input.userDetails.name}
 TARGET ROLE: ${input.targetRole}
@@ -274,10 +278,11 @@ ${rewrite.rewritten_about || ''}
 JOB DESCRIPTION:
 ${input.jobDescription}
 
-RULES:
+CRITICAL RULES:
 - 3-4 paragraphs: Opening hook → Why this role → Proof of impact → Call to action
 - Reference specific requirements from the JD
-- Include 2-3 measurable achievements from their background
+- ONLY use achievements and metrics that appear in the applicant background above. Do NOT invent numbers, percentages, revenue figures, or any metrics not explicitly stated.
+- If background lacks specific numbers, describe impact qualitatively instead of fabricating metrics.
 - Professional but confident tone — not generic
 - Do NOT start with "I am writing to apply for"
 - Do NOT use "Dear Hiring Manager" — use "Dear ${input.targetCompany || 'Hiring'} Team"
@@ -285,11 +290,12 @@ RULES:
 - End with a specific call to action
 
 Return ONLY the cover letter text. No JSON. No formatting markers.`,
-    }],
-    system: 'You are an expert career coach who writes compelling cover letters that get interviews. Be specific, not generic.',
-  });
+      }],
+      system: 'You are an expert career coach who writes compelling cover letters. NEVER fabricate achievements, numbers, or metrics. Only use facts from the provided background.',
+    });
 
-  const coverLetter = ((coverLetterResponse.content[0] as any).text || '').trim();
+    coverLetter = ((coverLetterResponse.content[0] as any).text || '').trim();
+  }
 
   // 6. Save to DB
   const result = await query(

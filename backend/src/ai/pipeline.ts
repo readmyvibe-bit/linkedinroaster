@@ -1031,7 +1031,7 @@ OUTPUT FORMAT (strict JSON — Pro plan):
 
   "cover_letter": {
     "subject_line": "for email applications",
-    "body": "max 350 words. Hook + Why this role + Proof + CTA. Use [X] where needed.",
+    "body": "max 350 words. Hook + Why this role + Proof + CTA. ONLY use achievements/metrics from the profile — NEVER fabricate numbers. If JOB_DESCRIPTION is null, leave body empty.",
     "personalization_notes": "what to customize before sending"
   },
 
@@ -1055,7 +1055,7 @@ export async function stage4b_proRewrite(
 
   const jdBlock = jobDescription
     ? `JOB_DESCRIPTION: ${jobDescription}`
-    : 'JOB_DESCRIPTION: null\nNOTE: If JOB_DESCRIPTION is null, set jd_analysis.match_score to null and all jd_analysis arrays to empty.';
+    : 'JOB_DESCRIPTION: null\nNOTE: If JOB_DESCRIPTION is null, set jd_analysis.match_score to null and all jd_analysis arrays to empty. Set cover_letter to {"subject_line":"","body":"","personalization_notes":"No job description provided — add a JD to generate a targeted cover letter."}. Do NOT invent a job description or company details.';
 
   const userPrompt = `PROFILE: ${JSON.stringify(parsed, null, 2)}
 ANALYSIS: ${JSON.stringify(analysis, null, 2)}

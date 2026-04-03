@@ -550,16 +550,16 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       {/* ─── NAV ─── */}
-      <nav style={{ background: 'white', borderBottom: '1px solid #E8E8E8', padding: '12px 24px', position: 'sticky', top: 0, zIndex: 100 }}>
+      <nav style={{ background: 'white', borderBottom: '1px solid #E8E8E8', padding: '10px 16px', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <a href="/" style={{ textDecoration: 'none' }}>
-            <span style={{ fontSize: 20, fontWeight: 800, color: '#0A66C2' }}>Profile</span>
-            <span style={{ fontSize: 20, fontWeight: 800, color: '#191919' }}>Roaster</span>
+          <a href="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
+            <span style={{ fontSize: 18, fontWeight: 800, color: '#0A66C2' }}>Profile</span>
+            <span style={{ fontSize: 18, fontWeight: 800, color: '#191919' }}>Roaster</span>
           </a>
-          <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
-            <a href="/dashboard" style={{ fontSize: 13, color: '#666', textDecoration: 'none', fontWeight: 600 }}>Dashboard</a>
-            <a href="/pricing" style={{ fontSize: 13, color: '#666', textDecoration: 'none', fontWeight: 600 }}>Pricing</a>
-            <a href="/recover" style={{ fontSize: 13, color: '#666', textDecoration: 'none', fontWeight: 500 }}>Lost results?</a>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            <a href="/dashboard" style={{ fontSize: 12, color: '#666', textDecoration: 'none', fontWeight: 600 }}>Dashboard</a>
+            <a href="/pricing" className="hidden sm:inline" style={{ fontSize: 12, color: '#666', textDecoration: 'none', fontWeight: 600 }}>Pricing</a>
+            <a href="/recover" className="hidden sm:inline" style={{ fontSize: 12, color: '#666', textDecoration: 'none', fontWeight: 500 }}>Lost results?</a>
           </div>
         </div>
       </nav>
@@ -880,10 +880,10 @@ export default function Home() {
       {/* TEASER RESULT                       */}
       {/* ═══════════════════════════════════ */}
       {teaser && (
-        <section ref={resultRef} style={{ background: '#F8FAFC', borderBottom: '1px solid #E8E8E8', padding: '28px 16px', animation: 'resultAppear 0.5s ease forwards' }}>
-          <div style={{ maxWidth: 560, margin: '0 auto' }}>
+        <section ref={resultRef} style={{ background: '#F8FAFC', borderBottom: '1px solid #E8E8E8', padding: '20px 12px', animation: 'resultAppear 0.5s ease forwards' }}>
+          <div style={{ maxWidth: 560, margin: '0 auto', width: '100%', boxSizing: 'border-box' as const }}>
             {/* Score card */}
-            <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', padding: 28, marginBottom: 16 }}>
+            <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 14, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', padding: '20px 16px', marginBottom: 12 }}>
               <p style={{ fontSize: 13, fontWeight: 600, color: '#666', marginBottom: 8, textTransform: 'uppercase' as const, letterSpacing: 1 }}>Your Profile Score</p>
               <ScoreBadge score={teaser.score} />
               <p style={{ fontSize: 13, color: '#666', marginTop: 12, lineHeight: 1.5 }}>
@@ -893,7 +893,7 @@ export default function Home() {
 
             {/* Suggested headline variant */}
             {teaser.suggested_headline && (
-              <div style={{ background: 'white', border: '2px solid #057642', borderRadius: 16, boxShadow: '0 2px 12px rgba(5,118,66,0.08)', padding: 24, marginBottom: 16 }}>
+              <div style={{ background: 'white', border: '2px solid #057642', borderRadius: 14, boxShadow: '0 2px 12px rgba(5,118,66,0.08)', padding: '18px 16px', marginBottom: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                   <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#057642', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>&#10003;</div>
                   <p style={{ fontSize: 15, fontWeight: 700, color: '#057642' }}>AI-Suggested Headline</p>
@@ -907,7 +907,7 @@ export default function Home() {
 
             {/* Sample interview question */}
             {teaser.sample_interview_question && (
-              <div style={{ background: 'white', border: '2px solid #0891B2', borderRadius: 16, boxShadow: '0 2px 12px rgba(8,145,178,0.08)', padding: 24, marginBottom: 16 }}>
+              <div style={{ background: 'white', border: '2px solid #0891B2', borderRadius: 14, boxShadow: '0 2px 12px rgba(8,145,178,0.08)', padding: '18px 16px', marginBottom: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                   <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#0891B2', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>?</div>
                   <p style={{ fontSize: 15, fontWeight: 700, color: '#0891B2' }}>A Recruiter Would Ask You</p>
@@ -920,8 +920,8 @@ export default function Home() {
             )}
 
             {/* Locked items */}
-            <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', padding: 24, marginBottom: 16 }}>
-              <p style={{ fontSize: 15, fontWeight: 700, color: '#191919', marginBottom: 16 }}>What we found beyond your headline:</p>
+            <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 14, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', padding: '18px 16px', marginBottom: 12 }}>
+              <p style={{ fontSize: 14, fontWeight: 700, color: '#191919', marginBottom: 12 }}>What we found beyond your headline:</p>
               {[
                 { icon: '\uD83D\uDD12', text: '2 critical profile issues hidden' },
                 { icon: '\uD83D\uDD12', text: 'ATS keyword gaps hidden' },
@@ -935,7 +935,7 @@ export default function Home() {
             </div>
 
             {/* CTA */}
-            <div style={{ background: 'linear-gradient(135deg, #0A66C2, #004182)', borderRadius: 16, padding: 28, textAlign: 'center' }}>
+            <div style={{ background: 'linear-gradient(135deg, #0A66C2, #004182)', borderRadius: 14, padding: '22px 16px', textAlign: 'center' }}>
               <p style={{ fontSize: 18, fontWeight: 800, color: 'white', marginBottom: 8 }}>
                 Unlock Your Full Profile Report
               </p>
