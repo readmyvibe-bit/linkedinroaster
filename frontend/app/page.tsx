@@ -804,30 +804,19 @@ export default function Home() {
                 No LinkedIn? No problem. Upload an old resume or fill a quick form.
               </div>
 
-              {/* Resume upload area */}
-              <div style={{ border: '2px dashed #86EFAC', borderRadius: 12, padding: 20, textAlign: 'center', marginBottom: 12, background: '#F0FDF4', cursor: 'pointer' }}
-                onClick={() => window.open('/build/form?plan=standard', '_blank')}
-              >
-                <div style={{ fontSize: 28, marginBottom: 6 }}>&#128195;</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#057642' }}>Upload your existing resume</div>
-                <div style={{ fontSize: 11, color: '#666', marginTop: 2 }}>.pdf or .docx &bull; We{"'"}ll extract everything</div>
+              {/* CTA to build landing with pricing */}
+              <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 12, padding: '16px 20px', marginBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontSize: 18 }}>&#128195;</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: '#057642' }}>Upload resume or fill a quick form</span>
+                </div>
+                <div style={{ fontSize: 12, color: '#666', lineHeight: 1.5 }}>
+                  Starting at &#8377;499 &bull; AI builds your complete LinkedIn profile + resume + interview prep
+                </div>
               </div>
 
-              <div style={{ textAlign: 'center', fontSize: 12, color: '#aaa', fontWeight: 600, margin: '10px 0' }}>&mdash; or &mdash;</div>
-
               <a
-                href="/build/form?plan=standard"
-                target="_blank"
-                rel="noreferrer"
-                style={{ display: 'block', textAlign: 'center', fontSize: 13, color: '#057642', fontWeight: 600, textDecoration: 'none', marginBottom: 16, cursor: 'pointer' }}
-              >
-                Fill a quick 3-minute form instead &rarr;
-              </a>
-
-              <a
-                href="/build/form?plan=standard"
-                target="_blank"
-                rel="noreferrer"
+                href="/build"
                 style={{
                   display: 'block', width: '100%', padding: '14px 24px', borderRadius: 50, border: 'none',
                   background: 'linear-gradient(135deg, #057642, #034A2A)', color: 'white',
@@ -835,7 +824,7 @@ export default function Home() {
                   boxShadow: '0 4px 16px rgba(5,118,66,0.35)', boxSizing: 'border-box',
                 }}
               >
-                Build My Profile &rarr;
+                See Plans & Build My Profile &rarr;
               </a>
               <div style={{ fontSize: 12, color: '#666', textAlign: 'center', marginTop: 10 }}>
                 &#127891; Perfect for students & freshers

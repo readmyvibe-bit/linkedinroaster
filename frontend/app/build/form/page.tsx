@@ -67,9 +67,9 @@ function BuildFormContent() {
   const plan = planParam || 'standard';
   const prePaidOrderId = searchParams.get('orderId'); // from referral code redemption
 
-  // Redirect to pricing if no plan specified
+  // Redirect to pricing if no plan or legacy plan specified
   useEffect(() => {
-    if (!planParam) router.replace('/build#pricing');
+    if (!planParam || !['standard', 'pro'].includes(planParam)) router.replace('/build#pricing');
   }, [planParam, router]);
 
   // Personal info
@@ -515,7 +515,7 @@ function BuildFormContent() {
             </div>
           ) : (
             <button type="submit" style={{ width: '100%', padding: '14px', background: '#0A66C2', color: 'white', border: 'none', borderRadius: 50, fontSize: 16, fontWeight: 700, cursor: 'pointer' }}>
-              Pay & Generate My LinkedIn Profile &rarr;
+              Pay &#8377;{plan === 'pro' ? '999' : '499'} & Generate My LinkedIn Profile &rarr;
             </button>
           )}
 
