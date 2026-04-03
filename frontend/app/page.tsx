@@ -919,6 +919,7 @@ export default function Home() {
               <span style={{ fontSize: 13, color: '#057642', fontWeight: 600 }}>Your data is encrypted, never shared, and you can delete it anytime</span>
             </div>
 
+            <ReferralCodeRedeemer product="roast" />
           </div>
         </section>
       )}
@@ -1183,6 +1184,8 @@ export default function Home() {
               <p style={{ fontSize: 13, color: '#666', marginTop: 24 }}>
                 Resume writers charge &#8377;3,000&ndash;15,000 and take days. We do everything in under 3 minutes for &#8377;499.
               </p>
+
+              <ReferralCodeRedeemer product="roast" />
             </div>
           </section>
 
