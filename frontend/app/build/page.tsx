@@ -149,7 +149,7 @@ export default function BuildLandingPage() {
           </a>
           <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
             <a href="/" target="_blank" rel="noreferrer" style={{ fontSize: 13, color: '#0A66C2', textDecoration: 'none', fontWeight: 600 }}>
-              Get Roasted &rarr;
+              Rewrite Profile &rarr;
             </a>
             <a href="/dashboard" style={{ fontSize: 13, color: '#666', textDecoration: 'none', fontWeight: 600 }}>
               Dashboard
@@ -389,7 +389,7 @@ export default function BuildLandingPage() {
             { q: 'How do I set up LinkedIn after getting the profile?', a: 'Every plan includes a 10-step setup guide with exact menu paths and common mistakes. You\'ll also get connection request templates for alumni, recruiters, and hiring managers.' },
             { q: 'Can I edit the profile after generation?', a: 'Yes. The generated text is yours to copy-paste and customize. We provide 3 headline variations so you can pick the style that fits you.' },
             { q: 'What if I already have a basic resume?', a: 'Upload it on the form page and we auto-fill all your details. Saves 5 minutes of typing.' },
-            { q: 'Is this different from the Profile Roast?', a: 'Yes. The Roast is for people who already have a LinkedIn profile and want to improve it. Build is for creating a profile from scratch.' },
+            { q: 'Is this different from the Profile Rewrite?', a: 'Yes. The Rewrite is for people who already have a LinkedIn profile and want to improve it. Build is for creating a profile from scratch.' },
             { q: 'Do I need to share my LinkedIn login?', a: 'No. We never ask for your LinkedIn password. You fill a form, we generate the text, you paste it yourself.' },
           ].map((faq, i) => (
             <div key={i} style={{ background: 'white', borderRadius: 12, padding: '18px 22px', marginBottom: 10, border: '1px solid #E0E0E0' }}>

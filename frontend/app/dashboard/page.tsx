@@ -169,94 +169,117 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
 
   const tabs = [
     { key: 'all' as const, label: `All (${totalOrders})` },
-    { key: 'roasts' as const, label: `Roasts (${roasts.length})` },
+    { key: 'roasts' as const, label: `Rewrites (${roasts.length})` },
     { key: 'builds' as const, label: `Builds (${builds.length})` },
     { key: 'resumes' as const, label: `Resumes (${resumes.length})` },
     { key: 'preps' as const, label: `Interview Preps (${interviewPreps.length})` },
   ];
 
   return (
-    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: '#F3F2EF', minHeight: '100vh' }}>
+    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: 'linear-gradient(180deg, #F0F4FF 0%, #F3F2EF 40%)', minHeight: '100vh' }}>
       {/* Header */}
-      <header style={{ background: 'white', borderBottom: '1px solid #E0E0E0', padding: '14px 20px' }}>
-        <div style={{ maxWidth: 960, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <a href="/" style={{ textDecoration: 'none' }}>
+      <header style={{ background: 'white', borderBottom: '1px solid #E2E8F0', padding: '12px 20px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+        <div style={{ maxWidth: 1000, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 2 }}>
               <span style={{ fontSize: 18, fontWeight: 800, color: '#0A66C2' }}>Profile</span>
               <span style={{ fontSize: 18, fontWeight: 800, color: '#191919' }}>Roaster</span>
             </a>
-            <span style={{ fontSize: 12, color: '#888', background: '#F3F4F6', padding: '2px 8px', borderRadius: 4 }}>Dashboard</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 13, color: '#666' }}>{email}</span>
-            <button onClick={onLogout} style={{ fontSize: 12, color: '#666', background: '#F3F4F6', border: 'none', borderRadius: 6, padding: '5px 12px', cursor: 'pointer' }}>Logout</button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, #0A66C2, #004182)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700 }}>
+                {email.charAt(0).toUpperCase()}
+              </div>
+              <span style={{ fontSize: 13, color: '#555', fontWeight: 500 }}>{email}</span>
+            </div>
+            <button onClick={onLogout} style={{ fontSize: 12, color: '#888', background: 'transparent', border: '1px solid #E2E8F0', borderRadius: 8, padding: '6px 14px', cursor: 'pointer', fontWeight: 500 }}>Logout</button>
           </div>
         </div>
       </header>
 
-      <div style={{ maxWidth: 960, margin: '0 auto', padding: '24px 20px' }}>
-        {/* Stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
-          <div style={{ background: 'white', borderRadius: 12, padding: '16px 18px', border: '1px solid #E0E0E0' }}>
-            <div style={{ fontSize: 24, fontWeight: 800, color: '#0A66C2' }}>{totalOrders}</div>
-            <div style={{ fontSize: 12, color: '#888' }}>Total Orders</div>
-          </div>
-          <div style={{ background: 'white', borderRadius: 12, padding: '16px 18px', border: '1px solid #E0E0E0' }}>
-            <div style={{ fontSize: 24, fontWeight: 800, color: '#E16B00' }}>{roasts.length}</div>
-            <div style={{ fontSize: 12, color: '#888' }}>LinkedIn Roasts</div>
-          </div>
-          <div style={{ background: 'white', borderRadius: 12, padding: '16px 18px', border: '1px solid #E0E0E0' }}>
-            <div style={{ fontSize: 24, fontWeight: 800, color: '#057642' }}>{builds.length}</div>
-            <div style={{ fontSize: 12, color: '#888' }}>Profile Builds</div>
-          </div>
-          <div style={{ background: 'white', borderRadius: 12, padding: '16px 18px', border: '1px solid #E0E0E0' }}>
-            <div style={{ fontSize: 24, fontWeight: 800, color: '#191919' }}>{resumes.length}</div>
-            <div style={{ fontSize: 12, color: '#888' }}>Resumes</div>
-          </div>
+      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '28px 20px' }}>
+        {/* Welcome + Quick Actions */}
+        <div style={{ marginBottom: 28 }}>
+          <h1 style={{ fontSize: 24, fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>Welcome back</h1>
+          <p style={{ fontSize: 14, color: '#64748B', margin: 0 }}>Manage your profile rewrites, resumes, and interview preps</p>
+        </div>
+
+        {/* Stats Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 28 }}>
+          {[
+            { value: totalOrders, label: 'Total Orders', color: '#0A66C2', bg: '#EFF6FF' },
+            { value: roasts.length, label: 'Rewrites', color: '#7C3AED', bg: '#F5F3FF' },
+            { value: builds.length, label: 'Builds', color: '#057642', bg: '#F0FDF4' },
+            { value: resumes.length, label: 'Resumes', color: '#EA580C', bg: '#FFF7ED' },
+            { value: interviewPreps.length, label: 'Preps', color: '#0891B2', bg: '#ECFEFF' },
+          ].map((s, i) => (
+            <div key={i} style={{ background: 'white', borderRadius: 14, padding: '18px 20px', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
+                <span style={{ fontSize: 20, fontWeight: 800, color: s.color }}>{s.value}</span>
+              </div>
+              <div style={{ fontSize: 12, color: '#64748B', fontWeight: 500 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Quick Action Buttons */}
+        <div style={{ display: 'flex', gap: 10, marginBottom: 28, flexWrap: 'wrap' }}>
+          <a href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 20px', background: 'linear-gradient(135deg, #0A66C2, #004182)', color: 'white', borderRadius: 10, fontSize: 13, fontWeight: 600, textDecoration: 'none', boxShadow: '0 2px 8px rgba(10,102,194,0.2)' }}>
+            + New Rewrite
+          </a>
+          <a href="/build" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 20px', background: 'white', color: '#057642', borderRadius: 10, fontSize: 13, fontWeight: 600, textDecoration: 'none', border: '1px solid #BBF7D0' }}>
+            + New Build
+          </a>
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: 'white', borderRadius: 10, padding: 4, border: '1px solid #E0E0E0' }}>
+        <div style={{ display: 'flex', gap: 2, marginBottom: 20, background: 'white', borderRadius: 12, padding: 4, border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
           {tabs.map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}
-              style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, background: tab === t.key ? '#0A66C2' : 'transparent', color: tab === t.key ? 'white' : '#666' }}>
+              style={{
+                flex: 1, padding: '10px 0', borderRadius: 10, border: 'none', cursor: 'pointer',
+                fontSize: 13, fontWeight: 600, transition: 'all 0.15s',
+                background: tab === t.key ? 'linear-gradient(135deg, #0A66C2, #004182)' : 'transparent',
+                color: tab === t.key ? 'white' : '#64748B',
+                boxShadow: tab === t.key ? '0 2px 6px rgba(10,102,194,0.2)' : 'none',
+              }}>
               {t.label}
             </button>
           ))}
         </div>
 
-        {/* Roast Orders */}
+        {/* Rewrite Orders */}
         {(tab === 'all' || tab === 'roasts') && roasts.length > 0 && (
           <div style={{ marginBottom: 28 }}>
-            {tab === 'all' && <h2 style={{ fontSize: 16, fontWeight: 700, color: '#191919', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><span>&#128293;</span> LinkedIn Roasts</h2>}
+            {tab === 'all' && <h2 style={{ fontSize: 15, fontWeight: 700, color: '#334155', marginBottom: 12 }}>LinkedIn Rewrites</h2>}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 }}>
               {roasts.map((o: any) => (
                 <div key={o.id} onClick={() => window.open(`/results/${o.id}`, '_blank')}
-                  style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, padding: '18px 20px', cursor: 'pointer', transition: 'box-shadow 0.2s' }}
-                  onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)')}
-                  onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 10 }}>
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: '#191919', marginBottom: 4 }}>{o.roastTitle || 'LinkedIn Roast'}</div>
-                      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                        <span style={{ fontSize: 11, fontWeight: 600, color: '#E16B00', background: '#FEF3C7', padding: '1px 8px', borderRadius: 4 }}>{o.plan}</span>
-                        <span style={{ fontSize: 11, color: '#888' }}>{new Date(o.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                      </div>
+                  style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 14, padding: '20px 22px', cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}
+                  onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.08)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.03)'; e.currentTarget.style.transform = 'none'; }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: '#7C3AED', background: '#F5F3FF', padding: '2px 10px', borderRadius: 6 }}>{o.plan}</span>
+                      <span style={{ fontSize: 11, color: '#94A3B8' }}>{new Date(o.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
                     </div>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: o.status === 'done' ? '#057642' : '#E16B00', background: o.status === 'done' ? '#DCFCE7' : '#FEF3C7', padding: '2px 8px', borderRadius: 4 }}>{o.status}</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: o.status === 'done' ? '#057642' : '#EA580C', background: o.status === 'done' ? '#F0FDF4' : '#FFF7ED', padding: '3px 10px', borderRadius: 6 }}>{o.status === 'done' ? 'Complete' : o.status}</span>
                   </div>
                   {o.beforeScore != null && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 22, fontWeight: 800, color: '#CC1016' }}>{o.beforeScore}</span>
-                      <span style={{ color: '#ccc' }}>&rarr;</span>
-                      <span style={{ fontSize: 22, fontWeight: 800, color: '#057642' }}>{o.afterScore}</span>
-                      <span style={{ background: '#DCFCE7', color: '#057642', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 10, marginLeft: 'auto' }}>+{o.afterScore - o.beforeScore} pts</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                        <span style={{ fontSize: 28, fontWeight: 800, color: '#CC1016' }}>{o.beforeScore}</span>
+                        <span style={{ fontSize: 16, color: '#CBD5E1' }}>&rarr;</span>
+                        <span style={{ fontSize: 28, fontWeight: 800, color: '#057642' }}>{o.afterScore}</span>
+                      </div>
+                      <span style={{ background: '#DCFCE7', color: '#057642', fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 20, marginLeft: 'auto' }}>+{o.afterScore - o.beforeScore}</span>
                     </div>
                   )}
                   {o.maxResumes > 0 && (
-                    <div style={{ display: 'flex', gap: 12, marginTop: 8, fontSize: 11, color: '#666' }}>
-                      <span>Resumes: {o.resumesUsed || 0}/{o.maxResumes}</span>
-                      <span>Preps: {o.interviewPrepsUsed || 0}/{o.maxResumes}</span>
+                    <div style={{ display: 'flex', gap: 16, fontSize: 12, color: '#64748B', borderTop: '1px solid #F1F5F9', paddingTop: 10 }}>
+                      <span>Resumes: <strong>{o.resumesUsed || 0}/{o.maxResumes}</strong></span>
+                      <span>Preps: <strong>{o.interviewPrepsUsed || 0}/{o.maxResumes}</strong></span>
                     </div>
                   )}
                 </div>
@@ -268,23 +291,23 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
         {/* Build Orders */}
         {(tab === 'all' || tab === 'builds') && builds.length > 0 && (
           <div style={{ marginBottom: 28 }}>
-            {tab === 'all' && <h2 style={{ fontSize: 16, fontWeight: 700, color: '#191919', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><span>&#128187;</span> LinkedIn Profile Builds</h2>}
+            {tab === 'all' && <h2 style={{ fontSize: 15, fontWeight: 700, color: '#334155', marginBottom: 12 }}>LinkedIn Profile Builds</h2>}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 }}>
               {builds.map((o: any) => (
                 <div key={o.id} onClick={() => window.open(`/build/results/${o.id}`, '_blank')}
-                  style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, padding: '18px 20px', cursor: 'pointer', transition: 'box-shadow 0.2s' }}
-                  onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)')}
-                  onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 8 }}>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: '#0A66C2', background: '#E8F0FE', padding: '2px 8px', borderRadius: 4 }}>{o.plan}</span>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: o.status === 'done' ? '#057642' : '#E16B00', background: o.status === 'done' ? '#DCFCE7' : '#FEF3C7', padding: '2px 8px', borderRadius: 4 }}>{o.status}</span>
+                  style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 14, padding: '20px 22px', cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}
+                  onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.08)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.03)'; e.currentTarget.style.transform = 'none'; }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: '#0A66C2', background: '#EFF6FF', padding: '2px 10px', borderRadius: 6 }}>{o.plan}</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: o.status === 'done' ? '#057642' : '#EA580C', background: o.status === 'done' ? '#F0FDF4' : '#FFF7ED', padding: '3px 10px', borderRadius: 6 }}>{o.status === 'done' ? 'Complete' : o.status}</span>
                   </div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#191919', marginBottom: 4 }}>{o.headline || 'LinkedIn Profile Build'}</div>
-                  <div style={{ fontSize: 11, color: '#888', marginBottom: 6 }}>{new Date(o.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#0F172A', marginBottom: 4 }}>{o.headline || 'LinkedIn Profile Build'}</div>
+                  <div style={{ fontSize: 12, color: '#94A3B8', marginBottom: 8 }}>{new Date(o.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
                   {o.maxResumes > 0 && (
-                    <div style={{ display: 'flex', gap: 12, fontSize: 11, color: '#666' }}>
-                      <span>Resumes: {o.resumesUsed || 0}/{o.maxResumes}</span>
-                      <span>Preps: {o.interviewPrepsUsed || 0}/{o.maxResumes}</span>
+                    <div style={{ display: 'flex', gap: 16, fontSize: 12, color: '#64748B', borderTop: '1px solid #F1F5F9', paddingTop: 10 }}>
+                      <span>Resumes: <strong>{o.resumesUsed || 0}/{o.maxResumes}</strong></span>
+                      <span>Preps: <strong>{o.interviewPrepsUsed || 0}/{o.maxResumes}</strong></span>
                     </div>
                   )}
                 </div>
@@ -296,41 +319,30 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
         {/* Resumes */}
         {(tab === 'all' || tab === 'resumes') && resumes.length > 0 && (
           <div style={{ marginBottom: 28 }}>
-            {tab === 'all' && <h2 style={{ fontSize: 16, fontWeight: 700, color: '#191919', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><span>&#128196;</span> Resumes</h2>}
+            {tab === 'all' && <h2 style={{ fontSize: 15, fontWeight: 700, color: '#334155', marginBottom: 12 }}>Resumes</h2>}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 }}>
               {resumes.map((r: any) => (
                 <div key={r.id}
-                  style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, padding: '18px 20px', transition: 'box-shadow 0.2s' }}
-                  onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)')}
-                  onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: '#191919', marginBottom: 2 }}>
-                    {r.targetRole}
-                  </div>
-                  {r.targetCompany && (
-                    <div style={{ fontSize: 13, color: '#0A66C2', fontWeight: 600, marginBottom: 6 }}>{r.targetCompany.trim()}</div>
-                  )}
-                  <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', marginBottom: 10 }}>
-                    <span style={{ fontSize: 11, color: '#888' }}>{new Date(r.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                    <span style={{ fontSize: 10, fontWeight: 600, color: '#666', background: '#F3F4F6', padding: '1px 6px', borderRadius: 4 }}>{r.templateId} template</span>
-                    {r.hasCoverLetter && (
-                      <span style={{ fontSize: 10, fontWeight: 600, color: '#057642', background: '#DCFCE7', padding: '1px 6px', borderRadius: 4 }}>Cover Letter</span>
-                    )}
-                  </div>
-                  {r.jobDescription && (
-                    <div style={{ fontSize: 12, color: '#555', lineHeight: 1.5, marginBottom: 10, background: '#F9FAFB', borderRadius: 8, padding: '10px 12px', borderLeft: '3px solid #0A66C2' }}>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: '#0A66C2', marginBottom: 4, letterSpacing: 1 }}>JOB DESCRIPTION</div>
-                      {r.jobDescription}{r.jobDescription.length >= 200 ? '...' : ''}
+                  style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 14, padding: '20px 22px', transition: 'all 0.15s', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}
+                  onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.08)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.03)'; e.currentTarget.style.transform = 'none'; }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                    <div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: '#0F172A', marginBottom: 2 }}>{r.targetRole}</div>
+                      {r.targetCompany && <div style={{ fontSize: 13, color: '#0A66C2', fontWeight: 600 }}>{r.targetCompany.trim()}</div>}
                     </div>
-                  )}
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: (r.atsScore || 0) >= 80 ? '#057642' : (r.atsScore || 0) >= 60 ? '#0A66C2' : '#E16B00' }}>ATS: {r.atsScore ?? '—'}%</span>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <a href={`/resume/${r.id}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize: 12, color: '#0A66C2', fontWeight: 600, textDecoration: 'none' }}>View</a>
-                      <a href={`/resume/${r.id}/edit`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize: 12, color: '#057642', fontWeight: 600, textDecoration: 'none' }}>Edit</a>
-                      {r.hasCoverLetter && (
-                        <a href={`/resume/${r.id}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize: 12, color: '#E16B00', fontWeight: 600, textDecoration: 'none' }}>Cover Letter</a>
-                      )}
-                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: (r.atsScore || 0) >= 80 ? '#057642' : (r.atsScore || 0) >= 60 ? '#0A66C2' : '#EA580C', background: (r.atsScore || 0) >= 80 ? '#F0FDF4' : (r.atsScore || 0) >= 60 ? '#EFF6FF' : '#FFF7ED', padding: '3px 10px', borderRadius: 8, whiteSpace: 'nowrap' as const }}>
+                      ATS {r.atsScore ?? '—'}%
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', marginBottom: 12 }}>
+                    <span style={{ fontSize: 11, color: '#94A3B8' }}>{new Date(r.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
+                    <span style={{ fontSize: 10, fontWeight: 600, color: '#64748B', background: '#F1F5F9', padding: '2px 8px', borderRadius: 6 }}>{r.templateId}</span>
+                    {r.hasCoverLetter && <span style={{ fontSize: 10, fontWeight: 600, color: '#057642', background: '#F0FDF4', padding: '2px 8px', borderRadius: 6 }}>Cover Letter</span>}
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <a href={`/resume/${r.id}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ flex: 1, textAlign: 'center', padding: '8px 0', background: '#EFF6FF', color: '#0A66C2', borderRadius: 8, fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>View</a>
+                    <a href={`/resume/${r.id}/edit`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ flex: 1, textAlign: 'center', padding: '8px 0', background: '#F0FDF4', color: '#057642', borderRadius: 8, fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>Edit</a>
                   </div>
                 </div>
               ))}
@@ -341,23 +353,21 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
         {/* Interview Preps */}
         {(tab === 'all' || tab === 'preps') && interviewPreps.length > 0 && (
           <div style={{ marginBottom: 28 }}>
-            {tab === 'all' && <h2 style={{ fontSize: 16, fontWeight: 700, color: '#191919', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><span>&#127908;</span> Interview Preps</h2>}
+            {tab === 'all' && <h2 style={{ fontSize: 15, fontWeight: 700, color: '#334155', marginBottom: 12 }}>Interview Preps</h2>}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 }}>
               {interviewPreps.map((ip: any) => (
                 <div key={ip.id} onClick={() => window.open(`/interview-prep/${ip.id}`, '_blank')}
-                  style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, padding: '18px 20px', cursor: 'pointer', transition: 'box-shadow 0.2s' }}
-                  onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)')}
-                  onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 8 }}>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: '#191919' }}>{ip.targetRole || 'Interview Prep'}</div>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: ip.status === 'ready' ? '#057642' : ip.status === 'failed' ? '#CC1016' : '#E16B00', background: ip.status === 'ready' ? '#DCFCE7' : ip.status === 'failed' ? '#FEF2F2' : '#FEF3C7', padding: '2px 8px', borderRadius: 4 }}>{ip.status}</span>
+                  style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 14, padding: '20px 22px', cursor: 'pointer', transition: 'all 0.15s', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}
+                  onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.08)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.03)'; e.currentTarget.style.transform = 'none'; }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#0F172A' }}>{ip.targetRole || 'Interview Prep'}</div>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: ip.status === 'ready' ? '#057642' : ip.status === 'failed' ? '#CC1016' : '#EA580C', background: ip.status === 'ready' ? '#F0FDF4' : ip.status === 'failed' ? '#FEF2F2' : '#FFF7ED', padding: '3px 10px', borderRadius: 6 }}>{ip.status === 'ready' ? 'Ready' : ip.status}</span>
                   </div>
-                  {ip.targetCompany && (
-                    <div style={{ fontSize: 13, color: '#0A66C2', fontWeight: 600, marginBottom: 6 }}>{ip.targetCompany}</div>
-                  )}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 11, color: '#888' }}>{new Date(ip.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                    <a href={`/interview-prep/${ip.id}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize: 12, color: '#0A66C2', fontWeight: 600, textDecoration: 'none' }}>View</a>
+                  {ip.targetCompany && <div style={{ fontSize: 13, color: '#0A66C2', fontWeight: 600, marginBottom: 6 }}>{ip.targetCompany}</div>}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #F1F5F9', paddingTop: 10 }}>
+                    <span style={{ fontSize: 12, color: '#94A3B8' }}>{new Date(ip.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                    <span style={{ fontSize: 12, color: '#0A66C2', fontWeight: 600 }}>View &rarr;</span>
                   </div>
                 </div>
               ))}
@@ -367,23 +377,16 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
 
         {/* Empty state */}
         {totalOrders === 0 && (
-          <div style={{ background: 'white', borderRadius: 14, padding: '40px 24px', textAlign: 'center', border: '1px solid #E0E0E0' }}>
-            <div style={{ fontSize: 36, marginBottom: 12 }}>&#128064;</div>
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#191919', marginBottom: 8 }}>No orders yet</h3>
-            <p style={{ fontSize: 14, color: '#666', marginBottom: 20 }}>Get started with a roast or build your LinkedIn profile from scratch.</p>
+          <div style={{ background: 'white', borderRadius: 16, padding: '48px 24px', textAlign: 'center', border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+            <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: 28 }}>&#128064;</div>
+            <h3 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', marginBottom: 8 }}>No orders yet</h3>
+            <p style={{ fontSize: 14, color: '#64748B', marginBottom: 24, maxWidth: 400, margin: '0 auto 24px' }}>Get started with a profile rewrite or build your LinkedIn from scratch.</p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-              <a href="/" style={{ padding: '10px 24px', background: '#0A66C2', color: 'white', borderRadius: 50, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>Roast My Profile</a>
-              <a href="/build" style={{ padding: '10px 24px', background: '#057642', color: 'white', borderRadius: 50, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>Build My LinkedIn</a>
+              <a href="/" style={{ padding: '12px 28px', background: 'linear-gradient(135deg, #0A66C2, #004182)', color: 'white', borderRadius: 12, fontSize: 14, fontWeight: 600, textDecoration: 'none', boxShadow: '0 2px 8px rgba(10,102,194,0.2)' }}>Rewrite My Profile</a>
+              <a href="/build" style={{ padding: '12px 28px', background: 'white', color: '#057642', borderRadius: 12, fontSize: 14, fontWeight: 600, textDecoration: 'none', border: '1px solid #BBF7D0' }}>Build My LinkedIn</a>
             </div>
           </div>
         )}
-
-        {/* Quick actions */}
-        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 24 }}>
-          <a href="/" style={{ fontSize: 13, color: '#0A66C2', textDecoration: 'none', fontWeight: 600 }}>Get another roast</a>
-          <span style={{ color: '#E0E0E0' }}>|</span>
-          <a href="/build" style={{ fontSize: 13, color: '#0A66C2', textDecoration: 'none', fontWeight: 600 }}>Build new LinkedIn</a>
-        </div>
       </div>
     </div>
   );

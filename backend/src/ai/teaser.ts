@@ -9,6 +9,7 @@ export interface TeaserResult {
   grade: string;
   issues: Array<{ issue: string; quick_tip: string }>;
   teaser_roast: string;
+  suggested_headline: string;
 }
 
 const TEASER_SYSTEM = `LinkedIn headline analyzer. Score and identify top 2 problems.
@@ -40,7 +41,8 @@ OUTPUT (strict JSON):
     {"issue": "specific problem", "quick_tip": "1-sentence fix"},
     {"issue": "second problem", "quick_tip": "1-sentence fix"}
   ],
-  "teaser_roast": "1 witty sentence referencing actual headline text"
+  "teaser_roast": "1 witty sentence referencing actual headline text",
+  "suggested_headline": "A rewritten version of their headline that scores 85+. Specific, value-driven, uses their actual role/skills."
 }`;
 
 export async function teaserAnalysis(headline: string): Promise<TeaserResult> {

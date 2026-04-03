@@ -210,15 +210,47 @@ RULES:
 - Fill in ALL 15 questions, 5 ask_them, 10 MCQs. Do not leave any as "...".`;
 
     console.log(`[interview-prep] ${prepId}: Starting Call 1 — Brief + Question Plan`);
-    const call1Result = await geminiCall(systemPrompt1, userPrompt1);
+
+    let call1Result: any = null;
+    const MAX_RETRIES = 2;
+
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      call1Result = await geminiCall(systemPrompt1, userPrompt1);
+
+      // Validate completeness
+      const questions = call1Result.questions || [];
+      const mcqs = call1Result.mcq || [];
+      const askThem = call1Result.ask_them || [];
+
+      // Check for placeholder "..." in questions
+      const validQuestions = questions.filter((q: any) =>
+        q.question && q.question !== '...' && q.question.length > 10 &&
+        q.suggested_answer && q.suggested_answer.situation !== '...'
+      );
+      const validMcqs = mcqs.filter((m: any) =>
+        m.question && m.question !== '...' && m.question.length > 10 &&
+        m.options && m.options.length === 4 && m.options[0] !== '...'
+      );
+
+      if (validQuestions.length >= 12 && validMcqs.length >= 7) {
+        // Good enough — use filtered results
+        call1Result.questions = validQuestions;
+        call1Result.mcq = validMcqs;
+        call1Result.ask_them = askThem.filter((a: any) => a.question && a.question !== '...' && a.question.length > 5);
+        console.log(`[interview-prep] ${prepId}: Attempt ${attempt + 1} — ${validQuestions.length} questions, ${validMcqs.length} MCQs`);
+        break;
+      }
+
+      console.log(`[interview-prep] ${prepId}: Attempt ${attempt + 1} incomplete — ${validQuestions.length}/15 questions, ${validMcqs.length}/10 MCQs. ${attempt < MAX_RETRIES ? 'Retrying...' : 'Using best result.'}`);
+    }
 
     // Single call generates everything — merge into final structure
     const finalPrepData = {
       company_brief: call1Result.company_brief,
-      questions: call1Result.questions || [],
-      ask_them: call1Result.ask_them || [],
+      questions: (call1Result.questions || []).filter((q: any) => q.question && q.question !== '...'),
+      ask_them: (call1Result.ask_them || []).filter((a: any) => a.question && a.question !== '...'),
       cheat_sheet: call1Result.cheat_sheet || {},
-      mcq: call1Result.mcq || [],
+      mcq: (call1Result.mcq || []).filter((m: any) => m.question && m.question !== '...'),
     };
 
     await query(
@@ -226,7 +258,7 @@ RULES:
       [JSON.stringify(finalPrepData), prepId],
     );
 
-    console.log(`[interview-prep] ${prepId}: Complete`);
+    console.log(`[interview-prep] ${prepId}: Complete — ${finalPrepData.questions.length} questions, ${finalPrepData.mcq.length} MCQs`);
   } catch (err: any) {
     console.error(`[interview-prep] ${prepId}: Failed —`, err.message);
     await query(

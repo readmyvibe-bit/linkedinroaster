@@ -26,7 +26,7 @@ const roastPlans: Plan[] = [
     name: 'Standard',
     price: '\u20B9499',
     features: [
-      { text: 'AI Profile Score + Roast (free preview)', included: true },
+      { text: 'AI Profile Score + Analysis (free preview)', included: true },
       { text: 'Complete LinkedIn Rewrite', included: true },
       { text: '10 ATS Resumes (18 standard templates)', included: true },
       { text: '10 Cover Letters', included: true },
@@ -85,8 +85,8 @@ const buildPlans: Plan[] = [
 // ─── FAQ Data ───
 const faqs = [
   {
-    q: "What's the difference between Roast and Build?",
-    a: 'Roast is for people who already have LinkedIn. Build is for creating a profile from scratch.',
+    q: "What's the difference between Rewrite and Build?",
+    a: 'Rewrite is for people who already have a LinkedIn profile. Build is for creating a profile from scratch.',
   },
   {
     q: 'Can I upgrade from Standard to Pro later?',
@@ -400,7 +400,7 @@ export default function PricingPage() {
               cursor: 'pointer',
             }}
           >
-            Roast &amp; Rewrite
+            Profile Rewrite
           </button>
           <button
             onClick={() => setActiveTab('build')}

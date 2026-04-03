@@ -10,6 +10,7 @@ interface TeaserResult {
   issues: string[];
   teaser_roast: string;
   teaser_id: string | null;
+  suggested_headline?: string;
 }
 
 // ─── Score Badge ───
@@ -258,7 +259,7 @@ function ProfileInputForm({
       amount: orderData.amount,
       currency: orderData.currency,
       name: 'Profile Roaster',
-      description: `${plan === 'pro' ? 'Pro' : 'Standard'} LinkedIn Roast`,
+      description: `${plan === 'pro' ? 'Pro' : 'Standard'} LinkedIn Rewrite`,
       order_id: orderData.razorpay_order_id,
       prefill: { email: userEmail },
       theme: { color: '#0A66C2' },
@@ -334,7 +335,7 @@ function ProfileInputForm({
             boxShadow: '0 4px 16px rgba(10,102,194,0.35)',
           }}
         >
-          {submitting ? 'Creating order...' : `Pay \u20b9${plan === 'pro' ? '999' : '499'} & Get Roasted`}
+          {submitting ? 'Creating order...' : `Pay \u20b9${plan === 'pro' ? '999' : '499'} & Get Rewrite`}
         </button>
       </div>
     </div>
@@ -596,7 +597,7 @@ export default function Home() {
           <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, padding: '12px 20px', maxWidth: 560, margin: '0 auto 32px', display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' }}>
             <span style={{ fontSize: 24, flexShrink: 0 }}>&#127873;</span>
             <div style={{ fontSize: 14, color: '#92400E', fontWeight: 600 }}>
-              <strong style={{ color: '#B45309' }}>Upload your PDF &rarr; Get your Profile Score & AI Roast FREE.</strong><br />
+              <strong style={{ color: '#B45309' }}>Upload your PDF &rarr; Get your Profile Score + Headline Suggestion FREE.</strong><br />
               No payment needed. See exactly what{"'"}s wrong before you pay to fix it.
             </div>
           </div>
@@ -754,7 +755,7 @@ export default function Home() {
               {pdfParsed && rateLimited && !teaser && (
                 <div style={{ marginTop: 12, padding: 16, borderRadius: 10, background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
                   <div style={{ fontSize: 13, color: '#057642', marginBottom: 4, fontWeight: 700 }}>&#9989; Profile parsed successfully!</div>
-                  <div style={{ fontSize: 12, color: '#666', marginBottom: 10 }}>Free preview limit reached. Get your full AI roast + rewrite + resume:</div>
+                  <div style={{ fontSize: 12, color: '#666', marginBottom: 10 }}>Free preview limit reached. Get your full rewrite + resume + interview prep:</div>
                   <button
                     onClick={scrollToPricing}
                     style={{
@@ -772,7 +773,7 @@ export default function Home() {
               {rateLimited && !pdfParsed && (
                 <div style={{ marginTop: 12, padding: 16, borderRadius: 10, background: '#FEF3C7', border: '1px solid #F59E0B' }}>
                   <div style={{ fontSize: 13, color: '#92400E', marginBottom: 10 }}>
-                    <strong>5 free previews used today.</strong> Get the full roast + rewrite + resume now:
+                    <strong>5 free previews used today.</strong> Get the full rewrite + resume + interview prep now:
                   </div>
                   <button
                     onClick={scrollToPricing}
@@ -899,108 +900,66 @@ export default function Home() {
       {/* ═══════════════════════════════════ */}
       {teaser && (
         <section ref={resultRef} style={{ background: '#F8FAFC', borderBottom: '1px solid #E8E8E8', padding: '28px 16px', animation: 'resultAppear 0.5s ease forwards' }}>
-          <div style={{ maxWidth: 860, margin: '0 auto' }}>
+          <div style={{ maxWidth: 560, margin: '0 auto' }}>
             {/* Score card */}
-            <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', padding: 24, marginBottom: 16 }}>
-              <p style={{ fontSize: 14, fontWeight: 600, color: '#666', marginBottom: 8 }}>Your Headline Score</p>
+            <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', padding: 28, marginBottom: 16 }}>
+              <p style={{ fontSize: 13, fontWeight: 600, color: '#666', marginBottom: 8, textTransform: 'uppercase' as const, letterSpacing: 1 }}>Your Profile Score</p>
               <ScoreBadge score={teaser.score} />
-              <p style={{ fontSize: 12, color: '#666', marginTop: 12 }}>
-                Headline only. Your full profile score is usually 30-40 points lower.
-              </p>
-              <p style={{ fontSize: 12, fontWeight: 500, marginTop: 8, color: teaser.score < 70 ? '#CC1016' : '#057642' }}>
-                {teaser.score < 50
-                  ? 'Your headline scores lower than 80% of profiles that land interviews.'
-                  : teaser.score < 70
-                  ? 'Your headline scores lower than 72% of profiles that land interviews.'
-                  : teaser.score < 85
-                  ? 'Your headline is above average. But top candidates score above 90 on their FULL profile.'
-                  : 'Your headline scores higher than 78% of profiles we analyzed. But top candidates score 90+ on their full profile.'}
+              <p style={{ fontSize: 13, color: '#666', marginTop: 12, lineHeight: 1.5 }}>
+                Based on headline analysis. Full profile score is typically 30-40 points lower.
               </p>
             </div>
 
-            {/* Roast card */}
-            {teaser.teaser_roast && (
-              <div style={{ background: 'white', borderLeft: '3px solid #E16B00', borderRadius: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', padding: 16, marginBottom: 16 }}>
-                <div className="flex items-center gap-2" style={{ marginBottom: 12 }}>
-                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#0A66C2', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700 }}>AI</div>
-                  <div>
-                    <p style={{ fontSize: 14, fontWeight: 600, color: '#191919' }}>&#128293; The LinkedIn Roastmaster</p>
-                    <p style={{ fontSize: 12, color: '#666' }}>AI Career Critic</p>
-                  </div>
+            {/* Suggested headline variant */}
+            {teaser.suggested_headline && (
+              <div style={{ background: 'white', border: '2px solid #057642', borderRadius: 16, boxShadow: '0 2px 12px rgba(5,118,66,0.08)', padding: 24, marginBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#057642', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>&#10003;</div>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: '#057642' }}>AI-Suggested Headline</p>
                 </div>
-                <p style={{ fontSize: 14, lineHeight: 1.6, fontStyle: 'italic', color: '#191919' }}>{teaser.teaser_roast}</p>
+                <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 10, padding: '14px 16px' }}>
+                  <p style={{ fontSize: 15, color: '#191919', fontWeight: 600, lineHeight: 1.5, margin: 0 }}>{teaser.suggested_headline}</p>
+                </div>
+                <p style={{ fontSize: 12, color: '#888', marginTop: 8 }}>This is 1 of many variations you get with the full rewrite.</p>
               </div>
             )}
 
-            {/* Locked issues */}
-            <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', padding: 16, marginBottom: 16 }}>
-              <p style={{ fontSize: 14, fontWeight: 600, color: '#191919', marginBottom: 12 }}>What we found beyond your headline:</p>
-              {['2 critical profile issues hidden', 'ATS keyword gaps hidden', 'Experience section assessment hidden'].map((item, i) => (
-                <p key={i} style={{ fontSize: 13, color: '#aaa', filter: 'blur(0.5px)', marginBottom: 6 }}>&#128274; {item}</p>
+            {/* Locked items */}
+            <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', padding: 24, marginBottom: 16 }}>
+              <p style={{ fontSize: 15, fontWeight: 700, color: '#191919', marginBottom: 16 }}>What we found beyond your headline:</p>
+              {[
+                { icon: '\uD83D\uDD12', text: '2 critical profile issues hidden' },
+                { icon: '\uD83D\uDD12', text: 'ATS keyword gaps hidden' },
+                { icon: '\uD83D\uDD12', text: 'Experience section assessment hidden' },
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: '#F8FAFC', borderRadius: 10, marginBottom: 8, border: '1px solid #E5E7EB' }}>
+                  <span style={{ fontSize: 18 }}>{item.icon}</span>
+                  <span style={{ fontSize: 14, color: '#94A3B8', fontWeight: 500 }}>{item.text}</span>
+                </div>
               ))}
             </div>
 
-            {/* CTA to pricing */}
-            <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', padding: 24, marginBottom: 16 }}>
-              <p style={{ fontSize: 15, fontWeight: 700, color: '#191919', marginBottom: 8 }}>
-                {teaser.score < 50
-                  ? 'Your headline needs work \u2014 and that\u2019s just the start.'
-                  : teaser.score < 70
-                  ? 'Your headline has potential. Your full profile likely has bigger gaps.'
-                  : 'Your headline is decent. But recruiters read further than the headline.'}
+            {/* CTA */}
+            <div style={{ background: 'linear-gradient(135deg, #0A66C2, #004182)', borderRadius: 16, padding: 28, textAlign: 'center' }}>
+              <p style={{ fontSize: 18, fontWeight: 800, color: 'white', marginBottom: 8 }}>
+                Unlock Your Full Profile Report
               </p>
-              <p style={{ fontSize: 13, color: '#666', lineHeight: 1.6, marginBottom: 16 }}>
-                {teaser.score < 50
-                  ? 'A weak headline means recruiters never even get to your About or Experience. Your full profile likely has even bigger gaps.'
-                  : teaser.score < 70
-                  ? 'A decent headline gets you noticed, but what happens next depends on your About and Experience. Most profiles in this range have 3-5 fixable issues.'
-                  : 'A good headline gets you 6 seconds of recruiter attention. What happens next depends entirely on your About and Experience sections.'}
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', marginBottom: 20, lineHeight: 1.5 }}>
+                Complete profile rewrite + ATS resume + cover letters + interview prep
               </p>
               <button
                 onClick={scrollToPricing}
                 style={{
-                  width: '100%', padding: '14px 24px', borderRadius: 50, border: 'none',
-                  background: 'linear-gradient(135deg, #0A66C2, #004182)', color: 'white',
-                  fontSize: 15, fontWeight: 700, cursor: 'pointer',
-                  boxShadow: '0 4px 16px rgba(10,102,194,0.35)',
+                  width: '100%', padding: '16px 24px', borderRadius: 50, border: 'none',
+                  background: 'white', color: '#0A66C2',
+                  fontSize: 16, fontWeight: 800, cursor: 'pointer',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
                 }}
               >
-                Get Full Roast + Resume + Interview Prep &rarr;
+                Get Full Rewrite + Resume + Interview Prep &rarr;
               </button>
               <LiveCounter />
             </div>
-
-            {/* Soft email capture */}
-            {!showPricing && (
-              <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', padding: 24 }}>
-                <p style={{ fontSize: 14, fontWeight: 500, color: '#191919', marginBottom: 12 }}>
-                  Enter your email to see your full breakdown (optional)
-                </p>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@email.com"
-                    style={{ flex: 1, padding: '12px 16px', borderRadius: 10, border: '1px solid #E0E0E0', fontSize: 14, outline: 'none' }}
-                  />
-                  <button
-                    onClick={handleEmailSubmit}
-                    disabled={!email.trim()}
-                    style={{
-                      padding: '12px 24px', borderRadius: 50, border: 'none',
-                      background: '#0A66C2', color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer',
-                      opacity: !email.trim() ? 0.5 : 1,
-                    }}
-                  >
-                    Get Full Report
-                  </button>
-                </div>
-                <button onClick={scrollToPricing} style={{ marginTop: 8, fontSize: 13, fontWeight: 500, color: '#0A66C2', background: 'none', border: 'none', cursor: 'pointer' }}>
-                  Skip &rarr;
-                </button>
-              </div>
-            )}
           </div>
         </section>
       )}
@@ -1026,8 +985,8 @@ export default function Home() {
               <div style={{ fontSize: 13, color: '#999', marginBottom: 24 }}>Pay once. Download forever.</div>
               <ul style={{ listStyle: 'none', textAlign: 'left', marginBottom: 28, padding: 0 }}>
                 {[
-                  { text: 'AI Profile Score + Roast', free: true },
-                  { text: 'Complete Profile Rewrite', free: true },
+                  { text: 'AI Profile Score + Analysis', free: true },
+                  { text: 'Complete Profile Rewrite', free: false },
                   { text: '10 ATS Resumes (18 templates)', free: false },
                   { text: '10 Cover Letters', free: false },
                   { text: '10 Interview Preps (15 questions + quiz)', free: false },
@@ -1104,7 +1063,7 @@ export default function Home() {
                   {[
                     { num: '1', text: 'Paste your full LinkedIn profile (Ctrl+A)' },
                     { num: '2', text: 'Pay securely via UPI/Card' },
-                    { num: '3', text: 'AI roasts + rewrites in ~90 seconds' },
+                    { num: '3', text: 'AI rewrites your profile in ~90 seconds' },
                     { num: '4', text: 'Copy-paste your new profile + download resume' },
                   ].map((s, i) => (
                     <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 10, alignItems: 'flex-start' }}>
@@ -1134,7 +1093,7 @@ export default function Home() {
               <p style={{ fontSize: 16, color: '#666', textAlign: 'center', marginBottom: 40 }}>One payment. Four powerful tools. Zero subscriptions.</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
                 {[
-                  { icon: '&#128293;', title: 'Fix What\u2019s Blocking Your Profile', desc: 'AI scores your profile, roasts what\u2019s wrong, and rewrites your headline, about, and experience.', free: true },
+                  { icon: '&#128293;', title: 'Fix What\u2019s Blocking Your Profile', desc: 'AI scores your profile, identifies issues, and rewrites your headline, about, and experience.', free: true },
                   { icon: '&#128196;', title: 'Get Past ATS Filters', desc: 'Professional resume matched to your job description. ATS-optimized templates. PDF + TXT download.', free: false },
                   { icon: '&#9993;&#65039;', title: 'Stand Out in Applications', desc: 'Personalized cover letter for every application. Ready to copy-paste.', free: false },
                   { icon: '&#127919;', title: 'Answer Like a Top Candidate', desc: '15 likely interview questions based on YOUR resume. Cheat sheet + practice quiz included.', free: false },
@@ -1186,9 +1145,9 @@ export default function Home() {
               <p style={{ fontSize: 16, color: '#666', textAlign: 'center', marginBottom: 32 }}>Actual output from ProfileRoaster.</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
 
-                {/* Roast Before/After */}
+                {/* Rewrite Before/After */}
                 <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 14, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
-                  <div style={{ padding: '12px 16px', fontSize: 12, fontWeight: 700, color: 'white', background: 'linear-gradient(135deg, #DC2626, #B91C1C)' }}>&#128293; AI Roast + Rewrite</div>
+                  <div style={{ padding: '12px 16px', fontSize: 12, fontWeight: 700, color: 'white', background: 'linear-gradient(135deg, #0A66C2, #004182)' }}>&#9997;&#65039; AI Profile Rewrite</div>
                   <div style={{ padding: 16 }}>
                     <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, padding: '10px 14px', marginBottom: 10 }}>
                       <div style={{ fontSize: 10, fontWeight: 700, color: '#DC2626', marginBottom: 4 }}>&#10007; BEFORE</div>
@@ -1274,7 +1233,7 @@ export default function Home() {
                 <div style={{ fontSize: 13, color: '#999', marginBottom: 24 }}>Pay once. Download forever.</div>
                 <ul style={{ listStyle: 'none', textAlign: 'left', marginBottom: 28, padding: 0 }}>
                   {[
-                    'AI Profile Score + Roast',
+                    'AI Profile Score + Analysis',
                     'Complete Profile Rewrite',
                     '10 ATS Resumes (18 templates)',
                     '10 Cover Letters',

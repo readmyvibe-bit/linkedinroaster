@@ -92,7 +92,7 @@ function rateLimiter(key: string, limit: number, windowSecs: number) {
       return res.status(429).json({
         error: 'rate_limit_exceeded',
         retry_after_seconds: ttl,
-        message: `${limit} requests per ${windowSecs / 3600} hour(s). Try the full roast for ₹499.`,
+        message: `${limit} requests per ${windowSecs / 3600} hour(s). Try the full rewrite for ₹499.`,
       });
     }
     next();
@@ -125,6 +125,15 @@ app.post('/api/linkedin-pdf/parse', rateLimiter('linkedin-pdf', 10, 3600),
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     if (req.file.mimetype !== 'application/pdf')
       return res.status(400).json({ error: 'Only PDF files are supported. Please upload your LinkedIn PDF.' });
+
+    // Check cache by PDF content hash
+    const pdfHash = crypto.createHash('sha256').update(req.file.buffer).digest('hex');
+    const cacheKey = `pdf-parse:${pdfHash}`;
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      const cachedResult = JSON.parse(cached);
+      return res.json({ ...cachedResult, cached: true });
+    }
 
     // Step 1: Extract raw text from PDF using Gemini with inline data
     const base64 = req.file.buffer.toString('base64');
@@ -245,13 +254,18 @@ RULES:
 
     const rawPaste = sections.join('\n');
 
-    res.json({
+    const responseData = {
       parsed,
       headline: parsed.headline || parsed.full_name || '',
       raw_paste: rawPaste,
       raw_text: rawText.slice(0, 8000),
       raw_text_length: rawText.length,
-    });
+    };
+
+    // Cache for 7 days
+    await redis.setex(cacheKey, 604800, JSON.stringify(responseData));
+
+    res.json(responseData);
   } catch (err: any) {
     console.error('LinkedIn PDF parse error:', err.message, err.stack?.slice(0, 300));
     res.status(500).json({ error: `Failed to parse LinkedIn PDF: ${err.message?.slice(0, 100)}` });
@@ -263,7 +277,7 @@ RULES:
 // POST /api/redeem-code — Redeem a one-time referral code
 app.post('/api/redeem-code', async (req: Request, res: Response) => {
   try {
-    const { code, email, headline, form_input } = req.body;
+    const { code, email, headline, form_input, profile_data } = req.body;
     if (!code || !email)
       return res.status(400).json({ error: 'code and email are required' });
     if (!validateEmail(email))
@@ -280,12 +294,13 @@ app.post('/api/redeem-code', async (req: Request, res: Response) => {
     const rc = codeResult.rows[0];
 
     if (rc.product === 'roast') {
-      // Create a roast order
-      if (!headline || headline.trim().length < 10)
-        return res.status(400).json({ error: 'Please provide your LinkedIn headline (at least 10 characters)' });
+      // Accept headline from either field or profile_data
+      const profileText = headline || profile_data?.raw_paste || '';
+      if (!profileText || profileText.trim().length < 10)
+        return res.status(400).json({ error: 'Please upload your LinkedIn PDF or paste your profile text' });
 
       const hash = crypto.createHash('sha256')
-        .update(JSON.stringify({ raw_paste: headline.trim() })).digest('hex');
+        .update(JSON.stringify({ raw_paste: profileText.trim() })).digest('hex');
 
       const amounts: Record<string, number> = { standard: 49900, pro: 99900 };
       const result = await query(
@@ -294,7 +309,7 @@ app.post('/api/redeem-code', async (req: Request, res: Response) => {
          VALUES ($1, $2, $3, 'paid', 'referral_code', $4, $5, $6, 'queued') RETURNING id`,
         [
           email, rc.plan, amounts[rc.plan] || 29900,
-          JSON.stringify({ raw_paste: headline.trim() }), hash, req.ip,
+          JSON.stringify({ raw_paste: profileText.trim() }), hash, req.ip,
         ],
       );
       const orderId = result.rows[0].id;

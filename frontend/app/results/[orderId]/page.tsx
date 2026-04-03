@@ -196,7 +196,7 @@ const STAGE_LABELS: Record<string, { label: string; emoji: string }> = {
   queued: { label: 'Getting ready...', emoji: '👋' },
   parsing: { label: 'Reading your profile...', emoji: '👀' },
   analyzing: { label: 'Finding the weak spots...', emoji: '🔬' },
-  roasting: { label: 'Generating your roast...', emoji: '🔥' },
+  roasting: { label: 'Analyzing your profile...', emoji: '🔍' },
   rewriting: { label: 'Rewriting your profile...', emoji: '✍️' },
   checking: { label: 'Final quality check...', emoji: '✅' },
 };
@@ -2378,7 +2378,7 @@ export default function ResultsPage() {
 
   // Resume CTA handler
   function handleResumeCTA() {
-    const maxR = isPro ? 3 : 1;
+    const maxR = isPro ? 25 : 10;
     fetch(`${API_URL}/api/resume/by-order/${orderId}`).then(r => r.json()).then(d => {
       if ((d.resumes?.length || 0) < maxR) window.location.href = `/resume?orderId=${orderId}`;
       else document.getElementById('resume-section')?.scrollIntoView({ behavior: 'smooth' });
@@ -2387,7 +2387,7 @@ export default function ResultsPage() {
 
   // Share handlers
   function handleShareLinkedIn() { window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://profileroaster.in')}`, '_blank'); }
-  function handleShareWhatsApp() { window.open(`https://wa.me/?text=${encodeURIComponent(`My LinkedIn profile went from ${scores.before.overall} to ${scores.after.overall}! Get yours roasted: profileroaster.in`)}`, '_blank'); }
+  function handleShareWhatsApp() { window.open(`https://wa.me/?text=${encodeURIComponent(`My LinkedIn profile went from ${scores.before.overall} to ${scores.after.overall}! Get yours rewritten: profileroaster.in`)}`, '_blank'); }
   function handleDownloadCard() {
     const cardUrl = results.card_image_url;
     if (!cardUrl) { alert('Card not ready yet. Please try again in a moment.'); return; }
@@ -2586,7 +2586,7 @@ export default function ResultsPage() {
             </div>
           )}
 
-          {/* Rate Your Roast — full width left column, desktop only */}
+          {/* Rate Your Experience — full width left column, desktop only */}
           <div className="hidden lg:block" style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }}>
             <FeedbackWidget orderId={orderId} />
           </div>
@@ -2612,26 +2612,38 @@ export default function ResultsPage() {
               </button>
               <button onClick={handleShareLinkedIn} style={{ width: '100%', padding: '10px 14px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#191919', cursor: 'pointer', textAlign: 'left' }}>&#128279; Share on LinkedIn</button>
               <button onClick={handleShareWhatsApp} style={{ width: '100%', padding: '10px 14px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#057642', cursor: 'pointer', textAlign: 'left' }}>&#128172; WhatsApp</button>
-              <button onClick={handleDownloadCard} style={{ width: '100%', padding: '10px 14px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#191919', cursor: 'pointer', textAlign: 'left' }}>&#11015; Download Roast Card</button>
+              <a href="/dashboard" style={{ display: 'block', width: '100%', padding: '10px 14px', background: 'white', border: '1px solid #E0E0E0', borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#191919', cursor: 'pointer', textAlign: 'left', textDecoration: 'none', boxSizing: 'border-box' }}>&#128200; Dashboard</a>
             </div>
           </div>
 
-          {/* What AI Loved card */}
-          <div style={{ background: '#F0FDF4', borderRadius: 12, border: '1px solid #BBF7D0', padding: '20px 24px' }}>
-            <h3 style={{ fontSize: 16, fontWeight: 700, color: '#057642', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span>&#128154;</span> What AI Loved
-            </h3>
-            <p style={{ fontSize: 14, color: '#333', lineHeight: 1.7, marginBottom: 12, marginTop: 0 }}>{roast.closing_compliment}</p>
-            {roast.hidden_strengths && roast.hidden_strengths.length > 0 && (
-              <div style={{ background: 'white', borderRadius: 10, padding: '14px 16px', border: '1px solid #BBF7D0' }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#057642', marginBottom: 4 }}>Hidden Strength: {roast.hidden_strengths[0].strength}</div>
-                <div style={{ fontSize: 12, color: '#555', lineHeight: 1.6, marginBottom: 4 }}>Evidence: {roast.hidden_strengths[0].evidence}</div>
-                <div style={{ fontSize: 12, color: '#057642', fontWeight: 600 }}>How to leverage: {roast.hidden_strengths[0].how_to_show_it}</div>
-              </div>
-            )}
-          </div>
+          {/* ATS Analysis card (Pro) */}
+          {isPro && analysis?.ats_intelligence && (
+            <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: '#191919', marginBottom: 10 }}>ATS Analysis</h3>
+              {analysis.ats_intelligence.keywords_missing?.length > 0 && (
+                <div style={{ marginBottom: 10 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#CC1016', marginBottom: 6 }}>Missing Keywords</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                    {analysis.ats_intelligence.keywords_missing.map((k, i) => (
+                      <span key={i} style={{ background: '#FEF2F2', color: '#CC1016', padding: '2px 8px', borderRadius: 8, fontSize: 11 }}>{k}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {analysis.ats_intelligence.keywords_present?.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#057642', marginBottom: 6 }}>Present Keywords</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                    {analysis.ats_intelligence.keywords_present.map((k, i) => (
+                      <span key={i} style={{ background: '#F0FDF4', color: '#057642', padding: '2px 8px', borderRadius: 8, fontSize: 11 }}>{k}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
-          {/* Rate Your Roast — mobile only (desktop shows in left column) */}
+          {/* Rate Your Experience — mobile only (desktop shows in left column) */}
           <div className="block lg:hidden" style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }}>
             <FeedbackWidget orderId={orderId} />
           </div>
