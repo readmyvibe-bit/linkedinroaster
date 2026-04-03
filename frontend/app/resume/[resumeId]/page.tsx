@@ -316,7 +316,7 @@ export default function ResumePreviewPage() {
       </div>
 
       {/* ═══ MOBILE STICKY ═══ */}
-      <div className="sm:hidden" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'var(--bg-surface)', borderTop: '1px solid var(--border-default)', padding: '10px 16px', zIndex: 50, display: 'flex', gap: 8, boxShadow: 'var(--shadow-md)' }}>
+      <div className="flex sm:!hidden" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'var(--bg-surface)', borderTop: '1px solid var(--border-default)', padding: '10px 16px', zIndex: 50, gap: 8, boxShadow: 'var(--shadow-md)' }}>
         <button onClick={handleDownloadPDF} className="saas-btn saas-btn-primary" style={{ flex: 1, justifyContent: 'center' }}>Download PDF</button>
         <a href={`/resume/${resume.id}/edit`} className="saas-btn saas-btn-ghost">Edit</a>
         <button onClick={() => setShowTemplateModal(true)} className="saas-btn saas-btn-ghost">Templates</button>
