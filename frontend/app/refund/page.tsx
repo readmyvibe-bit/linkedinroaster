@@ -29,8 +29,8 @@ export default function RefundPage() {
               conditions under which we offer refunds for all our paid services:
             </p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
-              <li><strong>LinkedIn Roast &amp; Rewrite:</strong> Standard (&#8377;299) and Pro (&#8377;799)</li>
-              <li><strong>Build My LinkedIn:</strong> Starter (&#8377;199), Plus (&#8377;399), and Pro (&#8377;699)</li>
+              <li><strong>LinkedIn Profile Rewrite:</strong> Standard (&#8377;499) and Pro (&#8377;999)</li>
+              <li><strong>Build My LinkedIn:</strong> Standard (&#8377;499) and Pro (&#8377;999)</li>
               <li><strong>Upgrades:</strong> Standard to Pro (&#8377;500)</li>
             </ul>
             <p className="mt-2">
@@ -118,7 +118,7 @@ export default function RefundPage() {
               <li><strong>Profile updates:</strong> Your LinkedIn profile or career details changed after submitting and the results no longer match</li>
               <li><strong>Upgrade dissatisfaction:</strong> You upgraded from Standard to Pro and are unsatisfied with the additional Pro features only (the Standard results were already delivered)</li>
               <li><strong>Resume template preference:</strong> You want a different template style (you can switch templates and re-download at any time)</li>
-              <li><strong>Plan selection regret:</strong> You chose Starter when you wanted Plus/Pro (contact support for an upgrade instead)</li>
+              <li><strong>Plan selection regret:</strong> You chose Standard when you wanted Pro (contact support for an upgrade instead)</li>
               <li><strong>Late request:</strong> Refund requested more than 7 days after the order was completed</li>
             </ul>
           </section>
@@ -166,7 +166,7 @@ export default function RefundPage() {
             </p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li><strong>Partial delivery:</strong> If some sections were delivered correctly but others had issues, we may offer a 50% refund or free reprocessing</li>
-              <li><strong>Pro upgrade issues:</strong> If the Standard/Plus results were satisfactory but additional Pro features had issues, we may refund only the upgrade amount</li>
+              <li><strong>Pro upgrade issues:</strong> If the Standard results were satisfactory but additional Pro features had issues, we may refund only the upgrade amount</li>
               <li><strong>Resume-only issues:</strong> If the LinkedIn profile/roast was satisfactory but the resume had issues, we may offer free resume reprocessing</li>
               <li><strong>Reprocessing:</strong> In lieu of a refund, we may offer to reprocess your order through the pipeline at no additional cost</li>
             </ul>

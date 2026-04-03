@@ -108,9 +108,9 @@ export default function BuildLandingPage() {
       features: [
         'AI-generated LinkedIn profile (headline, about, experience, skills)',
         '10-step LinkedIn setup guide',
-        '10 ATS Resumes (18 standard templates)',
-        '10 Cover Letters',
-        '10 Interview Preps (15 questions + quiz)',
+        'ATS Resume Builder (18 templates)',
+        'Cover Letter Generator',
+        'Interview Prep (15 questions + quiz)',
         'AI Enhance Editor',
         'Connection request templates',
       ],
@@ -123,7 +123,6 @@ export default function BuildLandingPage() {
       popular: false,
       features: [
         'Everything in Standard',
-        '25 Resumes + 25 Cover Letters + 25 Interview Preps',
         'All 28 premium templates',
         'Priority processing',
         'Best for: Targeting multiple companies strategically',

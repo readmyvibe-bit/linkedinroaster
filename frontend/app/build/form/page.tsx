@@ -172,6 +172,25 @@ function BuildFormContent() {
       if (p.skills?.length) setSkills(p.skills);
       if (p.certifications?.length) setCertifications(p.certifications);
       if (p.achievements) setAchievements(p.achievements);
+
+      // Auto-detect career stage from experience
+      if (p.experience?.length) {
+        const expCount = p.experience.length;
+        // Try to parse years from experience dates
+        let totalYears = 0;
+        for (const exp of p.experience) {
+          const start = exp.start_date || '';
+          const end = exp.end_date || exp.current ? String(new Date().getFullYear()) : '';
+          const startYear = parseInt(start.match(/\d{4}/)?.[0] || '0');
+          const endYear = exp.current ? new Date().getFullYear() : parseInt(end.match(/\d{4}/)?.[0] || '0');
+          if (startYear > 0 && endYear > 0) totalYears += endYear - startYear;
+        }
+        if (totalYears >= 7 || expCount >= 5) setCareerStage('7+');
+        else if (totalYears >= 3 || expCount >= 3) setCareerStage('3-7');
+        else if (totalYears >= 1 || expCount >= 1) setCareerStage('1-3');
+        else setCareerStage('fresher');
+      }
+
       setUploadSuccess(true);
     } catch (err: any) {
       setUploadError(err.message || 'Failed to parse resume');
@@ -266,7 +285,7 @@ function BuildFormContent() {
     }
   }
 
-  const planLabels: Record<string, string> = { standard: 'Standard — Rs 499', pro: 'Pro — Rs 999', starter: 'Profile Starter — Rs 199', plus: 'Profile + Resume — Rs 399' };
+  const planLabels: Record<string, string> = { standard: 'Standard — Rs 499', pro: 'Pro — Rs 999' };
   const inputStyle = { width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #D1D5DB', fontSize: 14, boxSizing: 'border-box' as const };
   const labelStyle = { display: 'block', fontSize: 13, fontWeight: 600 as const, color: '#374151', marginBottom: 6 };
   const sectionStyle = { background: 'white', borderRadius: 14, padding: '24px 28px', marginBottom: 16, border: '1px solid #E0E0E0' };

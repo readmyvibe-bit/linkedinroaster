@@ -17,8 +17,9 @@ const razorpay = new Razorpay({
 const PLAN_AMOUNTS: Record<string, number> = {
   standard: 49900,
   pro: 99900,
-  starter: 19900,
-  plus: 39900,
+  // Legacy plans mapped to standard pricing
+  starter: 49900,
+  plus: 49900,
 };
 
 // POST /api/build/create-order — Create Razorpay order + DB entry
@@ -30,7 +31,7 @@ router.post('/create-order', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Invalid email address' });
 
     if (!['standard', 'pro', 'starter', 'plus'].includes(plan))
-      return res.status(400).json({ error: 'Invalid plan. Choose standard, pro, starter, or plus.' });
+      return res.status(400).json({ error: 'Invalid plan. Choose standard or pro.' });
 
     if (!form_input || !form_input.full_name || !form_input.target_role)
       return res.status(400).json({ error: 'Name and target role are required.' });

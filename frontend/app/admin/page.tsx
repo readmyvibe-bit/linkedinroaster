@@ -1146,7 +1146,7 @@ function BuildOrdersScreen() {
 
   useEffect(() => { load(); }, [load]);
 
-  const planLabel: Record<string, string> = { starter: 'Starter ₹199', plus: 'Plus ₹399', pro: 'Pro ₹699' };
+  const planLabel: Record<string, string> = { standard: 'Standard ₹499', pro: 'Pro ₹999', starter: 'Starter (legacy)', plus: 'Plus (legacy)' };
   const statusColor: Record<string, string> = { done: '#057642', failed: '#CC1016', generating: '#E16B00', pending: '#888', queued: '#0A66C2', checking: '#0A66C2' };
 
   return (

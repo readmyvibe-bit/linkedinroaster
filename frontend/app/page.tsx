@@ -29,19 +29,7 @@ function ScoreBadge({ score }: { score: number }) {
 
 // ─── LiveCounter ───
 function LiveCounter() {
-  const [count, setCount] = useState<number | null>(null);
-  useEffect(() => {
-    fetch(`${API_URL}/api/stats`)
-      .then(r => r.json())
-      .then(d => setCount(d.total ?? 0))
-      .catch(() => setCount(0));
-  }, []);
-  if (count === null) return null;
-  return (
-    <p className="text-sm text-center mt-4" style={{ color: 'var(--li-text-secondary)' }}>
-      {25 + count}+ professionals improved their LinkedIn
-    </p>
-  );
+  return null; // Removed — will enable when we have real user data
 }
 
 // ─── Referral Code Redeemer ───
@@ -589,7 +577,7 @@ export default function Home() {
           </p>
           <div style={{ marginBottom: 36 }}>
             <span style={{ background: '#DCFCE7', color: '#057642', fontSize: 14, fontWeight: 600, padding: '4px 14px', borderRadius: 20 }}>
-              Used by 2,000+ job seekers across India
+              Be among the first to try it
             </span>
           </div>
 
@@ -818,7 +806,7 @@ export default function Home() {
 
               {/* Resume upload area */}
               <div style={{ border: '2px dashed #86EFAC', borderRadius: 12, padding: 20, textAlign: 'center', marginBottom: 12, background: '#F0FDF4', cursor: 'pointer' }}
-                onClick={() => window.open('/build/form?plan=starter', '_blank')}
+                onClick={() => window.open('/build/form?plan=standard', '_blank')}
               >
                 <div style={{ fontSize: 28, marginBottom: 6 }}>&#128195;</div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#057642' }}>Upload your existing resume</div>
@@ -828,7 +816,7 @@ export default function Home() {
               <div style={{ textAlign: 'center', fontSize: 12, color: '#aaa', fontWeight: 600, margin: '10px 0' }}>&mdash; or &mdash;</div>
 
               <a
-                href="/build/form?plan=starter"
+                href="/build/form?plan=standard"
                 target="_blank"
                 rel="noreferrer"
                 style={{ display: 'block', textAlign: 'center', fontSize: 13, color: '#057642', fontWeight: 600, textDecoration: 'none', marginBottom: 16, cursor: 'pointer' }}
@@ -837,7 +825,7 @@ export default function Home() {
               </a>
 
               <a
-                href="/build/form?plan=starter"
+                href="/build/form?plan=standard"
                 target="_blank"
                 rel="noreferrer"
                 style={{
@@ -858,15 +846,15 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════ */}
-      {/* SOCIAL PROOF BAR                    */}
+      {/* TRUST FEATURES BAR                  */}
       {/* ═══════════════════════════════════ */}
       <div style={{ background: 'white', borderBottom: '1px solid #E8E8E8', padding: '20px 24px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', textAlign: 'center' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 40, flexWrap: 'wrap', marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 40, flexWrap: 'wrap' }}>
             {[
-              { num: '2,000+', label: 'Profiles Improved' },
-              { num: '+42 pts', label: 'Avg Score Increase' },
-              { num: '87%', label: 'Avg ATS Score' },
+              { num: 'Free', label: 'Profile Score Preview' },
+              { num: '~2 min', label: 'Full Results Delivery' },
+              { num: '\u20b9499', label: 'One-time, No Subscription' },
             ].map((s, i) => (
               <div key={i} style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 24, fontWeight: 800, color: '#0A66C2' }}>{s.num}</div>
@@ -874,12 +862,6 @@ export default function Home() {
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, flexWrap: 'wrap', opacity: 0.5 }}>
-            {['IIT', 'NIT', 'VIT', 'SRM', 'BITS', 'DTU'].map((name, i) => (
-              <span key={i} style={{ fontSize: 13, fontWeight: 700, color: '#666', padding: '6px 14px', border: '1px solid #E0E0E0', borderRadius: 6, background: '#F8FAFC' }}>{name}</span>
-            ))}
-          </div>
-          <div style={{ fontSize: 11, color: '#999', marginTop: 10 }}>Students from these colleges use ProfileRoaster for placements</div>
         </div>
       </div>
 
@@ -987,9 +969,9 @@ export default function Home() {
                 {[
                   { text: 'AI Profile Score + Analysis', free: true },
                   { text: 'Complete Profile Rewrite', free: false },
-                  { text: '10 ATS Resumes (18 templates)', free: false },
-                  { text: '10 Cover Letters', free: false },
-                  { text: '10 Interview Preps (15 questions + quiz)', free: false },
+                  { text: 'ATS Resume Builder (18 templates)', free: false },
+                  { text: 'Cover Letter Generator', free: false },
+                  { text: 'Interview Prep (15 questions + quiz)', free: false },
                   { text: 'AI Enhance Editor', free: false },
                   { text: 'PDF + TXT Export', free: false },
                 ].map((f, i) => (
@@ -1018,7 +1000,7 @@ export default function Home() {
             <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 16, padding: 24, textAlign: 'center' }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#191919' }}>Want Pro Features?</div>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#191919', margin: '4px 0' }}>&#8377;999</div>
-              <div style={{ fontSize: 13, color: '#666', marginBottom: 12 }}>25 resumes + 25 cover letters + all 28 templates + priority processing</div>
+              <div style={{ fontSize: 13, color: '#666', marginBottom: 12 }}>Everything in Standard + all 28 premium templates + priority processing</div>
               <button
                 onClick={() => handlePlanSelect('pro')}
                 style={{ padding: '10px 24px', borderRadius: 50, border: '2px solid #0A66C2', background: 'white', color: '#0A66C2', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
@@ -1105,7 +1087,7 @@ export default function Home() {
                     <div style={{ fontSize: 36, marginBottom: 12 }} dangerouslySetInnerHTML={{ __html: f.icon }} />
                     <div style={{ fontSize: 15, fontWeight: 700, color: '#191919', marginBottom: 6 }}>{f.title}</div>
                     <div style={{ fontSize: 13, color: '#666', lineHeight: 1.5 }}>{f.desc}</div>
-                    {f.free && <div style={{ display: 'inline-block', background: '#DCFCE7', color: '#057642', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 4, marginTop: 8 }}>FREE PREVIEW</div>}
+                    {f.free && <div style={{ display: 'inline-block', background: '#057642', color: 'white', fontSize: 12, fontWeight: 700, padding: '6px 16px', borderRadius: 20, marginTop: 12, letterSpacing: 0.5 }}>FREE &mdash; Try Now</div>}
                   </div>
                 ))}
               </div>
@@ -1235,9 +1217,9 @@ export default function Home() {
                   {[
                     'AI Profile Score + Analysis',
                     'Complete Profile Rewrite',
-                    '10 ATS Resumes (18 templates)',
-                    '10 Cover Letters',
-                    '10 Interview Preps (15 questions + quiz)',
+                    'ATS Resume Builder (18 templates)',
+                    'Cover Letter Generator',
+                    'Interview Prep (15 questions + quiz)',
                     'AI Enhance + PDF + TXT Export',
                   ].map((f, i) => (
                     <li key={i} style={{ fontSize: 14, color: '#333', padding: '8px 0', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -1262,7 +1244,7 @@ export default function Home() {
               <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 16, padding: 24 }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#191919' }}>Want Pro Features?</div>
                 <div style={{ fontSize: 28, fontWeight: 800, color: '#191919', margin: '4px 0' }}>&#8377;999</div>
-                <div style={{ fontSize: 13, color: '#666', marginBottom: 12 }}>25 resumes + 25 cover letters + all 28 templates + priority processing</div>
+                <div style={{ fontSize: 13, color: '#666', marginBottom: 12 }}>Everything in Standard + all 28 premium templates + priority processing</div>
                 <button
                   onClick={() => { heroRef.current?.scrollIntoView({ behavior: 'smooth' }); }}
                   style={{ padding: '10px 24px', borderRadius: 50, border: '2px solid #0A66C2', background: 'white', color: '#0A66C2', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
@@ -1388,26 +1370,18 @@ export default function Home() {
           {/* URGENCY CTA                         */}
           {/* ═══════════════════════════════════ */}
           <section style={{ background: 'linear-gradient(135deg, #004182 0%, #0A66C2 100%)', padding: '48px 16px', textAlign: 'center' }}>
-            <div style={{ maxWidth: 700, margin: '0 auto' }}>
+            <div style={{ maxWidth: 600, margin: '0 auto' }}>
               <div style={{ fontSize: 28, fontWeight: 900, color: 'white', marginBottom: 8 }}>Stop losing interviews.</div>
-              <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.8)', marginBottom: 28 }}>Every day with a weak profile is another recruiter who scrolled past you.</div>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: 40, flexWrap: 'wrap', marginBottom: 28 }}>
-                {[
-                  { stat: '2,000+', label: 'Profiles improved' },
-                  { stat: '+42 pts', label: 'Average score increase' },
-                  { stat: '\u20b9499', label: 'One time, no subscription' },
-                ].map((s, i) => (
-                  <div key={i} style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: 32, fontWeight: 800, color: 'white' }}>{s.stat}</div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{s.label}</div>
-                  </div>
-                ))}
+              <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.8)', marginBottom: 12, lineHeight: 1.6 }}>Every day with a weak profile is another recruiter who scrolled past you.</div>
+              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)', marginBottom: 28, lineHeight: 1.6 }}>
+                Resume writers charge &#8377;3,000&ndash;15,000 and take days.<br />
+                We do everything in under 3 minutes for &#8377;499. One time. No subscription.
               </div>
               <button
                 onClick={() => { heroRef.current?.scrollIntoView({ behavior: 'smooth' }); }}
-                style={{ background: 'white', color: '#0A66C2', fontSize: 16, fontWeight: 700, padding: '16px 40px', borderRadius: 50, border: 'none', cursor: 'pointer' }}
+                style={{ background: 'white', color: '#0A66C2', fontSize: 16, fontWeight: 700, padding: '16px 40px', borderRadius: 50, border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}
               >
-                Get My Free Score &rarr;
+                Upload Your PDF &mdash; Free Score &rarr;
               </button>
             </div>
           </section>
