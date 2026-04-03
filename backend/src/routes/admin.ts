@@ -61,6 +61,34 @@ router.use('/approve-order', adminAuth);
 router.use('/reprocess-order', adminAuth);
 router.use('/reprocess-build-order', adminAuth);
 
+// POST /api/admin/nuke-all — delete ALL data (use with extreme caution)
+router.use('/nuke-all', adminAuth);
+router.post('/nuke-all', async (req: Request, res: Response) => {
+  try {
+    const confirm = req.body?.confirm;
+    if (confirm !== 'DELETE_EVERYTHING') return res.status(400).json({ error: 'Send {"confirm":"DELETE_EVERYTHING"}' });
+
+    const results: Record<string, number> = {};
+    const tables = [
+      { name: 'interview_preps', q: 'DELETE FROM interview_preps' },
+      { name: 'resumes', q: 'DELETE FROM resumes' },
+      { name: 'referrals', q: 'DELETE FROM referrals' },
+      { name: 'referral_codes', q: 'DELETE FROM referral_codes' },
+      { name: 'teaser_attempts', q: 'DELETE FROM teaser_attempts' },
+      { name: 'result_lookups', q: 'DELETE FROM result_lookups' },
+      { name: 'build_orders', q: 'DELETE FROM build_orders' },
+      { name: 'orders', q: 'DELETE FROM orders' },
+    ];
+    for (const t of tables) {
+      const r = await query(t.q);
+      results[t.name] = (r as any).rowCount || 0;
+    }
+    res.json({ deleted: results });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/admin/overview
 router.get('/overview', async (_req: Request, res: Response) => {
   try {
