@@ -317,11 +317,11 @@ export default function ResumePreviewPage() {
                     const ats = t.atsLevel;
                     return (
                       <button key={t.id} onClick={() => setTemplateId(t.id)}
-                        style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, cursor: 'pointer', border: templateId === t.id ? '2px solid #0A66C2' : '1px solid #E2E8F0', background: templateId === t.id ? '#EFF6FF' : locked ? '#F9FAFB' : '#fff', color: templateId === t.id ? '#0A66C2' : locked ? '#94A3B8' : '#64748B', position: 'relative' as const }}>
+                        style={{ padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: templateId === t.id ? '2px solid #0A66C2' : '1px solid #E2E8F0', background: templateId === t.id ? '#EFF6FF' : locked ? '#F9FAFB' : '#fff', color: templateId === t.id ? '#0A66C2' : locked ? '#94A3B8' : '#64748B' }}>
                         {t.name}
                         {locked ? ' \uD83D\uDD12' : ''}
-                        {ats === 'high' && !locked && <span style={{ marginLeft: 3, fontSize: 8, fontWeight: 700, color: '#057642', background: '#DCFCE7', padding: '0 4px', borderRadius: 3, verticalAlign: 'top' }}>ATS</span>}
-                        {isRec && <span style={{ marginLeft: 2, fontSize: 8, color: '#057642' }}>\u2605</span>}
+                        {ats === 'high' && !locked && <span style={{ marginLeft: 4, fontSize: 9, fontWeight: 700, color: '#057642', background: '#DCFCE7', padding: '1px 5px', borderRadius: 4 }}>ATS</span>}
+                        {isRec && <span style={{ marginLeft: 3, fontSize: 10, color: '#057642' }}>{'\u2605'}</span>}
                       </button>
                     );
                   })}
@@ -459,7 +459,13 @@ export default function ResumePreviewPage() {
         {/* RIGHT — Resume Preview */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ position: 'relative' }}>
-            {renderResumeHTML(rd, templateId)}
+            {/* Font/color preview wrapper */}
+            <div style={{
+              ...(fontFamily !== 'default' ? { fontFamily: fontFamily === 'serif' ? 'Georgia, "Times New Roman", serif' : fontFamily === 'sans' ? 'Arial, Helvetica, sans-serif' : fontFamily === 'mono' ? '"Courier New", monospace' : fontFamily === 'inter' ? '"Inter", system-ui, sans-serif' : undefined } : {}),
+            }} className={accentColor ? 'accent-override' : ''}>
+              {accentColor && <style>{`.accent-override h1,.accent-override h2,.accent-override h3{color:${accentColor}!important}`}</style>}
+              {renderResumeHTML(rd, templateId)}
+            </div>
             {isTemplateLocked && (
               <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(2px)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 4, zIndex: 10 }}>
                 <div style={{ background: 'white', border: '2px solid #0A66C2', borderRadius: 16, padding: '28px 36px', textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.15)', maxWidth: 380 }}>

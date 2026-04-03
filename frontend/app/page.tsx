@@ -758,6 +758,11 @@ export default function Home() {
               </div>
             </div>
           </div>
+
+          {/* Referral code — accessible from hero */}
+          <div style={{ maxWidth: 1000, margin: '16px auto 0', textAlign: 'center' }}>
+            <ReferralCodeRedeemer product="roast" />
+          </div>
         </div>
       </section>
 

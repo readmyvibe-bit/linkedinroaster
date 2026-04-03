@@ -2437,13 +2437,13 @@ export default function ResultsPage() {
           </div>
 
           {/* Avatar + name area */}
-          <div style={{ padding: '0 28px 20px' }}>
-            <div style={{ marginTop: -36, marginBottom: 12 }}>
+          <div style={{ padding: '0 20px 20px' }}>
+            <div style={{ marginTop: -24, marginBottom: 10 }}>
               <div style={{
-                width: 72, height: 72, borderRadius: '50%', background: '#0B69C7',
+                width: 52, height: 52, borderRadius: '50%', background: '#0B69C7',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 28, fontWeight: 800, color: 'white',
-                border: '4px solid white', boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+                fontSize: 20, fontWeight: 800, color: 'white',
+                border: '3px solid white', boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
               }}>
                 {rewrite.rewritten_headline?.charAt(0)?.toUpperCase() || 'P'}
               </div>
