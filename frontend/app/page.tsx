@@ -334,20 +334,60 @@ function ProfileInputForm({
   );
 }
 
-// ─── PDF to Resume Data Mapper ───
+// ─── PDF to Resume Data Mapper (advanced) ───
+function truncateSummary(text: string, maxLen = 200): string {
+  if (!text || text.length <= maxLen) return text;
+  // Find sentence boundary near maxLen
+  const slice = text.slice(0, maxLen + 50);
+  const lastSentence = slice.search(/[.!?]\s/);
+  if (lastSentence > 80) return slice.slice(0, lastSentence + 1).trim();
+  return text.slice(0, maxLen).trim() + '...';
+}
+
+function descriptionToBullets(desc: string): string[] {
+  if (!desc) return [];
+  // Split on common bullet/newline delimiters
+  let parts = desc.split(/\n|•|·|–|—|\*|^\d+[.)]\s*/m)
+    .map(s => s.trim())
+    .filter(s => s.length > 15);
+  // If still one big blob, split on sentences
+  if (parts.length <= 1 && desc.length > 100) {
+    parts = desc.split(/(?<=[.!?])\s+/)
+      .map(s => s.trim())
+      .filter(s => s.length > 15);
+  }
+  // Cap each bullet at 200 chars, max 5 bullets per role
+  return parts
+    .map(b => b.length > 200 ? b.slice(0, 197) + '...' : b)
+    .slice(0, 5);
+}
+
+function groupSkills(skills: string[]): Array<{ category: string; skills: string[] }> {
+  if (!skills || skills.length === 0) return [];
+  const techKeywords = /python|java|sql|react|node|aws|azure|docker|kubernetes|html|css|api|git|linux|excel|tableau|power bi|machine learning|ai|data|cloud|devops|networking|security|vmware|sap|salesforce/i;
+  const tech = skills.filter(s => techKeywords.test(s));
+  const other = skills.filter(s => !techKeywords.test(s));
+  const result: Array<{ category: string; skills: string[] }> = [];
+  if (tech.length > 0) result.push({ category: 'Technical Skills', skills: tech });
+  if (other.length > 0) result.push({ category: 'Professional Skills', skills: other });
+  return result.length > 0 ? result : [{ category: 'Skills', skills }];
+}
+
 function pdfToResumeData(parsed: any): any {
   if (!parsed) return null;
+  const aboutText = parsed.about || '';
   return {
     contact: {
       name: parsed.full_name || '',
       location: parsed.location || '',
+      linkedin: parsed.linkedin || '',
     },
-    summary: parsed.about || parsed.headline || '',
-    experience: (parsed.experience || []).map((e: any) => ({
+    summary: truncateSummary(aboutText) || parsed.headline || '',
+    experience: (parsed.experience || []).slice(0, 6).map((e: any) => ({
       title: e.title || '',
       company: e.company || '',
       dates: e.duration || '',
-      bullets: e.description ? e.description.split(/\n|•|–|—|\*/).map((b: string) => b.trim()).filter((b: string) => b.length > 10).slice(0, 4) : [],
+      bullets: descriptionToBullets(e.description || ''),
     })),
     education: (parsed.education || []).map((e: any) => ({
       institution: e.institution || '',
@@ -355,8 +395,11 @@ function pdfToResumeData(parsed: any): any {
       field: e.field || '',
       year: e.year || '',
     })),
-    skills: parsed.skills || [],
-    achievements: parsed.certifications || [],
+    skills: groupSkills(parsed.skills || []),
+    achievements: [
+      ...(parsed.honors_awards || []),
+      ...(parsed.certifications || []).slice(0, 3).map((c: string) => `Certified: ${c}`),
+    ].slice(0, 5),
   };
 }
 
@@ -796,7 +839,7 @@ export default function Home() {
                     {/* Show resume previews even when rate limited */}
                     {(() => {
                       const resumeData = pdfToResumeData(pdfParsed);
-                      const recIds = getRecommendedTemplates(pdfParsed.headline || '', false).slice(0, 3);
+                      const recIds = ['classic', 'salesbd', 'headline'];
                       if (!resumeData) return null;
                       return (
                         <div style={{ marginBottom: 12 }}>
@@ -890,7 +933,8 @@ export default function Home() {
             {/* Free Resume Previews — large, readable */}
             {pdfParsed && (() => {
               const resumeData = pdfToResumeData(pdfParsed);
-              const recIds = getRecommendedTemplates(pdfParsed.headline || '', false).slice(0, 3);
+              // 3 visually distinct templates: single-column ATS, metrics-focused, large-summary
+              const recIds = ['classic', 'salesbd', 'headline'];
               if (!resumeData) return null;
               return (
                 <div style={{ marginBottom: 12 }}>

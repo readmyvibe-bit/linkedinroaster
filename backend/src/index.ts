@@ -128,7 +128,7 @@ app.post('/api/linkedin-pdf/parse', rateLimiter('linkedin-pdf', 10, 3600),
 
     // Check cache by PDF content hash
     const pdfHash = crypto.createHash('sha256').update(req.file.buffer).digest('hex');
-    const cacheKey = `pdf-parse:${pdfHash}`;
+    const cacheKey = `pdf-parse:v2:${pdfHash}`;
     const cached = await redis.get(cacheKey);
     if (cached) {
       const cachedResult = JSON.parse(cached);
@@ -158,7 +158,7 @@ Return the raw text exactly as it appears, preserving sections like:
 Return ONLY the extracted text, no commentary. Preserve line breaks between sections.` },
         ],
       }],
-      generationConfig: { temperature: 0.0, maxOutputTokens: 8000 },
+      generationConfig: { temperature: 0.0, maxOutputTokens: 16000 },
     });
 
     const rawText = extractResult.response.text().trim();
@@ -173,7 +173,7 @@ Return ONLY the extracted text, no commentary. Preserve line breaks between sect
         parts: [{ text: `Parse this LinkedIn profile text into structured JSON.
 
 TEXT:
-${rawText.slice(0, 10000)}
+${rawText.slice(0, 25000)}
 
 Return ONLY valid JSON (no markdown, no \`\`\`, no commentary) with this exact structure:
 {
@@ -200,18 +200,23 @@ Return ONLY valid JSON (no markdown, no \`\`\`, no commentary) with this exact s
   "skills": ["string array of skills"],
   "certifications": ["string array"],
   "languages": ["string array"],
+  "honors_awards": ["string array"],
   "raw_text_length": number
 }
 
-RULES:
-- Extract EVERY experience entry, not just the first one
-- Extract ALL skills listed
-- If a section is missing, use null or empty array
-- For headline, extract the professional tagline (usually right below the name)
-- Keep experience descriptions as-is, don't summarize
-- raw_text_length should be the approximate character count of the full profile` }],
+CRITICAL RULES:
+- Extract EVERY experience entry — the profile may have 5-10+ roles. Output ONE object per role.
+- If the same company has multiple titles (e.g. promoted from Account Manager to Team Lead to Sales Manager), output each as a SEPARATE experience entry with its own title, duration, and description.
+- Do NOT merge multiple roles into one entry. Do NOT stop after the first company.
+- Extract ALL skills, certifications, languages, and honors/awards listed anywhere in the document.
+- Extract ALL education entries (there may be 2-4).
+- Keep full dates (e.g. "July 2025 - Present", NOT "July 202"). If a date looks truncated, infer the full year from context.
+- Keep experience descriptions as-is, don't summarize.
+- For headline, extract the professional tagline (usually right below the name).
+- If a section is missing, use null or empty array.
+- raw_text_length should be the approximate character count of the full profile.` }],
       }],
-      generationConfig: { temperature: 0.0, maxOutputTokens: 6000 },
+      generationConfig: { temperature: 0.0, maxOutputTokens: 12000 },
     });
 
     let parseText = parseResult.response.text().trim();
@@ -258,7 +263,7 @@ RULES:
       parsed,
       headline: parsed.headline || parsed.full_name || '',
       raw_paste: rawPaste,
-      raw_text: rawText.slice(0, 8000),
+      raw_text: rawText.slice(0, 15000),
       raw_text_length: rawText.length,
     };
 
