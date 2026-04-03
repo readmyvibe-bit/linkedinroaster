@@ -11,6 +11,7 @@ interface TeaserResult {
   teaser_roast: string;
   teaser_id: string | null;
   suggested_headline?: string;
+  sample_interview_question?: string;
 }
 
 // ─── Score Badge ───
@@ -904,13 +905,27 @@ export default function Home() {
               </div>
             )}
 
+            {/* Sample interview question */}
+            {teaser.sample_interview_question && (
+              <div style={{ background: 'white', border: '2px solid #0891B2', borderRadius: 16, boxShadow: '0 2px 12px rgba(8,145,178,0.08)', padding: 24, marginBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#0891B2', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>?</div>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: '#0891B2' }}>A Recruiter Would Ask You</p>
+                </div>
+                <div style={{ background: '#ECFEFF', border: '1px solid #A5F3FC', borderRadius: 10, padding: '14px 16px' }}>
+                  <p style={{ fontSize: 14, color: '#191919', fontWeight: 500, lineHeight: 1.6, margin: 0, fontStyle: 'italic' }}>&#8220;{teaser.sample_interview_question}&#8221;</p>
+                </div>
+                <p style={{ fontSize: 12, color: '#888', marginTop: 8 }}>Unlock 15 personalized questions + STAR-format answers + cheat sheet</p>
+              </div>
+            )}
+
             {/* Locked items */}
             <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 16, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', padding: 24, marginBottom: 16 }}>
               <p style={{ fontSize: 15, fontWeight: 700, color: '#191919', marginBottom: 16 }}>What we found beyond your headline:</p>
               {[
                 { icon: '\uD83D\uDD12', text: '2 critical profile issues hidden' },
                 { icon: '\uD83D\uDD12', text: 'ATS keyword gaps hidden' },
-                { icon: '\uD83D\uDD12', text: 'Experience section assessment hidden' },
+                { icon: '\uD83D\uDD12', text: '5 interview questions tailored to your profile hidden' },
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: '#F8FAFC', borderRadius: 10, marginBottom: 8, border: '1px solid #E5E7EB' }}>
                   <span style={{ fontSize: 18 }}>{item.icon}</span>
@@ -925,7 +940,7 @@ export default function Home() {
                 Unlock Your Full Profile Report
               </p>
               <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', marginBottom: 20, lineHeight: 1.5 }}>
-                Complete profile rewrite + ATS resume + cover letters + interview prep
+                Complete profile rewrite + interview prep + ATS resume
               </p>
               <button
                 onClick={scrollToPricing}
@@ -1101,9 +1116,9 @@ export default function Home() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
                 {[
                   { icon: '&#128293;', title: 'Fix What\u2019s Blocking Your Profile', desc: 'AI scores your profile, identifies issues, and rewrites your headline, about, and experience.', free: true },
+                  { icon: '&#127919;', title: 'Answer Like a Top Candidate', desc: 'Personalized interview questions based on YOUR resume + target JD. STAR-format answers + cheat sheet + quiz.', free: false },
                   { icon: '&#128196;', title: 'Get Past ATS Filters', desc: 'Professional resume matched to your job description. ATS-optimized templates. PDF + TXT download.', free: false },
                   { icon: '&#9993;&#65039;', title: 'Stand Out in Applications', desc: 'Personalized cover letter for every application. Ready to copy-paste.', free: false },
-                  { icon: '&#127919;', title: 'Answer Like a Top Candidate', desc: '15 likely interview questions based on YOUR resume. Cheat sheet + practice quiz included.', free: false },
                 ].map((f, i) => (
                   <div key={i} style={{ background: '#F8FAFC', border: '1px solid #E5E7EB', borderRadius: 14, padding: '24px 20px', textAlign: 'center', transition: 'transform 0.2s, box-shadow 0.2s' }}
                     onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)'; }}

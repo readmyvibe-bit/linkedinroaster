@@ -2022,7 +2022,7 @@ function ResultsContextColumn({ scores, isPro, orderId }: { scores: any; isPro: 
   const ranking = afterScore >= 80 ? 'Top 10%' : afterScore >= 70 ? 'Top 20%' : afterScore >= 60 ? 'Top 35%' : afterScore >= 50 ? 'Top 50%' : 'Improving';
 
   function handleResumeCTA() {
-    const maxResumes = isPro ? 25 : 10;
+    const maxResumes = isPro ? 10 : 5;
     fetch(`${API_URL}/api/resume/by-order/${orderId}`)
       .then(r => r.json())
       .then(d => {
@@ -2345,7 +2345,7 @@ export default function ResultsPage() {
 
   // Resume CTA handler
   function handleResumeCTA() {
-    const maxR = isPro ? 25 : 10;
+    const maxR = isPro ? 10 : 5;
     fetch(`${API_URL}/api/resume/by-order/${orderId}`).then(r => r.json()).then(d => {
       if ((d.resumes?.length || 0) < maxR) window.location.href = `/resume?orderId=${orderId}`;
       else document.getElementById('resume-section')?.scrollIntoView({ behavior: 'smooth' });
@@ -2539,7 +2539,7 @@ export default function ResultsPage() {
 
           {/* Resume card */}
           <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }} id="resume-section">
-            <ResumeBuilderSection orderId={orderId} maxResumes={isPro ? 25 : 10} plan={plan} />
+            <ResumeBuilderSection orderId={orderId} maxResumes={isPro ? 10 : 5} plan={plan} />
           </div>
 
           {/* Quick Actions card */}

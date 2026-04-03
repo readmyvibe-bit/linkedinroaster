@@ -10,10 +10,11 @@ export interface TeaserResult {
   issues: Array<{ issue: string; quick_tip: string }>;
   teaser_roast: string;
   suggested_headline: string;
+  sample_interview_question: string;
 }
 
 const TEASER_SYSTEM = `LinkedIn headline analyzer. Score and identify top 2 problems.
-This is a FREE PREVIEW — punchy, specific, make them want the full roast.
+This is a FREE PREVIEW — punchy, specific, make them want the full rewrite.
 SCORING (0-100):
   0-20: Missing or generic (Aspiring/Looking/Professional)
   21-40: Job title only, no value proposition
@@ -42,7 +43,8 @@ OUTPUT (strict JSON):
     {"issue": "second problem", "quick_tip": "1-sentence fix"}
   ],
   "teaser_roast": "1 witty sentence referencing actual headline text",
-  "suggested_headline": "A rewritten version of their headline that scores 85+. Specific, value-driven, uses their actual role/skills."
+  "suggested_headline": "A rewritten version of their headline that scores 85+. Specific, value-driven, uses their actual role/skills.",
+  "sample_interview_question": "One behavioral interview question a recruiter would likely ask based on this specific headline. Format: 'Tell me about a time you [specific thing from their headline/role]...'. Must reference their actual role or domain."
 }`;
 
 export async function teaserAnalysis(headline: string): Promise<TeaserResult> {

@@ -40,10 +40,10 @@ export async function generateResume(input: ResumeInput): Promise<{ resumeId: st
   }
   if (!order) throw new Error('Order not found');
 
-  // Quota: starter=0, plus=10, standard=10, pro=25 (build) | standard=10, pro=25 (roast)
+  // Quota: starter=0, standard=5, pro=10 (build & rewrite)
   const maxResumes = orderSource === 'build'
-    ? (order.plan === 'pro' ? 25 : order.plan === 'standard' ? 10 : order.plan === 'plus' ? 10 : 0)
-    : (order.plan === 'pro' ? 25 : 10);
+    ? (order.plan === 'pro' ? 10 : order.plan === 'standard' ? 5 : order.plan === 'plus' ? 5 : 0)
+    : (order.plan === 'pro' ? 10 : 5);
   if (maxResumes === 0) {
     throw new Error('Resume not included in Starter plan. Upgrade to Standard or Pro.');
   }

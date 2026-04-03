@@ -196,9 +196,9 @@ router.get('/data', dashAuth, async (req: Request, res: Response) => {
     // Quota helper
     const getMaxResumes = (plan: string, source: 'roast' | 'build') => {
       if (source === 'build') {
-        return plan === 'pro' ? 25 : plan === 'standard' ? 10 : plan === 'plus' ? 10 : 0;
+        return plan === 'pro' ? 10 : plan === 'standard' ? 5 : plan === 'plus' ? 5 : 0;
       }
-      return plan === 'pro' ? 25 : 10;
+      return plan === 'pro' ? 10 : 5;
     };
 
     res.json({

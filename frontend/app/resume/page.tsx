@@ -94,7 +94,7 @@ function ResumeFormContent() {
   const [orderData, setOrderData] = useState<Record<string, unknown> | null>(null);
   const [quotaUsed, setQuotaUsed] = useState(false);
   const [existingResumes, setExistingResumes] = useState<any[]>([]);
-  const [maxResumesQuota, setMaxResumesQuota] = useState(10);
+  const [maxResumesQuota, setMaxResumesQuota] = useState(5);
 
   // Form fields
   const [fullName, setFullName] = useState('');
@@ -180,8 +180,8 @@ function ResumeFormContent() {
 
         // Check resume quota
         const maxResumes = source === 'build'
-          ? (data.plan === 'pro' ? 25 : data.plan === 'starter' ? 0 : 10)
-          : (data.plan === 'pro' ? 25 : 10);
+          ? (data.plan === 'pro' ? 10 : data.plan === 'starter' ? 0 : 5)
+          : (data.plan === 'pro' ? 10 : 5);
         setMaxResumesQuota(maxResumes);
         if (maxResumes === 0) { setQuotaUsed(true); }
         else {
