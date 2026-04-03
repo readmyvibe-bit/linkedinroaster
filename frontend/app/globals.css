@@ -1,6 +1,36 @@
 @import "tailwindcss";
 @import "../styles/linkedin-theme.css";
 
+/* ─── SaaS Design Tokens ─── */
+:root {
+  --bg-canvas: #F4F6F9;
+  --bg-surface: #FFFFFF;
+  --bg-subtle: #EEF1F6;
+  --border-default: #E2E6ED;
+  --border-strong: #C5CDD8;
+  --text-primary: #0F172A;
+  --text-secondary: #64748B;
+  --text-muted: #94A3B8;
+  --accent: #0A66C2;
+  --accent-hover: #004182;
+  --accent-subtle: #EFF6FF;
+  --success: #059669;
+  --success-subtle: #ECFDF5;
+  --warning: #D97706;
+  --warning-subtle: #FFFBEB;
+  --danger: #DC2626;
+  --danger-subtle: #FEF2F2;
+  --overlay: rgba(15, 23, 42, 0.45);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 9999px;
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.12);
+  --transition: 150ms ease;
+}
+
 body {
   background-color: var(--li-gray);
   background-image: radial-gradient(circle, #d5d4d0 0.8px, transparent 0.8px);
@@ -8,6 +38,99 @@ body {
   color: var(--li-text-primary);
   margin: 0;
 }
+
+/* ─── SaaS Component Styles ─── */
+.saas-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  border: none;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.saas-btn-primary { background: var(--accent); color: white; }
+.saas-btn-primary:hover { background: var(--accent-hover); }
+.saas-btn-success { background: var(--success); color: white; }
+.saas-btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border-default); }
+.saas-btn-ghost:hover { background: var(--bg-subtle); border-color: var(--border-strong); }
+
+.saas-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition);
+}
+.saas-card:hover { box-shadow: var(--shadow-md); }
+
+.saas-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.saas-metric {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.saas-skeleton {
+  background: linear-gradient(90deg, var(--bg-subtle) 25%, #E8ECF2 50%, var(--bg-subtle) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Focus rings for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Template modal */
+.template-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 150ms ease;
+}
+.template-modal {
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  max-width: 720px;
+  width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: slideUp 200ms ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 
 .li-card {
   background: var(--li-card);
