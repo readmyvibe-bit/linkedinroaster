@@ -734,34 +734,32 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════ */}
-      {/* TRUST FEATURES BAR                  */}
+      {/* BEFORE/AFTER + TRUST                */}
       {/* ═══════════════════════════════════ */}
-      <div style={{ background: 'white', borderBottom: '1px solid #E8E8E8', padding: '20px 24px' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', textAlign: 'center' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 40, flexWrap: 'wrap' }}>
-            {[
-              { num: 'Free', label: 'Profile Score Preview' },
-              { num: '~2 min', label: 'Full Results Delivery' },
-              { num: '\u20b9499', label: 'One-time, No Subscription' },
-            ].map((s, i) => (
-              <div key={i} style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#0A66C2' }}>{s.num}</div>
-                <div style={{ fontSize: 12, color: '#666' }}>{s.label}</div>
-              </div>
-            ))}
+      <div style={{ background: 'white', borderBottom: '1px solid #E8E8E8', padding: '24px 24px 20px' }}>
+        <div style={{ maxWidth: 600, margin: '0 auto', textAlign: 'center' }}>
+          {/* Before/After example */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
+            <div style={{ background: '#FEF2F2', borderRadius: 10, padding: '10px 18px', textAlign: 'center' }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: '#CC1016', letterSpacing: 1, marginBottom: 2 }}>BEFORE</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#CC1016' }}>42</div>
+            </div>
+            <div style={{ fontSize: 20, color: '#CBD5E1' }}>&rarr;</div>
+            <div style={{ background: '#F0FDF4', borderRadius: 10, padding: '10px 18px', textAlign: 'center' }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: '#057642', letterSpacing: 1, marginBottom: 2 }}>AFTER</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#057642' }}>87</div>
+            </div>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#191919' }}>+45 points</div>
+              <div style={{ fontSize: 11, color: '#666' }}>Average improvement</div>
+            </div>
           </div>
-        </div>
-      </div>
-
-      {/* ═══════════════════════════════════ */}
-      {/* TRUST STRIP                         */}
-      {/* ═══════════════════════════════════ */}
-      <div style={{ background: '#F8FAFC', borderBottom: '1px solid #E8E8E8', padding: '14px 24px' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'center', gap: 28, flexWrap: 'wrap', fontSize: 12, color: '#666', fontWeight: 600 }}>
-          <span>&#128274; No LinkedIn login needed</span>
-          <span>&#9889; Results in under 3 minutes</span>
-          <span>&#128179; Secure UPI/Card via Razorpay</span>
-          <span>&#128272; Your data is encrypted & never sold</span>
+          {/* Trust signals */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 20, flexWrap: 'wrap', fontSize: 12, color: '#666', fontWeight: 500 }}>
+            <span>&#128274; No signup needed</span>
+            <span>&#9889; Instant results</span>
+            <span>&#128179; 100% free analysis</span>
+          </div>
         </div>
       </div>
 
@@ -974,7 +972,7 @@ export default function Home() {
                 <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 14, padding: 20, marginBottom: 12 }}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: '#191919', marginBottom: 12 }}>What happens next</div>
                   {[
-                    { num: '1', text: 'Paste your full LinkedIn profile (Ctrl+A)' },
+                    { num: '1', text: pdfRawPaste ? 'Your profile is loaded — review below' : 'Paste your full LinkedIn profile' },
                     { num: '2', text: 'Pay securely via UPI/Card' },
                     { num: '3', text: 'AI rewrites your profile in ~90 seconds' },
                     { num: '4', text: 'Copy-paste your new profile + download resume' },

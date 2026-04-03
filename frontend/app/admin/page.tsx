@@ -418,11 +418,11 @@ function OrderDetailModal({
           </div>
         )}
 
-        {/* Roast */}
+        {/* Analysis (legacy roast data) */}
         {roast && (
           <div className="mb-4">
             <h4 className="font-semibold text-sm mb-2" style={{ color: 'var(--li-blue)' }}>
-              Roast: {roast.roast_title}
+              Analysis: {roast.roast_title}
             </h4>
             <div className="space-y-3">
               {roast.roast_points?.map((p: any, i: number) => (
@@ -1583,7 +1583,7 @@ function InfluencersScreen() {
               <h3 className="font-bold">Referrals: {selectedSlug}</h3>
               <button onClick={() => setSelectedSlug(null)} className="text-lg cursor-pointer bg-transparent border-none p-1">x</button>
             </div>
-            <h4 className="text-sm font-bold mb-2">Roast Orders ({referralOrders.roast_orders?.length || 0})</h4>
+            <h4 className="text-sm font-bold mb-2">Rewrite Orders ({referralOrders.roast_orders?.length || 0})</h4>
             {referralOrders.roast_orders?.map((o: any) => (
               <div key={o.id} className="text-xs p-2 mb-1 rounded" style={{ background: 'var(--li-gray)' }}>
                 {o.email} - {o.plan} - Rs {(o.amount_paise / 100).toFixed(0)} - {formatIST(o.created_at)}
@@ -1619,7 +1619,7 @@ function CodesScreen() {
 
   const planOptions: Record<string, string[]> = {
     roast: ['standard', 'pro'],
-    build: ['starter', 'plus', 'pro'],
+    build: ['standard', 'pro'],
   };
 
   async function generateCode() {
@@ -1672,7 +1672,7 @@ function CodesScreen() {
             <label className="block text-xs font-semibold mb-1" style={{ color: 'var(--li-text-secondary)' }}>Product</label>
             <select value={product} onChange={e => { setProduct(e.target.value); setPlan(planOptions[e.target.value][0]); }}
               className="px-3 py-2 rounded text-sm outline-none" style={{ border: '1px solid var(--li-border)' }}>
-              <option value="roast">Roast</option>
+              <option value="roast">Rewrite</option>
               <option value="build">Build</option>
             </select>
           </div>
@@ -1755,7 +1755,7 @@ type Screen = 'overview' | 'orders' | 'build-orders' | 'teasers' | 'quality' | '
 
 const NAV: { key: Screen; label: string }[] = [
   { key: 'overview', label: 'Overview' },
-  { key: 'orders', label: 'Roast Orders' },
+  { key: 'orders', label: 'Rewrite Orders' },
   { key: 'build-orders', label: 'Build Orders' },
   { key: 'teasers', label: 'Teasers' },
   { key: 'quality', label: 'Quality' },
