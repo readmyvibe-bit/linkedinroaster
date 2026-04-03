@@ -40,15 +40,15 @@ export default function TermsPage() {
               Profile Roaster is an AI-powered platform offering three categories of services:
             </p>
 
-            <h3 className="font-semibold mt-4 mb-2">2.1 LinkedIn Profile Roast &amp; Rewrite</h3>
+            <h3 className="font-semibold mt-4 mb-2">2.1 LinkedIn Profile Profile Rewrite</h3>
             <p>For users who already have a LinkedIn profile:</p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li>Headline analysis and scoring (free teaser)</li>
-              <li>Full 6-point profile roast with humor-based critique</li>
+              <li>Full comprehensive profile analysis and scoring</li>
               <li>Complete profile rewrite including headline, about section, and experience bullets</li>
               <li>Before and after score breakdown across headline, about, experience, completeness, and ATS readiness</li>
               <li>Hidden strengths analysis and closing compliment</li>
-              <li>Shareable roast card image</li>
+              <li>Shareable profile score card</li>
               <li>Pro plan: 5 headline variations, ATS keyword optimization, job description matching</li>
             </ul>
 
@@ -106,7 +106,7 @@ export default function TermsPage() {
             </p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li>You own the data or have the right to submit it for processing</li>
-              <li>For Roast orders: the LinkedIn profile data is your own or you have the profile owner&rsquo;s explicit consent</li>
+              <li>For Rewrite orders: the LinkedIn profile data is your own or you have the profile owner&rsquo;s explicit consent</li>
               <li>For Build orders: the education, experience, and skills information you provide is truthful and accurate</li>
               <li>For Resume uploads: you own the resume or have the right to submit it</li>
               <li>The data does not contain any malicious code, scripts, or content designed to exploit the Service</li>
@@ -120,7 +120,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-bold mb-3">5. Intellectual Property</h2>
             <p>
-              All AI-generated content produced by the Service &mdash; including roasts, rewrites, LinkedIn profiles, headlines, about sections,
+              All AI-generated content produced by the Service &mdash; including rewrites, analyses, LinkedIn profiles, headlines, about sections,
               experience bullets, resumes, cover letters, scores, and card images &mdash; is provided to you for your personal and professional use.
               You are granted a non-exclusive, perpetual license to use, modify, and publish the generated content on LinkedIn, resumes, job applications, or any other platform.
             </p>
@@ -130,7 +130,7 @@ export default function TermsPage() {
               derivative works based on the Service.
             </p>
             <p className="mt-2">
-              Shareable roast card images may be shared on social media with the &ldquo;profileroaster.in&rdquo; watermark intact.
+              Shareable profile score cards may be shared on social media with the &ldquo;profileroaster.in&rdquo; watermark intact.
               You may not remove or alter the watermark.
             </p>
           </section>
@@ -141,7 +141,7 @@ export default function TermsPage() {
               The Service offers the following paid plans:
             </p>
 
-            <h3 className="font-semibold mt-4 mb-2">6.1 LinkedIn Roast &amp; Rewrite</h3>
+            <h3 className="font-semibold mt-4 mb-2">6.1 LinkedIn Profile Rewrite</h3>
             <ul className="list-disc pl-6 space-y-1">
               <li><strong>Standard Plan:</strong> &#8377;499 (INR) &mdash; AI profile analysis + complete rewrite, ATS resume builder (18 templates), cover letter generator, interview prep</li>
               <li><strong>Pro Plan:</strong> &#8377;999 (INR) &mdash; everything in Standard + all 28 premium templates, priority processing</li>
@@ -169,8 +169,8 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-bold mb-3">7. Delivery of Service</h2>
             <p>
-              <strong>Roast &amp; Rewrite:</strong> Results are typically delivered within 60&ndash;120 seconds after successful payment.
-              Processing involves multiple AI stages: parsing, analysis, roasting, rewriting, quality checking, and scoring.
+              <strong>Profile Rewrite:</strong> Results are typically delivered within 60&ndash;120 seconds after successful payment.
+              Processing involves multiple AI stages: parsing, analysis, rewriting, quality checking, and scoring.
             </p>
             <p className="mt-2">
               <strong>Build My LinkedIn:</strong> Results are typically delivered within 60&ndash;90 seconds after payment.
@@ -209,7 +209,7 @@ export default function TermsPage() {
               <li>Scores are relative assessments based on our proprietary algorithm and are not endorsed by or affiliated with LinkedIn</li>
               <li>AI-generated content (rewrites, profiles, resumes, cover letters) are suggestions that should be reviewed and personalised before publishing or using</li>
               <li>We do not guarantee any specific outcome such as increased profile views, recruiter contacts, interview calls, or job offers</li>
-              <li>The roast is intended as constructive entertainment and should not be taken as professional career advice</li>
+              <li>The analysis is intended as constructive guidance and should not be taken as professional career advice</li>
               <li>ATS keyword suggestions are based on general industry patterns and may not match specific company ATS systems</li>
               <li>The Build My LinkedIn setup guide provides general instructions based on LinkedIn&rsquo;s interface at the time of writing; LinkedIn may change its interface at any time</li>
             </ul>
@@ -222,7 +222,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-bold mb-3">10. AI-Generated Content Disclaimer</h2>
             <p>
-              All content produced by the Service &mdash; including roasts, profile rewrites, LinkedIn profiles, headlines, about sections,
+              All content produced by the Service &mdash; including profile rewrites, LinkedIn profiles, headlines, about sections,
               experience bullets, resumes, cover letters, ATS keyword recommendations, and scoring &mdash; is generated by artificial
               intelligence and is provided as suggestions only.
             </p>
@@ -296,7 +296,7 @@ export default function TermsPage() {
             </p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li>The referred user must complete a paid order using your unique referral link</li>
-              <li>Referral credits apply to Roast &amp; Rewrite orders only</li>
+              <li>Referral credits apply to Profile Rewrite orders only</li>
               <li>Self-referrals are not permitted and will be voided</li>
               <li>We reserve the right to modify or discontinue the referral program at any time</li>
               <li>Fraudulent or abusive referral activity will result in forfeiture of all credits and possible account suspension</li>
@@ -310,7 +310,7 @@ export default function TermsPage() {
             </p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li><strong>Razorpay:</strong> Payment processing (governed by Razorpay&rsquo;s terms of service)</li>
-              <li><strong>Anthropic (Claude):</strong> AI content generation (roasts, rewrites, profiles, resumes, cover letters)</li>
+              <li><strong>Anthropic (Claude):</strong> AI content generation (rewrites, analyses, profiles, resumes, cover letters)</li>
               <li><strong>Google (Gemini):</strong> AI parsing, analysis, and quality checking</li>
               <li><strong>Supabase:</strong> Data storage and card image hosting</li>
               <li><strong>Resend:</strong> Transactional email delivery</li>

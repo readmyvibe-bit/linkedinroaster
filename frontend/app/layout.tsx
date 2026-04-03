@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'LinkedIn Profile Roaster — Get Roasted, Get Rewritten',
-  description: 'Your LinkedIn profile is invisible to recruiters. Get brutally roasted by AI, then get a complete rewrite. Average improvement: 34 to 84.',
+  title: 'ProfileRoaster — AI Profile Rewrite, Resume & Interview Prep',
+  description: 'Upload your LinkedIn PDF. AI scores your profile, rewrites it, builds your ATS resume, and preps you for interviews. Starting at ₹499.',
 };
 
 export default function RootLayout({

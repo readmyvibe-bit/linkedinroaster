@@ -27,7 +27,7 @@ export default function PrivacyPage() {
             <p>
               Profile Roaster (&ldquo;profileroaster.in&rdquo;, &ldquo;the Service&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;)
               is committed to protecting your privacy. This Privacy Policy explains how we collect, use, store, share, and protect your personal
-              information when you use our Service, including the LinkedIn Roast &amp; Rewrite, Build My LinkedIn, ATS Resume Builder, and User Dashboard features.
+              information when you use our Service, including the LinkedIn Profile Rewrite, Build My LinkedIn, ATS Resume Builder, and User Dashboard features.
             </p>
             <p className="mt-2">
               By using the Service, you consent to the data practices described in this policy. If you do not agree with any part of this
@@ -42,7 +42,7 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-6 space-y-1">
               <li><strong>Email address:</strong> Required for order creation, delivery of results, dashboard login, and OTP verification</li>
               <li><strong>LinkedIn headline:</strong> Submitted for free teaser analysis</li>
-              <li><strong>LinkedIn profile data:</strong> Raw text pasted from your LinkedIn profile including headline, about section, experience, education, skills, and certifications (Roast &amp; Rewrite)</li>
+              <li><strong>LinkedIn profile data:</strong> Raw text pasted from your LinkedIn profile including headline, about section, experience, education, skills, and certifications (Profile Rewrite)</li>
               <li><strong>Personal details:</strong> Full name, phone number, location, career stage, target role, target industry (Build My LinkedIn)</li>
               <li><strong>Education data:</strong> Institution, degree, field of study, year, GPA (Build My LinkedIn)</li>
               <li><strong>Experience data:</strong> Company names, roles, dates, descriptions (Build My LinkedIn)</li>
@@ -77,10 +77,10 @@ export default function PrivacyPage() {
             <h2 className="text-lg font-bold mb-3">3. How We Use Your Information</h2>
             <p>We use the information we collect for the following purposes:</p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
-              <li><strong>Service delivery:</strong> To parse, analyse, roast, rewrite, and score your LinkedIn profile; to generate LinkedIn profiles from scratch; to build ATS-optimized resumes and cover letters</li>
+              <li><strong>Service delivery:</strong> To parse, analyse, rewrite, and score your LinkedIn profile; to generate LinkedIn profiles from scratch; to build ATS-optimized resumes and cover letters</li>
               <li><strong>Result delivery:</strong> To send you unique results URLs, email notifications, and downloadable documents</li>
               <li><strong>Dashboard access:</strong> To authenticate you via OTP and display your order history, results, and resumes</li>
-              <li><strong>Card generation:</strong> To create shareable roast card images from your scores and top roast</li>
+              <li><strong>Card generation:</strong> To create shareable score card images from your profile scores</li>
               <li><strong>Payment processing:</strong> To create and verify Razorpay payment orders</li>
               <li><strong>Quality improvement:</strong> To monitor AI output quality and improve our prompts, scoring algorithms, and resume templates</li>
               <li><strong>Customer support:</strong> To respond to your inquiries, feedback, or refund requests</li>
@@ -96,7 +96,7 @@ export default function PrivacyPage() {
             </p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li><strong>Google Gemini:</strong> Used for profile parsing (extracting structured data from raw text), analysis scoring, and quality checking</li>
-              <li><strong>Anthropic Claude:</strong> Used for roast generation, profile rewriting, LinkedIn profile building from scratch, resume generation, and cover letter creation</li>
+              <li><strong>Anthropic Claude:</strong> Used for profile analysis, profile rewriting, LinkedIn profile building from scratch, resume generation, and cover letter creation</li>
             </ul>
             <p className="mt-2">
               Your data is sent to these AI providers via their APIs for processing. Both Anthropic and Google have data
@@ -105,7 +105,7 @@ export default function PrivacyPage() {
             </p>
             <p className="mt-2">
               For the Build My LinkedIn service, personal details such as name, education, and experience are sent to the AI
-              as they are necessary for generating the LinkedIn profile. For Roast &amp; Rewrite, only profile text content is transmitted.
+              as they are necessary for generating the LinkedIn profile. For Profile Rewrite, only profile text content is transmitted.
             </p>
           </section>
 
@@ -137,7 +137,7 @@ export default function PrivacyPage() {
             <h3 className="font-semibold mt-4 mb-2">5.3 Data Retention</h3>
             <ul className="list-disc pl-6 space-y-1">
               <li><strong>Profile data (raw paste / form input):</strong> Retained for 30 days, then deleted via automated daily cleanup</li>
-              <li><strong>Generated results (roast, rewrite, profiles):</strong> Retained for up to 90 days to allow user access via dashboard</li>
+              <li><strong>Generated results (rewrite, profiles):</strong> Retained for up to 90 days to allow user access via dashboard</li>
               <li><strong>Resumes and cover letters:</strong> Retained indefinitely until deleted by user or admin</li>
               <li><strong>Uploaded resume files:</strong> Text extracted for processing; original files are not stored permanently</li>
               <li><strong>Card images:</strong> Retained indefinitely (public shareable images)</li>

@@ -179,7 +179,7 @@ export default function BuildResultsPage() {
                 Your order is ready! Fill in your details so we can build your LinkedIn profile.
               </p>
               <a
-                href={`/build/form?plan=${data?.plan || 'starter'}&orderId=${orderId}`}
+                href={`/build/form?plan=${data?.plan || 'standard'}&orderId=${orderId}`}
                 style={{ display: 'inline-block', background: '#0A66C2', color: 'white', padding: '12px 28px', borderRadius: 50, fontSize: 15, fontWeight: 700, textDecoration: 'none' }}
               >
                 Fill Your Details &rarr;

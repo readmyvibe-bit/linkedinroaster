@@ -132,7 +132,7 @@ function ReferralCodeRedeemer({ product }: { product: 'roast' | 'build' }) {
         type="text"
         value={code}
         onChange={(e) => setCode(e.target.value.toUpperCase())}
-        placeholder="Enter code (e.g. ROAST-STD-XXXXX)"
+        placeholder="Enter code (e.g. PR-STD-XXXXX)"
         style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #E0E0E0', fontSize: 13, marginBottom: 8, fontFamily: 'monospace', boxSizing: 'border-box' }}
       />
       {product === 'roast' && (
@@ -269,10 +269,12 @@ function ProfileInputForm({
       <h3 style={{ fontSize: 18, fontWeight: 800, color: '#191919', marginBottom: 4 }}>
         {initialRawPaste ? 'Your LinkedIn Profile (from PDF)' : 'Paste Your LinkedIn Profile'}
       </h3>
-      <p style={{ fontSize: 13, color: '#666', marginBottom: 4 }}>
-        {plan === 'pro' ? 'Pro Plan \u2014 \u20b9999' : 'Standard Plan \u2014 \u20b9499'}
-        {teaserId && <span style={{ opacity: 0.6, marginLeft: 8 }}>(teaser linked)</span>}
-      </p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+        <span style={{ fontSize: 13, color: '#666' }}>
+          {plan === 'pro' ? 'Pro Plan \u2014 \u20b9999' : 'Standard Plan \u2014 \u20b9499'}
+        </span>
+        {teaserId && <span style={{ fontSize: 12, opacity: 0.6 }}>(teaser linked)</span>}
+      </div>
       {initialRawPaste ? (
         <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 8, padding: '8px 12px', marginBottom: 16, fontSize: 12, color: '#057642', fontWeight: 600 }}>
           &#9989; Profile data auto-filled from your LinkedIn PDF. Review and edit below if needed.
@@ -307,7 +309,7 @@ function ProfileInputForm({
           <textarea
             value={jobDescription}
             onChange={(e) => setJobDescription(e.target.value)}
-            placeholder="Job description to match against (optional \u2014 Pro feature)"
+            placeholder="Paste the job description you're targeting (optional, Pro feature)"
             rows={3}
             style={{ width: '100%', padding: '12px 16px', borderRadius: 10, border: '1px solid #E0E0E0', fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box' }}
           />
@@ -594,7 +596,7 @@ export default function Home() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 24, maxWidth: 880, margin: '0 auto' }}>
 
             {/* PATH A: Have LinkedIn */}
-            <div style={{ background: 'white', borderRadius: 16, border: '2px solid #E0E7F0', padding: '32px 28px', textAlign: 'left', transition: 'border-color 0.2s, box-shadow 0.2s' }}
+            <div style={{ background: 'white', borderRadius: 16, border: '2px solid #E0E7F0', padding: '32px 28px', textAlign: 'left', transition: 'border-color 0.2s, box-shadow 0.2s', display: 'flex', flexDirection: 'column' }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = '#0A66C2'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(10,102,194,0.12)'; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = '#E0E7F0'; e.currentTarget.style.boxShadow = 'none'; }}
             >
@@ -784,7 +786,7 @@ export default function Home() {
             </div>
 
             {/* PATH B: Starting Fresh */}
-            <div style={{ background: 'white', borderRadius: 16, border: '2px solid #E0E7F0', padding: '32px 28px', textAlign: 'left', transition: 'border-color 0.2s, box-shadow 0.2s' }}
+            <div style={{ background: 'white', borderRadius: 16, border: '2px solid #E0E7F0', padding: '32px 28px', textAlign: 'left', transition: 'border-color 0.2s, box-shadow 0.2s', display: 'flex', flexDirection: 'column' }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = '#057642'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(5,118,66,0.12)'; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = '#E0E7F0'; e.currentTarget.style.boxShadow = 'none'; }}
             >
@@ -801,22 +803,29 @@ export default function Home() {
 
               <div style={{ fontSize: 22, fontWeight: 800, color: '#191919', marginBottom: 6 }}>I{"'"}m starting fresh</div>
               <div style={{ fontSize: 14, color: '#666', lineHeight: 1.6, marginBottom: 20 }}>
-                No LinkedIn? No problem. Upload an old resume or fill a quick form.
+                No LinkedIn? No problem. Upload an old resume or fill a quick form. Starting at &#8377;499.
               </div>
 
-              {/* CTA to build landing with pricing */}
-              <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 12, padding: '16px 20px', marginBottom: 16 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                  <span style={{ fontSize: 18 }}>&#128195;</span>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: '#057642' }}>Upload resume or fill a quick form</span>
-                </div>
-                <div style={{ fontSize: 12, color: '#666', lineHeight: 1.5 }}>
-                  Starting at &#8377;499 &bull; AI builds your complete LinkedIn profile + resume + interview prep
-                </div>
+              {/* Two mini plan cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+                <a href="/build" target="_blank" rel="noreferrer" style={{ textDecoration: 'none', background: '#F0FDF4', border: '2px solid #BBF7D0', borderRadius: 12, padding: '14px 12px', textAlign: 'center', cursor: 'pointer', transition: 'border-color 0.2s' }}>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: '#057642' }}>&#8377;499</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: '#057642' }}>Standard</div>
+                  <div style={{ fontSize: 10, color: '#666', marginTop: 2 }}>18 templates</div>
+                </a>
+                <a href="/build" target="_blank" rel="noreferrer" style={{ textDecoration: 'none', background: '#F0F7FF', border: '2px solid #BFDBFE', borderRadius: 12, padding: '14px 12px', textAlign: 'center', cursor: 'pointer', transition: 'border-color 0.2s' }}>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: '#0A66C2' }}>&#8377;999</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: '#0A66C2' }}>Pro</div>
+                  <div style={{ fontSize: 10, color: '#666', marginTop: 2 }}>28 templates + priority</div>
+                </a>
               </div>
+
+              <div style={{ flexGrow: 1 }} />
 
               <a
                 href="/build"
+                target="_blank"
+                rel="noreferrer"
                 style={{
                   display: 'block', width: '100%', padding: '14px 24px', borderRadius: 50, border: 'none',
                   background: 'linear-gradient(135deg, #057642, #034A2A)', color: 'white',
@@ -824,9 +833,9 @@ export default function Home() {
                   boxShadow: '0 4px 16px rgba(5,118,66,0.35)', boxSizing: 'border-box',
                 }}
               >
-                See Plans & Build My Profile &rarr;
+                Choose Plan & Build My Profile &rarr;
               </a>
-              <div style={{ fontSize: 12, color: '#666', textAlign: 'center', marginTop: 10 }}>
+              <div style={{ fontSize: 12, color: '#057642', textAlign: 'center', marginTop: 10, fontWeight: 600 }}>
                 &#127891; Perfect for students & freshers
               </div>
             </div>
@@ -1018,6 +1027,33 @@ export default function Home() {
       {selectedPlan && (
         <section ref={inputFormRef} style={{ background: '#F8FAFC', padding: '28px 16px 40px' }}>
           <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+            {/* Plan switcher */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 20 }}>
+              <button
+                onClick={() => setSelectedPlan('standard')}
+                style={{
+                  flex: '1 1 200px', maxWidth: 240, padding: '14px 16px', borderRadius: 12, cursor: 'pointer',
+                  border: selectedPlan === 'standard' ? '2px solid #0A66C2' : '2px solid #E0E0E0',
+                  background: selectedPlan === 'standard' ? '#EFF6FF' : 'white',
+                  textAlign: 'center',
+                }}
+              >
+                <div style={{ fontSize: 18, fontWeight: 800, color: selectedPlan === 'standard' ? '#0A66C2' : '#191919' }}>&#8377;499</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: selectedPlan === 'standard' ? '#0A66C2' : '#666' }}>Standard &bull; 18 templates</div>
+              </button>
+              <button
+                onClick={() => setSelectedPlan('pro')}
+                style={{
+                  flex: '1 1 200px', maxWidth: 240, padding: '14px 16px', borderRadius: 12, cursor: 'pointer',
+                  border: selectedPlan === 'pro' ? '2px solid #0A66C2' : '2px solid #E0E0E0',
+                  background: selectedPlan === 'pro' ? '#EFF6FF' : 'white',
+                  textAlign: 'center',
+                }}
+              >
+                <div style={{ fontSize: 18, fontWeight: 800, color: selectedPlan === 'pro' ? '#0A66C2' : '#191919' }}>&#8377;999</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: selectedPlan === 'pro' ? '#0A66C2' : '#666' }}>Pro &bull; 28 templates + priority</div>
+              </button>
+            </div>
             <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start', flexWrap: 'wrap' }}>
               <div style={{ flex: '1 1 500px', minWidth: 0 }}>
                 <ProfileInputForm

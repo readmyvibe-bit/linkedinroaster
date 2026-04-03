@@ -382,7 +382,7 @@ function ScoreReveal({ before, after }: { before: ScoreBreakdown; after: ScoreBr
 }
 
 // ═══════════════════════════════════════════
-// RoastCard
+// Legacy components (not rendered — kept for backward compat)
 // ═══════════════════════════════════════════
 function RoastCard({ point, pointNumber, totalPoints }: { point: RoastPoint; pointNumber: number; totalPoints: number }) {
   const [expanded, setExpanded] = useState(false);
@@ -2298,43 +2298,10 @@ export default function ResultsPage() {
   const { scores, roast, rewrite, analysis } = results;
   const isPro = plan === 'pro';
 
-  // Pick top 3 roast points: one each from Headline/About/Experience, fill by order
-  const top3Roasts = (() => {
-    const points = roast.roast_points || [];
-    const picked: RoastPoint[] = [];
-    const sections = ['headline', 'about', 'experience'];
-    for (const sec of sections) {
-      const match = points.find(p => p.section_targeted.toLowerCase().includes(sec) && !picked.includes(p));
-      if (match) picked.push(match);
-    }
-    for (const p of points) { if (picked.length >= 3) break; if (!picked.includes(p)) picked.push(p); }
-    return picked.slice(0, 3);
-  })();
-  const remaining3 = (roast.roast_points || []).filter(p => !top3Roasts.includes(p));
-
   // Ranking
   const afterScore = scores.after.overall;
   const rankLabel = afterScore >= 80 ? 'Top 10%' : afterScore >= 70 ? 'Top 20%' : afterScore >= 60 ? 'Top 35%' : afterScore >= 50 ? 'Top 50%' : 'Improving';
   const improvement = scores.after.overall - scores.before.overall;
-
-  // Section icon mapping for roast cards
-  const sectionIcon = (s: string) => {
-    const sl = s.toLowerCase();
-    if (sl.includes('headline')) return '🎯';
-    if (sl.includes('about')) return '📝';
-    if (sl.includes('experience')) return '💼';
-    if (sl.includes('skill')) return '🛠️';
-    return '🔍';
-  };
-
-  // Rewrite fix preview for roast cards
-  const getFixPreview = (section: string) => {
-    const sl = section.toLowerCase();
-    if (sl.includes('headline')) return rewrite.rewritten_headline?.slice(0, 60) + '...';
-    if (sl.includes('about')) return rewrite.rewritten_about?.slice(0, 60) + '...';
-    if (sl.includes('experience') && rewrite.rewritten_experience?.[0]) return rewrite.rewritten_experience[0].bullets?.[0]?.slice(0, 60) + '...';
-    return '';
-  };
 
   // Copy handlers
   function handleCopy(text: string, field: string) { copyToClipboard(text); setCopiedField(field); setTimeout(() => setCopiedField(''), 2000); }
@@ -2388,31 +2355,6 @@ export default function ResultsPage() {
   // Share handlers
   function handleShareLinkedIn() { window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://profileroaster.in')}`, '_blank'); }
   function handleShareWhatsApp() { window.open(`https://wa.me/?text=${encodeURIComponent(`My LinkedIn profile went from ${scores.before.overall} to ${scores.after.overall}! Get yours rewritten: profileroaster.in`)}`, '_blank'); }
-  function handleDownloadCard() {
-    const cardUrl = results.card_image_url;
-    if (!cardUrl) { alert('Card not ready yet. Please try again in a moment.'); return; }
-    // Download existing shareable card PNG
-    fetch(cardUrl, { mode: 'cors' })
-      .then(r => {
-        if (!r.ok) throw new Error('Failed');
-        return r.blob();
-      })
-      .then(blob => {
-        const blobUrl = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = `profileroaster-${scores.before.overall}-to-${scores.after.overall}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(blobUrl);
-      })
-      .catch(() => {
-        // Fallback: open in new tab for manual save
-        window.open(cardUrl, '_blank');
-      });
-  }
-
   const userName = (data as any).parsed_profile?.name || 'Your Profile';
   const userLocation = (data as any).parsed_profile?.location || '';
 
