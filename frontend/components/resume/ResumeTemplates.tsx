@@ -74,42 +74,67 @@ interface TemplateDefinition {
   name: string;
   description: string;
   category: string;
+  atsLevel?: 'high' | 'medium' | 'low';
+  bestFor?: string[];
 }
 
 // ─── Template Definitions ────────────────────────────────────────────────────
 
 export const TEMPLATES: (TemplateDefinition & { proOnly?: boolean })[] = [
   // Standard-accessible (18) + Pro-only (10) = 28 total
-  { id: 'classic', name: 'Classic Professional', description: 'Traditional clean layout. Maximum ATS compatibility.', category: 'ATS-Friendly' },
-  { id: 'modern', name: 'Modern Accent', description: 'Blue accent styling with skill tags. ATS safe.', category: 'ATS-Friendly' },
-  { id: 'minimal', name: 'Minimalist', description: 'Ultra clean with maximum whitespace.', category: 'ATS-Friendly' },
-  { id: 'compact', name: 'Compact Dense', description: 'Maximum content in minimum space. Perfect for 1-page.', category: 'ATS-Friendly' },
-  { id: 'technical', name: 'Technical Developer', description: 'Code-inspired design for engineering roles.', category: 'ATS-Friendly' },
-  { id: 'bold', name: 'Bold Statement', description: 'High impact with strong visual hierarchy.', category: 'Professional' },
-  { id: 'elegant', name: 'Elegant Refined', description: 'Sophisticated design for consulting and finance.', category: 'Professional' },
-  { id: 'executive', name: 'Executive Premium', description: 'Refined formal layout for senior professionals.', category: 'Professional' },
-  { id: 'monochrome', name: 'Monochrome Prestige', description: 'Pure black and white luxury typography.', category: 'Premium' },
-  { id: 'serif', name: 'Professional Serif', description: 'Classic serif typography for consulting and finance.', category: 'Premium' },
-  { id: 'headline', name: 'Headline Impact', description: 'Large summary section. Perfect for sales and CS roles.', category: 'Premium' },
-  { id: 'divider', name: 'Modern Divider', description: 'Elegant dividers between sections. Minimalist rhythm.', category: 'Premium' },
+  { id: 'classic', name: 'Classic Professional', description: 'Traditional clean layout. Maximum ATS compatibility.', category: 'ATS-Friendly', atsLevel: 'high', bestFor: ['any', 'general', 'corporate'] },
+  { id: 'modern', name: 'Modern Accent', description: 'Blue accent styling with skill tags. ATS safe.', category: 'ATS-Friendly', atsLevel: 'high', bestFor: ['tech', 'analyst', 'engineer'] },
+  { id: 'minimal', name: 'Minimalist', description: 'Ultra clean with maximum whitespace.', category: 'ATS-Friendly', atsLevel: 'high', bestFor: ['consulting', 'finance', 'any'] },
+  { id: 'compact', name: 'Compact Dense', description: 'Maximum content in minimum space. Perfect for 1-page.', category: 'ATS-Friendly', atsLevel: 'high', bestFor: ['experienced', 'senior', 'any'] },
+  { id: 'technical', name: 'Technical Developer', description: 'Code-inspired design for engineering roles.', category: 'ATS-Friendly', atsLevel: 'high', bestFor: ['engineer', 'developer', 'tech', 'devops'] },
+  { id: 'bold', name: 'Bold Statement', description: 'High impact with strong visual hierarchy.', category: 'Professional', atsLevel: 'medium', bestFor: ['sales', 'marketing', 'leadership'] },
+  { id: 'elegant', name: 'Elegant Refined', description: 'Sophisticated design for consulting and finance.', category: 'Professional', atsLevel: 'medium', bestFor: ['consulting', 'finance', 'management'] },
+  { id: 'executive', name: 'Executive Premium', description: 'Refined formal layout for senior professionals.', category: 'Professional', atsLevel: 'medium', bestFor: ['executive', 'director', 'vp', 'cto'] },
+  { id: 'monochrome', name: 'Monochrome Prestige', description: 'Pure black and white luxury typography.', category: 'Premium', atsLevel: 'high', bestFor: ['corporate', 'finance', 'law'] },
+  { id: 'serif', name: 'Professional Serif', description: 'Classic serif typography for consulting and finance.', category: 'Premium', atsLevel: 'high', bestFor: ['consulting', 'finance', 'academia'] },
+  { id: 'headline', name: 'Headline Impact', description: 'Large summary section. Perfect for sales and CS roles.', category: 'Premium', atsLevel: 'medium', bestFor: ['sales', 'customer success', 'account manager'] },
+  { id: 'divider', name: 'Modern Divider', description: 'Elegant dividers between sections. Minimalist rhythm.', category: 'Premium', atsLevel: 'medium', bestFor: ['product', 'design', 'marketing'] },
   // Pro-only (10)
-  { id: 'crimson', name: 'Crimson Authority', description: 'Deep red accents. Commanding leadership presence.', category: 'Premium', proOnly: true },
-  { id: 'ocean', name: 'Ocean Professional', description: 'Teal accents. Calm and trustworthy.', category: 'Premium', proOnly: true },
-  { id: 'slategold', name: 'Slate & Gold', description: 'Dark slate with gold accents. Luxury corporate.', category: 'Premium', proOnly: true },
-  { id: 'indigo', name: 'Indigo Modern', description: 'Purple accents for tech and startup roles.', category: 'Premium', proOnly: true },
-  { id: 'sidebar', name: 'Modern Sidebar', description: 'Dark sidebar with clean main content area.', category: 'Visual', proOnly: true },
-  { id: 'splitmodern', name: 'Split Modern', description: 'Light sidebar with skills and education.', category: 'Visual', proOnly: true },
-  { id: 'highlight', name: 'Highlight Sections', description: 'Full-width header with highlighted side panel.', category: 'Visual', proOnly: true },
-  { id: 'corporate', name: 'Corporate Formal', description: 'Navy header with structured sidebar layout.', category: 'Visual', proOnly: true },
-  { id: 'campus', name: 'Campus Placement', description: 'Indian campus placement format. Photo, personal details, education-first.', category: 'India' },
-  { id: 'fresher', name: 'Fresher & Intern', description: 'Projects-first layout for students and freshers with little work experience.', category: 'India' },
-  { id: 'salesbd', name: 'Sales & BD', description: 'Metrics-forward layout for sales, BDR, and business development roles.', category: 'India' },
-  { id: 'operator', name: 'Operator Grid', description: 'Slate header, cyan accents, gridded skills. For PMs, founders, and operators.', category: 'Visual', proOnly: true },
-  { id: 'editorial', name: 'Editorial Canvas', description: 'Warm paper, terracotta accents. For marketing, content, and creative roles.', category: 'Visual', proOnly: true },
-  { id: 'skylight', name: 'Skylight Cabin', description: 'Elegant layout for cabin crew and inflight roles. Photo, languages, certifications first.', category: 'India' },
-  { id: 'ramp', name: 'Ramp & Terminal', description: 'Structured operations layout for airport ground staff, gate agents, and cargo roles.', category: 'India' },
-  { id: 'clinical', name: 'Clinical Care', description: 'Trust-forward layout for nurses, technicians, and allied health. Certifications highlighted.', category: 'India' },
+  { id: 'crimson', name: 'Crimson Authority', description: 'Deep red accents. Commanding leadership presence.', category: 'Premium', proOnly: true, atsLevel: 'medium', bestFor: ['leadership', 'executive', 'director'] },
+  { id: 'ocean', name: 'Ocean Professional', description: 'Teal accents. Calm and trustworthy.', category: 'Premium', proOnly: true, atsLevel: 'medium', bestFor: ['hr', 'healthcare', 'education'] },
+  { id: 'slategold', name: 'Slate & Gold', description: 'Dark slate with gold accents. Luxury corporate.', category: 'Premium', proOnly: true, atsLevel: 'medium', bestFor: ['finance', 'consulting', 'corporate'] },
+  { id: 'indigo', name: 'Indigo Modern', description: 'Purple accents for tech and startup roles.', category: 'Premium', proOnly: true, atsLevel: 'medium', bestFor: ['startup', 'tech', 'product'] },
+  { id: 'sidebar', name: 'Modern Sidebar', description: 'Dark sidebar with clean main content area.', category: 'Visual', proOnly: true, atsLevel: 'low', bestFor: ['creative', 'design', 'marketing'] },
+  { id: 'splitmodern', name: 'Split Modern', description: 'Light sidebar with skills and education.', category: 'Visual', proOnly: true, atsLevel: 'low', bestFor: ['analyst', 'researcher', 'tech'] },
+  { id: 'highlight', name: 'Highlight Sections', description: 'Full-width header with highlighted side panel.', category: 'Visual', proOnly: true, atsLevel: 'low', bestFor: ['product', 'operations', 'manager'] },
+  { id: 'corporate', name: 'Corporate Formal', description: 'Navy header with structured sidebar layout.', category: 'Visual', proOnly: true, atsLevel: 'low', bestFor: ['corporate', 'admin', 'operations'] },
+  { id: 'campus', name: 'Campus Placement', description: 'Indian campus placement format. Photo, personal details, education-first.', category: 'India', atsLevel: 'medium', bestFor: ['fresher', 'student', 'campus'] },
+  { id: 'fresher', name: 'Fresher & Intern', description: 'Projects-first layout for students and freshers with little work experience.', category: 'India', atsLevel: 'high', bestFor: ['fresher', 'intern', 'student'] },
+  { id: 'salesbd', name: 'Sales & BD', description: 'Metrics-forward layout for sales, BDR, and business development roles.', category: 'India', atsLevel: 'high', bestFor: ['sales', 'business development', 'account manager', 'customer success'] },
+  { id: 'operator', name: 'Operator Grid', description: 'Slate header, cyan accents, gridded skills. For PMs, founders, and operators.', category: 'Visual', proOnly: true, atsLevel: 'low', bestFor: ['product manager', 'founder', 'operations'] },
+  { id: 'editorial', name: 'Editorial Canvas', description: 'Warm paper, terracotta accents. For marketing, content, and creative roles.', category: 'Visual', proOnly: true, atsLevel: 'low', bestFor: ['content', 'marketing', 'writer', 'creative'] },
+  { id: 'skylight', name: 'Skylight Cabin', description: 'Elegant layout for cabin crew and inflight roles. Photo, languages, certifications first.', category: 'India', atsLevel: 'medium', bestFor: ['cabin crew', 'aviation', 'hospitality'] },
+  { id: 'ramp', name: 'Ramp & Terminal', description: 'Structured operations layout for airport ground staff, gate agents, and cargo roles.', category: 'India', atsLevel: 'medium', bestFor: ['airport', 'ground staff', 'logistics'] },
+  { id: 'clinical', name: 'Clinical Care', description: 'Trust-forward layout for nurses, technicians, and allied health. Certifications highlighted.', category: 'India', atsLevel: 'medium', bestFor: ['nurse', 'medical', 'healthcare', 'clinical'] },
 ];
+
+// ─── Template Recommendation ─────────────────────────────────────────────────
+
+export function getRecommendedTemplates(targetRole: string, isPro: boolean): string[] {
+  const role = (targetRole || '').toLowerCase();
+  const scored = TEMPLATES
+    .filter(t => isPro || !(t as any).proOnly)
+    .map(t => {
+      let score = 0;
+      // Match role keywords against bestFor
+      for (const keyword of (t.bestFor || [])) {
+        if (role.includes(keyword) || keyword === 'any') score += 10;
+      }
+      // Prefer high ATS templates
+      if (t.atsLevel === 'high') score += 5;
+      else if (t.atsLevel === 'medium') score += 2;
+      return { id: t.id, score };
+    })
+    .sort((a, b) => b.score - a.score);
+  // Return top 3, fallback to classic if no match
+  const top = scored.filter(s => s.score > 0).slice(0, 3).map(s => s.id);
+  return top.length > 0 ? top : ['classic', 'modern', 'minimal'];
+}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 

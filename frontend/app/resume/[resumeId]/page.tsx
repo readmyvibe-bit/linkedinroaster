@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { TEMPLATES, renderResumeHTML, buildPrintHTML } from '../../../components/resume/ResumeTemplates';
+import { TEMPLATES, renderResumeHTML, buildPrintHTML, getRecommendedTemplates } from '../../../components/resume/ResumeTemplates';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -84,6 +84,8 @@ export default function ResumePreviewPage() {
   const [templateId, setTemplateId] = useState('classic');
   const [printSize, setPrintSize] = useState<'compact' | 'standard' | 'spacious'>('standard');
   const [fitOnePage, setFitOnePage] = useState(true);
+  const [fontFamily, setFontFamily] = useState('default');
+  const [accentColor, setAccentColor] = useState('');
 
   useEffect(() => {
     if (!resumeId) return;
@@ -131,6 +133,11 @@ export default function ResumePreviewPage() {
     if (printSize === 'compact') html = html.replace('</style>', 'body{font-size:92%!important;line-height:1.35!important}body div,body p{margin-bottom:2px!important}' + '</style>');
     else if (printSize === 'spacious') html = html.replace('</style>', 'body{font-size:108%!important;line-height:1.65!important}' + '</style>');
     if (fitOnePage) html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 10mm 8mm 10mm}');
+    // Apply font family override
+    const fontMap: Record<string, string> = { default: '', serif: 'Georgia, "Times New Roman", serif', sans: 'Arial, Helvetica, sans-serif', mono: '"Courier New", monospace', inter: '"Inter", system-ui, sans-serif' };
+    if (fontFamily !== 'default' && fontMap[fontFamily]) html = html.replace('</style>', `body,body *{font-family:${fontMap[fontFamily]}!important}` + '</style>');
+    // Apply accent color override
+    if (accentColor) html = html.replace('</style>', `h1,h2,h3,.section-title,[class*=header]{color:${accentColor}!important}a{color:${accentColor}!important}` + '</style>');
     const win = window.open('', '_blank');
     if (!win) { alert('Please allow popups to download PDF.'); return; }
     win.document.write(html);
@@ -276,37 +283,92 @@ export default function ResumePreviewPage() {
               <a href={`/resume/${resume.id}/edit`} style={{ padding: '7px 16px', background: '#057642', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>&#9997;&#65039; Edit</a>
               <a href={`${API_URL}/api/resume/${resume.id}/download/txt`} style={{ padding: '7px 16px', background: '#F1F5F9', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>TXT</a>
               <button onClick={interviewPrepHandler} style={{ padding: '7px 16px', background: '#F5F3FF', color: '#7C3AED', border: '1px solid #DDD6FE', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>&#127908; Interview Prep</button>
+              <a href="/dashboard" target="_blank" rel="noreferrer" style={{ padding: '7px 16px', background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>&#128200; Dashboard</a>
               {resume.cover_letter && <button onClick={handleCopyCoverLetter} style={{ padding: '7px 16px', background: '#FEF3C7', color: '#92400E', border: '1px solid #FDE68A', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{coverLetterCopied ? '\u2713 Copied!' : '\uD83D\uDCEC Cover Letter'}</button>}
             </div>
           </div>
 
-          {/* Template Switcher */}
-          <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', padding: '8px 0', borderTop: '1px solid #F1F5F9' }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#64748B', marginRight: 4 }}>Template:</span>
-            {TEMPLATES.map((t) => {
-              const locked = orderPlan !== 'pro' && (t as any).proOnly;
-              return (
-                <button key={t.id} onClick={() => setTemplateId(t.id)}
-                  style={{ padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', border: templateId === t.id ? '2px solid #0A66C2' : '1px solid #E2E8F0', background: templateId === t.id ? '#EFF6FF' : locked ? '#F9FAFB' : '#fff', color: templateId === t.id ? '#0A66C2' : locked ? '#94A3B8' : '#64748B' }}>
-                  {t.name}{locked ? ' \uD83D\uDD12' : ''}
-                </button>
-              );
-            })}
-            <div style={{ marginLeft: 'auto', display: 'flex', gap: 0, borderRadius: 6, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
-              {(['compact', 'standard', 'spacious'] as const).map(s => (
-                <button key={s} onClick={() => { setPrintSize(s); savePrintSettings(s, fitOnePage); }}
-                  style={{ padding: '3px 10px', fontSize: 10, fontWeight: 600, border: 'none', cursor: 'pointer', background: printSize === s ? '#0A66C2' : '#fff', color: printSize === s ? '#fff' : '#64748B' }}>
-                  {s.charAt(0).toUpperCase() + s.slice(1)}
-                </button>
-              ))}
-            </div>
-            <div style={{ display: 'flex', gap: 0, borderRadius: 6, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
-              <button onClick={() => { setFitOnePage(true); savePrintSettings(printSize, true); }}
-                style={{ padding: '3px 10px', fontSize: 10, fontWeight: 600, border: 'none', cursor: 'pointer', background: fitOnePage ? '#0A66C2' : '#fff', color: fitOnePage ? '#fff' : '#64748B' }}>1 pg</button>
-              <button onClick={() => { setFitOnePage(false); savePrintSettings(printSize, false); }}
-                style={{ padding: '3px 10px', fontSize: 10, fontWeight: 600, border: 'none', cursor: 'pointer', background: !fitOnePage ? '#0A66C2' : '#fff', color: !fitOnePage ? '#fff' : '#64748B' }}>2 pg</button>
-            </div>
-          </div>
+          {/* Template Switcher with ATS badges + recommendations */}
+          {(() => {
+            const recommended = getRecommendedTemplates(resume.target_role, orderPlan === 'pro');
+            return (
+              <div style={{ padding: '8px 0', borderTop: '1px solid #F1F5F9' }}>
+                {/* Recommended templates */}
+                {recommended.length > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#057642', background: '#F0FDF4', padding: '2px 8px', borderRadius: 4 }}>Recommended for {resume.target_role}:</span>
+                    {recommended.map(rid => {
+                      const t = TEMPLATES.find(x => x.id === rid);
+                      return t ? (
+                        <button key={rid} onClick={() => setTemplateId(rid)}
+                          style={{ padding: '2px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', border: templateId === rid ? '2px solid #057642' : '1px solid #BBF7D0', background: templateId === rid ? '#F0FDF4' : '#fff', color: '#057642' }}>
+                          {t.name}
+                        </button>
+                      ) : null;
+                    })}
+                  </div>
+                )}
+                {/* All templates */}
+                <div style={{ display: 'flex', gap: 5, alignItems: 'center', flexWrap: 'wrap', marginBottom: 8 }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: '#64748B', marginRight: 2 }}>All:</span>
+                  {TEMPLATES.map((t) => {
+                    const locked = orderPlan !== 'pro' && (t as any).proOnly;
+                    const isRec = recommended.includes(t.id);
+                    const ats = t.atsLevel;
+                    return (
+                      <button key={t.id} onClick={() => setTemplateId(t.id)}
+                        style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10, fontWeight: 600, cursor: 'pointer', border: templateId === t.id ? '2px solid #0A66C2' : '1px solid #E2E8F0', background: templateId === t.id ? '#EFF6FF' : locked ? '#F9FAFB' : '#fff', color: templateId === t.id ? '#0A66C2' : locked ? '#94A3B8' : '#64748B', position: 'relative' as const }}>
+                        {t.name}
+                        {locked ? ' \uD83D\uDD12' : ''}
+                        {ats === 'high' && !locked && <span style={{ marginLeft: 3, fontSize: 8, fontWeight: 700, color: '#057642', background: '#DCFCE7', padding: '0 4px', borderRadius: 3, verticalAlign: 'top' }}>ATS</span>}
+                        {isRec && <span style={{ marginLeft: 2, fontSize: 8, color: '#057642' }}>\u2605</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+                {/* Controls row: size, pages, font, color */}
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+                  {/* Size */}
+                  <div style={{ display: 'flex', gap: 0, borderRadius: 6, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
+                    {(['compact', 'standard', 'spacious'] as const).map(s => (
+                      <button key={s} onClick={() => { setPrintSize(s); savePrintSettings(s, fitOnePage); }}
+                        style={{ padding: '3px 10px', fontSize: 10, fontWeight: 600, border: 'none', cursor: 'pointer', background: printSize === s ? '#0A66C2' : '#fff', color: printSize === s ? '#fff' : '#64748B' }}>
+                        {s.charAt(0).toUpperCase() + s.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                  {/* Pages */}
+                  <div style={{ display: 'flex', gap: 0, borderRadius: 6, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
+                    <button onClick={() => { setFitOnePage(true); savePrintSettings(printSize, true); }}
+                      style={{ padding: '3px 10px', fontSize: 10, fontWeight: 600, border: 'none', cursor: 'pointer', background: fitOnePage ? '#0A66C2' : '#fff', color: fitOnePage ? '#fff' : '#64748B' }}>1 pg</button>
+                    <button onClick={() => { setFitOnePage(false); savePrintSettings(printSize, false); }}
+                      style={{ padding: '3px 10px', fontSize: 10, fontWeight: 600, border: 'none', cursor: 'pointer', background: !fitOnePage ? '#0A66C2' : '#fff', color: !fitOnePage ? '#fff' : '#64748B' }}>2 pg</button>
+                  </div>
+                  {/* Font */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 10, color: '#64748B', fontWeight: 600 }}>Font:</span>
+                    <select value={fontFamily} onChange={e => setFontFamily(e.target.value)}
+                      style={{ padding: '2px 6px', fontSize: 10, borderRadius: 4, border: '1px solid #E2E8F0', color: '#334155', cursor: 'pointer' }}>
+                      <option value="default">Default</option>
+                      <option value="serif">Serif (Georgia)</option>
+                      <option value="sans">Sans (Arial)</option>
+                      <option value="inter">Inter</option>
+                      <option value="mono">Monospace</option>
+                    </select>
+                  </div>
+                  {/* Accent Color */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ fontSize: 10, color: '#64748B', fontWeight: 600 }}>Color:</span>
+                    {['', '#0A66C2', '#057642', '#7C3AED', '#CC1016', '#E67E22', '#191919'].map(c => (
+                      <button key={c} onClick={() => setAccentColor(c)}
+                        style={{ width: 16, height: 16, borderRadius: '50%', border: accentColor === c ? '2px solid #0F172A' : '1px solid #D1D5DB', background: c || '#fff', cursor: 'pointer', padding: 0 }}
+                        title={c || 'Default'} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </div>
 
