@@ -2687,7 +2687,7 @@ export default function ResultsPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#191919' }}>
                 <span style={{ width: 18, height: 18, borderRadius: 4, border: '2px solid #D1D5DB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} />
                 <span style={{ fontWeight: 600, flex: 1 }}>Interview prep</span>
-                <button onClick={() => { window.location.href = `/interview-prep?orderId=${orderId}`; }} style={{ padding: '4px 12px', background: '#F3F4F6', color: '#191919', border: '1px solid #D1D5DB', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                <button onClick={() => { window.location.href = `/resume?orderId=${orderId}`; }} style={{ padding: '4px 12px', background: '#F3F4F6', color: '#191919', border: '1px solid #D1D5DB', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                   Start
                 </button>
               </div>

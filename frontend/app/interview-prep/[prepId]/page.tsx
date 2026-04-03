@@ -241,12 +241,12 @@ export default function InterviewPrepPage() {
   const hasMcqs = mcqs.length > 0;
 
   const tabs = [
-    { id: 'brief', label: 'Company Brief', show: true },
-    { id: 'questions', label: `Questions (${questions.length})`, show: questions.length > 0 },
-    { id: 'ask_them', label: 'Your Questions', show: hasAskThem },
-    { id: 'cheat_sheet', label: 'Cheat Sheet', show: hasCheatSheet },
-    { id: 'quiz', label: 'Quiz', show: hasMcqs },
-  ].filter(t => t.show);
+    { id: 'brief', label: 'Company Brief' },
+    { id: 'questions', label: `Questions (${questions.length})` },
+    { id: 'ask_them', label: 'Your Questions' },
+    { id: 'cheat_sheet', label: 'Cheat Sheet' },
+    { id: 'quiz', label: 'Quiz' },
+  ];
 
   return (
     <div style={{ minHeight: '100vh', background: '#F3F2EF' }}>

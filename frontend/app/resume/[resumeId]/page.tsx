@@ -276,7 +276,7 @@ export default function ResumePreviewPage() {
               <a href={`/resume/${resume.id}/edit`} style={{ padding: '7px 16px', background: '#057642', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>&#9997;&#65039; Edit</a>
               <a href={`${API_URL}/api/resume/${resume.id}/download/txt`} style={{ padding: '7px 16px', background: '#F1F5F9', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>TXT</a>
               <button onClick={interviewPrepHandler} style={{ padding: '7px 16px', background: '#F5F3FF', color: '#7C3AED', border: '1px solid #DDD6FE', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>&#127908; Interview Prep</button>
-              {resume.cover_letter && <button onClick={handleCopyCoverLetter} style={{ padding: '7px 16px', background: '#FEF3C7', color: '#92400E', border: '1px solid #FDE68A', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{coverLetterCopied ? '&#10003; Copied!' : '&#128236; Cover Letter'}</button>}
+              {resume.cover_letter && <button onClick={handleCopyCoverLetter} style={{ padding: '7px 16px', background: '#FEF3C7', color: '#92400E', border: '1px solid #FDE68A', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{coverLetterCopied ? '\u2713 Copied!' : '\uD83D\uDCEC Cover Letter'}</button>}
             </div>
           </div>
 
@@ -288,7 +288,7 @@ export default function ResumePreviewPage() {
               return (
                 <button key={t.id} onClick={() => setTemplateId(t.id)}
                   style={{ padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', border: templateId === t.id ? '2px solid #0A66C2' : '1px solid #E2E8F0', background: templateId === t.id ? '#EFF6FF' : locked ? '#F9FAFB' : '#fff', color: templateId === t.id ? '#0A66C2' : locked ? '#94A3B8' : '#64748B' }}>
-                  {t.name}{locked ? ' &#128274;' : ''}
+                  {t.name}{locked ? ' \uD83D\uDD12' : ''}
                 </button>
               );
             })}
@@ -336,7 +336,7 @@ export default function ResumePreviewPage() {
                 { check: missing <= 3, text: missing === 0 ? 'All keywords covered' : `${missing} keywords to add` },
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
-                  <span style={{ color: item.check ? '#057642' : '#EA580C', fontWeight: 700 }}>{item.check ? '&#10003;' : '&#9888;'}</span>
+                  <span style={{ color: item.check ? '#057642' : '#EA580C', fontWeight: 700 }}>{item.check ? '\u2713' : '\u26A0'}</span>
                   <span style={{ color: item.check ? '#334155' : '#EA580C', fontWeight: item.check ? 400 : 600 }}>{item.text}</span>
                 </div>
               ))}
@@ -367,7 +367,7 @@ export default function ResumePreviewPage() {
             <div style={{ background: '#fff', borderRadius: 14, padding: 16, marginBottom: 14, border: '1px solid #E2E8F0' }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A', marginBottom: 10 }}>Cover Letter</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <button onClick={handleCopyCoverLetter} style={{ width: '100%', padding: '8px', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer' }}>{coverLetterCopied ? '&#10003; Copied!' : '&#128203; Copy Cover Letter'}</button>
+                <button onClick={handleCopyCoverLetter} style={{ width: '100%', padding: '8px', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer' }}>{coverLetterCopied ? '\u2713 Copied!' : '\uD83D\uDCCB Copy Cover Letter'}</button>
                 <button onClick={handleDownloadCoverLetterPDF} style={{ width: '100%', padding: '8px', background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#64748B', cursor: 'pointer' }}>&#128196; Cover Letter PDF</button>
               </div>
             </div>
@@ -401,7 +401,7 @@ export default function ResumePreviewPage() {
             {isTemplateLocked && (
               <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(2px)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 4, zIndex: 10 }}>
                 <div style={{ background: 'white', border: '2px solid #0A66C2', borderRadius: 16, padding: '28px 36px', textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.15)', maxWidth: 380 }}>
-                  <div style={{ fontSize: 28, marginBottom: 8 }}>&#128274;</div>
+                  <div style={{ fontSize: 28, marginBottom: 8 }}>{'\uD83D\uDD12'}</div>
                   <div style={{ fontSize: 18, fontWeight: 800, color: '#1E40AF', marginBottom: 8 }}>Pro Template</div>
                   <div style={{ fontSize: 13, color: '#666', lineHeight: 1.5, marginBottom: 16 }}>
                     &ldquo;{currentTemplate?.name}&rdquo; is a Pro template. Upgrade to unlock all 28 templates.
