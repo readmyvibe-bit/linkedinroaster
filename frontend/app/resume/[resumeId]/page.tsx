@@ -114,34 +114,38 @@ export default function ResumePreviewPage() {
 
       {/* ═══ HEADER ═══ */}
       <header style={{ position: 'sticky', top: 0, zIndex: 100, background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)', boxShadow: 'var(--shadow-sm)' }}>
-        <div style={{ maxWidth: 1320, margin: '0 auto', padding: '0 20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 56, gap: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-              <a href={resultsUrl} style={{ fontSize: 13, color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 500 }}>&larr; Results</a>
-              <span style={{ color: 'var(--border-default)' }}>&rsaquo;</span>
-              <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>Resume</span>
-              <span className="saas-metric" style={{ background: resume.ats_score >= 80 ? 'var(--success-subtle)' : resume.ats_score >= 60 ? 'var(--accent-subtle)' : 'var(--warning-subtle)', color: scoreColor }}> ATS {resume.ats_score} &middot; {scoreLabel}</span>
+        <div style={{ maxWidth: 1320, margin: '0 auto', padding: '0 16px' }}>
+          {/* Row 1: Breadcrumb + desktop actions */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 48, gap: 8, flexWrap: 'wrap', padding: '6px 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, flexShrink: 1 }}>
+              <a href={resultsUrl} style={{ fontSize: 13, color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 500, whiteSpace: 'nowrap' }}>&larr; Results</a>
+              <span className="hidden sm:inline" style={{ color: 'var(--border-default)' }}>&rsaquo;</span>
+              <span className="hidden sm:inline" style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>Resume</span>
+              <span className="hidden sm:inline saas-metric" style={{ background: resume.ats_score >= 80 ? 'var(--success-subtle)' : resume.ats_score >= 60 ? 'var(--accent-subtle)' : 'var(--warning-subtle)', color: scoreColor, whiteSpace: 'nowrap', flexShrink: 0 }}>ATS {resume.ats_score}</span>
             </div>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
+            {/* Desktop actions */}
+            <div className="hidden sm:flex" style={{ gap: 6, alignItems: 'center', flexShrink: 0 }}>
               <button onClick={handleDownloadPDF} className="saas-btn saas-btn-primary">Download PDF</button>
               <a href={`/resume/${resume.id}/edit`} className="saas-btn saas-btn-ghost" style={{ color: 'var(--success)' }}>Edit</a>
-              <a href={`${API_URL}/api/resume/${resume.id}/download/txt`} className="saas-btn saas-btn-ghost hidden sm:inline-flex">TXT</a>
-              <button onClick={handleInterview} className="saas-btn saas-btn-ghost hidden sm:inline-flex" style={{ color: '#7C3AED' }}>Interview Prep</button>
-              <a href="/dashboard" target="_blank" rel="noreferrer" className="saas-btn saas-btn-ghost hidden sm:inline-flex">Dashboard</a>
+              <a href={`${API_URL}/api/resume/${resume.id}/download/txt`} className="saas-btn saas-btn-ghost">TXT</a>
+              <button onClick={handleInterview} className="saas-btn saas-btn-ghost" style={{ color: '#7C3AED' }}>Interview Prep</button>
+              <a href="/dashboard" target="_blank" rel="noreferrer" className="saas-btn saas-btn-ghost">Dashboard</a>
             </div>
+            {/* Mobile: just ATS badge */}
+            <span className="sm:hidden saas-metric" style={{ background: resume.ats_score >= 80 ? 'var(--success-subtle)' : resume.ats_score >= 60 ? 'var(--accent-subtle)' : 'var(--warning-subtle)', color: scoreColor, whiteSpace: 'nowrap', fontSize: 12 }}>ATS {resume.ats_score}</span>
           </div>
-          {/* Sub-bar */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderTop: '1px solid var(--bg-subtle)', gap: 12, flexWrap: 'wrap' }}>
-            <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+          {/* Row 2: Role + controls */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 0', borderTop: '1px solid var(--bg-subtle)', gap: 8, flexWrap: 'wrap' }}>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{resume.target_role}</span>
               {resume.target_company && <span> at {resume.target_company}</span>}
             </div>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-              <button onClick={() => setShowTemplateModal(true)} className="saas-btn saas-btn-ghost" style={{ fontSize: 12 }}>Template: {currentTemplate?.name} &#9662;</button>
-              <select value={printSize} onChange={e => { setPrintSize(e.target.value as any); savePrintSettings(e.target.value, fitOnePage); }} style={{ padding: '5px 10px', fontSize: 12, borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)', cursor: 'pointer', background: 'var(--bg-surface)' }}>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0, flexWrap: 'nowrap' }}>
+              <button onClick={() => setShowTemplateModal(true)} className="saas-btn saas-btn-ghost" style={{ fontSize: 11, padding: '4px 10px' }}>Template &#9662;</button>
+              <select value={printSize} onChange={e => { setPrintSize(e.target.value as any); savePrintSettings(e.target.value, fitOnePage); }} style={{ padding: '4px 8px', fontSize: 11, borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)', cursor: 'pointer', background: 'var(--bg-surface)' }}>
                 <option value="compact">Compact</option><option value="standard">Standard</option><option value="spacious">Spacious</option>
               </select>
-              <select value={fitOnePage ? '1' : '2'} onChange={e => { const f = e.target.value === '1'; setFitOnePage(f); savePrintSettings(printSize, f); }} style={{ padding: '5px 10px', fontSize: 12, borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)', cursor: 'pointer', background: 'var(--bg-surface)' }}>
+              <select className="hidden sm:inline" value={fitOnePage ? '1' : '2'} onChange={e => { const f = e.target.value === '1'; setFitOnePage(f); savePrintSettings(printSize, f); }} style={{ padding: '4px 8px', fontSize: 11, borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)', cursor: 'pointer', background: 'var(--bg-surface)' }}>
                 <option value="1">1 Page</option><option value="2">2 Pages</option>
               </select>
             </div>

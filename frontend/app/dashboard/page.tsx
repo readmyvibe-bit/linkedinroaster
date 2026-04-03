@@ -178,22 +178,17 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
   return (
     <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: 'linear-gradient(180deg, #F0F4FF 0%, #F3F2EF 40%)', minHeight: '100vh' }}>
       {/* Header */}
-      <header style={{ background: 'white', borderBottom: '1px solid #E2E8F0', padding: '12px 20px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-        <div style={{ maxWidth: 1000, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 2 }}>
-              <span style={{ fontSize: 18, fontWeight: 800, color: '#0A66C2' }}>Profile</span>
-              <span style={{ fontSize: 18, fontWeight: 800, color: '#191919' }}>Roaster</span>
-            </a>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, #0A66C2, #004182)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700 }}>
-                {email.charAt(0).toUpperCase()}
-              </div>
-              <span style={{ fontSize: 13, color: '#555', fontWeight: 500 }}>{email}</span>
+      <header style={{ background: 'white', borderBottom: '1px solid #E2E8F0', padding: '10px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+        <div style={{ maxWidth: 1000, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <a href="/" style={{ textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
+            <span style={{ fontSize: 17, fontWeight: 800, color: '#0A66C2' }}>Profile</span><span style={{ fontSize: 17, fontWeight: 800, color: '#191919' }}>Roaster</span>
+          </a>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+            <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #0A66C2, #004182)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
+              {email.charAt(0).toUpperCase()}
             </div>
-            <button onClick={onLogout} style={{ fontSize: 12, color: '#888', background: 'transparent', border: '1px solid #E2E8F0', borderRadius: 8, padding: '6px 14px', cursor: 'pointer', fontWeight: 500 }}>Logout</button>
+            <span style={{ fontSize: 12, color: '#555', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160 }} title={email}>{email}</span>
+            <button onClick={onLogout} style={{ fontSize: 11, color: '#888', background: 'transparent', border: '1px solid #E2E8F0', borderRadius: 6, padding: '4px 12px', cursor: 'pointer', fontWeight: 500, whiteSpace: 'nowrap', flexShrink: 0 }}>Logout</button>
           </div>
         </div>
       </header>
@@ -233,13 +228,13 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
           </a>
         </div>
 
-        {/* Tabs */}
-        <div style={{ display: 'flex', gap: 2, marginBottom: 20, background: 'white', borderRadius: 12, padding: 4, border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
+        {/* Tabs — scrollable on mobile */}
+        <div style={{ display: 'flex', gap: 2, marginBottom: 20, background: 'white', borderRadius: 12, padding: 4, border: '1px solid #E2E8F0', boxShadow: '0 1px 2px rgba(0,0,0,0.03)', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
           {tabs.map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}
               style={{
-                flex: 1, padding: '10px 0', borderRadius: 10, border: 'none', cursor: 'pointer',
-                fontSize: 13, fontWeight: 600, transition: 'all 0.15s',
+                flexShrink: 0, padding: '10px 16px', borderRadius: 10, border: 'none', cursor: 'pointer',
+                fontSize: 12, fontWeight: 600, transition: 'all 0.15s', whiteSpace: 'nowrap',
                 background: tab === t.key ? 'linear-gradient(135deg, #0A66C2, #004182)' : 'transparent',
                 color: tab === t.key ? 'white' : '#64748B',
                 boxShadow: tab === t.key ? '0 2px 6px rgba(10,102,194,0.2)' : 'none',

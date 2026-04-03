@@ -53,6 +53,19 @@ body {
   border: none;
   text-decoration: none;
   white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.saas-metric {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .saas-btn-primary { background: var(--accent); color: white; }
 .saas-btn-primary:hover { background: var(--accent-hover); }
@@ -75,16 +88,6 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--text-muted);
-}
-
-.saas-metric {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
-  border-radius: var(--radius-pill);
-  font-size: 13px;
-  font-weight: 700;
 }
 
 .saas-skeleton {
