@@ -16,7 +16,7 @@ export async function sendResultsEmail(order: any): Promise<void> {
   const beforeScore = order.before_score || { overall: 0 };
   const afterScore = order.after_score || { overall: 0 };
 
-  const subject = `Your LinkedIn Roast is Ready 🔥 Score: ${beforeScore.overall}→${afterScore.overall}`;
+  const subject = `Your LinkedIn Rewrite is Ready — Score: ${beforeScore.overall}→${afterScore.overall}`;
 
   const { error } = await resend.emails.send({
     from: FROM,

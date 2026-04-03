@@ -1,17 +1,12 @@
 import {
-  Html, Head, Body, Container, Section, Text, Button, Img, Hr, Link, Preview, Row, Column,
+  Html, Head, Body, Container, Section, Text, Button, Hr, Link, Preview, Row, Column,
 } from '@react-email/components';
 import * as React from 'react';
 
 interface ResultsEmailProps {
   beforeScore: { headline: number; about: number; experience: number; completeness: number; ats?: number; overall: number };
   afterScore: { headline: number; about: number; experience: number; completeness: number; ats?: number; overall: number };
-  roast: {
-    roast_title: string;
-    roast_points: Array<{ point_number: number; roast: string; underlying_issue: string }>;
-    closing_compliment: string;
-    overall_verdict: string;
-  };
+  roast: any; // kept for backward compat but not rendered
   rewrite: {
     rewritten_headline: string;
     rewritten_about: string;
@@ -19,7 +14,7 @@ interface ResultsEmailProps {
     headline_variations?: Array<{ headline: string; style: string }>;
     personalization_note?: string;
   };
-  cardImageUrl: string | null;
+  cardImageUrl: string | null; // kept for backward compat but not rendered
   orderId: string;
   plan: string;
 }
@@ -27,9 +22,7 @@ interface ResultsEmailProps {
 export default function ResultsEmail({
   beforeScore,
   afterScore,
-  roast,
   rewrite,
-  cardImageUrl,
   orderId,
   plan,
 }: ResultsEmailProps) {
@@ -38,13 +31,13 @@ export default function ResultsEmail({
   return (
     <Html>
       <Head />
-      <Preview>{`Your LinkedIn score: ${beforeScore.overall} → ${afterScore.overall} 🔥`}</Preview>
+      <Preview>{`Your LinkedIn profile rewrite is ready! Score: ${beforeScore.overall} → ${afterScore.overall}`}</Preview>
       <Body style={main}>
         <Container style={container}>
           {/* Header */}
           <Section style={header}>
-            <Text style={headerText}>🔥 Profile Roaster</Text>
-            <Text style={subheaderText}>Your LinkedIn Profile Roast Results</Text>
+            <Text style={headerText}>ProfileRoaster</Text>
+            <Text style={subheaderText}>Your Profile Rewrite is Ready</Text>
           </Section>
 
           {/* Score Comparison */}
@@ -74,9 +67,6 @@ export default function ResultsEmail({
           {/* Save This Email Box */}
           <Section style={saveBox}>
             <Text style={saveTitle}>Save this email — your results link is valid for 30 days</Text>
-            <Text style={saveDesc}>
-              Your profile score: {beforeScore.overall} → {afterScore.overall} (+{afterScore.overall - beforeScore.overall} points)
-            </Text>
             <Button style={ctaButton} href={resultsUrl}>
               View My Full Results →
             </Button>
@@ -84,39 +74,9 @@ export default function ResultsEmail({
 
           <Hr style={divider} />
 
-          {/* Roast Title */}
-          <Section>
-            <Text style={sectionTitle}>{roast.roast_title}</Text>
-            <Text style={verdictText}>{roast.overall_verdict}</Text>
-          </Section>
-
-          {/* Roast Points */}
-          {roast.roast_points.map((point) => (
-            <Section key={point.point_number} style={roastCard}>
-              <Text style={roastLabel}>🔥 Point {point.point_number}/6</Text>
-              <Text style={roastText}>{point.roast}</Text>
-              <Text style={issueText}>💡 {point.underlying_issue}</Text>
-            </Section>
-          ))}
-
-          {/* Closing Compliment */}
-          <Section style={complimentCard}>
-            <Text style={complimentText}>💚 {roast.closing_compliment}</Text>
-          </Section>
-
-          <Hr style={divider} />
-
-          {/* Personalization Note */}
-          {rewrite.personalization_note && (
-            <Section style={{ background: '#FFFFFF', borderLeft: '4px solid #0A66C2', padding: '12px 16px', marginBottom: '16px', borderRadius: '4px' }}>
-              <Text style={{ fontSize: '11px', fontWeight: 700 as const, color: '#0A66C2', letterSpacing: '1px', margin: '0 0 6px 0' }}>ABOUT YOUR REWRITE</Text>
-              <Text style={{ fontSize: '14px', color: '#191919', fontStyle: 'italic' as const, lineHeight: '1.6', margin: '0' }}>{rewrite.personalization_note}</Text>
-            </Section>
-          )}
-
           {/* Rewrite: Headline */}
           <Section>
-            <Text style={sectionTitle}>✍️ Your New Headline</Text>
+            <Text style={sectionTitle}>Your New Headline</Text>
             <Section style={rewriteCard}>
               <Text style={rewriteText}>{rewrite.rewritten_headline}</Text>
             </Section>
@@ -144,7 +104,7 @@ export default function ResultsEmail({
           {plan === 'pro' && rewrite.headline_variations && (
             <Section>
               <Hr style={divider} />
-              <Text style={sectionTitle}>5 Headline Variations (Pro)</Text>
+              <Text style={sectionTitle}>Headline Variations (Pro)</Text>
               {rewrite.headline_variations.map((v, i) => (
                 <Section key={i} style={variationRow}>
                   <Text style={variationStyle}>{v.style}</Text>
@@ -154,19 +114,22 @@ export default function ResultsEmail({
             </Section>
           )}
 
-          {/* Card Image */}
-          {cardImageUrl && (
-            <Section style={{ textAlign: 'center' as const, margin: '24px 0' }}>
-              <Img src={cardImageUrl} width="500" alt="Your Roast Card" style={{ borderRadius: '8px', maxWidth: '100%' }} />
-            </Section>
-          )}
-
           <Hr style={divider} />
+
+          {/* What's included */}
+          <Section style={{ padding: '0 24px', marginBottom: '16px' }}>
+            <Text style={{ fontSize: '14px', fontWeight: '600' as const, color: '#191919', margin: '0 0 8px' }}>Your plan also includes:</Text>
+            <Text style={{ fontSize: '13px', color: '#555', margin: '0', lineHeight: '1.8' }}>
+              ✓ ATS Resume Builder ({plan === 'pro' ? '10' : '5'} resumes){'\n'}
+              ✓ Cover Letter Generator{'\n'}
+              ✓ Interview Prep (15 personalized questions + cheat sheet + quiz)
+            </Text>
+          </Section>
 
           {/* CTA */}
           <Section style={{ textAlign: 'center' as const, margin: '24px 0' }}>
             <Button style={ctaButton} href={resultsUrl}>
-              View Full Results →
+              View Full Results + Generate Resume →
             </Button>
           </Section>
 
@@ -175,7 +138,7 @@ export default function ResultsEmail({
             <Section style={upsellSection}>
               <Text style={upsellTitle}>Upgrade to Pro — ₹500</Text>
               <Text style={upsellDesc}>
-                Get 5 headline variations, ATS keywords, job description matcher & custom cover letter.
+                All 28 premium templates + priority processing
               </Text>
               <Button style={upsellButton} href={`${resultsUrl}#upgrade`}>
                 Upgrade Now →
@@ -189,11 +152,9 @@ export default function ResultsEmail({
               <Link href="https://profileroaster.in" style={footerLink}>profileroaster.in</Link>
               {' | '}
               <Link href="https://profileroaster.in/privacy" style={footerLink}>Privacy</Link>
-              {' | '}
-              <Link href={`https://profileroaster.in/unsubscribe?email=`} style={footerLink}>Unsubscribe</Link>
             </Text>
             <Text style={footerMuted}>
-              You received this because you ordered a LinkedIn profile roast.
+              You received this because you purchased a LinkedIn profile rewrite.
             </Text>
             <Text style={footerMuted}>
               Lost this email? Recover your results at{' '}
@@ -221,17 +182,9 @@ const scoreNumber = { fontSize: '36px', fontWeight: '800' as const, margin: '4px
 const scoreNumberGreen = { fontSize: '36px', fontWeight: '800' as const, margin: '4px 0 0', color: '#057642' };
 const improvementText = { fontSize: '14px', color: '#057642', fontWeight: '600' as const, marginTop: '12px' };
 const saveBox = { margin: '0 24px', padding: '14px 18px', backgroundColor: '#FEF3C7', border: '1px solid #F59E0B', borderLeft: '4px solid #F59E0B', borderRadius: '8px', textAlign: 'center' as const };
-const saveTitle = { fontSize: '14px', fontWeight: '700' as const, color: '#92400E', margin: '0 0 8px' };
-const saveDesc = { fontSize: '15px', fontWeight: '600' as const, color: '#92400E', margin: '0 0 12px' };
+const saveTitle = { fontSize: '14px', fontWeight: '700' as const, color: '#92400E', margin: '0 0 12px' };
 const divider = { borderColor: '#E0E0E0', margin: '24px 0' };
 const sectionTitle = { fontSize: '18px', fontWeight: '700' as const, color: '#191919', padding: '0 24px' };
-const verdictText = { fontSize: '14px', color: '#666666', fontStyle: 'italic' as const, padding: '0 24px' };
-const roastCard = { margin: '8px 24px', padding: '12px 16px', borderLeft: '3px solid #E16B00', backgroundColor: '#FFFBF5', borderRadius: '4px' };
-const roastLabel = { fontSize: '11px', color: '#666666', margin: '0 0 4px' };
-const roastText = { fontSize: '14px', color: '#191919', fontStyle: 'italic' as const, margin: '0 0 8px', lineHeight: '1.5' };
-const issueText = { fontSize: '12px', color: '#666666', margin: '0' };
-const complimentCard = { margin: '12px 24px', padding: '12px 16px', backgroundColor: '#DCFCE7', borderRadius: '8px' };
-const complimentText = { fontSize: '14px', color: '#057642', margin: '0', lineHeight: '1.5' };
 const rewriteCard = { margin: '8px 24px', padding: '12px 16px', backgroundColor: '#F0F9FF', borderLeft: '3px solid #0A66C2', borderRadius: '4px' };
 const rewriteText = { fontSize: '16px', fontWeight: '600' as const, color: '#191919', margin: '0', lineHeight: '1.4' };
 const rewriteTextSmall = { fontSize: '13px', color: '#191919', margin: '0', lineHeight: '1.6', whiteSpace: 'pre-wrap' as const };

@@ -951,7 +951,7 @@ export default function Home() {
                   boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
                 }}
               >
-                Get Full Rewrite + Resume + Interview Prep &rarr;
+                Get Full Rewrite + Interview Prep + Resume &rarr;
               </button>
               <LiveCounter />
             </div>

@@ -136,15 +136,23 @@ EDUCATION:
 ${educationText || 'No education listed'}
 `.trim();
 
-    const jdContext = `
-JOB DESCRIPTION:
-${jobDescription || 'No job description provided'}
-`.trim();
+    const hasJD = jobDescription && jobDescription.trim().length > 20;
+
+    const jdContext = hasJD
+      ? `JOB DESCRIPTION:\n${jobDescription}`
+      : '';
 
     // ─── CALL 1: Brief + Question Plan ───
-    const systemPrompt1 = `You are an expert interview coach specializing in the Indian job market. Return ONLY valid JSON, no markdown.`;
+    const systemPrompt1 = `You are an expert interview coach specializing in the Indian job market. Return ONLY valid JSON, no markdown.
 
-    const userPrompt1 = `Analyze this JD and candidate, then generate a company brief.
+CRITICAL RULES:
+- NEVER fabricate or invent company names, company details, or job descriptions that were not provided.
+- suggested_answer uses ONLY facts from the resume. NO fabricated metrics, numbers, or achievements.
+- Every question must be fully written out — do NOT leave any as "...".
+- Fill ALL 15 questions, 5 ask_them, 10 MCQs completely.`;
+
+    const userPrompt1 = hasJD
+      ? `Analyze this job description and candidate resume, then generate interview prep.
 
 ${jdContext}
 
@@ -153,61 +161,78 @@ ${resumeContext}
 Return this JSON:
 {
   "company_brief": {
-    "what_jd_emphasizes": ["3-5 key themes from JD"],
+    "what_jd_emphasizes": ["3-5 key themes from the JD"],
     "interview_style": "behavioral / technical / mixed",
-    "what_they_value": ["3-5 values mapped to JD phrases"],
-    "red_flags": ["3-4 things they screen against"]
-  },
+    "what_they_value": ["3-5 values mapped to actual JD phrases"],
+    "red_flags": ["3-4 things they screen against based on JD"]
+  },`
+      : `Generate interview prep for this candidate targeting a "${targetRole}" role${targetCompany ? ` at ${targetCompany}` : ''}.
+No job description was provided, so base ALL questions on the candidate's resume, skills, and target role.
+
+${resumeContext}
+
+IMPORTANT: No job description was provided. Do NOT invent or hallucinate any company details, JD themes, or company values. The company_brief should reflect GENERAL expectations for the "${targetRole}" role in the ${targetCompany ? targetCompany : 'industry'}.
+
+Return this JSON:
+{
+  "company_brief": {
+    "what_jd_emphasizes": ["3-5 key skills/themes typical for ${targetRole} roles"],
+    "interview_style": "behavioral / technical / mixed",
+    "what_they_value": ["3-5 values typical for ${targetRole} hiring"],
+    "red_flags": ["3-4 common red flags interviewers look for in ${targetRole} candidates"]
+  },`
+    + `
   "questions": [
-    {"id":1,"category":"behavioral","question":"Tell me about a time you [specific to JD]...","why_they_ask":"linked to JD","suggested_answer":{"situation":"from resume","task":"from resume","action":"from resume","result":"from resume"},"common_mistakes":["1-2 items"],"follow_ups":["2 items"]},
-    {"id":2,"category":"behavioral","question":"...","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
-    {"id":3,"category":"behavioral","question":"...","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
-    {"id":4,"category":"behavioral","question":"...","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
-    {"id":5,"category":"behavioral","question":"...","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
-    {"id":6,"category":"role_specific","question":"How would you [role-specific task from JD]?","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
-    {"id":7,"category":"role_specific","question":"...","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
-    {"id":8,"category":"role_specific","question":"...","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
-    {"id":9,"category":"role_specific","question":"...","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
-    {"id":10,"category":"role_specific","question":"...","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
-    {"id":11,"category":"situational","question":"What would you do if [hypothetical scenario from JD]?","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
-    {"id":12,"category":"situational","question":"...","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
-    {"id":13,"category":"situational","question":"...","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
-    {"id":14,"category":"culture","question":"Why [this company / this role]?","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
-    {"id":15,"category":"culture","question":"...","why_they_ask":"...","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]}
+    {"id":1,"category":"behavioral","question":"Tell me about a time you [specific to role/resume]...","why_they_ask":"reason","suggested_answer":{"situation":"from resume ONLY","task":"from resume ONLY","action":"from resume ONLY","result":"from resume ONLY"},"common_mistakes":["1-2 items"],"follow_ups":["2 items"]},
+    {"id":2,"category":"behavioral","question":"second behavioral question","why_they_ask":"reason","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":3,"category":"behavioral","question":"third behavioral question","why_they_ask":"reason","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":4,"category":"behavioral","question":"fourth behavioral question","why_they_ask":"reason","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":5,"category":"behavioral","question":"fifth behavioral question","why_they_ask":"reason","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":6,"category":"role_specific","question":"How would you [role-specific task]?","why_they_ask":"reason","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":7,"category":"role_specific","question":"second role question","why_they_ask":"reason","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":8,"category":"role_specific","question":"third role question","why_they_ask":"reason","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":9,"category":"role_specific","question":"fourth role question","why_they_ask":"reason","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":10,"category":"role_specific","question":"fifth role question","why_they_ask":"reason","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":11,"category":"situational","question":"What would you do if [scenario]?","why_they_ask":"reason","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":12,"category":"situational","question":"second situational","why_they_ask":"reason","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":13,"category":"situational","question":"third situational","why_they_ask":"reason","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":14,"category":"culture","question":"Why this role?","why_they_ask":"reason","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]},
+    {"id":15,"category":"culture","question":"second culture question","why_they_ask":"reason","suggested_answer":{"situation":"...","task":"...","action":"...","result":"..."},"common_mistakes":["..."],"follow_ups":["..."]}
   ],
   "ask_them": [
     {"question":"Short 1-line question (max 15 words)","why_it_matters":"1-2 sentences"},
-    {"question":"Short question","why_it_matters":"1-2 sentences"},
-    {"question":"Short question","why_it_matters":"1-2 sentences"},
-    {"question":"Short question","why_it_matters":"1-2 sentences"},
-    {"question":"Short question","why_it_matters":"1-2 sentences"}
+    {"question":"second question for interviewer","why_it_matters":"1-2 sentences"},
+    {"question":"third question","why_it_matters":"1-2 sentences"},
+    {"question":"fourth question","why_it_matters":"1-2 sentences"},
+    {"question":"fifth question","why_it_matters":"1-2 sentences"}
   ],
   "cheat_sheet": {
-    "key_numbers": ["ONLY numbers from resume — no fabrication"],
-    "power_stories": [{"title":"story title","hook":"1-line hook","jd_theme":"which JD theme"}],
-    "jd_keywords": ["keywords from JD to use in answers"],
-    "avoid_phrases": [{"avoid":"bad phrase","use_instead":"better phrase"}]
+    "key_numbers": ["ONLY real numbers from the resume — no fabrication"],
+    "power_stories": [{"title":"story title from resume","hook":"1-line hook","jd_theme":"relevant skill/theme"}],
+    "jd_keywords": ["${hasJD ? 'keywords from JD to use in answers' : 'industry keywords relevant to ' + targetRole}"],
+    "avoid_phrases": [{"avoid":"weak phrase","use_instead":"stronger alternative"}]
   },
   "mcq": [
-    {"question":"stem","options":["A","B","C","D"],"correct":0,"explanation":"why","jd_link":"JD connection"},
-    {"question":"...","options":["...","...","...","..."],"correct":0,"explanation":"...","jd_link":"..."},
-    {"question":"...","options":["...","...","...","..."],"correct":0,"explanation":"...","jd_link":"..."},
-    {"question":"...","options":["...","...","...","..."],"correct":0,"explanation":"...","jd_link":"..."},
-    {"question":"...","options":["...","...","...","..."],"correct":0,"explanation":"...","jd_link":"..."},
-    {"question":"...","options":["...","...","...","..."],"correct":0,"explanation":"...","jd_link":"..."},
-    {"question":"...","options":["...","...","...","..."],"correct":0,"explanation":"...","jd_link":"..."},
-    {"question":"...","options":["...","...","...","..."],"correct":0,"explanation":"...","jd_link":"..."},
-    {"question":"...","options":["...","...","...","..."],"correct":0,"explanation":"...","jd_link":"..."},
-    {"question":"...","options":["...","...","...","..."],"correct":0,"explanation":"...","jd_link":"..."}
+    {"question":"interview knowledge question","options":["A","B","C","D"],"correct":0,"explanation":"why correct","jd_link":"${hasJD ? 'JD connection' : 'role relevance'}"},
+    {"question":"second MCQ","options":["A","B","C","D"],"correct":0,"explanation":"why","jd_link":"relevance"},
+    {"question":"third MCQ","options":["A","B","C","D"],"correct":0,"explanation":"why","jd_link":"relevance"},
+    {"question":"fourth MCQ","options":["A","B","C","D"],"correct":0,"explanation":"why","jd_link":"relevance"},
+    {"question":"fifth MCQ","options":["A","B","C","D"],"correct":0,"explanation":"why","jd_link":"relevance"},
+    {"question":"sixth MCQ","options":["A","B","C","D"],"correct":0,"explanation":"why","jd_link":"relevance"},
+    {"question":"seventh MCQ","options":["A","B","C","D"],"correct":0,"explanation":"why","jd_link":"relevance"},
+    {"question":"eighth MCQ","options":["A","B","C","D"],"correct":0,"explanation":"why","jd_link":"relevance"},
+    {"question":"ninth MCQ","options":["A","B","C","D"],"correct":0,"explanation":"why","jd_link":"relevance"},
+    {"question":"tenth MCQ","options":["A","B","C","D"],"correct":0,"explanation":"why","jd_link":"relevance"}
   ]
 }
 
 RULES:
-- suggested_answer uses ONLY facts from the resume. NO fabricated metrics.
-- ask_them questions must be SHORT (max 15 words). Not long complex sentences.
-- ask_them are questions the CANDIDATE asks the INTERVIEWER at the end. Simple, confident, shows interest.
+- suggested_answer uses ONLY facts from the resume. NO fabricated metrics or achievements.
+- ask_them questions must be SHORT (max 15 words).
+- ask_them are questions the CANDIDATE asks the INTERVIEWER. Simple, confident, shows interest.
 - For ${careerStage} candidates: adjust question difficulty and answer depth accordingly.
-- Fill in ALL 15 questions, 5 ask_them, 10 MCQs. Do not leave any as "...".`;
+- WRITE OUT every single question, answer, MCQ fully. Do NOT leave any field as "...".
+- Each question MUST be unique and specific to this candidate's background.`;
 
     console.log(`[interview-prep] ${prepId}: Starting Call 1 — Brief + Question Plan`);
 
