@@ -801,22 +801,21 @@ export default function Home() {
                       return (
                         <div style={{ marginBottom: 12 }}>
                           <p style={{ fontSize: 13, fontWeight: 700, color: '#191919', marginBottom: 8 }}>Your resume would look like this:</p>
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-                            {recIds.map(tid => {
-                              const tmpl = TEMPLATES.find(t => t.id === tid);
-                              return (
-                                <div key={tid} style={{ position: 'relative', overflow: 'hidden', borderRadius: 8, border: '1px solid #E5E7EB', background: '#fff', cursor: 'pointer', height: 140 }}
-                                  onClick={scrollToPricing}>
-                                  <div style={{ transform: 'scale(0.18)', transformOrigin: 'top left', width: '556%', pointerEvents: 'none' }}>
+                          <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 6 }}>
+                            {recIds.map(tid => (
+                              <div key={tid} style={{ flexShrink: 0, width: 220, position: 'relative', overflow: 'hidden', borderRadius: 10, border: '1px solid #E5E7EB', background: '#fff', cursor: 'pointer' }}
+                                onClick={scrollToPricing}>
+                                <div style={{ height: 280, overflow: 'hidden' }}>
+                                  <div style={{ transform: 'scale(0.32)', transformOrigin: 'top left', width: '312%', pointerEvents: 'none' }}>
                                     {renderResumeHTML(resumeData, tid)}
                                   </div>
-                                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(transparent, white)', zIndex: 2 }} />
-                                  <div style={{ position: 'absolute', bottom: 6, left: 0, right: 0, textAlign: 'center', zIndex: 3 }}>
-                                    <span style={{ fontSize: 9, fontWeight: 700, background: '#0A66C2', color: 'white', padding: '2px 8px', borderRadius: 10 }}>&#8377;499</span>
-                                  </div>
                                 </div>
-                              );
-                            })}
+                                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 80, background: 'linear-gradient(transparent, white)', zIndex: 2 }} />
+                                <div style={{ position: 'absolute', bottom: 8, left: 0, right: 0, textAlign: 'center', zIndex: 3 }}>
+                                  <span style={{ fontSize: 11, fontWeight: 700, background: '#0A66C2', color: 'white', padding: '4px 12px', borderRadius: 16 }}>Unlock &rarr;</span>
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       );
@@ -888,41 +887,46 @@ export default function Home() {
               </div>
             )}
 
-            {/* Free Resume Previews */}
+            {/* Free Resume Previews — large, readable */}
             {pdfParsed && (() => {
               const resumeData = pdfToResumeData(pdfParsed);
               const recIds = getRecommendedTemplates(pdfParsed.headline || '', false).slice(0, 3);
               if (!resumeData) return null;
               return (
-                <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 14, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', padding: '18px 16px', marginBottom: 12 }}>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: '#191919', marginBottom: 4 }}>Your Resume — 3 Template Previews</p>
-                  <p style={{ fontSize: 12, color: '#888', marginBottom: 14 }}>Built from your LinkedIn data. Download after payment.</p>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-                    {recIds.map(tid => {
-                      const tmpl = TEMPLATES.find(t => t.id === tid);
-                      return (
-                        <div key={tid} style={{ position: 'relative', overflow: 'hidden', borderRadius: 10, border: '1px solid #E5E7EB', background: '#fff', cursor: 'pointer', height: 180 }}
-                          onClick={scrollToPricing}>
-                          {/* Scaled resume */}
-                          <div style={{ transform: 'scale(0.22)', transformOrigin: 'top left', width: '455%', pointerEvents: 'none' }}>
-                            {renderResumeHTML(resumeData, tid)}
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 14, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', padding: '18px 16px' }}>
+                    <p style={{ fontSize: 15, fontWeight: 700, color: '#191919', marginBottom: 4 }}>Your Resume — Built From Your LinkedIn</p>
+                    <p style={{ fontSize: 12, color: '#888', marginBottom: 16 }}>Real data from your profile. Unlock to download.</p>
+                    {/* Scrollable horizontal previews */}
+                    <div style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingBottom: 8 }}>
+                      {recIds.map(tid => {
+                        const tmpl = TEMPLATES.find(t => t.id === tid);
+                        return (
+                          <div key={tid} style={{ flexShrink: 0, width: 280, position: 'relative', overflow: 'hidden', borderRadius: 12, border: '2px solid #E2E8F0', background: '#fff', cursor: 'pointer' }}
+                            onClick={scrollToPricing}>
+                            {/* Resume at 40% scale — readable top portion */}
+                            <div style={{ height: 360, overflow: 'hidden' }}>
+                              <div style={{ transform: 'scale(0.4)', transformOrigin: 'top left', width: '250%', pointerEvents: 'none' }}>
+                                {renderResumeHTML(resumeData, tid)}
+                              </div>
+                            </div>
+                            {/* Fade gradient at bottom */}
+                            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 120, background: 'linear-gradient(transparent, rgba(255,255,255,0.7) 30%, white 70%)', zIndex: 2 }} />
+                            {/* Diagonal watermark */}
+                            <div style={{ position: 'absolute', top: '45%', left: '50%', transform: 'translate(-50%,-50%) rotate(-30deg)', fontSize: 16, fontWeight: 800, color: 'rgba(10,102,194,0.06)', whiteSpace: 'nowrap', pointerEvents: 'none', letterSpacing: 4, zIndex: 1 }}>
+                              ProfileRoaster
+                            </div>
+                            {/* Template name + unlock CTA */}
+                            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '12px 14px', background: 'white', borderTop: '1px solid #F1F5F9', zIndex: 3, textAlign: 'center' }}>
+                              <div style={{ fontSize: 12, fontWeight: 700, color: '#0F172A', marginBottom: 6 }}>{tmpl?.name}</div>
+                              <div style={{ fontSize: 11, fontWeight: 700, background: 'linear-gradient(135deg, #0A66C2, #004182)', color: 'white', padding: '6px 16px', borderRadius: 20, display: 'inline-block' }}>
+                                Unlock Full Resume &rarr;
+                              </div>
+                            </div>
                           </div>
-                          {/* Bottom blur + gradient */}
-                          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(transparent 0%, rgba(255,255,255,0.85) 40%, white 100%)', zIndex: 2 }} />
-                          {/* Watermark */}
-                          <div style={{ position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%,-50%) rotate(-25deg)', fontSize: 10, fontWeight: 800, color: 'rgba(10,102,194,0.08)', whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: 1 }}>
-                            ProfileRoaster
-                          </div>
-                          {/* Template name + CTA */}
-                          <div style={{ position: 'absolute', bottom: 8, left: 0, right: 0, textAlign: 'center', zIndex: 3 }}>
-                            <div style={{ fontSize: 10, fontWeight: 700, color: '#334155', marginBottom: 4 }}>{tmpl?.name}</div>
-                            <span style={{ fontSize: 10, fontWeight: 700, background: '#0A66C2', color: 'white', padding: '3px 10px', borderRadius: 12 }}>
-                              Download &#8377;499
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               );

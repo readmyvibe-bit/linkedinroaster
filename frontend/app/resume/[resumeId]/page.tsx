@@ -138,11 +138,6 @@ export default function ResumePreviewPage() {
     if (printSize === 'compact') html = html.replace('</style>', 'body{font-size:92%!important;line-height:1.35!important}body div,body p{margin-bottom:2px!important}' + '</style>');
     else if (printSize === 'spacious') html = html.replace('</style>', 'body{font-size:108%!important;line-height:1.65!important}' + '</style>');
     if (fitOnePage) html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 10mm 8mm 10mm}');
-    // Apply font family override
-    const fontMap: Record<string, string> = { default: '', serif: 'Georgia, "Times New Roman", serif', sans: 'Arial, Helvetica, sans-serif', mono: '"Courier New", monospace', inter: '"Inter", system-ui, sans-serif' };
-    if (fontFamily !== 'default' && fontMap[fontFamily]) html = html.replace('</style>', `body,body *{font-family:${fontMap[fontFamily]}!important}` + '</style>');
-    // Apply accent color override
-    if (accentColor) html = html.replace('</style>', `h1,h2,h3,.section-title,[class*=header]{color:${accentColor}!important}a{color:${accentColor}!important}` + '</style>');
     const win = window.open('', '_blank');
     if (!win) { alert('Please allow popups to download PDF.'); return; }
     win.document.write(html);
@@ -300,14 +295,14 @@ export default function ResumePreviewPage() {
               <div style={{ padding: '8px 0', borderTop: '1px solid #F1F5F9' }}>
                 {/* Recommended templates */}
                 {recommended.length > 0 && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#057642', background: '#F0FDF4', padding: '2px 8px', borderRadius: 4 }}>Recommended for {resume.target_role}:</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, flexWrap: 'wrap', padding: '6px 10px', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 8 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#92400E' }}>Best for {resume.target_role}:</span>
                     {recommended.map(rid => {
                       const t = TEMPLATES.find(x => x.id === rid);
                       return t ? (
                         <button key={rid} onClick={() => setTemplateId(rid)}
-                          style={{ padding: '2px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', border: templateId === rid ? '2px solid #057642' : '1px solid #BBF7D0', background: templateId === rid ? '#F0FDF4' : '#fff', color: '#057642' }}>
-                          {t.name}
+                          style={{ padding: '3px 12px', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', border: templateId === rid ? '2px solid #B45309' : '1px solid #FDE68A', background: templateId === rid ? '#FEF3C7' : '#FFFBEB', color: '#92400E' }}>
+                          {t.name} {'\u2605'}
                         </button>
                       ) : null;
                     })}
@@ -349,27 +344,8 @@ export default function ResumePreviewPage() {
                     <button onClick={() => { setFitOnePage(false); savePrintSettings(printSize, false); }}
                       style={{ padding: '3px 10px', fontSize: 10, fontWeight: 600, border: 'none', cursor: 'pointer', background: !fitOnePage ? '#0A66C2' : '#fff', color: !fitOnePage ? '#fff' : '#64748B' }}>2 pg</button>
                   </div>
-                  {/* Font */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 10, color: '#64748B', fontWeight: 600 }}>Font:</span>
-                    <select value={fontFamily} onChange={e => setFontFamily(e.target.value)}
-                      style={{ padding: '2px 6px', fontSize: 10, borderRadius: 4, border: '1px solid #E2E8F0', color: '#334155', cursor: 'pointer' }}>
-                      <option value="default">Default</option>
-                      <option value="serif">Serif (Georgia)</option>
-                      <option value="sans">Sans (Arial)</option>
-                      <option value="inter">Inter</option>
-                      <option value="mono">Monospace</option>
-                    </select>
-                  </div>
-                  {/* Accent Color */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 10, color: '#64748B', fontWeight: 600 }}>Color:</span>
-                    {['', '#0A66C2', '#057642', '#7C3AED', '#CC1016', '#E67E22', '#191919'].map(c => (
-                      <button key={c} onClick={() => setAccentColor(c)}
-                        style={{ width: 16, height: 16, borderRadius: '50%', border: accentColor === c ? '2px solid #0F172A' : '1px solid #D1D5DB', background: c || '#fff', cursor: 'pointer', padding: 0 }}
-                        title={c || 'Default'} />
-                    ))}
-                  </div>
+                  {/* Dashboard link */}
+                  <a href="/dashboard" target="_blank" rel="noreferrer" style={{ padding: '3px 10px', fontSize: 10, fontWeight: 600, color: '#64748B', border: '1px solid #E2E8F0', borderRadius: 6, textDecoration: 'none', background: '#fff' }}>Dashboard</a>
                 </div>
               </div>
             );
@@ -464,12 +440,8 @@ export default function ResumePreviewPage() {
         {/* RIGHT — Resume Preview */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ position: 'relative' }}>
-            {/* Font/color/spacing preview wrapper */}
-            <div style={{
-              ...(fontFamily !== 'default' ? { fontFamily: fontFamily === 'serif' ? 'Georgia, "Times New Roman", serif' : fontFamily === 'sans' ? 'Arial, Helvetica, sans-serif' : fontFamily === 'mono' ? '"Courier New", monospace' : fontFamily === 'inter' ? '"Inter", system-ui, sans-serif' : undefined } : {}),
-              ...getAdaptiveSpacingStyle(getContentDensity(rd), printSize),
-            }} className={accentColor ? 'accent-override' : ''}>
-              {accentColor && <style>{`.accent-override h1,.accent-override h2,.accent-override h3{color:${accentColor}!important}`}</style>}
+            {/* Adaptive spacing preview wrapper */}
+            <div style={getAdaptiveSpacingStyle(getContentDensity(rd), printSize)}>
               {renderResumeHTML(rd, templateId)}
             </div>
             {isTemplateLocked && (
