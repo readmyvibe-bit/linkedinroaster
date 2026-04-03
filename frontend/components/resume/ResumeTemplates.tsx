@@ -136,6 +136,49 @@ export function getRecommendedTemplates(targetRole: string, isPro: boolean): str
   return top.length > 0 ? top : ['classic', 'modern', 'minimal'];
 }
 
+// ─── Content Density Calculator ──────────────────────────────────────────────
+
+export function getContentDensity(data: ResumeData): 'sparse' | 'medium' | 'dense' {
+  let score = 0;
+  const totalBullets = (data.experience || []).reduce((s, e) => s + (e.bullets?.length || 0), 0);
+  score += totalBullets;
+  if (data.summary) score += Math.min(data.summary.length / 50, 5);
+  score += (data.experience?.length || 0) * 2;
+  score += (data.education?.length || 0);
+  const skillsArr = Array.isArray(data.skills) ? data.skills : [];
+  score += skillsArr.length > 0 ? 2 : 0;
+  score += (data.achievements?.length || 0);
+  if (score <= 8) return 'sparse';
+  if (score <= 20) return 'medium';
+  return 'dense';
+}
+
+export function getAdaptiveSpacingStyle(density: 'sparse' | 'medium' | 'dense', printSize?: string): React.CSSProperties {
+  // Don't override if user explicitly chose compact or spacious
+  if (printSize === 'compact' || printSize === 'spacious') return {};
+  if (density === 'sparse') return { lineHeight: '1.75', fontSize: '12.5px' };
+  if (density === 'medium') return { lineHeight: '1.6' };
+  return {};
+}
+
+export function getAdaptiveSpacingCSS(density: 'sparse' | 'medium' | 'dense', printSize?: string): string {
+  if (printSize === 'compact' || printSize === 'spacious') return '';
+  if (density === 'sparse') {
+    return `
+      body { line-height: 1.75 !important; font-size: 12.5px !important; }
+      body div, body p, body li { margin-bottom: 6px !important; }
+      h2, h3 { margin-top: 16px !important; margin-bottom: 10px !important; }
+    `;
+  }
+  if (density === 'medium') {
+    return `
+      body { line-height: 1.6 !important; }
+      h2, h3 { margin-bottom: 8px !important; }
+    `;
+  }
+  return '';
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function getExpTitle(exp: ExperienceEntry): string {

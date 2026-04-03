@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { TEMPLATES, renderResumeHTML, getRecommendedTemplates } from '../components/resume/ResumeTemplates';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -333,6 +334,32 @@ function ProfileInputForm({
   );
 }
 
+// ─── PDF to Resume Data Mapper ───
+function pdfToResumeData(parsed: any): any {
+  if (!parsed) return null;
+  return {
+    contact: {
+      name: parsed.full_name || '',
+      location: parsed.location || '',
+    },
+    summary: parsed.about || parsed.headline || '',
+    experience: (parsed.experience || []).map((e: any) => ({
+      title: e.title || '',
+      company: e.company || '',
+      dates: e.duration || '',
+      bullets: e.description ? e.description.split(/\n|•|–|—|\*/).map((b: string) => b.trim()).filter((b: string) => b.length > 10).slice(0, 4) : [],
+    })),
+    education: (parsed.education || []).map((e: any) => ({
+      institution: e.institution || '',
+      degree: e.degree || '',
+      field: e.field || '',
+      year: e.year || '',
+    })),
+    skills: parsed.skills || [],
+    achievements: parsed.certifications || [],
+  };
+}
+
 // ════════════════════════════════════════
 // MAIN PAGE
 // ════════════════════════════════════════
@@ -355,6 +382,7 @@ export default function Home() {
   const [pdfFileName, setPdfFileName] = useState('');
   const [pdfRawPaste, setPdfRawPaste] = useState(''); // extracted text for order creation
   const [dragOver, setDragOver] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const pricingRef = useRef<HTMLDivElement>(null);
   const inputFormRef = useRef<HTMLDivElement>(null);
@@ -556,11 +584,31 @@ export default function Home() {
             <span style={{ fontSize: 18, fontWeight: 800, color: '#0A66C2' }}>Profile</span>
             <span style={{ fontSize: 18, fontWeight: 800, color: '#191919' }}>Roaster</span>
           </a>
-          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-            <a href="/dashboard" style={{ fontSize: 12, color: '#666', textDecoration: 'none', fontWeight: 600 }}>Dashboard</a>
-            <a href="/pricing" className="hidden sm:inline" style={{ fontSize: 12, color: '#666', textDecoration: 'none', fontWeight: 600 }}>Pricing</a>
+          {/* Desktop nav */}
+          <div className="hidden sm:flex" style={{ gap: 14, alignItems: 'center' }}>
+            <a href="/dashboard" style={{ fontSize: 13, color: '#666', textDecoration: 'none', fontWeight: 600 }}>Dashboard</a>
+            <a href="/pricing" style={{ fontSize: 13, color: '#666', textDecoration: 'none', fontWeight: 600 }}>Pricing</a>
           </div>
+          {/* Mobile hamburger */}
+          <button
+            className="sm:hidden"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, display: 'flex', flexDirection: 'column', gap: 4 }}
+            aria-label="Menu"
+          >
+            <span style={{ display: 'block', width: 20, height: 2, background: '#191919', borderRadius: 1, transition: 'all 0.2s', transform: mobileMenuOpen ? 'rotate(45deg) translateY(6px)' : 'none' }} />
+            <span style={{ display: 'block', width: 20, height: 2, background: '#191919', borderRadius: 1, transition: 'all 0.2s', opacity: mobileMenuOpen ? 0 : 1 }} />
+            <span style={{ display: 'block', width: 20, height: 2, background: '#191919', borderRadius: 1, transition: 'all 0.2s', transform: mobileMenuOpen ? 'rotate(-45deg) translateY(-6px)' : 'none' }} />
+          </button>
         </div>
+        {/* Mobile dropdown */}
+        {mobileMenuOpen && (
+          <div className="sm:hidden" style={{ borderTop: '1px solid #F1F5F9', marginTop: 8, paddingTop: 8 }}>
+            <a href="/dashboard" onClick={() => setMobileMenuOpen(false)} style={{ display: 'block', padding: '10px 8px', fontSize: 14, color: '#191919', textDecoration: 'none', fontWeight: 600 }}>Dashboard</a>
+            <a href="/pricing" onClick={() => setMobileMenuOpen(false)} style={{ display: 'block', padding: '10px 8px', fontSize: 14, color: '#191919', textDecoration: 'none', fontWeight: 600 }}>Pricing</a>
+            <a href="/build" onClick={() => setMobileMenuOpen(false)} style={{ display: 'block', padding: '10px 8px', fontSize: 14, color: '#057642', textDecoration: 'none', fontWeight: 600 }}>Build Profile</a>
+          </div>
+        )}
       </nav>
 
       {/* ═══════════════════════════════════ */}
@@ -808,6 +856,46 @@ export default function Home() {
                 <p style={{ fontSize: 12, color: '#888', marginTop: 8 }}>Unlock 15 personalized questions + STAR-format answers + cheat sheet</p>
               </div>
             )}
+
+            {/* Free Resume Previews */}
+            {pdfParsed && (() => {
+              const resumeData = pdfToResumeData(pdfParsed);
+              const recIds = getRecommendedTemplates(pdfParsed.headline || '', false).slice(0, 3);
+              if (!resumeData) return null;
+              return (
+                <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 14, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', padding: '18px 16px', marginBottom: 12 }}>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: '#191919', marginBottom: 4 }}>Your Resume — 3 Template Previews</p>
+                  <p style={{ fontSize: 12, color: '#888', marginBottom: 14 }}>Built from your LinkedIn data. Download after payment.</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+                    {recIds.map(tid => {
+                      const tmpl = TEMPLATES.find(t => t.id === tid);
+                      return (
+                        <div key={tid} style={{ position: 'relative', overflow: 'hidden', borderRadius: 10, border: '1px solid #E5E7EB', background: '#fff', cursor: 'pointer', height: 180 }}
+                          onClick={scrollToPricing}>
+                          {/* Scaled resume */}
+                          <div style={{ transform: 'scale(0.22)', transformOrigin: 'top left', width: '455%', pointerEvents: 'none' }}>
+                            {renderResumeHTML(resumeData, tid)}
+                          </div>
+                          {/* Bottom blur + gradient */}
+                          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(transparent 0%, rgba(255,255,255,0.85) 40%, white 100%)', zIndex: 2 }} />
+                          {/* Watermark */}
+                          <div style={{ position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%,-50%) rotate(-25deg)', fontSize: 10, fontWeight: 800, color: 'rgba(10,102,194,0.08)', whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: 1 }}>
+                            ProfileRoaster
+                          </div>
+                          {/* Template name + CTA */}
+                          <div style={{ position: 'absolute', bottom: 8, left: 0, right: 0, textAlign: 'center', zIndex: 3 }}>
+                            <div style={{ fontSize: 10, fontWeight: 700, color: '#334155', marginBottom: 4 }}>{tmpl?.name}</div>
+                            <span style={{ fontSize: 10, fontWeight: 700, background: '#0A66C2', color: 'white', padding: '3px 10px', borderRadius: 12 }}>
+                              Download &#8377;499
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Locked items */}
             <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 14, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', padding: '18px 16px', marginBottom: 12 }}>

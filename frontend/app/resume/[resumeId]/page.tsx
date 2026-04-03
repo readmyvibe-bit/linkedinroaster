@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { TEMPLATES, renderResumeHTML, buildPrintHTML, getRecommendedTemplates } from '../../../components/resume/ResumeTemplates';
+import { TEMPLATES, renderResumeHTML, buildPrintHTML, getRecommendedTemplates, getContentDensity, getAdaptiveSpacingStyle, getAdaptiveSpacingCSS } from '../../../components/resume/ResumeTemplates';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -130,6 +130,11 @@ export default function ResumePreviewPage() {
       return;
     }
     let html = buildPrintHTML(resume.resume_data, templateId);
+    // Adaptive spacing (only when standard)
+    const density = getContentDensity(resume.resume_data);
+    const adaptiveCSS = getAdaptiveSpacingCSS(density, printSize);
+    if (adaptiveCSS) html = html.replace('</style>', adaptiveCSS + '</style>');
+    // Manual print size overrides (take priority)
     if (printSize === 'compact') html = html.replace('</style>', 'body{font-size:92%!important;line-height:1.35!important}body div,body p{margin-bottom:2px!important}' + '</style>');
     else if (printSize === 'spacious') html = html.replace('</style>', 'body{font-size:108%!important;line-height:1.65!important}' + '</style>');
     if (fitOnePage) html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 10mm 8mm 10mm}');
@@ -459,9 +464,10 @@ export default function ResumePreviewPage() {
         {/* RIGHT — Resume Preview */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ position: 'relative' }}>
-            {/* Font/color preview wrapper */}
+            {/* Font/color/spacing preview wrapper */}
             <div style={{
               ...(fontFamily !== 'default' ? { fontFamily: fontFamily === 'serif' ? 'Georgia, "Times New Roman", serif' : fontFamily === 'sans' ? 'Arial, Helvetica, sans-serif' : fontFamily === 'mono' ? '"Courier New", monospace' : fontFamily === 'inter' ? '"Inter", system-ui, sans-serif' : undefined } : {}),
+              ...getAdaptiveSpacingStyle(getContentDensity(rd), printSize),
             }} className={accentColor ? 'accent-override' : ''}>
               {accentColor && <style>{`.accent-override h1,.accent-override h2,.accent-override h3{color:${accentColor}!important}`}</style>}
               {renderResumeHTML(rd, templateId)}
