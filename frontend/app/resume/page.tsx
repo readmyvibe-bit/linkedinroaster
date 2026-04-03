@@ -246,7 +246,7 @@ function ResumeFormContent() {
         },
         targetRole,
         targetCompany,
-        jobDescription: noJd ? `General resume for ${targetRole || 'job applications'}. No specific job description provided. Build a well-rounded resume highlighting the candidate's education, skills, projects, and any experience. Optimize for campus placements, job portals (Naukri, LinkedIn, Internshala), and general applications.` : jobDescription,
+        jobDescription: noJd ? '' : jobDescription,
         additionalAchievements: keyAchievements,
         certifications,
         languages,
