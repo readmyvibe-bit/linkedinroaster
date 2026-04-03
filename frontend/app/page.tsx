@@ -788,9 +788,40 @@ export default function Home() {
 
                 {/* Rate limited */}
                 {pdfParsed && rateLimited && !teaser && (
-                  <div style={{ marginTop: 10, padding: 12, borderRadius: 10, background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
-                    <div style={{ fontSize: 12, color: '#057642', fontWeight: 700 }}>&#9989; Profile parsed!</div>
-                    <button onClick={scrollToPricing} style={{ width: '100%', marginTop: 8, padding: '10px', borderRadius: 50, border: 'none', background: 'linear-gradient(135deg, #0A66C2, #004182)', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Get Full Report &#8377;499 &rarr;</button>
+                  <div style={{ marginTop: 10 }}>
+                    <div style={{ padding: 12, borderRadius: 10, background: '#F0FDF4', border: '1px solid #BBF7D0', marginBottom: 12 }}>
+                      <div style={{ fontSize: 13, color: '#057642', fontWeight: 700 }}>&#9989; Profile parsed! Free preview limit reached for today.</div>
+                      <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>Get the full AI rewrite + resume + interview prep:</div>
+                    </div>
+                    {/* Show resume previews even when rate limited */}
+                    {(() => {
+                      const resumeData = pdfToResumeData(pdfParsed);
+                      const recIds = getRecommendedTemplates(pdfParsed.headline || '', false).slice(0, 3);
+                      if (!resumeData) return null;
+                      return (
+                        <div style={{ marginBottom: 12 }}>
+                          <p style={{ fontSize: 13, fontWeight: 700, color: '#191919', marginBottom: 8 }}>Your resume would look like this:</p>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                            {recIds.map(tid => {
+                              const tmpl = TEMPLATES.find(t => t.id === tid);
+                              return (
+                                <div key={tid} style={{ position: 'relative', overflow: 'hidden', borderRadius: 8, border: '1px solid #E5E7EB', background: '#fff', cursor: 'pointer', height: 140 }}
+                                  onClick={scrollToPricing}>
+                                  <div style={{ transform: 'scale(0.18)', transformOrigin: 'top left', width: '556%', pointerEvents: 'none' }}>
+                                    {renderResumeHTML(resumeData, tid)}
+                                  </div>
+                                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(transparent, white)', zIndex: 2 }} />
+                                  <div style={{ position: 'absolute', bottom: 6, left: 0, right: 0, textAlign: 'center', zIndex: 3 }}>
+                                    <span style={{ fontSize: 9, fontWeight: 700, background: '#0A66C2', color: 'white', padding: '2px 8px', borderRadius: 10 }}>&#8377;499</span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                    <button onClick={scrollToPricing} style={{ width: '100%', padding: '12px', borderRadius: 50, border: 'none', background: 'linear-gradient(135deg, #0A66C2, #004182)', color: 'white', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>Get Full Rewrite + Resume &#8377;499 &rarr;</button>
                   </div>
                 )}
                 {rateLimited && !pdfParsed && (
