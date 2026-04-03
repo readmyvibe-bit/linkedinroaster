@@ -225,244 +225,206 @@ export default function ResumePreviewPage() {
   const matchRate = total > 0 ? Math.round((matched / total) * 100) : 0;
   const scoreColor = getScoreColor(resume.ats_score);
 
+  const interviewPrepHandler = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/interview-prep`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resume_id: resume.id }),
+      });
+      const data = await res.json();
+      if (data.id) window.open(`/interview-prep/${data.id}`, '_blank');
+      else alert(data.error || 'Failed to start interview prep');
+    } catch { alert('Failed to start interview prep.'); }
+  };
+
+  const upgradeHandler = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/orders/${resume.order_id}/upgrade`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+      const data = await res.json();
+      if (data.razorpay_order_id) {
+        const rzp = new (window as any).Razorpay({
+          key: data.razorpay_key, amount: data.amount, currency: data.currency,
+          order_id: data.razorpay_order_id, name: 'ProfileRoaster', description: 'Upgrade to Pro',
+          theme: { color: '#0A66C2' }, handler: () => window.location.reload(),
+        }); rzp.open();
+      } else alert(data.error || 'Failed');
+    } catch { alert('Failed to initiate upgrade.'); }
+  };
+
   return (
     <div style={{ minHeight: '100vh', background: '#F3F2EF' }}>
-      {/* ─── TOP BAR ─── */}
-      <div style={{
-        position: 'sticky', top: 0, zIndex: 100, background: '#fff',
-        borderBottom: '1px solid #E0E0E0', padding: '10px 16px',
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        flexWrap: 'wrap', gap: 8,
-      }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#004182' }}>Resume</div>
-        <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-          <button
-            onClick={handleDownloadPDF}
-            style={{
-              padding: '6px 14px', background: '#0A66C2', color: '#fff', border: 'none',
-              borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap',
-            }}
-          >
-            PDF
-          </button>
-          <a
-            href={`${API_URL}/api/resume/${resume.id}/download/txt`}
-            style={{
-              padding: '6px 14px', background: '#F3F2EF', color: '#666', border: '1px solid #D0D0D0',
-              borderRadius: 16, fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
-            }}
-          >
-            TXT
-          </a>
-          <a
-            href={`/resume/${resume.id}/edit`}
-            style={{
-              padding: '6px 14px', background: '#057642', color: '#fff', border: 'none',
-              borderRadius: 16, fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
-            }}
-          >
-            Edit
-          </a>
-          <a
-            href={resultsUrl}
-            style={{
-              padding: '6px 14px', background: '#fff', color: '#666', border: '1px solid #ccc',
-              borderRadius: 16, fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap',
-            }}
-          >
-            Results
-          </a>
-        </div>
-      </div>
-
-      {/* ─── TEMPLATE SWITCHER (full-width band) ─── */}
-      <div style={{ background: 'white', borderBottom: '1px solid #E0E0E0', padding: '10px 16px' }}>
-        <div style={{ maxWidth: 1400, margin: '0 auto', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#333', marginRight: 4 }}>Template:</span>
-          {TEMPLATES.map((t) => {
-            const locked = orderPlan !== 'pro' && (t as any).proOnly;
-            return (
-            <button key={t.id} onClick={() => setTemplateId(t.id)}
-              style={{ padding: '4px 10px', borderRadius: 16, fontSize: 11, fontWeight: 600, cursor: 'pointer', border: templateId === t.id ? '2px solid #0A66C2' : '1px solid #D0D0D0', background: templateId === t.id ? '#E8F0FE' : locked ? '#F9FAFB' : '#fff', color: templateId === t.id ? '#0A66C2' : locked ? '#999' : '#666' }}>
-              {t.name}{locked ? ' 🔒' : ''}
-            </button>
-          );})}
-        </div>
-      </div>
-
-      {/* ─── MAIN CONTENT: Left sidebar + Right preview ─── */}
-      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '20px 16px 40px', display: 'flex', gap: 20, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-
-        {/* LEFT SIDEBAR (260px) */}
-        <div className="hidden md:block" style={{ width: 260, flexShrink: 0, position: 'sticky', top: 60 }}>
-          {/* ATS Score */}
-          <div style={{ background: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, border: '1px solid #E0E0E0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-              <div style={{ width: 56, height: 56, borderRadius: '50%', border: `5px solid ${scoreColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 700, color: scoreColor, flexShrink: 0 }}>{resume.ats_score}</div>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#333' }}>ATS Score</div>
-                <div style={{ fontSize: 11, color: '#666' }}>{matched}/{total} keywords • {matchRate}%</div>
-              </div>
-            </div>
-            <div style={{ height: 6, background: '#E5E7EB', borderRadius: 3, overflow: 'hidden', marginBottom: 8 }}>
-              <div style={{ height: '100%', width: `${matchRate}%`, background: '#057642', borderRadius: 3 }} />
-            </div>
-            <button onClick={() => setShowKeywords(!showKeywords)} style={{ width: '100%', padding: '6px', background: '#F3F2EF', color: '#0A66C2', border: '1px solid #D0D0D0', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-              {showKeywords ? 'Hide Keywords' : `View ${missing} Missing Keywords`}
-            </button>
-            {showKeywords && (
-              <div style={{ marginTop: 10 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#057642', marginBottom: 4 }}>Matched</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 8 }}>
-                  {(resume.keywords_matched || []).map((kw, i) => <span key={i} style={{ background: '#DCFCE7', color: '#057642', borderRadius: 10, padding: '1px 8px', fontSize: 10 }}>{kw}</span>)}
-                </div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#CC1016', marginBottom: 4 }}>Missing</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                  {(resume.keywords_missing || []).map((kw, i) => <span key={i} style={{ background: '#FEE2E2', color: '#CC1016', borderRadius: 10, padding: '1px 8px', fontSize: 10 }}>{kw}</span>)}
+      {/* ─── HEADER ─── */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 100, background: '#fff', borderBottom: '1px solid #E2E8F0' }}>
+        <div style={{ maxWidth: 1400, margin: '0 auto', padding: '0 16px' }}>
+          {/* ATS Banner */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', flexWrap: 'wrap', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <a href={resultsUrl} style={{ fontSize: 13, color: '#64748B', textDecoration: 'none', fontWeight: 500 }}>&larr; Results</a>
+              <span style={{ color: '#E2E8F0' }}>|</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', border: `3px solid ${scoreColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color: scoreColor }}>{resume.ats_score}</div>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>ATS-Optimized Resume</div>
+                  <div style={{ fontSize: 11, color: '#64748B' }}>
+                    {resume.target_role}{resume.target_company ? ` at ${resume.target_company}` : ''}
+                  </div>
                 </div>
               </div>
-            )}
-          </div>
-
-
-          {/* Download Resume */}
-          <div style={{ background: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, border: '1px solid #E0E0E0' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#333', marginBottom: 10 }}>Download Resume</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <button onClick={handleDownloadPDF} style={{ width: '100%', padding: '8px', background: '#0A66C2', color: 'white', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>&#128196; Download PDF</button>
-              <a href={`${API_URL}/api/resume/${resume.id}/download/txt`}
-                style={{ width: '100%', padding: '8px', background: '#F3F2EF', color: '#666', border: '1px solid #D0D0D0', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', textAlign: 'center', textDecoration: 'none', display: 'block' }}>&#128221; Download TXT (ATS Portals)</a>
+            </div>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+              <button onClick={handleDownloadPDF} style={{ padding: '7px 16px', background: '#0A66C2', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>&#128196; Download PDF</button>
+              <a href={`/resume/${resume.id}/edit`} style={{ padding: '7px 16px', background: '#057642', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>&#9997;&#65039; Edit</a>
+              <a href={`${API_URL}/api/resume/${resume.id}/download/txt`} style={{ padding: '7px 16px', background: '#F1F5F9', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>TXT</a>
+              <button onClick={interviewPrepHandler} style={{ padding: '7px 16px', background: '#F5F3FF', color: '#7C3AED', border: '1px solid #DDD6FE', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>&#127908; Interview Prep</button>
+              {resume.cover_letter && <button onClick={handleCopyCoverLetter} style={{ padding: '7px 16px', background: '#FEF3C7', color: '#92400E', border: '1px solid #FDE68A', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{coverLetterCopied ? '&#10003; Copied!' : '&#128236; Cover Letter'}</button>}
             </div>
           </div>
 
-          {/* Print Settings */}
-          <div style={{ background: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, border: '1px solid #E0E0E0' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#333', marginBottom: 10 }}>Print Settings</div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: '#666', marginBottom: 6 }}>Size</div>
-            <div style={{ display: 'flex', gap: 0, borderRadius: 8, overflow: 'hidden', border: '1px solid #D0D0D0', marginBottom: 10 }}>
+          {/* Template Switcher */}
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', padding: '8px 0', borderTop: '1px solid #F1F5F9' }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: '#64748B', marginRight: 4 }}>Template:</span>
+            {TEMPLATES.map((t) => {
+              const locked = orderPlan !== 'pro' && (t as any).proOnly;
+              return (
+                <button key={t.id} onClick={() => setTemplateId(t.id)}
+                  style={{ padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', border: templateId === t.id ? '2px solid #0A66C2' : '1px solid #E2E8F0', background: templateId === t.id ? '#EFF6FF' : locked ? '#F9FAFB' : '#fff', color: templateId === t.id ? '#0A66C2' : locked ? '#94A3B8' : '#64748B' }}>
+                  {t.name}{locked ? ' &#128274;' : ''}
+                </button>
+              );
+            })}
+            <div style={{ marginLeft: 'auto', display: 'flex', gap: 0, borderRadius: 6, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
               {(['compact', 'standard', 'spacious'] as const).map(s => (
                 <button key={s} onClick={() => { setPrintSize(s); savePrintSettings(s, fitOnePage); }}
-                  style={{ flex: 1, padding: '5px 0', fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer', background: printSize === s ? '#0A66C2' : '#fff', color: printSize === s ? '#fff' : '#666' }}>
+                  style={{ padding: '3px 10px', fontSize: 10, fontWeight: 600, border: 'none', cursor: 'pointer', background: printSize === s ? '#0A66C2' : '#fff', color: printSize === s ? '#fff' : '#64748B' }}>
                   {s.charAt(0).toUpperCase() + s.slice(1)}
                 </button>
               ))}
             </div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: '#666', marginBottom: 6 }}>Pages</div>
-            <div style={{ display: 'flex', gap: 0, borderRadius: 8, overflow: 'hidden', border: '1px solid #D0D0D0' }}>
+            <div style={{ display: 'flex', gap: 0, borderRadius: 6, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
               <button onClick={() => { setFitOnePage(true); savePrintSettings(printSize, true); }}
-                style={{ flex: 1, padding: '5px 0', fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer', background: fitOnePage ? '#0A66C2' : '#fff', color: fitOnePage ? '#fff' : '#666' }}>1 Page</button>
+                style={{ padding: '3px 10px', fontSize: 10, fontWeight: 600, border: 'none', cursor: 'pointer', background: fitOnePage ? '#0A66C2' : '#fff', color: fitOnePage ? '#fff' : '#64748B' }}>1 pg</button>
               <button onClick={() => { setFitOnePage(false); savePrintSettings(printSize, false); }}
-                style={{ flex: 1, padding: '5px 0', fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer', background: !fitOnePage ? '#0A66C2' : '#fff', color: !fitOnePage ? '#fff' : '#666' }}>2 Pages</button>
+                style={{ padding: '3px 10px', fontSize: 10, fontWeight: 600, border: 'none', cursor: 'pointer', background: !fitOnePage ? '#0A66C2' : '#fff', color: !fitOnePage ? '#fff' : '#64748B' }}>2 pg</button>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Interview Prep */}
-          <div style={{ background: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, border: '1px solid #E0E0E0' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#333', marginBottom: 10 }}>Interview Prep</div>
-            <p style={{ fontSize: 12, color: '#666', marginBottom: 10, lineHeight: 1.5 }}>AI generates 15 interview questions + answers from your resume &amp; JD</p>
-            <button
-              onClick={async () => {
-                try {
-                  const res = await fetch(`${API_URL}/api/interview-prep`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ resume_id: resume.id }),
-                  });
-                  const data = await res.json();
-                  if (data.id) {
-                    window.open(`/interview-prep/${data.id}`, '_blank');
-                  } else {
-                    alert(data.error || 'Failed to start interview prep');
-                  }
-                } catch {
-                  alert('Failed to start interview prep. Please try again.');
-                }
-              }}
-              style={{ width: '100%', padding: '8px', background: '#057642', color: 'white', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
-            >
-              Prepare for Interview
+      {/* ─── MAIN: Sidebar + Preview ─── */}
+      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '20px 16px 40px', display: 'flex', gap: 20, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+
+        {/* LEFT — ATS Insights Sidebar */}
+        <div className="hidden md:block" style={{ width: 280, flexShrink: 0, position: 'sticky', top: 110 }}>
+          {/* ATS Score Card */}
+          <div style={{ background: '#fff', borderRadius: 14, padding: 20, marginBottom: 14, border: '1px solid #E2E8F0', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#0F172A', marginBottom: 14 }}>ATS Insights</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
+              <div style={{ width: 60, height: 60, borderRadius: '50%', border: `4px solid ${scoreColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 800, color: scoreColor, flexShrink: 0 }}>{resume.ats_score}%</div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: resume.ats_score >= 80 ? '#057642' : resume.ats_score >= 60 ? '#0A66C2' : '#EA580C' }}>
+                  {resume.ats_score >= 80 ? 'Excellent' : resume.ats_score >= 60 ? 'Good' : 'Needs Work'}
+                </div>
+                <div style={{ fontSize: 11, color: '#64748B' }}>{matched}/{total} keywords matched</div>
+              </div>
+            </div>
+            {/* Checklist */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
+              {[
+                { check: true, text: 'ATS-friendly formatting' },
+                { check: matched > 0, text: `${matched} keywords optimized` },
+                { check: true, text: 'Strong action verbs' },
+                { check: missing <= 3, text: missing === 0 ? 'All keywords covered' : `${missing} keywords to add` },
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
+                  <span style={{ color: item.check ? '#057642' : '#EA580C', fontWeight: 700 }}>{item.check ? '&#10003;' : '&#9888;'}</span>
+                  <span style={{ color: item.check ? '#334155' : '#EA580C', fontWeight: item.check ? 400 : 600 }}>{item.text}</span>
+                </div>
+              ))}
+            </div>
+            <button onClick={() => setShowKeywords(!showKeywords)} style={{ width: '100%', padding: '8px', background: '#F1F5F9', color: '#0A66C2', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+              {showKeywords ? 'Hide Keywords' : 'View Keywords'}
             </button>
+            {showKeywords && (
+              <div style={{ marginTop: 12 }}>
+                {matched > 0 && (
+                  <><div style={{ fontSize: 11, fontWeight: 700, color: '#057642', marginBottom: 4 }}>Matched ({matched})</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 10 }}>
+                    {(resume.keywords_matched || []).map((kw, i) => <span key={i} style={{ background: '#F0FDF4', color: '#057642', borderRadius: 6, padding: '2px 8px', fontSize: 10, fontWeight: 500 }}>{kw}</span>)}
+                  </div></>
+                )}
+                {missing > 0 && (
+                  <><div style={{ fontSize: 11, fontWeight: 700, color: '#CC1016', marginBottom: 4 }}>Missing ({missing})</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                    {(resume.keywords_missing || []).map((kw, i) => <span key={i} style={{ background: '#FEF2F2', color: '#CC1016', borderRadius: 6, padding: '2px 8px', fontSize: 10, fontWeight: 500 }}>{kw}</span>)}
+                  </div></>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* Cover Letter */}
+          {/* Cover Letter Status */}
           {resume.cover_letter ? (
-            <div style={{ background: '#fff', borderRadius: 12, padding: 16, border: '1px solid #E0E0E0' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#333', marginBottom: 10 }}>Cover Letter</div>
+            <div style={{ background: '#fff', borderRadius: 14, padding: 16, marginBottom: 14, border: '1px solid #E2E8F0' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A', marginBottom: 10 }}>Cover Letter</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <button onClick={handleCopyCoverLetter} style={{ width: '100%', padding: '6px', background: '#F0F7FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer' }}>{coverLetterCopied ? '✓ Copied!' : '📋 Copy Cover Letter'}</button>
-                <button onClick={handleDownloadCoverLetterPDF} style={{ width: '100%', padding: '6px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#666', cursor: 'pointer' }}>&#128196; Cover Letter PDF</button>
+                <button onClick={handleCopyCoverLetter} style={{ width: '100%', padding: '8px', background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#0A66C2', cursor: 'pointer' }}>{coverLetterCopied ? '&#10003; Copied!' : '&#128203; Copy Cover Letter'}</button>
+                <button onClick={handleDownloadCoverLetterPDF} style={{ width: '100%', padding: '8px', background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#64748B', cursor: 'pointer' }}>&#128196; Cover Letter PDF</button>
               </div>
             </div>
           ) : (
-            <div style={{ background: '#FEF3C7', borderRadius: 12, padding: 14, border: '1px solid #FDE68A' }}>
+            <div style={{ background: '#FFFBEB', borderRadius: 14, padding: 16, marginBottom: 14, border: '1px solid #FDE68A' }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: '#92400E', marginBottom: 4 }}>No Cover Letter</div>
               <div style={{ fontSize: 11, color: '#92400E', lineHeight: 1.5 }}>Add a job description when generating your next resume to get a targeted cover letter.</div>
             </div>
           )}
-        </div>
 
-        {/* RIGHT — Resume Preview (fluid) */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-
-        {/* ─── RESUME PREVIEW ─── */}
-        <div style={{ position: 'relative' }}>
-          {renderResumeHTML(rd, templateId)}
-          {isTemplateLocked && (
-            <div style={{
-              position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-              background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(2px)',
-              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-              borderRadius: 4, zIndex: 10,
-            }}>
-              <div style={{ background: 'white', border: '2px solid #0A66C2', borderRadius: 16, padding: '28px 36px', textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.15)', maxWidth: 380 }}>
-                <div style={{ fontSize: 28, marginBottom: 8 }}>&#128274;</div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#1E40AF', marginBottom: 8 }}>Pro Template</div>
-                <div style={{ fontSize: 13, color: '#666', lineHeight: 1.5, marginBottom: 16 }}>
-                  &ldquo;{currentTemplate?.name}&rdquo; is available for Pro users. Upgrade to unlock all 28 templates + 3 resumes.
-                </div>
-                <button
-                  onClick={async () => {
-                    try {
-                      const res = await fetch(`${API_URL}/api/orders/${resume.order_id}/upgrade`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
-                      const data = await res.json();
-                      if (data.razorpay_order_id) {
-                        const opts = {
-                          key: data.razorpay_key, amount: data.amount, currency: data.currency,
-                          order_id: data.razorpay_order_id, name: 'ProfileRoaster',
-                          description: 'Upgrade to Pro', theme: { color: '#0A66C2' },
-                          handler: () => { window.location.reload(); },
-                          modal: { ondismiss: () => { document.body.style.overflow = ''; document.body.style.position = ''; document.documentElement.style.overflow = ''; } },
-                        };
-                        const rzp = new (window as any).Razorpay(opts); rzp.open();
-                      } else { alert(data.error || 'Failed'); }
-                    } catch { alert('Failed to initiate upgrade.'); }
-                  }}
-                  style={{
-                    display: 'inline-block', padding: '12px 28px', background: '#0A66C2',
-                    color: 'white', borderRadius: 50, fontSize: 15, fontWeight: 700,
-                    border: 'none', cursor: 'pointer',
-                  }}
-                >
-                  Upgrade to Pro — &#8377;500 &rarr;
-                </button>
-                <div style={{ fontSize: 11, color: '#888', marginTop: 8 }}>Your &#8377;299 Standard payment will be adjusted</div>
+          {/* Resume Details */}
+          <div style={{ background: '#fff', borderRadius: 14, padding: 16, border: '1px solid #E2E8F0' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A', marginBottom: 10 }}>Details</div>
+            {[
+              { label: 'Role', value: resume.target_role },
+              { label: 'Company', value: resume.target_company },
+              { label: 'Template', value: currentTemplate?.name || templateId },
+            ].filter(d => d.value).map((d, i) => (
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#64748B', padding: '4px 0', borderBottom: '1px solid #F1F5F9' }}>
+                <span style={{ fontWeight: 500 }}>{d.label}</span>
+                <span style={{ fontWeight: 600, color: '#334155' }}>{d.value}</span>
               </div>
-            </div>
-          )}
+            ))}
+          </div>
         </div>
 
+        {/* RIGHT — Resume Preview */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ position: 'relative' }}>
+            {renderResumeHTML(rd, templateId)}
+            {isTemplateLocked && (
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(2px)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 4, zIndex: 10 }}>
+                <div style={{ background: 'white', border: '2px solid #0A66C2', borderRadius: 16, padding: '28px 36px', textAlign: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.15)', maxWidth: 380 }}>
+                  <div style={{ fontSize: 28, marginBottom: 8 }}>&#128274;</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: '#1E40AF', marginBottom: 8 }}>Pro Template</div>
+                  <div style={{ fontSize: 13, color: '#666', lineHeight: 1.5, marginBottom: 16 }}>
+                    &ldquo;{currentTemplate?.name}&rdquo; is a Pro template. Upgrade to unlock all 28 templates.
+                  </div>
+                  <button onClick={upgradeHandler} style={{ padding: '12px 28px', background: '#0A66C2', color: 'white', borderRadius: 50, fontSize: 15, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
+                    Upgrade to Pro &mdash; &#8377;500 &rarr;
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* ─── COVER LETTER (full-width band) ─── */}
+      {/* ─── COVER LETTER FULL-WIDTH ─── */}
       {resume.cover_letter && (
         <div style={{ background: '#F8FAFC', borderTop: '1px solid #E8E8E8', padding: '28px 16px' }}>
-          <div style={{ maxWidth: 800, margin: '0 auto', background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', overflow: 'hidden' }}>
+          <div style={{ maxWidth: 800, margin: '0 auto', background: 'white', borderRadius: 14, border: '1px solid #E2E8F0', overflow: 'hidden' }}>
             <div style={{ background: '#004182', padding: '12px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ color: 'white', fontSize: 15, fontWeight: 700 }}>Cover Letter</div>
               <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={handleCopyCoverLetter} style={{ background: 'white', color: '#004182', border: 'none', borderRadius: 16, padding: '4px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{coverLetterCopied ? 'Copied!' : 'Copy'}</button>
-                <button onClick={handleDownloadCoverLetterPDF} style={{ background: 'white', color: '#004182', border: 'none', borderRadius: 16, padding: '4px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Download PDF</button>
+                <button onClick={handleCopyCoverLetter} style={{ background: 'white', color: '#004182', border: 'none', borderRadius: 8, padding: '5px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{coverLetterCopied ? 'Copied!' : 'Copy'}</button>
+                <button onClick={handleDownloadCoverLetterPDF} style={{ background: 'white', color: '#004182', border: 'none', borderRadius: 8, padding: '5px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>PDF</button>
               </div>
             </div>
             <div style={{ padding: '24px', fontSize: 14, color: '#374151', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>{resume.cover_letter}</div>
@@ -470,12 +432,12 @@ export default function ResumePreviewPage() {
         </div>
       )}
 
-      {/* ─── BOTTOM ACTIONS (full-width band) ─── */}
-      <div style={{ background: 'white', borderTop: '1px solid #E8E8E8', padding: '20px 16px' }}>
-        <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center', display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
-          <a href={`/resume?orderId=${resume.order_id}`} style={{ display: 'inline-block', padding: '10px 24px', background: '#0A66C2', color: '#fff', borderRadius: 24, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>Generate Another Resume</a>
-          <a href={resultsUrl} style={{ display: 'inline-block', padding: '10px 24px', background: '#fff', color: '#666', border: '1px solid #999', borderRadius: 24, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>Back to Results</a>
-          <a href="/dashboard" style={{ display: 'inline-block', padding: '10px 24px', background: '#0A66C2', color: 'white', borderRadius: 24, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>My Dashboard</a>
+      {/* ─── BOTTOM ACTIONS ─── */}
+      <div style={{ background: 'white', borderTop: '1px solid #E8E8E8', padding: '16px' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto', display: 'flex', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <a href={`/resume?orderId=${resume.order_id}`} style={{ padding: '10px 24px', background: '#0A66C2', color: '#fff', borderRadius: 10, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>Generate Another Resume</a>
+          <a href={resultsUrl} style={{ padding: '10px 24px', background: '#fff', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: 10, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>Back to Results</a>
+          <a href="/dashboard" style={{ padding: '10px 24px', background: '#F1F5F9', color: '#334155', border: '1px solid #E2E8F0', borderRadius: 10, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>Dashboard</a>
         </div>
       </div>
     </div>
