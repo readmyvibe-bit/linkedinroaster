@@ -39,31 +39,32 @@ function ReferralCodeRedeemer({ product }: { product: 'roast' | 'build' }) {
   const [showForm, setShowForm] = useState(false);
   const [code, setCode] = useState('');
   const [redeemEmail, setRedeemEmail] = useState('');
-  const [headline, setHeadline] = useState('');
+  const [profileData, setProfileData] = useState('');
   const [redeeming, setRedeeming] = useState(false);
   const [error, setError] = useState('');
-  const [refPdfUploading, setRefPdfUploading] = useState(false);
-  const [refPdfName, setRefPdfName] = useState('');
-  const [showPaste, setShowPaste] = useState(false);
-  const refPdfInputRef = useRef<HTMLInputElement>(null);
+  const [fileUploading, setFileUploading] = useState(false);
+  const [fileName, setFileName] = useState('');
+  const [refInputMode, setRefInputMode] = useState<'resume' | 'linkedin' | 'paste'>('resume');
+  const refFileInputRef = useRef<HTMLInputElement>(null);
 
-  async function handleRefPdf(file: File) {
-    if (file.type !== 'application/pdf') { setError('Please upload a PDF file.'); return; }
-    setRefPdfUploading(true);
-    setRefPdfName(file.name);
+  async function handleFileUpload(file: File) {
+    setFileUploading(true);
+    setFileName(file.name);
     setError('');
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const res = await fetch(`${API_URL}/api/linkedin-pdf/parse`, { method: 'POST', body: formData });
+      const isLinkedIn = refInputMode === 'linkedin';
+      const endpoint = isLinkedIn ? `${API_URL}/api/linkedin-pdf/parse` : `${API_URL}/api/resume/upload-parse`;
+      const res = await fetch(endpoint, { method: 'POST', body: formData });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || 'Failed to parse PDF'); return; }
-      setHeadline(data.raw_paste || data.headline || '');
+      if (!res.ok) { setError(data.error || 'Failed to parse file'); return; }
+      setProfileData(data.raw_paste || data.rawText || data.raw_text || JSON.stringify(data.parsed || ''));
     } catch {
-      setError('Could not parse PDF. Please paste your profile text instead.');
-      setShowPaste(true);
+      setError('Could not parse file. Try pasting your profile text instead.');
+      setRefInputMode('paste');
     } finally {
-      setRefPdfUploading(false);
+      setFileUploading(false);
     }
   }
 
@@ -72,8 +73,8 @@ function ReferralCodeRedeemer({ product }: { product: 'roast' | 'build' }) {
       setError('Please enter your email and referral code.');
       return;
     }
-    if (product === 'roast' && !headline.trim()) {
-      setError('Please upload your LinkedIn PDF or paste your profile.');
+    if (product === 'roast' && !profileData.trim()) {
+      setError('Please upload a file or paste your profile data.');
       return;
     }
     setRedeeming(true);
@@ -86,7 +87,7 @@ function ReferralCodeRedeemer({ product }: { product: 'roast' | 'build' }) {
           code: code.trim(),
           email: redeemEmail.trim(),
           product,
-          profile_data: product === 'roast' ? { raw_paste: headline.trim() } : undefined,
+          profile_data: product === 'roast' ? { raw_paste: profileData.trim() } : undefined,
         }),
       });
       const data = await res.json();
@@ -139,30 +140,45 @@ function ReferralCodeRedeemer({ product }: { product: 'roast' | 'build' }) {
       />
       {product === 'roast' && (
         <>
-          {/* PDF Upload for referral */}
-          <div
-            onClick={() => refPdfInputRef.current?.click()}
-            style={{ border: '2px dashed #94B8DB', borderRadius: 8, padding: '12px 16px', textAlign: 'center', marginBottom: 6, background: headline && !showPaste ? '#F0FDF4' : '#F0F7FF', cursor: refPdfUploading ? 'wait' : 'pointer', fontSize: 12 }}
-          >
-            <input ref={refPdfInputRef} type="file" accept=".pdf" onChange={e => { const f = e.target.files?.[0]; if (f) handleRefPdf(f); }} style={{ display: 'none' }} />
-            {refPdfUploading ? (
-              <span style={{ color: '#0A66C2', fontWeight: 600 }}>&#9881; Parsing PDF...</span>
-            ) : headline && !showPaste ? (
-              <span style={{ color: '#057642', fontWeight: 600 }}>&#9989; LinkedIn PDF loaded ({refPdfName})</span>
-            ) : (
-              <span style={{ color: '#0A66C2', fontWeight: 600 }}>&#128228; Upload LinkedIn PDF</span>
-            )}
+          {/* Input mode tabs */}
+          <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
+            {[
+              { key: 'resume' as const, label: 'Resume' },
+              { key: 'linkedin' as const, label: 'LinkedIn PDF' },
+              { key: 'paste' as const, label: 'Paste' },
+            ].map(t => (
+              <button key={t.key} onClick={() => { setRefInputMode(t.key); setProfileData(''); setFileName(''); }}
+                style={{ flex: 1, padding: '6px 8px', fontSize: 11, fontWeight: refInputMode === t.key ? 700 : 500, borderRadius: 6, border: 'none', cursor: 'pointer', background: refInputMode === t.key ? '#E8F0FE' : '#F3F4F6', color: refInputMode === t.key ? '#0A66C2' : '#666' }}>
+                {t.label}
+              </button>
+            ))}
           </div>
-          {!showPaste && !headline ? (
-            <div onClick={() => setShowPaste(true)} style={{ fontSize: 11, color: '#94A3B8', textAlign: 'center', marginBottom: 8, cursor: 'pointer' }}>
-              or <u>paste profile text instead</u>
+
+          {/* File upload (resume or linkedin) */}
+          {(refInputMode === 'resume' || refInputMode === 'linkedin') && (
+            <div
+              onClick={() => refFileInputRef.current?.click()}
+              style={{ border: '2px dashed #94B8DB', borderRadius: 8, padding: '12px 16px', textAlign: 'center', marginBottom: 8, background: profileData ? '#F0FDF4' : '#F0F7FF', cursor: fileUploading ? 'wait' : 'pointer', fontSize: 12 }}
+            >
+              <input ref={refFileInputRef} type="file" accept={refInputMode === 'resume' ? '.pdf,.docx' : '.pdf'} onChange={e => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }} style={{ display: 'none' }} />
+              {fileUploading ? (
+                <span style={{ color: '#0A66C2', fontWeight: 600 }}>Parsing...</span>
+              ) : profileData ? (
+                <span style={{ color: '#057642', fontWeight: 600 }}>&#9989; {fileName} loaded</span>
+              ) : (
+                <span style={{ color: '#0A66C2', fontWeight: 600 }}>
+                  {refInputMode === 'resume' ? '&#128196; Upload Resume (PDF/DOCX)' : '&#128188; Upload LinkedIn PDF'}
+                </span>
+              )}
             </div>
-          ) : null}
-          {(showPaste || (!refPdfName && headline)) && (
+          )}
+
+          {/* Paste input */}
+          {refInputMode === 'paste' && (
             <textarea
-              value={headline}
-              onChange={(e) => setHeadline(e.target.value)}
-              placeholder="Paste your LinkedIn headline or full profile *"
+              value={profileData}
+              onChange={(e) => setProfileData(e.target.value)}
+              placeholder="Paste your headline, experience, or profile text *"
               rows={3}
               style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #E0E0E0', fontSize: 13, marginBottom: 8, resize: 'none', boxSizing: 'border-box' }}
             />
@@ -906,8 +922,8 @@ export default function Home() {
               {/* 4 bullet points */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
                 {[
-                  { icon: '&#128196;', text: 'Upload resume or LinkedIn PDF \u2014 works on mobile' },
-                  { icon: '&#127919;', text: 'AI scores & rewrites your profile + resume' },
+                  { icon: '&#128196;', text: 'Upload resume or LinkedIn PDF for instant analysis' },
+                  { icon: '&#127919;', text: 'ATS score + LinkedIn profile score + AI rewrite' },
                   { icon: '&#127908;', text: 'Personalized interview questions + STAR answers' },
                   { icon: '&#9993;&#65039;', text: 'Cover letter matched to your target role' },
                 ].map((item, i) => (

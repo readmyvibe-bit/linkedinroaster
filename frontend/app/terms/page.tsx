@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Terms & Conditions — Profile Roaster',
-  description: 'Terms and conditions for using Profile Roaster LinkedIn analysis, profile building, and resume services.',
+  description: 'Terms and conditions for using Profile Roaster — AI profile rewrite, resume, and interview prep services.',
 };
 
 export default function TermsPage() {

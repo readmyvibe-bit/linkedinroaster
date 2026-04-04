@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Refund Policy — Profile Roaster',
-  description: 'Refund policy for Profile Roaster LinkedIn analysis, profile building, and resume services.',
+  description: 'Refund policy for Profile Roaster — AI profile rewrite, resume, and interview prep services.',
 };
 
 export default function RefundPage() {
@@ -47,7 +47,7 @@ export default function RefundPage() {
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li>Our AI pipeline fails to process your order and does not deliver results after 3 retry attempts</li>
               <li>The order gets stuck in processing for more than 10 minutes without completion</li>
-              <li>A system error prevents delivery of your roast, rewrite, profile, resume, or scores</li>
+              <li>A system error prevents delivery of your rewrite, profile, resume, or scores</li>
               <li>Payment was captured but the order was not created in our system</li>
             </ul>
             <p className="mt-2">
@@ -65,10 +65,10 @@ export default function RefundPage() {
               You may request a refund if you believe the results are <strong>significantly below acceptable quality</strong>. This includes:
             </p>
 
-            <h3 className="font-semibold mt-4 mb-2">3.1 For Roast &amp; Rewrite Orders</h3>
+            <h3 className="font-semibold mt-4 mb-2">3.1 For Rewrite &amp; Analysis Orders</h3>
             <ul className="list-disc pl-6 space-y-1">
               <li>The rewrite contains fabricated information not present in your original profile (invented company names, fake metrics, false credentials)</li>
-              <li>The roast contains offensive, discriminatory, or personally attacking content beyond intended humor</li>
+              <li>The output contains offensive, discriminatory, or personally attacking content</li>
               <li>The results are clearly for a different person&rsquo;s profile (data mix-up)</li>
               <li>The rewrite is substantially incomplete (missing headline, about, or experience sections that were present in the original)</li>
               <li>The scores or analysis are clearly nonsensical</li>
@@ -109,7 +109,7 @@ export default function RefundPage() {
               Refunds will <strong>not</strong> be issued in the following cases:
             </p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
-              <li><strong>Subjective dissatisfaction:</strong> You disagree with the roast humour, tone, or severity (the roast is intentionally direct by design)</li>
+              <li><strong>Subjective dissatisfaction:</strong> You disagree with the tone, style, or suggestions in the AI-generated rewrite</li>
               <li><strong>Score disagreement:</strong> You disagree with the scores assigned (scores are based on our proprietary algorithm and AI analysis)</li>
               <li><strong>Style preferences:</strong> You prefer a different writing style, headline format, or resume template style than what was generated</li>
               <li><strong>Insufficient input:</strong> You provided minimal data (e.g., only a headline, or empty experience fields) and received limited results as a consequence</li>
@@ -167,7 +167,7 @@ export default function RefundPage() {
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li><strong>Partial delivery:</strong> If some sections were delivered correctly but others had issues, we may offer a 50% refund or free reprocessing</li>
               <li><strong>Pro upgrade issues:</strong> If the Standard results were satisfactory but additional Pro features had issues, we may refund only the upgrade amount</li>
-              <li><strong>Resume-only issues:</strong> If the LinkedIn profile/roast was satisfactory but the resume had issues, we may offer free resume reprocessing</li>
+              <li><strong>Resume-only issues:</strong> If the profile rewrite was satisfactory but the resume had issues, we may offer free resume reprocessing</li>
               <li><strong>Reprocessing:</strong> In lieu of a refund, we may offer to reprocess your order through the pipeline at no additional cost</li>
             </ul>
           </section>

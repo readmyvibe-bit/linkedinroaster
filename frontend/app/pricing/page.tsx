@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 
 // ─── Types ───
-type Tab = 'roast' | 'build';
+type Tab = 'rewrite' | 'build';
 
 interface PlanFeature {
   text: string;
@@ -21,7 +21,7 @@ interface Plan {
 }
 
 // ─── Plan Data ───
-const roastPlans: Plan[] = [
+const rewritePlans: Plan[] = [
   {
     name: 'Standard',
     price: '\u20B9499',
@@ -306,9 +306,9 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 
 // ─── Main Page ───
 export default function PricingPage() {
-  const [activeTab, setActiveTab] = useState<Tab>('roast');
+  const [activeTab, setActiveTab] = useState<Tab>('rewrite');
 
-  const plans = activeTab === 'roast' ? roastPlans : buildPlans;
+  const plans = activeTab === 'rewrite' ? rewritePlans : buildPlans;
 
   return (
     <div style={{ minHeight: '100vh', background: '#F3F2EF' }}>
@@ -388,13 +388,13 @@ export default function PricingPage() {
           }}
         >
           <button
-            onClick={() => setActiveTab('roast')}
+            onClick={() => setActiveTab('rewrite')}
             style={{
               padding: '10px 24px',
               borderRadius: 24,
-              border: activeTab === 'roast' ? 'none' : '1px solid #E0E0E0',
-              background: activeTab === 'roast' ? '#0B69C7' : '#FFFFFF',
-              color: activeTab === 'roast' ? '#FFFFFF' : '#191919',
+              border: activeTab === 'rewrite' ? 'none' : '1px solid #E0E0E0',
+              background: activeTab === 'rewrite' ? '#0B69C7' : '#FFFFFF',
+              color: activeTab === 'rewrite' ? '#FFFFFF' : '#191919',
               fontSize: 14,
               fontWeight: 600,
               cursor: 'pointer',

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy — Profile Roaster',
-  description: 'Privacy policy for Profile Roaster — LinkedIn profile analysis, profile building, and resume services.',
+  description: 'Privacy policy for Profile Roaster — AI profile rewrite, resume, and interview prep services.',
 };
 
 export default function PrivacyPage() {

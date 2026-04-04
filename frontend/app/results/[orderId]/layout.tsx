@@ -21,11 +21,11 @@ export async function generateMetadata({
       const cardUrl = data.results.card_image_url;
 
       return {
-        title: `My LinkedIn score: ${before}→${after} 🔥 | Profile Roaster`,
-        description: `I got roasted. Score improved from ${before} to ${after}. Get yours at profileroaster.in`,
+        title: `My profile score: ${before}→${after} | ProfileRoaster`,
+        description: `AI rewrote my profile. Score improved from ${before} to ${after}. Get yours at profileroaster.in`,
         openGraph: {
-          title: `My LinkedIn score went from ${before}→${after} 🔥`,
-          description: `I got roasted. Score improved from ${before} to ${after}. Get yours at profileroaster.in`,
+          title: `My profile score went from ${before}→${after}`,
+          description: `AI rewrote my profile. Score improved from ${before} to ${after}. Get yours at profileroaster.in`,
           images: cardUrl
             ? [{ url: cardUrl, width: 1200, height: 630 }]
             : [{ url: 'https://profileroaster.in/og-default.png', width: 1200, height: 630 }],
@@ -33,7 +33,7 @@ export async function generateMetadata({
         },
         twitter: {
           card: 'summary_large_image',
-          title: `My LinkedIn score: ${before}→${after} 🔥`,
+          title: `My profile score: ${before}→${after}`,
           description: `Score improved from ${before} to ${after}. Get yours at profileroaster.in`,
           images: cardUrl ? [cardUrl] : ['https://profileroaster.in/og-default.png'],
         },
@@ -44,8 +44,8 @@ export async function generateMetadata({
   }
 
   return {
-    title: 'Your Roast Results | Profile Roaster',
-    description: 'Get your LinkedIn profile roasted by AI, then get a complete rewrite.',
+    title: 'Your Results | ProfileRoaster',
+    description: 'Get your profile rewritten by AI — resume, LinkedIn content, and interview prep.',
   };
 }
 

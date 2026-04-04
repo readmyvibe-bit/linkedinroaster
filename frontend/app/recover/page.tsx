@@ -7,7 +7,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 interface RecoveredOrder {
   orderId: string;
-  type: 'roast' | 'build';
+  type: 'roast' | 'build' | 'rewrite';
   roastTitle?: string;
   beforeScore?: number;
   afterScore?: number;
@@ -135,7 +135,7 @@ export default function RecoverPage() {
 
   // ─── Results dashboard (full-width) ───
   if (step === 'results') {
-    const roastOrders = orders.filter(o => o.type === 'roast');
+    const roastOrders = orders.filter(o => o.type === 'roast' || o.type === 'rewrite');
     const buildOrders = orders.filter(o => o.type === 'build');
 
     return (
@@ -167,7 +167,7 @@ export default function RecoverPage() {
             <div style={{ marginBottom: 28 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <span style={{ fontSize: 20 }}>&#128293;</span>
-                <h2 style={{ fontSize: 16, fontWeight: 700, color: '#191919', margin: 0 }}>LinkedIn Roasts ({roastOrders.length})</h2>
+                <h2 style={{ fontSize: 16, fontWeight: 700, color: '#191919', margin: 0 }}>Profile Rewrites ({roastOrders.length})</h2>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
                 {roastOrders.map((o) => (
@@ -179,7 +179,7 @@ export default function RecoverPage() {
                     onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}
                   >
                     <div style={{ fontSize: 14, fontWeight: 600, color: '#191919', marginBottom: 8, lineHeight: 1.4 }}>
-                      {o.roastTitle || 'LinkedIn Roast'}
+                      {o.roastTitle || 'Profile Rewrite'}
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -254,7 +254,7 @@ export default function RecoverPage() {
 
           {/* Actions */}
           <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 16 }}>
-            <a href="/" style={{ fontSize: 13, color: '#0A66C2', textDecoration: 'none', fontWeight: 600 }}>Get another roast</a>
+            <a href="/" style={{ fontSize: 13, color: '#0A66C2', textDecoration: 'none', fontWeight: 600 }}>Get another rewrite</a>
             <span style={{ color: '#ccc' }}>|</span>
             <a href="/build" style={{ fontSize: 13, color: '#0A66C2', textDecoration: 'none', fontWeight: 600 }}>Build new LinkedIn profile</a>
             {!deleteMode && (
