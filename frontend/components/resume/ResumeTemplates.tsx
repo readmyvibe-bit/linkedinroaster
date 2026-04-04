@@ -2588,25 +2588,26 @@ function esc(s?: string): string {
 }
 
 function printPageWrapper(body: string, pageCount?: number): string {
-  const onePage = pageCount === 1;
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><title> </title><style>
-@page{size:A4;margin:12mm 12mm 10mm 12mm}
+@page{size:A4;margin:12mm 14mm 12mm 14mm}
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;margin:0;padding:0}
-body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important;font-size:11px}
-.print-content-root{width:100%;transform-origin:top left}
+html{width:210mm}
+body{width:100%;margin:0;padding:0;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important;font-size:11px}
+.print-content-root{width:100%;max-width:210mm}
 .resume-wrapper{width:100%;position:relative}
-.two-col{display:flex;width:100%;min-height:calc(297mm - 22mm)}
+.two-col{display:flex;width:100%;min-height:calc(297mm - 24mm)}
 .two-col-left{flex-shrink:0}
 .two-col-right{flex:1}
 @media print{
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-  .entry{page-break-inside:avoid}
-  .section-block{page-break-inside:avoid}
+  html,body{width:210mm!important;overflow:visible!important}
+  .print-content-root{width:100%!important;transform:none!important}
+  .entry{page-break-inside:avoid;break-inside:avoid}
+  .section-block{page-break-inside:avoid;break-inside:avoid}
   .two-col{min-height:auto!important}
   [style*="min-height"]{min-height:auto!important}
 }
-</style></head><body style="-webkit-print-color-adjust:exact;print-color-adjust:exact"><div class="print-content-root">${body}</div></body></html>`;
+</style></head><body><div class="print-content-root">${body}</div></body></html>`;
 }
 
 // Helper: build experience HTML for single-column templates

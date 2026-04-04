@@ -35,7 +35,7 @@ export default function ResumePreviewPage() {
     setLoading(true);
     fetch(`${API_URL}/api/resume/${resumeId}`)
       .then(r => { if (!r.ok) throw new Error(); return r.json(); })
-      .then(d => { setResume(d); setTemplateId(d.template_id || 'classic'); setPrintSize(d.resume_data?.printSize || 'standard'); setFitOnePage(d.resume_data?.fitOnePage !== false); setLoading(false); })
+      .then(d => { setResume(d); setTemplateId(d.template_id || 'classic'); setPrintSize(d.resume_data?.printSize || 'standard'); setFitOnePage(d.resume_data?.fitOnePage === true); setLoading(false); })
       .catch(() => { setError('Resume not found'); setLoading(false); });
   }, [resumeId]);
 
@@ -58,8 +58,14 @@ export default function ResumePreviewPage() {
     const adaptive = getAdaptiveSpacingCSS(density, printSize);
     if (adaptive) html = html.replace('</style>', adaptive + '</style>');
     if (printSize === 'compact') html = html.replace('</style>', 'body{font-size:92%!important;line-height:1.35!important}body div,body p{margin-bottom:2px!important}</style>');
-    else if (printSize === 'spacious') html = html.replace('</style>', 'body{font-size:108%!important;line-height:1.65!important}</style>');
-    if (fitOnePage) html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 10mm 8mm 10mm}');
+    else if (printSize === 'spacious') html = html.replace('</style>', 'body{font-size:108%!important;line-height:1.65!important}body div,body section{margin-bottom:4px!important}</style>');
+    if (fitOnePage) {
+      html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 10mm 8mm 10mm}');
+      html = html.replace('</style>', 'body{font-size:90%!important;line-height:1.3!important}body div,body p{margin-bottom:1px!important}</style>');
+    } else {
+      // Multi-page: ensure content flows naturally across pages, no shrink-to-fit
+      html = html.replace('</style>', '@media print{html,body{width:210mm!important;min-height:auto!important}body{overflow:visible!important}.print-content-root{width:100%!important;transform:none!important}}</style>');
+    }
     const w = window.open('', '_blank'); if (!w) { alert('Allow popups.'); return; }
     w.document.write(html); w.document.close(); w.document.title = ' '; setTimeout(() => w.print(), 600);
   }
@@ -145,7 +151,7 @@ export default function ResumePreviewPage() {
               <select value={printSize} onChange={e => { setPrintSize(e.target.value as any); savePrintSettings(e.target.value, fitOnePage); }} style={{ padding: '4px 8px', fontSize: 11, borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)', cursor: 'pointer', background: 'var(--bg-surface)' }}>
                 <option value="compact">Compact</option><option value="standard">Standard</option><option value="spacious">Spacious</option>
               </select>
-              <select className="hidden sm:inline" value={fitOnePage ? '1' : '2'} onChange={e => { const f = e.target.value === '1'; setFitOnePage(f); savePrintSettings(printSize, f); }} style={{ padding: '4px 8px', fontSize: 11, borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)', cursor: 'pointer', background: 'var(--bg-surface)' }}>
+              <select value={fitOnePage ? '1' : '2'} onChange={e => { const f = e.target.value === '1'; setFitOnePage(f); savePrintSettings(printSize, f); }} style={{ padding: '4px 8px', fontSize: 11, borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)', cursor: 'pointer', background: 'var(--bg-surface)' }}>
                 <option value="1">1 Page</option><option value="2">2 Pages</option>
               </select>
             </div>
@@ -183,7 +189,7 @@ export default function ResumePreviewPage() {
             <div style={{ padding: '16px 24px 24px' }}>
               {filterCategory === 'All' && <div className="saas-label" style={{ marginBottom: 8 }}>All templates</div>}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 10 }}>
-                {filteredTemplates.map(t => { const locked = orderPlan !== 'pro' && (t as any).proOnly; return (
+                {filteredTemplates.filter(t => !(filterCategory === 'All' && recommended.includes(t.id))).map(t => { const locked = orderPlan !== 'pro' && (t as any).proOnly; return (
                   <button key={t.id} onClick={() => { if (!locked) { setTemplateId(t.id); setShowTemplateModal(false); } }} className="saas-card" style={{ padding: 14, textAlign: 'left', cursor: locked ? 'not-allowed' : 'pointer', opacity: locked ? 0.6 : 1, border: templateId === t.id ? '2px solid var(--accent)' : undefined }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 2 }}>{t.name}{locked ? ' \uD83D\uDD12' : ''}</div>
                     <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.4 }}>{t.description}</div>
