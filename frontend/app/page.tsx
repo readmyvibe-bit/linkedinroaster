@@ -192,22 +192,28 @@ function ReferralCodeRedeemer({ product }: { product: 'roast' | 'build' }) {
   );
 }
 
-// ─── Profile Input Form ───
+// ─── Profile Input Form (Payment) ───
 function ProfileInputForm({
   plan,
   teaserId,
   email: initialEmail,
   initialRawPaste,
+  inputSource,
+  targetRole,
 }: {
   plan: 'standard' | 'pro';
   teaserId: string | null;
   email: string;
   initialRawPaste?: string;
+  inputSource: 'resume' | 'linkedin' | 'questionnaire';
+  targetRole: string;
 }) {
   const [email, setEmail] = useState(initialEmail);
   const [rawPaste, setRawPaste] = useState(initialRawPaste || '');
   const [jobDescription, setJobDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  const sourceLabel = inputSource === 'resume' ? 'Your Resume Data' : inputSource === 'linkedin' ? 'Your LinkedIn Profile (from PDF)' : 'Your Profile Data';
 
   async function handleSubmit() {
     if (!email.trim() || !rawPaste.trim()) return;
@@ -222,6 +228,8 @@ function ProfileInputForm({
           profile_data: { raw_paste: rawPaste.trim() },
           job_description: plan === 'pro' ? jobDescription.trim() || undefined : undefined,
           teaser_id: teaserId,
+          input_source: inputSource,
+          target_role: targetRole || undefined,
         }),
       });
       const data = await res.json();
@@ -249,7 +257,7 @@ function ProfileInputForm({
       amount: orderData.amount,
       currency: orderData.currency,
       name: 'Profile Roaster',
-      description: `${plan === 'pro' ? 'Pro' : 'Standard'} LinkedIn Rewrite`,
+      description: `${plan === 'pro' ? 'Pro' : 'Standard'} Career Transformation`,
       order_id: orderData.razorpay_order_id,
       prefill: { email: userEmail },
       theme: { color: '#0A66C2' },
@@ -269,7 +277,7 @@ function ProfileInputForm({
   return (
     <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', padding: 28 }}>
       <h3 style={{ fontSize: 18, fontWeight: 800, color: '#191919', marginBottom: 4 }}>
-        {initialRawPaste ? 'Your LinkedIn Profile (from PDF)' : 'Paste Your LinkedIn Profile'}
+        {sourceLabel}
       </h3>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
         <span style={{ fontSize: 13, color: '#666' }}>
@@ -279,11 +287,11 @@ function ProfileInputForm({
       </div>
       {initialRawPaste ? (
         <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 8, padding: '8px 12px', marginBottom: 16, fontSize: 12, color: '#057642', fontWeight: 600 }}>
-          &#9989; Profile data auto-filled from your LinkedIn PDF. Review and edit below if needed.
+          &#9989; Data auto-filled from your {inputSource === 'resume' ? 'resume' : inputSource === 'linkedin' ? 'LinkedIn PDF' : 'profile'}. Review and edit below if needed.
         </div>
       ) : (
         <p style={{ fontSize: 12, color: '#999', marginBottom: 20 }}>
-          Go to your LinkedIn profile &rarr; Select all (Ctrl+A) &rarr; Copy (Ctrl+C) &rarr; Paste below
+          Paste your profile data below or go back to upload a file.
         </p>
       )}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -297,14 +305,14 @@ function ProfileInputForm({
         <textarea
           value={rawPaste}
           onChange={(e) => setRawPaste(e.target.value)}
-          placeholder="Paste your entire LinkedIn profile here \u2014 headline, about, experience, everything. *"
+          placeholder="Your profile data *"
           rows={10}
           style={{ width: '100%', padding: '12px 16px', borderRadius: 10, border: '1px solid #E0E0E0', fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box' }}
         />
         {rawPaste.trim().length > 0 && (
           <p style={{ fontSize: 12, color: rawPaste.trim().length > 100 ? '#057642' : '#E16B00' }}>
-            {rawPaste.trim().length} characters pasted
-            {rawPaste.trim().length < 100 && ' \u2014 paste more for better results (include About + Experience)'}
+            {rawPaste.trim().length} characters
+            {rawPaste.trim().length < 100 && ' \u2014 add more data for better results'}
           </p>
         )}
         {plan === 'pro' && (
@@ -327,7 +335,7 @@ function ProfileInputForm({
             boxShadow: '0 4px 16px rgba(10,102,194,0.35)',
           }}
         >
-          {submitting ? 'Creating order...' : `Pay \u20b9${plan === 'pro' ? '999' : '499'} & Get Rewrite`}
+          {submitting ? 'Creating order...' : `Pay \u20b9${plan === 'pro' ? '999' : '499'} & Get Full Rewrite`}
         </button>
       </div>
     </div>
@@ -337,7 +345,6 @@ function ProfileInputForm({
 // ─── PDF to Resume Data Mapper (advanced) ───
 function truncateSummary(text: string, maxLen = 200): string {
   if (!text || text.length <= maxLen) return text;
-  // Find sentence boundary near maxLen
   const slice = text.slice(0, maxLen + 50);
   const lastSentence = slice.search(/[.!?]\s/);
   if (lastSentence > 80) return slice.slice(0, lastSentence + 1).trim();
@@ -346,17 +353,14 @@ function truncateSummary(text: string, maxLen = 200): string {
 
 function descriptionToBullets(desc: string): string[] {
   if (!desc) return [];
-  // Split on common bullet/newline delimiters
   let parts = desc.split(/\n|•|·|–|—|\*|^\d+[.)]\s*/m)
     .map(s => s.trim())
     .filter(s => s.length > 15);
-  // If still one big blob, split on sentences
   if (parts.length <= 1 && desc.length > 100) {
     parts = desc.split(/(?<=[.!?])\s+/)
       .map(s => s.trim())
       .filter(s => s.length > 15);
   }
-  // Cap each bullet at 200 chars, max 5 bullets per role
   return parts
     .map(b => b.length > 200 ? b.slice(0, 197) + '...' : b)
     .slice(0, 5);
@@ -375,19 +379,19 @@ function groupSkills(skills: string[]): Array<{ category: string; skills: string
 
 function pdfToResumeData(parsed: any): any {
   if (!parsed) return null;
-  const aboutText = parsed.about || '';
+  const aboutText = parsed.about || parsed.summary || '';
   return {
     contact: {
-      name: parsed.full_name || '',
+      name: parsed.full_name || parsed.name || '',
       location: parsed.location || '',
       linkedin: parsed.linkedin || '',
     },
     summary: truncateSummary(aboutText) || parsed.headline || '',
     experience: (parsed.experience || []).slice(0, 6).map((e: any) => ({
-      title: e.title || '',
+      title: e.title || e.role || '',
       company: e.company || '',
-      dates: e.duration || '',
-      bullets: descriptionToBullets(e.description || ''),
+      dates: e.duration || e.dates || (e.start_date ? `${e.start_date} - ${e.end_date || 'Present'}` : ''),
+      bullets: descriptionToBullets(e.description || (e.bullets || []).join('\n') || ''),
     })),
     education: (parsed.education || []).map((e: any) => ({
       institution: e.institution || '',
@@ -408,6 +412,11 @@ function pdfToResumeData(parsed: any): any {
 // MAIN PAGE
 // ════════════════════════════════════════
 export default function Home() {
+  // Input source tracking
+  const [inputSource, setInputSource] = useState<'resume' | 'linkedin' | 'questionnaire'>('resume');
+  const [activeInputTab, setActiveInputTab] = useState<'resume' | 'linkedin' | 'questionnaire'>('resume');
+
+  // Core state
   const [headline, setHeadline] = useState('');
   const [loading, setLoading] = useState(false);
   const [teaser, setTeaser] = useState<TeaserResult | null>(null);
@@ -415,50 +424,51 @@ export default function Home() {
   const [emailSaved, setEmailSaved] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'standard' | 'pro' | null>(null);
-  const [showPasteInput, setShowPasteInput] = useState(false);
   const [rateLimited, setRateLimited] = useState(false);
-  const [showPdfGuide, setShowPdfGuide] = useState(false);
 
-  // Multi-section paste state
-  const [pasteAbout, setPasteAbout] = useState('');
-  const [pasteExperience, setPasteExperience] = useState('');
-  const [pasteEducation, setPasteEducation] = useState('');
-  const [pasteSkills, setPasteSkills] = useState('');
+  // Resume upload state
+  const [resumeUploading, setResumeUploading] = useState(false);
+  const [resumeParsed, setResumeParsed] = useState<any>(null);
+  const [resumeError, setResumeError] = useState('');
+  const [resumeFileName, setResumeFileName] = useState('');
+  const [resumeRawText, setResumeRawText] = useState('');
+  const [resumeDragOver, setResumeDragOver] = useState(false);
 
-  // PDF upload state
+  // LinkedIn PDF upload state
   const [pdfUploading, setPdfUploading] = useState(false);
   const [pdfParsed, setPdfParsed] = useState<any>(null);
   const [pdfError, setPdfError] = useState('');
   const [pdfFileName, setPdfFileName] = useState('');
-  const [pdfRawPaste, setPdfRawPaste] = useState(''); // extracted text for order creation
-  const [dragOver, setDragOver] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [pdfRawPaste, setPdfRawPaste] = useState('');
+  const [pdfDragOver, setPdfDragOver] = useState(false);
 
-  // FAQ state
+  // Confirmation screen
+  const [showConfirmScreen, setShowConfirmScreen] = useState(false);
+  const [confirmName, setConfirmName] = useState('');
+  const [confirmHeadline, setConfirmHeadline] = useState('');
+  const [confirmExperience, setConfirmExperience] = useState('');
+  const [confirmEducation, setConfirmEducation] = useState('');
+  const [confirmSkills, setConfirmSkills] = useState('');
+  const [targetRole, setTargetRole] = useState('');
+
+  // Questionnaire state
+  const [qName, setQName] = useState('');
+  const [qHeadline, setQHeadline] = useState('');
+  const [qExperience, setQExperience] = useState('');
+  const [qEducation, setQEducation] = useState('');
+  const [qSkills, setQSkills] = useState('');
+  const [qTargetRole, setQTargetRole] = useState('');
+
+  // FAQ & misc
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const pricingRef = useRef<HTMLDivElement>(null);
   const inputFormRef = useRef<HTMLDivElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const pdfInputRef = useRef<HTMLInputElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
-
-  // Auto-resize textarea
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      const scrollHeight = textareaRef.current.scrollHeight;
-      const MAX = 180;
-      if (scrollHeight > MAX) {
-        textareaRef.current.style.height = MAX + 'px';
-        textareaRef.current.style.overflowY = 'auto';
-      } else {
-        textareaRef.current.style.height = scrollHeight + 'px';
-        textareaRef.current.style.overflowY = 'hidden';
-      }
-    }
-  }, [headline]);
+  const resumeInputRef = useRef<HTMLInputElement>(null);
+  const pdfInputRef = useRef<HTMLInputElement>(null);
 
   // Scroll to result
   useEffect(() => {
@@ -467,18 +477,24 @@ export default function Home() {
     }
   }, [teaser]);
 
-  // Handle ?plan= query param from pricing page
+  // Handle ?plan= and ?tab= query params
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const planParam = params.get('plan');
     if (planParam === 'standard' || planParam === 'pro') {
-      setShowPasteInput(true);
-      // Scroll to hero input after a short delay
       setTimeout(() => heroRef.current?.scrollIntoView({ behavior: 'smooth' }), 200);
+    }
+    const tabParam = params.get('tab');
+    if (tabParam === 'questionnaire') {
+      setActiveInputTab('questionnaire');
+      setInputSource('questionnaire');
+    } else if (tabParam === 'linkedin') {
+      setActiveInputTab('linkedin');
+      setInputSource('linkedin');
     }
   }, []);
 
-  // ── Core teaser runner (reusable for paste + PDF) ──
+  // ── Core teaser runner ──
   async function runTeaser(headlineText: string) {
     const today = new Date().toISOString().split('T')[0];
     const lsKey = `teaser_count_${today}`;
@@ -490,7 +506,11 @@ export default function Home() {
       const res = await fetch(`${API_URL}/api/teaser`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ headline: headlineText.slice(0, 500) }),
+        body: JSON.stringify({
+          headline: headlineText.slice(0, 500),
+          input_source: inputSource,
+          target_role: targetRole || qTargetRole || undefined,
+        }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -508,31 +528,178 @@ export default function Home() {
     }
   }
 
-  // ── Teaser submit (from paste input) ──
-  async function handleTeaserSubmit() {
-    const trimmed = headline.trim();
-    if (!trimmed || trimmed.length < 10) {
-      alert('Please paste your complete LinkedIn headline. It should be at least a few words.');
+  // ── Resume upload ──
+  async function uploadAndParseResume(file: File) {
+    const validTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    if (!validTypes.includes(file.type) && !file.name.endsWith('.pdf') && !file.name.endsWith('.docx')) {
+      setResumeError('Please upload a PDF or DOCX file.');
       return;
     }
-    if (trimmed.length > 500) {
-      alert('Headline is too long. Please paste only your LinkedIn headline, not your full profile.');
+    if (file.size > 10 * 1024 * 1024) {
+      setResumeError('File too large. Maximum 10MB.');
       return;
     }
-    if (!/[a-zA-Z\u0900-\u097F]/.test(trimmed)) {
-      alert('Please paste your actual LinkedIn headline.');
+
+    setResumeUploading(true);
+    setResumeError('');
+    setResumeFileName(file.name);
+    setResumeParsed(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch(`${API_URL}/api/resume/upload-parse`, {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setResumeError(data.error || 'Failed to parse resume. Try a different file.');
+        return;
+      }
+
+      setResumeParsed(data.parsed || data);
+      setResumeRawText(data.rawText || data.raw_text || data.raw_paste || JSON.stringify(data.parsed || data));
+      setInputSource('resume');
+
+      // Populate confirmation screen — handle field name differences between endpoints
+      const p = data.parsed || data;
+      setConfirmName(p.full_name || p.name || '');
+      setConfirmHeadline(p.headline || p.summary || p.title || '');
+      setConfirmExperience(
+        (p.experience || []).map((e: any) => {
+          const title = e.title || e.role || '';
+          const company = e.company || '';
+          const dates = e.duration || e.dates || (e.start_date ? `${e.start_date} - ${e.end_date || 'Present'}` : '');
+          return `${title} at ${company}${dates ? ` (${dates})` : ''}`;
+        }).join('\n') || ''
+      );
+      setConfirmEducation(
+        (p.education || []).map((e: any) => `${e.degree || ''} ${e.field || ''} - ${e.institution || ''}`).join('\n') || ''
+      );
+      setConfirmSkills((p.skills || []).join(', '));
+      setShowConfirmScreen(true);
+    } catch (err: any) {
+      console.error('Resume upload error:', err);
+      setResumeError('Could not reach the server. Please check your internet connection.');
+    } finally {
+      setResumeUploading(false);
+    }
+  }
+
+  // ── LinkedIn PDF upload ──
+  async function uploadAndParsePdf(file: File) {
+    if (file.type !== 'application/pdf') {
+      setPdfError('Please upload a PDF file. On LinkedIn, click "More" \u2192 "Save to PDF".');
       return;
     }
-    // Combine all paste sections into raw_paste for the order flow
+    if (file.size > 10 * 1024 * 1024) {
+      setPdfError('File too large. Maximum 10MB.');
+      return;
+    }
+
+    setPdfUploading(true);
+    setPdfError('');
+    setPdfFileName(file.name);
+    setPdfParsed(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch(`${API_URL}/api/linkedin-pdf/parse`, {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setPdfError(data.error || 'Failed to parse PDF. Try a different file.');
+        return;
+      }
+
+      setPdfParsed(data.parsed);
+      setPdfRawPaste(data.raw_paste || '');
+      setInputSource('linkedin');
+
+      // Populate confirmation screen
+      const p = data.parsed || {};
+      setConfirmName(p.full_name || p.name || '');
+      setConfirmHeadline(p.headline || p.summary || '');
+      setConfirmExperience(
+        (p.experience || []).map((e: any) => {
+          const title = e.title || e.role || '';
+          const company = e.company || '';
+          const dates = e.duration || (e.start_date ? `${e.start_date} - ${e.end_date || 'Present'}` : '');
+          return `${title} at ${company}${dates ? ` (${dates})` : ''}`;
+        }).join('\n') || ''
+      );
+      setConfirmEducation(
+        (p.education || []).map((e: any) => `${e.degree || ''} ${e.field || ''} - ${e.institution || ''}`).join('\n') || ''
+      );
+      setConfirmSkills((p.skills || []).join(', '));
+      setShowConfirmScreen(true);
+    } catch (err: any) {
+      console.error('PDF upload error:', err);
+      setPdfError('Could not reach the server. Please check your internet connection.');
+    } finally {
+      setPdfUploading(false);
+    }
+  }
+
+  // ── Confirm & run teaser ──
+  function handleConfirmAndScore() {
+    const h = confirmHeadline.trim();
+    if (!h || h.length < 10) {
+      alert('Please add a headline with at least 10 characters.');
+      return;
+    }
+    setHeadline(h);
+
+    // Build raw paste from confirmed data
     const sections = [
-      `Headline: ${trimmed}`,
-      pasteAbout.trim() && `About:\n${pasteAbout.trim()}`,
-      pasteExperience.trim() && `Experience:\n${pasteExperience.trim()}`,
-      pasteEducation.trim() && `Education:\n${pasteEducation.trim()}`,
-      pasteSkills.trim() && `Skills: ${pasteSkills.trim()}`,
+      confirmName.trim() && `Name: ${confirmName.trim()}`,
+      `Headline: ${h}`,
+      confirmExperience.trim() && `Experience:\n${confirmExperience.trim()}`,
+      confirmEducation.trim() && `Education:\n${confirmEducation.trim()}`,
+      confirmSkills.trim() && `Skills: ${confirmSkills.trim()}`,
+      targetRole.trim() && `Target Role: ${targetRole.trim()}`,
     ].filter(Boolean).join('\n\n');
+
+    if (inputSource === 'resume') {
+      setResumeRawText(sections);
+    } else {
+      setPdfRawPaste(sections);
+    }
+
+    setShowConfirmScreen(false);
+    runTeaser(h);
+  }
+
+  // ── Questionnaire submit ──
+  function handleQuestionnaireSubmit() {
+    const h = qHeadline.trim();
+    if (!h || h.length < 10) {
+      alert('Please enter your current headline or job title (at least 10 characters).');
+      return;
+    }
+    setInputSource('questionnaire');
+    setHeadline(h);
+    setTargetRole(qTargetRole);
+
+    const sections = [
+      qName.trim() && `Name: ${qName.trim()}`,
+      `Headline: ${h}`,
+      qExperience.trim() && `Experience:\n${qExperience.trim()}`,
+      qEducation.trim() && `Education:\n${qEducation.trim()}`,
+      qSkills.trim() && `Skills: ${qSkills.trim()}`,
+      qTargetRole.trim() && `Target Role: ${qTargetRole.trim()}`,
+    ].filter(Boolean).join('\n\n');
+
     setPdfRawPaste(sections);
-    await runTeaser(trimmed);
+    runTeaser(h);
   }
 
   // ── Email submit ──
@@ -560,84 +727,37 @@ export default function Home() {
     setTimeout(() => inputFormRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
   }
 
-  function handlePdfClick() {
-    pdfInputRef.current?.click();
+  function resetUpload() {
+    setResumeParsed(null); setResumeFileName(''); setResumeRawText(''); setResumeError('');
+    setPdfParsed(null); setPdfFileName(''); setPdfRawPaste(''); setPdfError('');
+    setShowConfirmScreen(false); setTeaser(null); setHeadline('');
+    setConfirmName(''); setConfirmHeadline(''); setConfirmExperience(''); setConfirmEducation(''); setConfirmSkills(''); setTargetRole('');
   }
 
-  async function uploadAndParsePdf(file: File) {
-    if (file.type !== 'application/pdf') {
-      setPdfError('Please upload a PDF file. On LinkedIn, click "More" \u2192 "Save to PDF".');
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      setPdfError('File too large. Maximum 10MB.');
-      return;
-    }
+  // Get current raw paste based on input source
+  const currentRawPaste = inputSource === 'resume' ? resumeRawText : inputSource === 'linkedin' ? pdfRawPaste : pdfRawPaste;
+  const currentParsed = inputSource === 'resume' ? resumeParsed : pdfParsed;
 
-    setPdfUploading(true);
-    setPdfError('');
-    setPdfFileName(file.name);
-    setPdfParsed(null);
-
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const res = await fetch(`${API_URL}/api/linkedin-pdf/parse`, {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        setPdfError(data.error || 'Failed to parse PDF. Try pasting your profile text instead.');
-        return;
-      }
-
-      setPdfParsed(data.parsed);
-      setPdfRawPaste(data.raw_paste || '');
-
-      // Auto-set headline for teaser
-      if (data.headline) {
-        setHeadline(data.headline);
-      }
-
-      // Auto-run teaser with extracted headline
-      if (data.headline && data.headline.trim().length >= 10) {
-        await runTeaser(data.headline.trim());
-      }
-    } catch (err: any) {
-      console.error('PDF upload error:', err);
-      setPdfError('Could not reach the server. Please check your internet connection and try again, or paste your profile text.');
-      setShowPasteInput(true);
-    } finally {
-      setPdfUploading(false);
-    }
+  // ── Tab style helper ──
+  function tabStyle(tab: 'resume' | 'linkedin' | 'questionnaire') {
+    const isActive = activeInputTab === tab;
+    return {
+      flex: '1 1 0',
+      padding: '10px 8px',
+      fontSize: 13,
+      fontWeight: isActive ? 700 : 500,
+      color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
+      background: isActive ? 'var(--accent-subtle)' : 'transparent',
+      border: 'none',
+      borderBottom: isActive ? '2px solid var(--accent)' : '2px solid transparent',
+      cursor: 'pointer',
+      transition: 'all 150ms ease',
+      textAlign: 'center' as const,
+      whiteSpace: 'nowrap' as const,
+    };
   }
 
-  function handlePdfChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) uploadAndParsePdf(file);
-  }
-
-  function handleDrop(e: React.DragEvent) {
-    e.preventDefault();
-    setDragOver(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file) uploadAndParsePdf(file);
-  }
-
-  function handleDragOver(e: React.DragEvent) {
-    e.preventDefault();
-    setDragOver(true);
-  }
-
-  function handleDragLeave(e: React.DragEvent) {
-    e.preventDefault();
-    setDragOver(false);
-  }
-
-  // ── Pricing section (rendered once, referenced by multiple flows) ──
+  // ── Pricing section ──
   const pricingSection = (
     <section ref={pricingRef} style={{ padding: '56px 24px', background: 'var(--bg-canvas)', borderBottom: '1px solid var(--border-default)' }}>
       <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
@@ -645,7 +765,6 @@ export default function Home() {
         <p style={{ fontSize: 15, color: 'var(--text-secondary)', marginBottom: 8 }}>One interview can change your career.</p>
         <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 36 }}>Profile score is free. Pay only when you{"'"}re ready.</p>
 
-        {/* Two cards side by side */}
         <div style={{ display: 'flex', gap: 20, justifyContent: 'center', flexWrap: 'wrap', alignItems: 'stretch' }}>
           {/* Standard */}
           <div className="saas-card" style={{ flex: '1 1 340px', maxWidth: 420, border: '2px solid var(--accent)', borderRadius: 'var(--radius-lg)', padding: '32px 28px', position: 'relative', textAlign: 'center' }}>
@@ -735,7 +854,6 @@ export default function Home() {
             <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--accent)' }}>Profile</span>
             <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)' }}>Roaster</span>
           </a>
-          {/* Desktop nav */}
           <div className="hidden sm:flex" style={{ gap: 14, alignItems: 'center' }}>
             <a href="/dashboard" className="saas-btn saas-btn-ghost" style={{ fontSize: 13, padding: '6px 12px', textDecoration: 'none' }}>Dashboard</a>
             <a href="/pricing" className="saas-btn saas-btn-ghost" style={{ fontSize: 13, padding: '6px 12px', textDecoration: 'none' }}>Pricing</a>
@@ -747,7 +865,6 @@ export default function Home() {
               Get Free Score
             </button>
           </div>
-          {/* Mobile hamburger */}
           <button
             className="sm:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -759,12 +876,10 @@ export default function Home() {
             <span style={{ display: 'block', width: 20, height: 2, background: 'var(--text-primary)', borderRadius: 1, transition: 'all 0.2s', transform: mobileMenuOpen ? 'rotate(-45deg) translateY(-6px)' : 'none' }} />
           </button>
         </div>
-        {/* Mobile dropdown */}
         {mobileMenuOpen && (
           <div className="sm:hidden" style={{ borderTop: '1px solid var(--bg-subtle)', marginTop: 8, paddingTop: 8 }}>
             <a href="/dashboard" onClick={() => setMobileMenuOpen(false)} style={{ display: 'block', padding: '10px 8px', fontSize: 14, color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 600 }}>Dashboard</a>
             <a href="/pricing" onClick={() => setMobileMenuOpen(false)} style={{ display: 'block', padding: '10px 8px', fontSize: 14, color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 600 }}>Pricing</a>
-            <a href="/build" onClick={() => setMobileMenuOpen(false)} style={{ display: 'block', padding: '10px 8px', fontSize: 14, color: 'var(--success)', textDecoration: 'none', fontWeight: 600 }}>Build Profile</a>
           </div>
         )}
       </nav>
@@ -779,21 +894,21 @@ export default function Home() {
             {/* LEFT (55%) — Value Proposition */}
             <div style={{ flex: '1.2 1 420px', minWidth: 0 }}>
               <h1 style={{ fontSize: 36, fontWeight: 900, color: 'var(--text-primary)', marginBottom: 6, lineHeight: 1.15 }}>
-                Recruiters Scroll Past Your Profile <span style={{ color: '#CC1016' }}>in 3 Seconds</span>
+                Not Getting Calls <span style={{ color: '#CC1016' }}>from HR?</span>
               </h1>
-              <h2 style={{ fontSize: 28, fontWeight: 900, color: 'var(--accent)', marginTop: 0, marginBottom: 16, lineHeight: 1.2 }}>
-                Fix It in 2 Minutes with AI
+              <h2 style={{ fontSize: 26, fontWeight: 900, color: 'var(--accent)', marginTop: 0, marginBottom: 16, lineHeight: 1.2 }}>
+                Your Resume &amp; LinkedIn Profile Might Be the Problem
               </h2>
               <p style={{ fontSize: 15, color: 'var(--text-secondary)', marginBottom: 24, lineHeight: 1.7 }}>
-                Upload your LinkedIn PDF. See your score, get a complete rewrite, ATS resume, and interview prep &mdash; instantly.
+                Upload your resume or LinkedIn PDF &mdash; AI finds what{"'"}s killing your chances and fixes it in minutes. Get a complete rewrite, ATS resume, and interview prep.
               </p>
 
               {/* 4 bullet points */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
                 {[
-                  { icon: '&#127919;', text: 'Profile score + AI-suggested headline' },
+                  { icon: '&#128196;', text: 'Upload resume or LinkedIn PDF \u2014 works on mobile' },
+                  { icon: '&#127919;', text: 'AI scores & rewrites your profile + resume' },
                   { icon: '&#127908;', text: 'Personalized interview questions + STAR answers' },
-                  { icon: '&#128196;', text: 'ATS resume in multiple templates' },
                   { icon: '&#9993;&#65039;', text: 'Cover letter matched to your target role' },
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -826,280 +941,311 @@ export default function Home() {
                 <span>&#9889; Instant results</span>
                 <span>&#127873; 100% free analysis</span>
               </div>
-
-              {/* Build link */}
-              <div style={{ marginTop: 16 }}>
-                <a href="/build" style={{ fontSize: 13, color: 'var(--success)', fontWeight: 600, textDecoration: 'none' }}>
-                  No LinkedIn? <u>Build your profile from scratch</u> &rarr;
-                </a>
-              </div>
             </div>
 
-            {/* RIGHT (45%) — Upload Card */}
-            <div style={{ flex: '1 1 380px', minWidth: 0, maxWidth: 480 }}>
-              <div style={{ background: 'var(--bg-surface)', borderRadius: 'var(--radius-lg)', border: '2px solid var(--accent)', padding: '28px 24px', boxShadow: '0 8px 32px rgba(10,102,194,0.1)' }}>
+            {/* RIGHT (45%) — Upload Card with Tabs */}
+            <div style={{ flex: '1 1 380px', minWidth: 0, maxWidth: 500 }}>
+              <div style={{ background: 'var(--bg-surface)', borderRadius: 'var(--radius-lg)', border: '2px solid var(--accent)', boxShadow: '0 8px 32px rgba(10,102,194,0.1)', overflow: 'hidden' }}>
 
                 {/* Free hook banner */}
-                <div style={{ background: 'var(--warning-subtle)', border: '1px solid #FDE68A', borderRadius: 'var(--radius-sm)', padding: '10px 14px', marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ background: 'var(--warning-subtle)', borderBottom: '1px solid #FDE68A', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
                   <span style={{ fontSize: 18, flexShrink: 0 }}>&#127873;</span>
                   <div style={{ fontSize: 13, color: '#92400E', fontWeight: 600, lineHeight: 1.4 }}>
-                    <strong style={{ color: '#B45309' }}>See why recruiters ignore your profile &mdash; FREE</strong>
+                    <strong style={{ color: '#B45309' }}>See why recruiters ignore you &mdash; FREE</strong>
                   </div>
                 </div>
 
-                {/* Upload Area */}
-                <div
-                  onClick={handlePdfClick}
-                  onDrop={handleDrop}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  style={{
-                    border: `2px dashed ${dragOver ? 'var(--accent)' : pdfParsed ? 'var(--success)' : '#94B8DB'}`,
-                    borderRadius: 'var(--radius-md)', padding: 20, textAlign: 'center', marginBottom: 8,
-                    background: dragOver ? '#E8F0FE' : pdfParsed ? 'var(--success-subtle)' : '#F0F7FF',
-                    cursor: pdfUploading ? 'wait' : 'pointer', transition: 'all var(--transition)',
-                  }}
-                >
-                  <input ref={pdfInputRef} type="file" accept=".pdf" onChange={handlePdfChange} style={{ display: 'none' }} />
-                  {pdfUploading ? (
-                    <>
-                      <div style={{ fontSize: 28, marginBottom: 6, animation: 'spin 1s linear infinite' }}>&#9881;</div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--accent)' }}>Parsing your LinkedIn PDF...</div>
-                      <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>Extracting profile data &bull; 5-10 seconds</div>
-                      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-                    </>
-                  ) : pdfParsed ? (
-                    <>
-                      <div style={{ fontSize: 28, marginBottom: 6 }}>&#9989;</div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--success)' }}>
-                        {pdfParsed.full_name ? `${pdfParsed.full_name}'s profile parsed!` : 'LinkedIn PDF parsed!'}
-                      </div>
-                      {pdfParsed.headline && <div style={{ fontSize: 11, color: 'var(--success)', marginTop: 4 }}>{pdfParsed.headline.slice(0, 70)}{pdfParsed.headline.length > 70 ? '...' : ''}</div>}
-                      {(pdfParsed.experience?.length > 0 || pdfParsed.education?.length > 0) && (
-                        <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>
-                          {pdfParsed.experience?.length || 0} experiences &bull; {pdfParsed.education?.length || 0} education &bull; {pdfParsed.skills?.length || 0} skills
+                {/* Tab navigation */}
+                <div style={{ display: 'flex', borderBottom: '1px solid var(--border-default)', background: 'var(--bg-canvas)' }}>
+                  <button onClick={() => { setActiveInputTab('resume'); setInputSource('resume'); }} style={tabStyle('resume')}>
+                    &#128196; Resume
+                  </button>
+                  <button onClick={() => { setActiveInputTab('linkedin'); setInputSource('linkedin'); }} style={tabStyle('linkedin')}>
+                    &#128188; LinkedIn PDF
+                  </button>
+                  <button onClick={() => { setActiveInputTab('questionnaire'); setInputSource('questionnaire'); }} style={tabStyle('questionnaire')}>
+                    &#9997;&#65039; No File?
+                  </button>
+                </div>
+
+                <div style={{ padding: '20px 24px' }}>
+
+                  {/* ═══ CONFIRMATION SCREEN ═══ */}
+                  {showConfirmScreen ? (
+                    <div style={{ animation: 'slideUp 0.3s ease' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--success)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>&#10003;</div>
+                        <div>
+                          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--success)' }}>
+                            {inputSource === 'resume' ? 'Resume Parsed!' : 'LinkedIn PDF Parsed!'}
+                          </div>
+                          <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
+                            {inputSource === 'resume' ? resumeFileName : pdfFileName} &mdash; Review and confirm your details
+                          </div>
                         </div>
-                      )}
-                      <div onClick={(e) => { e.stopPropagation(); setPdfParsed(null); setPdfFileName(''); setPdfRawPaste(''); setHeadline(''); setTeaser(null); }} style={{ fontSize: 11, color: 'var(--accent)', marginTop: 6, cursor: 'pointer', textDecoration: 'underline' }}>Upload a different PDF</div>
-                    </>
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        <div>
+                          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Name</label>
+                          <input value={confirmName} onChange={e => setConfirmName(e.target.value)} placeholder="Your name"
+                            style={{ width: '100%', padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, boxSizing: 'border-box' }} />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>
+                            Headline / Job Title <span style={{ color: '#DC2626' }}>*</span>
+                          </label>
+                          <input value={confirmHeadline} onChange={e => setConfirmHeadline(e.target.value)} placeholder="e.g. Senior Manager | B2B Sales | 6+ Years"
+                            style={{ width: '100%', padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, boxSizing: 'border-box' }} />
+                          {confirmHeadline.length > 0 && confirmHeadline.trim().length < 10 && (
+                            <p style={{ fontSize: 11, color: '#CC1016', marginTop: 2 }}>Please add a complete headline.</p>
+                          )}
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Experience</label>
+                          <textarea value={confirmExperience} onChange={e => setConfirmExperience(e.target.value)} placeholder="Your work experience..." rows={3}
+                            style={{ width: '100%', padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 12, resize: 'vertical', boxSizing: 'border-box', lineHeight: 1.5 }} />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Education</label>
+                          <textarea value={confirmEducation} onChange={e => setConfirmEducation(e.target.value)} placeholder="Your education..." rows={2}
+                            style={{ width: '100%', padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 12, resize: 'vertical', boxSizing: 'border-box', lineHeight: 1.5 }} />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Skills</label>
+                          <input value={confirmSkills} onChange={e => setConfirmSkills(e.target.value)} placeholder="Python, React, Project Management..."
+                            style={{ width: '100%', padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, boxSizing: 'border-box' }} />
+                        </div>
+                        <div style={{ background: 'var(--accent-subtle)', border: '1px solid #BFDBFE', borderRadius: 'var(--radius-sm)', padding: '10px 12px' }}>
+                          <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent)', marginBottom: 4, display: 'block' }}>What role are you targeting?</label>
+                          <input value={targetRole} onChange={e => setTargetRole(e.target.value)} placeholder="e.g. Product Manager at a Series B startup"
+                            style={{ width: '100%', padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, boxSizing: 'border-box', background: 'white' }} />
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={handleConfirmAndScore}
+                        disabled={loading || confirmHeadline.trim().length < 10}
+                        className="saas-btn saas-btn-primary"
+                        style={{
+                          width: '100%', padding: '14px 24px', borderRadius: 'var(--radius-pill)', border: 'none',
+                          fontSize: 15, fontWeight: 700, cursor: 'pointer', marginTop: 14,
+                          opacity: loading || confirmHeadline.trim().length < 10 ? 0.5 : 1,
+                          boxShadow: 'var(--shadow-md)',
+                        }}
+                      >
+                        {loading ? 'Analyzing...' : 'Looks Good \u2014 Get My Free Score \u2192'}
+                      </button>
+                      <div onClick={resetUpload} style={{ fontSize: 12, color: 'var(--accent)', textAlign: 'center', marginTop: 8, cursor: 'pointer', textDecoration: 'underline' }}>
+                        Upload a different file
+                      </div>
+                    </div>
                   ) : (
                     <>
-                      <div style={{ fontSize: 36, marginBottom: 6 }}>&#128228;</div>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--accent)' }}>{dragOver ? 'Drop your PDF here!' : 'Drop your LinkedIn PDF here'}</div>
-                      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>or click to browse &bull; .pdf only</div>
-                    </>
-                  )}
-                </div>
-
-                {/* PDF error */}
-                {pdfError && (
-                  <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 'var(--radius-sm)', padding: '8px 12px', marginBottom: 8, fontSize: 12, color: '#DC2626' }}>
-                    {pdfError}
-                    <span onClick={() => { setPdfError(''); setShowPasteInput(true); }} style={{ color: 'var(--accent)', cursor: 'pointer', marginLeft: 8, textDecoration: 'underline' }}>Paste text instead</span>
-                  </div>
-                )}
-
-                {/* Paste fallback + PDF guide + CTA */}
-                {!pdfParsed && !pdfUploading && (
-                  <>
-                    {/* Collapsible "Paste your profile sections" */}
-                    <div style={{ marginBottom: 10 }}>
-                      <button
-                        onClick={() => setShowPasteInput(!showPasteInput)}
-                        style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'var(--accent)', cursor: 'pointer', padding: 0, border: 'none', background: 'none', width: '100%' }}
-                      >
-                        &#128241; Don{"'"}t have your PDF? Paste your profile sections {showPasteInput ? '\u25B2' : '\u25BC'}
-                      </button>
-                      {showPasteInput && (
-                        <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4, lineHeight: 1.5 }}>
-                            Open LinkedIn app &rarr; Go to your profile &rarr; Long-press each section to copy &rarr; Paste here
-                          </div>
-
-                          {/* Headline (required) */}
-                          <div>
-                            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Headline <span style={{ color: '#DC2626' }}>*</span></label>
-                            <textarea ref={textareaRef} value={headline} onChange={e => setHeadline(e.target.value)}
-                              placeholder="e.g. Senior Manager | B2B Sales | 6+ Years" rows={2} maxLength={500}
-                              style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box', lineHeight: 1.5 }}
-                            />
-                            {headline.length > 0 && headline.trim().length < 10 && (
-                              <p style={{ fontSize: 11, color: '#CC1016', marginTop: 2 }}>Please paste your complete headline.</p>
+                      {/* ═══ TAB 1: RESUME UPLOAD ═══ */}
+                      {activeInputTab === 'resume' && (
+                        <div>
+                          <div
+                            onClick={() => resumeInputRef.current?.click()}
+                            onDrop={(e) => { e.preventDefault(); setResumeDragOver(false); const f = e.dataTransfer.files?.[0]; if (f) uploadAndParseResume(f); }}
+                            onDragOver={(e) => { e.preventDefault(); setResumeDragOver(true); }}
+                            onDragLeave={(e) => { e.preventDefault(); setResumeDragOver(false); }}
+                            style={{
+                              border: `2px dashed ${resumeDragOver ? 'var(--accent)' : resumeParsed ? 'var(--success)' : '#94B8DB'}`,
+                              borderRadius: 'var(--radius-md)', padding: 24, textAlign: 'center', marginBottom: 10,
+                              background: resumeDragOver ? '#E8F0FE' : resumeParsed ? 'var(--success-subtle)' : '#F0F7FF',
+                              cursor: resumeUploading ? 'wait' : 'pointer', transition: 'all var(--transition)',
+                            }}
+                          >
+                            <input ref={resumeInputRef} type="file" accept=".pdf,.docx" onChange={e => { const f = e.target.files?.[0]; if (f) uploadAndParseResume(f); }} style={{ display: 'none' }} />
+                            {resumeUploading ? (
+                              <>
+                                <div style={{ fontSize: 28, marginBottom: 6, animation: 'spin 1s linear infinite' }}>&#9881;</div>
+                                <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--accent)' }}>Parsing your resume...</div>
+                                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>Extracting your data &bull; 5-10 seconds</div>
+                                <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+                              </>
+                            ) : (
+                              <>
+                                <div style={{ fontSize: 40, marginBottom: 8 }}>&#128196;</div>
+                                <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--accent)' }}>{resumeDragOver ? 'Drop your resume here!' : 'Drop your resume here'}</div>
+                                <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 6 }}>or click to browse &bull; PDF or DOCX</div>
+                                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 8, lineHeight: 1.5 }}>
+                                  Got it in WhatsApp or Gmail? Tap the file &rarr; Share &rarr; Upload here
+                                </div>
+                              </>
                             )}
                           </div>
 
-                          {/* About (optional) */}
-                          <div>
-                            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>About <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 400 }}>optional</span></label>
-                            <textarea value={pasteAbout} onChange={e => setPasteAbout(e.target.value)}
-                              placeholder="Paste your LinkedIn About section here..." rows={3}
-                              style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, outline: 'none', resize: 'vertical', boxSizing: 'border-box', lineHeight: 1.5 }}
-                            />
-                          </div>
-
-                          {/* Experience (optional) */}
-                          <div>
-                            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Experience <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 400 }}>optional</span></label>
-                            <textarea value={pasteExperience} onChange={e => setPasteExperience(e.target.value)}
-                              placeholder="Paste all your experience entries..." rows={3}
-                              style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, outline: 'none', resize: 'vertical', boxSizing: 'border-box', lineHeight: 1.5 }}
-                            />
-                          </div>
-
-                          {/* Education (optional) */}
-                          <div>
-                            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Education <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 400 }}>optional</span></label>
-                            <textarea value={pasteEducation} onChange={e => setPasteEducation(e.target.value)}
-                              placeholder="Paste your education details..." rows={2}
-                              style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, outline: 'none', resize: 'vertical', boxSizing: 'border-box', lineHeight: 1.5 }}
-                            />
-                          </div>
-
-                          {/* Skills (optional) */}
-                          <div>
-                            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Skills <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 400 }}>optional</span></label>
-                            <textarea value={pasteSkills} onChange={e => setPasteSkills(e.target.value)}
-                              placeholder="e.g. Python, React, Project Management, AWS..." rows={2}
-                              style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, outline: 'none', resize: 'vertical', boxSizing: 'border-box', lineHeight: 1.5 }}
-                            />
-                          </div>
-
-                          {/* Section count indicator */}
-                          {(() => {
-                            const filled = [headline.trim(), pasteAbout.trim(), pasteExperience.trim(), pasteEducation.trim(), pasteSkills.trim()].filter(s => s.length > 0).length;
-                            return filled > 0 ? (
-                              <div style={{ fontSize: 11, color: filled >= 3 ? 'var(--success)' : 'var(--text-secondary)', textAlign: 'center' }}>
-                                {filled}/5 sections filled {filled < 3 ? '— paste more for a deeper analysis' : '— great, enough for a full rewrite!'}
-                              </div>
-                            ) : null;
-                          })()}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Collapsible "How to download LinkedIn PDF" */}
-                    <div style={{ marginBottom: 10 }}>
-                      <button
-                        onClick={() => setShowPdfGuide(!showPdfGuide)}
-                        style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'var(--accent)', cursor: 'pointer', padding: 0, border: 'none', background: 'none', width: '100%' }}
-                      >
-                        &#128196; How to download your LinkedIn PDF {showPdfGuide ? '\u25B2' : '\u25BC'}
-                      </button>
-                      {showPdfGuide && (
-                        <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', padding: '4px 0' }}>&#128187; On Desktop / Laptop:</div>
-                          {[
-                            { step: '1', title: 'Go to your LinkedIn profile', desc: 'Open LinkedIn \u2192 Click your photo \u2192 "View Profile"' },
-                            { step: '2', title: 'Click "More" \u2192 "Save to PDF"', desc: 'Below your headline, click the "More..." button, then "Save to PDF"' },
-                            { step: '3', title: 'Upload the downloaded PDF here', desc: 'Drop it into the upload box above. Done!' },
-                          ].map((s) => (
-                            <div key={s.step} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', background: 'var(--bg-subtle)', borderRadius: 'var(--radius-sm)', padding: '10px 12px' }}>
-                              <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'var(--accent)', color: 'white', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{s.step}</div>
-                              <div>
-                                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{s.title}</div>
-                                <div style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{s.desc}</div>
-                              </div>
+                          {resumeError && (
+                            <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 'var(--radius-sm)', padding: '8px 12px', marginBottom: 8, fontSize: 12, color: '#DC2626' }}>
+                              {resumeError}
                             </div>
-                          ))}
-                          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', padding: '8px 0 4px' }}>&#128241; On Mobile (no PDF option in app):</div>
-                          {[
-                            { step: '1', title: 'Open browser, not the app', desc: 'Open Chrome or Safari \u2192 go to linkedin.com \u2192 log in' },
-                            { step: '2', title: 'Request Desktop Site', desc: 'Chrome: tap \u22ee \u2192 "Desktop site" &bull; Safari: tap aA \u2192 "Request Desktop Website"' },
-                            { step: '3', title: 'Save to PDF', desc: 'Go to your profile \u2192 "More" \u2192 "Save to PDF" \u2192 upload here' },
-                          ].map((s) => (
-                            <div key={`m${s.step}`} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', background: '#FEF3C7', borderRadius: 'var(--radius-sm)', padding: '10px 12px' }}>
-                              <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#D97706', color: 'white', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{s.step}</div>
-                              <div>
-                                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{s.title}</div>
-                                <div style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{s.desc}</div>
-                              </div>
-                            </div>
-                          ))}
-                          <div style={{ fontSize: 11, color: 'var(--accent)', fontWeight: 600, textAlign: 'center', padding: '4px 0' }}>
-                            &#128161; Easier option: Just paste your profile sections above!
+                          )}
+
+                          <div style={{ fontSize: 11, color: 'var(--text-secondary)', textAlign: 'center', marginTop: 6, lineHeight: 1.5 }}>
+                            &#128274; Your resume is encrypted and never shared. Only AI reads it.
                           </div>
                         </div>
                       )}
-                    </div>
 
-                    {/* CTA */}
-                    <button
-                      onClick={() => { if (!showPasteInput && !headline.trim()) { setShowPasteInput(true); return; } handleTeaserSubmit(); }}
-                      disabled={loading || headline.trim().length < 10}
-                      className="saas-btn saas-btn-primary"
-                      style={{
-                        width: '100%', padding: '14px 24px', borderRadius: 'var(--radius-pill)', border: 'none',
-                        fontSize: 15, fontWeight: 700, cursor: 'pointer',
-                        opacity: loading || headline.trim().length < 10 ? 0.5 : 1,
-                        boxShadow: 'var(--shadow-md)',
-                      }}
-                    >
-                      {loading ? 'Analyzing...' : 'Get My Free Score \u2192'}
-                    </button>
-                  </>
-                )}
-
-                {/* Loading (PDF path) */}
-                {loading && pdfParsed && (
-                  <div style={{ textAlign: 'center', padding: '10px 0' }}>
-                    <div style={{ fontSize: 14, color: 'var(--accent)', fontWeight: 600 }}>Analyzing your profile...</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>Generating your free score</div>
-                  </div>
-                )}
-
-                {/* Rate limited — with PDF parsed */}
-                {pdfParsed && rateLimited && !teaser && (
-                  <div style={{ marginTop: 10 }}>
-                    <div style={{ padding: 12, borderRadius: 'var(--radius-sm)', background: 'var(--success-subtle)', border: '1px solid #BBF7D0', marginBottom: 12 }}>
-                      <div style={{ fontSize: 13, color: 'var(--success)', fontWeight: 700 }}>&#9989; Profile parsed! Free preview limit reached for today.</div>
-                      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>Get the full AI rewrite + resume + interview prep:</div>
-                    </div>
-                    {/* Resume previews */}
-                    {(() => {
-                      const resumeData = pdfToResumeData(pdfParsed);
-                      const recIds = ['classic', 'salesbd', 'headline'];
-                      if (!resumeData) return null;
-                      return (
-                        <div style={{ marginBottom: 12 }}>
-                          <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>Your resume would look like this:</p>
-                          <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 6 }}>
-                            {recIds.map(tid => (
-                              <div key={tid} style={{ flexShrink: 0, width: 220, position: 'relative', overflow: 'hidden', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', background: 'var(--bg-surface)', cursor: 'pointer' }}
-                                onClick={scrollToPricing}>
-                                <div style={{ height: 280, overflow: 'hidden' }}>
-                                  <div style={{ transform: 'scale(0.32)', transformOrigin: 'top left', width: '312%', pointerEvents: 'none' }}>
-                                    {renderResumeHTML(resumeData, tid)}
-                                  </div>
+                      {/* ═══ TAB 2: LINKEDIN PDF ═══ */}
+                      {activeInputTab === 'linkedin' && (
+                        <div>
+                          <div
+                            onClick={() => pdfInputRef.current?.click()}
+                            onDrop={(e) => { e.preventDefault(); setPdfDragOver(false); const f = e.dataTransfer.files?.[0]; if (f) uploadAndParsePdf(f); }}
+                            onDragOver={(e) => { e.preventDefault(); setPdfDragOver(true); }}
+                            onDragLeave={(e) => { e.preventDefault(); setPdfDragOver(false); }}
+                            style={{
+                              border: `2px dashed ${pdfDragOver ? 'var(--accent)' : pdfParsed ? 'var(--success)' : '#94B8DB'}`,
+                              borderRadius: 'var(--radius-md)', padding: 24, textAlign: 'center', marginBottom: 10,
+                              background: pdfDragOver ? '#E8F0FE' : pdfParsed ? 'var(--success-subtle)' : '#F0F7FF',
+                              cursor: pdfUploading ? 'wait' : 'pointer', transition: 'all var(--transition)',
+                            }}
+                          >
+                            <input ref={pdfInputRef} type="file" accept=".pdf" onChange={e => { const f = e.target.files?.[0]; if (f) uploadAndParsePdf(f); }} style={{ display: 'none' }} />
+                            {pdfUploading ? (
+                              <>
+                                <div style={{ fontSize: 28, marginBottom: 6, animation: 'spin 1s linear infinite' }}>&#9881;</div>
+                                <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--accent)' }}>Parsing your LinkedIn PDF...</div>
+                                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>Extracting profile data &bull; 5-10 seconds</div>
+                                <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+                              </>
+                            ) : (
+                              <>
+                                <div style={{ fontSize: 40, marginBottom: 8 }}>&#128188;</div>
+                                <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--accent)' }}>{pdfDragOver ? 'Drop your PDF here!' : 'Drop your LinkedIn PDF here'}</div>
+                                <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 6 }}>or click to browse &bull; .pdf only</div>
+                                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 8, lineHeight: 1.5 }}>
+                                  LinkedIn &rarr; Your Profile &rarr; More &rarr; Save to PDF
                                 </div>
-                                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 80, background: 'linear-gradient(transparent, white)', zIndex: 2 }} />
-                                <div style={{ position: 'absolute', bottom: 8, left: 0, right: 0, textAlign: 'center', zIndex: 3 }}>
-                                  <span style={{ fontSize: 11, fontWeight: 700, background: 'var(--accent)', color: 'white', padding: '4px 12px', borderRadius: 'var(--radius-pill)' }}>Unlock &rarr;</span>
-                                </div>
-                              </div>
-                            ))}
+                              </>
+                            )}
                           </div>
+
+                          {pdfError && (
+                            <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 'var(--radius-sm)', padding: '8px 12px', marginBottom: 8, fontSize: 12, color: '#DC2626' }}>
+                              {pdfError}
+                            </div>
+                          )}
+
+                          {/* How to get LinkedIn PDF guide */}
+                          <details style={{ marginTop: 8 }}>
+                            <summary style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent)', cursor: 'pointer', listStyle: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
+                              &#128161; How to download your LinkedIn PDF
+                            </summary>
+                            <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)' }}>&#128187; Desktop:</div>
+                              {['Go to your LinkedIn profile', 'Click "More" \u2192 "Save to PDF"', 'Upload the downloaded file here'].map((s, i) => (
+                                <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center', background: 'var(--bg-subtle)', borderRadius: 'var(--radius-sm)', padding: '6px 10px', fontSize: 11 }}>
+                                  <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'var(--accent)', color: 'white', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{i + 1}</div>
+                                  <span style={{ color: 'var(--text-secondary)' }}>{s}</span>
+                                </div>
+                              ))}
+                              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', marginTop: 4 }}>&#128241; Mobile:</div>
+                              {['Open Chrome/Safari (not the app)', 'Request Desktop Site', 'Profile \u2192 More \u2192 Save to PDF'].map((s, i) => (
+                                <div key={`m${i}`} style={{ display: 'flex', gap: 8, alignItems: 'center', background: '#FEF3C7', borderRadius: 'var(--radius-sm)', padding: '6px 10px', fontSize: 11 }}>
+                                  <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#D97706', color: 'white', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{i + 1}</div>
+                                  <span style={{ color: 'var(--text-secondary)' }}>{s}</span>
+                                </div>
+                              ))}
+                              <div style={{ fontSize: 11, color: 'var(--accent)', fontWeight: 600, textAlign: 'center', marginTop: 4 }}>
+                                Easier: Switch to the Resume tab and upload your resume instead!
+                              </div>
+                            </div>
+                          </details>
                         </div>
-                      );
-                    })()}
-                    <button onClick={scrollToPricing} className="saas-btn saas-btn-primary" style={{ width: '100%', padding: '12px', borderRadius: 'var(--radius-pill)', fontSize: 14, fontWeight: 700 }}>Get Full Rewrite + Resume &#8377;499 &rarr;</button>
-                  </div>
-                )}
-                {/* Rate limited — no PDF */}
-                {rateLimited && !pdfParsed && (
-                  <div style={{ marginTop: 10, padding: 12, borderRadius: 'var(--radius-sm)', background: 'var(--warning-subtle)', border: '1px solid var(--warning)' }}>
-                    <div style={{ fontSize: 12, color: '#92400E', fontWeight: 600 }}>5 free previews used today.</div>
-                    <button onClick={scrollToPricing} className="saas-btn saas-btn-primary" style={{ width: '100%', marginTop: 8, padding: '10px', borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 700 }}>Get Full Report &#8377;499 &rarr;</button>
-                  </div>
-                )}
+                      )}
 
-                {/* Trust line */}
-                <div style={{ fontSize: 11, color: 'var(--text-secondary)', textAlign: 'center', marginTop: 10 }}>
-                  &#9889; Free &bull; No signup &bull; Results in seconds
-                </div>
+                      {/* ═══ TAB 3: QUESTIONNAIRE ═══ */}
+                      {activeInputTab === 'questionnaire' && (
+                        <div>
+                          <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12, lineHeight: 1.5 }}>
+                            No resume or LinkedIn PDF? No problem. Tell us about yourself and we{"'"}ll build your profile.
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                            <div>
+                              <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Full Name</label>
+                              <input value={qName} onChange={e => setQName(e.target.value)} placeholder="Your full name"
+                                style={{ width: '100%', padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, boxSizing: 'border-box' }} />
+                            </div>
+                            <div>
+                              <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>
+                                Current Job Title / Headline <span style={{ color: '#DC2626' }}>*</span>
+                              </label>
+                              <input value={qHeadline} onChange={e => setQHeadline(e.target.value)} placeholder="e.g. Final Year B.Tech Student | Aspiring Data Analyst"
+                                style={{ width: '100%', padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, boxSizing: 'border-box' }} />
+                            </div>
+                            <div>
+                              <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>
+                                Target Role <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 400 }}>what job are you applying for?</span>
+                              </label>
+                              <input value={qTargetRole} onChange={e => setQTargetRole(e.target.value)} placeholder="e.g. Data Analyst at a tech company"
+                                style={{ width: '100%', padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, boxSizing: 'border-box' }} />
+                            </div>
+                            <div>
+                              <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>
+                                Experience <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 400 }}>internships, jobs, projects</span>
+                              </label>
+                              <textarea value={qExperience} onChange={e => setQExperience(e.target.value)} placeholder="List your work experience, internships, or key projects..." rows={3}
+                                style={{ width: '100%', padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 12, resize: 'vertical', boxSizing: 'border-box', lineHeight: 1.5 }} />
+                            </div>
+                            <div>
+                              <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Education</label>
+                              <textarea value={qEducation} onChange={e => setQEducation(e.target.value)} placeholder="e.g. B.Tech Computer Science, XYZ University, 2024" rows={2}
+                                style={{ width: '100%', padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 12, resize: 'vertical', boxSizing: 'border-box', lineHeight: 1.5 }} />
+                            </div>
+                            <div>
+                              <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Skills</label>
+                              <input value={qSkills} onChange={e => setQSkills(e.target.value)} placeholder="Python, SQL, Excel, Communication..."
+                                style={{ width: '100%', padding: '8px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, boxSizing: 'border-box' }} />
+                            </div>
+                          </div>
 
-                {/* Referral code link */}
-                <div style={{ textAlign: 'center', marginTop: 8 }}>
-                  <ReferralCodeRedeemer product="roast" />
+                          <button
+                            onClick={handleQuestionnaireSubmit}
+                            disabled={loading || qHeadline.trim().length < 10}
+                            className="saas-btn saas-btn-primary"
+                            style={{
+                              width: '100%', padding: '14px 24px', borderRadius: 'var(--radius-pill)', border: 'none',
+                              fontSize: 15, fontWeight: 700, cursor: 'pointer', marginTop: 14,
+                              opacity: loading || qHeadline.trim().length < 10 ? 0.5 : 1,
+                              boxShadow: 'var(--shadow-md)',
+                            }}
+                          >
+                            {loading ? 'Analyzing...' : 'Get My Free Score \u2192'}
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Loading indicator */}
+                      {loading && (
+                        <div style={{ textAlign: 'center', padding: '10px 0' }}>
+                          <div style={{ fontSize: 14, color: 'var(--accent)', fontWeight: 600 }}>Analyzing your profile...</div>
+                          <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>Generating your free score</div>
+                        </div>
+                      )}
+
+                      {/* Rate limited */}
+                      {rateLimited && !teaser && (
+                        <div style={{ marginTop: 10, padding: 12, borderRadius: 'var(--radius-sm)', background: 'var(--warning-subtle)', border: '1px solid var(--warning)' }}>
+                          <div style={{ fontSize: 12, color: '#92400E', fontWeight: 600 }}>5 free previews used today.</div>
+                          <button onClick={scrollToPricing} className="saas-btn saas-btn-primary" style={{ width: '100%', marginTop: 8, padding: '10px', borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 700 }}>Get Full Report &#8377;499 &rarr;</button>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* Trust line */}
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)', textAlign: 'center', marginTop: 10 }}>
+                    &#9889; Free &bull; No signup &bull; Results in seconds
+                  </div>
+
+                  {/* Referral code link */}
+                  <div style={{ textAlign: 'center', marginTop: 8 }}>
+                    <ReferralCodeRedeemer product="roast" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -1116,14 +1262,18 @@ export default function Home() {
           <div style={{ maxWidth: 700, margin: '0 auto', width: '100%', boxSizing: 'border-box' as const }}>
             {/* Score card */}
             <div className="saas-card" style={{ padding: '20px 16px', marginBottom: 12 }}>
-              <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8, textTransform: 'uppercase' as const, letterSpacing: 1 }}>Your Profile Score</p>
+              <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8, textTransform: 'uppercase' as const, letterSpacing: 1 }}>
+                {inputSource === 'resume' ? 'Your ATS Score' : 'Your Profile Score'}
+              </p>
               <ScoreBadge score={teaser.score} />
               <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 12, lineHeight: 1.5 }}>
-                Based on headline analysis. Full profile score is typically 30-40 points lower.
+                {inputSource === 'resume'
+                  ? 'Based on resume analysis. Full ATS optimization typically improves this by 30-40 points.'
+                  : 'Based on headline analysis. Full profile score is typically 30-40 points lower.'}
               </p>
             </div>
 
-            {/* AI-Suggested Headline (green) */}
+            {/* AI-Suggested Headline */}
             {teaser.suggested_headline && (
               <div style={{ background: 'var(--bg-surface)', border: '2px solid var(--success)', borderRadius: 'var(--radius-md)', boxShadow: '0 2px 12px rgba(5,118,66,0.08)', padding: '18px 16px', marginBottom: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -1137,7 +1287,7 @@ export default function Home() {
               </div>
             )}
 
-            {/* Interview Question (teal) */}
+            {/* Interview Question */}
             {teaser.sample_interview_question && (
               <div style={{ background: 'var(--bg-surface)', border: '2px solid #0891B2', borderRadius: 'var(--radius-md)', boxShadow: '0 2px 12px rgba(8,145,178,0.08)', padding: '18px 16px', marginBottom: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -1151,16 +1301,20 @@ export default function Home() {
               </div>
             )}
 
-            {/* 3 Resume Previews (horizontal scroll) */}
-            {pdfParsed && (() => {
-              const resumeData = pdfToResumeData(pdfParsed);
+            {/* 3 Resume Previews */}
+            {currentParsed && (() => {
+              const resumeData = pdfToResumeData(currentParsed);
               const recIds = ['classic', 'salesbd', 'headline'];
               if (!resumeData) return null;
               return (
                 <div style={{ marginBottom: 12 }}>
                   <div className="saas-card" style={{ padding: '18px 16px' }}>
-                    <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>Your Resume &mdash; Built From Your LinkedIn</p>
-                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>Real data from your profile. Unlock to download.</p>
+                    <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
+                      {inputSource === 'resume'
+                        ? 'Your Resume \u2014 Built From Your Existing Resume'
+                        : 'Your Resume \u2014 Built From Your LinkedIn'}
+                    </p>
+                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>Real data from your {inputSource === 'resume' ? 'resume' : 'profile'}. Unlock to download.</p>
                     <div style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingBottom: 8 }}>
                       {recIds.map(tid => {
                         const tmpl = TEMPLATES.find(t => t.id === tid);
@@ -1193,10 +1347,12 @@ export default function Home() {
 
             {/* 3 Locked items */}
             <div className="saas-card" style={{ padding: '18px 16px', marginBottom: 12 }}>
-              <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12 }}>What we found beyond your headline:</p>
+              <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12 }}>
+                {inputSource === 'resume' ? 'What we found in your resume:' : 'What we found beyond your headline:'}
+              </p>
               {[
-                { icon: '\uD83D\uDD12', text: '2 critical profile issues hidden' },
-                { icon: '\uD83D\uDD12', text: 'ATS keyword gaps hidden' },
+                { icon: '\uD83D\uDD12', text: inputSource === 'resume' ? 'ATS keyword gaps & optimization tips hidden' : '2 critical profile issues hidden' },
+                { icon: '\uD83D\uDD12', text: inputSource === 'resume' ? 'AI-generated LinkedIn profile content hidden' : 'ATS keyword gaps hidden' },
                 { icon: '\uD83D\uDD12', text: '5 interview questions tailored to your profile hidden' },
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'var(--bg-canvas)', borderRadius: 'var(--radius-sm)', marginBottom: 8, border: '1px solid var(--border-default)' }}>
@@ -1209,10 +1365,14 @@ export default function Home() {
             {/* Blue gradient CTA */}
             <div style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent-hover))', borderRadius: 'var(--radius-md)', padding: '22px 16px', textAlign: 'center' }}>
               <p style={{ fontSize: 18, fontWeight: 800, color: 'white', marginBottom: 8 }}>
-                Get Full Rewrite + Interview Prep + Resume
+                {inputSource === 'resume'
+                  ? 'Get Full Resume Rewrite + LinkedIn Profile + Interview Prep'
+                  : 'Get Full Rewrite + Interview Prep + Resume'}
               </p>
               <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', marginBottom: 20, lineHeight: 1.5 }}>
-                Complete profile rewrite + interview prep + ATS resume
+                {inputSource === 'resume'
+                  ? 'ATS-optimized resume + AI-generated LinkedIn content + interview prep'
+                  : 'Complete profile rewrite + ATS resume + interview prep'}
               </p>
               <button
                 onClick={scrollToPricing}
@@ -1223,7 +1383,7 @@ export default function Home() {
                   boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
                 }}
               >
-                Get Full Rewrite + Interview Prep + Resume &rarr;
+                Unlock Everything &rarr;
               </button>
               <LiveCounter />
             </div>
@@ -1232,8 +1392,7 @@ export default function Home() {
       )}
 
       {/* ═══════════════════════════════════ */}
-      {/* PRICING (single section — appears   */}
-      {/* after teaser CTA or in marketing)   */}
+      {/* PRICING                             */}
       {/* ═══════════════════════════════════ */}
       {(showPricing || teaser) && !selectedPlan && pricingSection}
 
@@ -1276,7 +1435,9 @@ export default function Home() {
                   plan={selectedPlan}
                   teaserId={teaser?.teaser_id || null}
                   email={email}
-                  initialRawPaste={pdfRawPaste}
+                  initialRawPaste={currentRawPaste}
+                  inputSource={inputSource}
+                  targetRole={targetRole || qTargetRole}
                 />
               </div>
               {/* Sidebar (desktop only) */}
@@ -1284,10 +1445,10 @@ export default function Home() {
                 <div className="saas-card" style={{ padding: 20, marginBottom: 12 }}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12 }}>What happens next</div>
                   {[
-                    { num: '1', text: pdfRawPaste ? 'Your profile is loaded \u2014 review below' : 'Paste your full LinkedIn profile' },
+                    { num: '1', text: currentRawPaste ? 'Your data is loaded \u2014 review below' : 'Add your profile data' },
                     { num: '2', text: 'Pay securely via UPI/Card' },
                     { num: '3', text: 'AI rewrites your profile in ~90 seconds' },
-                    { num: '4', text: 'Copy-paste your new profile + download resume' },
+                    { num: '4', text: inputSource === 'resume' ? 'Download improved resume + LinkedIn content' : 'Copy-paste your new profile + download resume' },
                   ].map((s, i) => (
                     <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 10, alignItems: 'flex-start' }}>
                       <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'var(--accent)', color: 'white', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{s.num}</div>
@@ -1317,7 +1478,7 @@ export default function Home() {
               <p style={{ fontSize: 16, color: 'var(--text-secondary)', textAlign: 'center', marginBottom: 40 }}>One payment. Four powerful tools. Zero subscriptions.</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
                 {[
-                  { icon: '&#128293;', title: 'Fix What\u2019s Blocking Your Profile', desc: 'AI scores your profile, identifies issues, and rewrites your headline, about, and experience.', free: true },
+                  { icon: '&#128293;', title: 'Fix What\u2019s Blocking You', desc: 'AI scores your resume & profile, identifies issues, and rewrites your headline, about, and experience.', free: true },
                   { icon: '&#127919;', title: 'Answer Like a Top Candidate', desc: 'Personalized interview questions based on YOUR resume + target JD. STAR-format answers + cheat sheet + quiz.', free: false },
                   { icon: '&#128196;', title: 'Get Past ATS Filters', desc: 'Professional resume matched to your job description. ATS-optimized templates. PDF + TXT download.', free: false },
                   { icon: '&#9993;&#65039;', title: 'Stand Out in Applications', desc: 'Personalized cover letter for every application. Ready to copy-paste.', free: false },
@@ -1340,7 +1501,7 @@ export default function Home() {
               <p style={{ fontSize: 16, color: 'var(--text-secondary)', textAlign: 'center', marginBottom: 40 }}>Three steps. That{"'"}s it.</p>
               <div style={{ display: 'flex', gap: 0, alignItems: 'flex-start', justifyContent: 'center', flexWrap: 'wrap' }}>
                 {[
-                  { num: '1', title: 'Share Your Profile', desc: 'Upload LinkedIn PDF, old resume, or fill a quick form' },
+                  { num: '1', title: 'Upload Your File', desc: 'Upload your resume (PDF/DOCX) or LinkedIn PDF. Or fill a quick form.' },
                   { num: '2', title: 'AI Analyzes & Builds', desc: 'Scores your profile, rewrites it, generates resume + interview prep' },
                   { num: '3', title: 'Download & Apply', desc: 'Everything ready. Start applying with confidence today.' },
                 ].map((s, i) => (
@@ -1435,7 +1596,7 @@ export default function Home() {
             </div>
           </section>
 
-          {/* ── Pricing (in marketing stack, NOT duplicated) ── */}
+          {/* ── Pricing (in marketing stack) ── */}
           {!showPricing && !selectedPlan && pricingSection}
 
           {/* ── FAQ ── */}
@@ -1443,14 +1604,14 @@ export default function Home() {
             <div style={{ maxWidth: 700, margin: '0 auto' }}>
               <h2 style={{ fontSize: 28, fontWeight: 900, color: 'var(--text-primary)', textAlign: 'center', marginBottom: 32 }}>Frequently Asked Questions</h2>
               {[
-                { q: 'Is the profile score really free?', a: 'Yes! Upload your LinkedIn PDF or paste your headline and get an instant AI score with a suggested headline \u2014 completely free, no signup required.' },
+                { q: 'Is the profile score really free?', a: 'Yes! Upload your resume or LinkedIn PDF and get an instant AI score with a suggested headline \u2014 completely free, no signup required.' },
                 { q: 'What do I get with the paid plan?', a: 'A complete profile rewrite (headline, about, experience), ATS-optimized resume in multiple templates, personalized cover letter, and interview prep with questions, STAR-format answers, cheat sheet, and quiz.' },
+                { q: 'Can I upload my resume instead of LinkedIn PDF?', a: 'Yes! You can upload your resume (PDF or DOCX) and we will analyze it, improve it, AND generate LinkedIn content from it. This is the easiest option for mobile users.' },
                 { q: 'How is this different from ChatGPT?', a: 'ProfileRoaster is purpose-built for LinkedIn optimization. It understands ATS algorithms, recruiter behavior, and Indian job market nuances. You get structured, ready-to-use output \u2014 not generic paragraphs.' },
                 { q: 'How long does it take?', a: 'The free score is instant. The full rewrite + resume + interview prep is generated in about 90 seconds after payment.' },
                 { q: 'Is my data safe?', a: 'Your data is encrypted in transit and at rest. Only AI processes your profile \u2014 no humans read it. You can delete your data anytime from your dashboard.' },
                 { q: 'What payment methods do you accept?', a: 'We accept UPI, credit/debit cards, net banking, and wallets via Razorpay \u2014 India\'s most trusted payment gateway.' },
                 { q: 'Can I get a refund?', a: 'Since the AI output is generated instantly and delivered immediately, we do not offer refunds. However, if there is a technical issue, contact us and we will make it right.' },
-                { q: 'Do I need a LinkedIn account?', a: 'Not necessarily. You can paste your headline or profile text manually. If you want resume + full rewrite, uploading a LinkedIn PDF gives the best results. We also have a "Build Profile" tool if you\'re starting from scratch.' },
               ].map((item, i) => (
                 <div key={i} style={{ borderBottom: '1px solid var(--border-default)' }}>
                   <button
@@ -1486,7 +1647,7 @@ export default function Home() {
                 onClick={() => { heroRef.current?.scrollIntoView({ behavior: 'smooth' }); }}
                 style={{ background: 'white', color: 'var(--accent)', fontSize: 16, fontWeight: 700, padding: '16px 40px', borderRadius: 'var(--radius-pill)', border: 'none', cursor: 'pointer', boxShadow: 'var(--shadow-md)' }}
               >
-                Upload Your PDF &mdash; Free Score &rarr;
+                Upload Your Resume &mdash; Free Score &rarr;
               </button>
             </div>
           </section>

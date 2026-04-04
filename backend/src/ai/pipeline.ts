@@ -283,8 +283,8 @@ export async function getRecentPatterns(): Promise<string[]> {
 // ═══════════════════════════════════════════════════════
 // STAGE 1 — PROFILE PARSER (3-Layer Architecture)
 // ═══════════════════════════════════════════════════════
-const STAGE1_SYSTEM = `You are a LinkedIn profile data extractor.
-Extract ALL data from the profile text into JSON.
+const STAGE1_SYSTEM = `You are a professional profile data extractor.
+Extract ALL data from the input text into JSON. The input may be a LinkedIn profile, a resume, or manually entered profile sections.
 Never skip sections. Never hallucinate.
 If data is missing return empty string or empty array.
 
@@ -315,11 +315,12 @@ Preserve ALL numbers and metrics exactly as written:
 - Time periods: 3 months, 1 year
 These metrics are critical for the rewrite. Never drop or round numbers.
 
-If the input is clearly not a LinkedIn profile, return:
+If the input is clearly not a professional profile or resume (e.g. random text, spam), return:
 {"error":"invalid_input","reason":"brief explanation"}
 
 OUTPUT (strict JSON):
 {
+  "full_name": "string | null",
   "headline": "string | null",
   "about": "string | null",
   "current_role": {
@@ -447,9 +448,9 @@ export async function stage1_parse(rawInput: string, orderId?: string): Promise<
 // ═══════════════════════════════════════════════════════
 // STAGE 2 — PROFILE ANALYZER
 // ═══════════════════════════════════════════════════════
-const STAGE2_SYSTEM = `You are a LinkedIn profile scoring engine. Analyze structured profile
-data and identify specific issues. Be clinical and precise.
-You are NOT generating the roast or rewrite — only the analysis.
+const STAGE2_SYSTEM = `You are a professional profile scoring engine. Analyze structured profile
+data (from LinkedIn or resume) and identify specific issues. Be clinical and precise.
+You are NOT generating the rewrite — only the analysis.
 
 SCORING RUBRIC:
 HEADLINE (0-100):
@@ -967,12 +968,24 @@ export async function stage4_rewrite(
   parsed: ParsedProfile,
   analysis: Analysis,
   orderId?: string,
+  inputSource?: string,
+  targetRole?: string | null,
 ): Promise<StandardRewrite> {
   if (orderId) await updateProcessingStatus(orderId, 'rewriting');
 
+  const resumeContext = inputSource === 'resume'
+    ? `\n\nIMPORTANT — INPUT SOURCE IS A RESUME (not LinkedIn PDF):
+The user uploaded their resume, NOT their LinkedIn PDF. Your task is to:
+1. REWRITE their resume content into optimized LinkedIn profile sections (headline, about, experience)
+2. The headline, about section, and experience bullets should be written FOR LINKEDIN, not for a resume
+3. Focus on making these sections compelling for LinkedIn — conversational about section, recruiter-friendly headline
+4. The user wants LinkedIn-ready content GENERATED from their resume data
+${targetRole ? `5. TARGET ROLE: The user is targeting "${targetRole}" — tailor the rewrite toward this role` : ''}`
+    : targetRole ? `\nTARGET ROLE: The user is targeting "${targetRole}" — tailor the rewrite toward this role` : '';
+
   const userPrompt = `PROFILE: ${JSON.stringify(parsed, null, 2)}
 ANALYSIS: ${JSON.stringify(analysis, null, 2)}
-PLAN: standard
+PLAN: standard${resumeContext}
 Return ONLY valid JSON.`;
 
   try {
@@ -1050,6 +1063,8 @@ export async function stage4b_proRewrite(
   analysis: Analysis,
   jobDescription: string | null,
   orderId?: string,
+  inputSource?: string,
+  targetRole?: string | null,
 ): Promise<ProRewrite> {
   if (orderId) await updateProcessingStatus(orderId, 'rewriting');
 
@@ -1057,10 +1072,20 @@ export async function stage4b_proRewrite(
     ? `JOB_DESCRIPTION: ${jobDescription}`
     : 'JOB_DESCRIPTION: null\nNOTE: If JOB_DESCRIPTION is null, set jd_analysis.match_score to null and all jd_analysis arrays to empty. Set cover_letter to {"subject_line":"","body":"","personalization_notes":"No job description provided — add a JD to generate a targeted cover letter."}. Do NOT invent a job description or company details.';
 
+  const resumeContextPro = inputSource === 'resume'
+    ? `\n\nIMPORTANT — INPUT SOURCE IS A RESUME (not LinkedIn PDF):
+The user uploaded their resume, NOT their LinkedIn PDF. Your task is to:
+1. REWRITE their resume content into optimized LinkedIn profile sections (headline, about, experience)
+2. The headline, about section, and experience bullets should be written FOR LINKEDIN, not for a resume
+3. Focus on making these sections compelling for LinkedIn — conversational about section, recruiter-friendly headline
+4. The user wants LinkedIn-ready content GENERATED from their resume data
+${targetRole ? `5. TARGET ROLE: The user is targeting "${targetRole}" — tailor the rewrite toward this role` : ''}`
+    : targetRole ? `\nTARGET ROLE: The user is targeting "${targetRole}" — tailor the rewrite toward this role` : '';
+
   const userPrompt = `PROFILE: ${JSON.stringify(parsed, null, 2)}
 ANALYSIS: ${JSON.stringify(analysis, null, 2)}
 ${jdBlock}
-PLAN: pro
+PLAN: pro${resumeContextPro}
 Return ONLY valid JSON.`;
 
   try {
@@ -1083,15 +1108,12 @@ Return ONLY valid JSON.`;
 // ═══════════════════════════════════════════════════════
 // STAGE 5 — QUALITY CHECKER
 // ═══════════════════════════════════════════════════════
-const STAGE5_SYSTEM = `You are a QA reviewer for an AI LinkedIn profile service.
+const STAGE5_SYSTEM = `You are a QA reviewer for an AI career profile rewrite service.
 Check SAFETY (any failure = REJECT) and QUALITY (failure = REVISE).
 
 SAFETY CHECKS — any YES answer = REJECT:
-Does the roast reference gender, age, race, caste, religion, appearance, disability?
-Does the roast contain profanity or adult language in any form?
-Does the roast attack the PERSON rather than the profile?
-Does the roast imply unemployability, hopelessness, or giving up?
-Does the roast mock educational institution tier or English language ability?
+Does the rewrite reference gender, age, race, caste, religion, appearance, disability in a negative way?
+Does the rewrite contain profanity or adult language?
 Does the rewrite contain fabricated company names, fake credentials, or invented awards not in the original profile? Note: industry-standard metric estimates (e.g. '95% retention', '3x pipeline', '30% improvement') used to replace missing data are ALLOWED and should NOT be flagged — only flag invented company names, fake job titles, or credentials the person does not have.
 Does the rewrite contain ANY company name not in the original profile?
 
@@ -1101,8 +1123,6 @@ Any difference = REJECT immediately.
 This check must pass for all experience entries.
 
 QUALITY CHECKS — failure = REVISE:
-Do all 3 roast points quote specific text from THIS profile?
-Do all 6 points use different humor mechanisms?
 Is the rewritten headline under 220 characters?
 Does the rewritten About start with a hook (not I am a...)?
 Is the rewritten About under 2600 characters?
@@ -1124,14 +1144,13 @@ OUTPUT FORMAT (strict JSON):
 
 export async function stage5_qualityCheck(
   parsed: ParsedProfile,
-  roast: Roast,
+  roast: any,
   rewrite: StandardRewrite | ProRewrite,
   orderId?: string,
 ): Promise<QualityCheck> {
   if (orderId) await updateProcessingStatus(orderId, 'checking');
 
   const userPrompt = `ORIGINAL PROFILE: ${JSON.stringify(parsed, null, 2)}
-ROAST: ${JSON.stringify(roast, null, 2)}
 REWRITE: ${JSON.stringify(rewrite, null, 2)}
 Return ONLY valid JSON.`;
 
@@ -1347,6 +1366,8 @@ export async function runPipeline(orderId: string): Promise<void> {
   const profileInput = order.profile_input;
   const plan: string = order.plan;
   const jobDesc: string | null = order.job_description;
+  const inputSource: string = order.input_source || 'linkedin';
+  const targetRole: string | null = order.target_role;
 
   // Profile fingerprinting — check for duplicate
   const profileHash = generateProfileHash(profileInput);
@@ -1395,7 +1416,14 @@ export async function runPipeline(orderId: string): Promise<void> {
 
       // Validate parsed output looks like a real profile
       if (!parsed.headline && !parsed.experience?.length && !parsed.about) {
-        throw new Error('Could not identify LinkedIn profile content. Please paste your actual LinkedIn profile text.');
+        throw new Error(inputSource === 'resume'
+          ? 'Could not extract meaningful data from your resume. Please try a different file.'
+          : 'Could not identify LinkedIn profile content. Please paste your actual LinkedIn profile text.');
+      }
+
+      // If target_role is set, inject it into parsed profile for downstream stages
+      if (targetRole) {
+        (parsed as any).target_role = targetRole;
       }
 
       await query(
@@ -1426,30 +1454,21 @@ export async function runPipeline(orderId: string): Promise<void> {
 
       await query(
         'UPDATE orders SET analysis=$1, processing_status=$2 WHERE id=$3',
-        [JSON.stringify(analysis), 'roasting', orderId],
+        [JSON.stringify(analysis), 'rewriting', orderId],
       );
 
-      // Stage 3 — Roast
-      const patterns = await getRecentPatterns();
-      const roast = await withTimeout(
-        () => stage3_roast(parsed, analysis, patterns),
-        TIMEOUTS.roast,
-        'roast',
-      );
-      await query(
-        'UPDATE orders SET roast=$1, processing_status=$2 WHERE id=$3',
-        [JSON.stringify(roast), 'rewriting', orderId],
-      );
+      // Stage 3 — Roast (SKIPPED — product pivot to professional career tool)
+      const roast = null;
 
       // Stage 4 / 4b — Rewrite (plan-gated)
       const rewrite = plan === 'pro'
         ? await withTimeout(
-            () => stage4b_proRewrite(parsed, analysis, jobDesc),
+            () => stage4b_proRewrite(parsed, analysis, jobDesc, orderId, inputSource, targetRole),
             TIMEOUTS.rewrite_pro,
             'rewrite_pro',
           )
         : await withTimeout(
-            () => stage4_rewrite(parsed, analysis),
+            () => stage4_rewrite(parsed, analysis, orderId, inputSource, targetRole),
             TIMEOUTS.rewrite,
             'rewrite',
           );

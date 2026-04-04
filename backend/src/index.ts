@@ -637,7 +637,9 @@ app.get('/api/cors-test', (_req: Request, res: Response) => {
 // POST /api/orders — with email rate limit + input sanitization
 app.post('/api/orders', async (req: Request, res: Response) => {
   try {
-    const { email, plan, profile_data, job_description, teaser_id } = req.body;
+    const { email, plan, profile_data, job_description, teaser_id, input_source, target_role } = req.body;
+    const validInputSources = ['resume', 'linkedin', 'questionnaire'];
+    const safeInputSource = validInputSources.includes(input_source) ? input_source : 'linkedin';
 
     if (!validateEmail(email))
       return res.status(400).json({ error: 'Invalid email address' });
@@ -709,15 +711,16 @@ app.post('/api/orders', async (req: Request, res: Response) => {
     const result = await query(
       `INSERT INTO orders (email,plan,amount_paise,razorpay_order_id,
        profile_input,job_description,teaser_id,profile_hash,ip_address,
-       utm_source,utm_medium,utm_campaign,referral_code,influencer_slug)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING id`,
+       utm_source,utm_medium,utm_campaign,referral_code,influencer_slug,
+       input_source,target_role)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16) RETURNING id`,
       [
         email, plan, amounts[plan], rzpOrder.id,
         JSON.stringify(profile_data), job_description || null,
         teaser_id || null, hash, req.ip,
         req.query.utm_source || null, req.query.utm_medium || null,
         req.query.utm_campaign || null, req.query.ref || null,
-        influencerSlug,
+        influencerSlug, safeInputSource, target_role || null,
       ],
     );
 
@@ -740,7 +743,7 @@ app.post('/api/orders', async (req: Request, res: Response) => {
 // POST /api/teaser — rate limited (5/IP/hour), headline cached, AI-powered
 app.post('/api/teaser', rateLimiter('teaser', 5, 3600), async (req: Request, res: Response) => {
   try {
-    const { headline } = req.body;
+    const { headline, input_source, target_role } = req.body;
 
     if (!headline || headline.trim().length < 10)
       return res.status(400).json({ errors: ['Please paste your LinkedIn headline (at least 10 characters).'] });
@@ -763,12 +766,14 @@ app.post('/api/teaser', rateLimiter('teaser', 5, 3600), async (req: Request, res
       // Still save the attempt for analytics
       const saved = await query(
         `INSERT INTO teaser_attempts (headline_text, score, issues_found,
-         ip_address, user_agent, utm_source, utm_medium, utm_campaign)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+         ip_address, user_agent, utm_source, utm_medium, utm_campaign,
+         input_source, target_role)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
         [headline, cachedResult.score, JSON.stringify(cachedResult.issues),
          req.ip, req.headers['user-agent'] || null,
          (req.query.utm_source as string) || null, (req.query.utm_medium as string) || null,
-         (req.query.utm_campaign as string) || null],
+         (req.query.utm_campaign as string) || null,
+         input_source || 'linkedin', target_role || null],
       );
       return res.json({ ...cachedResult, teaser_id: saved.rows[0].id, cached: true });
     }
@@ -782,8 +787,9 @@ app.post('/api/teaser', rateLimiter('teaser', 5, 3600), async (req: Request, res
     // Save to teaser_attempts
     const saved = await query(
       `INSERT INTO teaser_attempts (headline_text, score, issues_found,
-       ip_address, user_agent, utm_source, utm_medium, utm_campaign)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+       ip_address, user_agent, utm_source, utm_medium, utm_campaign,
+       input_source, target_role)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
       [
         headline,
         result.score,
@@ -793,6 +799,8 @@ app.post('/api/teaser', rateLimiter('teaser', 5, 3600), async (req: Request, res
         (req.query.utm_source as string) || null,
         (req.query.utm_medium as string) || null,
         (req.query.utm_campaign as string) || null,
+        input_source || 'linkedin',
+        target_role || null,
       ],
     );
 
@@ -916,6 +924,7 @@ app.get('/api/orders/:id', rateLimiter('poll', 60, 60), async (req: Request, res
       order_id: o.id,
       status: 'done',
       plan: o.plan,
+      input_source: o.input_source || 'linkedin',
       results: {
         scores: { before: o.before_score, after: o.after_score },
         roast: o.roast,
@@ -925,6 +934,7 @@ app.get('/api/orders/:id', rateLimiter('poll', 60, 60), async (req: Request, res
       },
       referral_code: refCode,
       referral_url: `https://profileroaster.in/?ref=${refCode}`,
+      parsed_profile: o.parsed_profile ? { name: o.parsed_profile.full_name || o.parsed_profile.name || o.parsed_profile.headline?.split('|')[0]?.trim(), location: o.parsed_profile.location } : undefined,
     });
   } catch (err) {
     console.error('GET /api/orders/:id error:', err);

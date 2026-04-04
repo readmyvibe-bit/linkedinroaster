@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'ProfileRoaster — AI Profile Rewrite, Resume & Interview Prep',
-  description: 'Upload your LinkedIn PDF. AI scores your profile, rewrites it, builds your ATS resume, and preps you for interviews. Starting at ₹499.',
+  title: 'ProfileRoaster — AI Resume & Profile Rewrite, Interview Prep',
+  description: 'Upload your resume or LinkedIn PDF. AI scores it, rewrites your profile, builds your ATS resume, and preps you for interviews. Starting at ₹499.',
   verification: {
     google: 'uqU-k4gbRUEGwAoXujXSGMIeBvdFY-QRs6VCKZeE3HY',
   },

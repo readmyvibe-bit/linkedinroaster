@@ -17,9 +17,22 @@ async function migrate() {
       console.error('Migration failed:', error.message);
       process.exit(1);
     }
-  } finally {
-    await pool.end();
   }
+
+  // Run input_source migration (additive — safe to re-run)
+  try {
+    const inputSourceSql = readFileSync(join(__dirname, 'input-source-migration.sql'), 'utf-8');
+    await pool.query(inputSourceSql);
+    console.log('Input source migration completed.');
+  } catch (error: any) {
+    if (error.message?.includes('already exists')) {
+      console.log('Input source columns already exist — skipped.');
+    } else {
+      console.error('Input source migration warning:', error.message);
+    }
+  }
+
+  await pool.end();
 }
 
 migrate();

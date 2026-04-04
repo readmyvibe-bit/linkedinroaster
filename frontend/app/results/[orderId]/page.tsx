@@ -68,6 +68,7 @@ interface OrderResults {
   order_id: string;
   status: string;
   plan: string;
+  input_source?: 'resume' | 'linkedin' | 'questionnaire';
   results: {
     scores: { before: ScoreBreakdown; after: ScoreBreakdown };
     analysis?: {
@@ -196,7 +197,7 @@ const STAGE_LABELS: Record<string, { label: string; emoji: string }> = {
   queued: { label: 'Getting ready...', emoji: '👋' },
   parsing: { label: 'Reading your profile...', emoji: '👀' },
   analyzing: { label: 'Finding the weak spots...', emoji: '🔬' },
-  roasting: { label: 'Analyzing your profile...', emoji: '🔍' },
+  roasting: { label: 'Analyzing deeper...', emoji: '🔍' },
   rewriting: { label: 'Rewriting your profile...', emoji: '✍️' },
   checking: { label: 'Final quality check...', emoji: '✅' },
 };
@@ -1355,7 +1356,7 @@ function FeedbackWidget({ orderId }: { orderId: string }) {
   return (
     <div className="li-card p-4 mb-4">
       <h3 className="text-sm font-bold mb-2" style={{ color: 'var(--li-text-primary)' }}>
-        Rate Your Roast
+        Rate Your Results
       </h3>
       <div className="flex gap-1 mb-2">
         {[1, 2, 3, 4, 5].map((star) => (
@@ -1530,14 +1531,14 @@ function ReferralWidget({ code, url, cardUrl }: { code: string; url: string; car
   const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
 
   async function handleWhatsAppReferral() {
-    const text = `I just got my LinkedIn profile roasted by AI!\n\nScore went way up after the rewrite.\n\nTry it: ${url}`;
+    const text = `I just got my LinkedIn profile rewritten by AI!\n\nScore went way up after the rewrite.\n\nTry it: ${url}`;
     if (typeof navigator !== 'undefined' && navigator.share && navigator.canShare && cardUrl) {
       try {
         const response = await fetch(`${cardUrl}?t=${Date.now()}`);
         const blob = await response.blob();
-        const file = new File([blob], 'linkedin-roast-card.png', { type: 'image/png' });
+        const file = new File([blob], 'profile-rewrite.png', { type: 'image/png' });
         if (navigator.canShare({ files: [file] })) {
-          await navigator.share({ title: 'My LinkedIn Roast', text, files: [file] });
+          await navigator.share({ title: 'My Profile Rewrite', text, files: [file] });
           return;
         }
       } catch { /* fall through */ }
@@ -1596,7 +1597,7 @@ function ShareButtons({ caption, cardUrl, orderId, beforeScore, afterScore, refe
 }) {
   const [copied, setCopied] = useState(false);
   const [igToast, setIgToast] = useState(false);
-  const shareText = caption || 'Just got my LinkedIn profile roasted!';
+  const shareText = caption || 'Just got my LinkedIn profile rewritten by AI!';
 
   async function downloadCard() {
     if (!cardUrl) return;
@@ -1606,7 +1607,7 @@ function ShareButtons({ caption, cardUrl, orderId, beforeScore, afterScore, refe
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `linkedin-roast-${orderId.slice(0, 8)}.png`;
+      link.download = `profile-rewrite-${orderId.slice(0, 8)}.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -1617,14 +1618,14 @@ function ShareButtons({ caption, cardUrl, orderId, beforeScore, afterScore, refe
   }
 
   async function handleWhatsAppShare() {
-    const whatsAppText = `I just got my LinkedIn profile roasted by AI 🔥 Score: ${beforeScore}\u2192${afterScore}\n\n${shareText}\n\nGet yours: ${referralUrl}`;
+    const whatsAppText = `My LinkedIn profile just got rewritten by AI! Score: ${beforeScore}\u2192${afterScore}\n\n${shareText}\n\nGet yours: ${referralUrl}`;
 
     if (typeof navigator !== 'undefined' && navigator.share && navigator.canShare) {
       try {
         if (cardUrl) {
           const response = await fetch(cardUrl);
           const blob = await response.blob();
-          const file = new File([blob], 'linkedin-roast-card.png', { type: 'image/png' });
+          const file = new File([blob], 'profile-rewrite-card.png', { type: 'image/png' });
           if (navigator.canShare({ files: [file] })) {
             await navigator.share({
               title: 'My LinkedIn Profile Roast',
@@ -2295,8 +2296,11 @@ export default function ResultsPage() {
 
   // ── Results ──
   const { results, plan, referral_code, referral_url } = data;
-  const { scores, roast, rewrite, analysis } = results;
+  const { scores, roast: rawRoast, rewrite, analysis } = results;
+  const roast = rawRoast || { roast_title: '', roast_points: [], closing_compliment: '', overall_verdict: '', linkedin_caption: '', hidden_strengths: [] };
   const isPro = plan === 'pro';
+  const inputSource = (data as any).input_source || 'linkedin';
+  const isResumeMode = inputSource === 'resume';
 
   // Ranking
   const afterScore = scores.after.overall;
@@ -2451,12 +2455,23 @@ export default function ResultsPage() {
             <div style={{ fontSize: 18, fontWeight: 700, color: '#191919', marginBottom: 2 }}>{userName}</div>
             {userLocation && <div style={{ fontSize: 13, color: '#666', marginBottom: 4 }}>{userLocation}</div>}
             <div style={{ fontSize: 13, fontWeight: 600, color: afterScore >= 70 ? '#057642' : '#92400E' }}>
-              {rankLabel} of LinkedIn profiles
+              {rankLabel} of {isResumeMode ? 'resumes' : 'LinkedIn profiles'}
             </div>
             {improvement > 0 && (
               <div style={{ marginTop: 16, background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 10, padding: '14px 16px' }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#057642' }}>
-                  &#9989; Your profile improved by {improvement} points. Copy your rewritten sections below.
+                  &#9989; {isResumeMode ? 'Your resume' : 'Your profile'} improved by {improvement} points. {isResumeMode ? 'Download your improved resume and copy LinkedIn content below.' : 'Copy your rewritten sections below.'}
+                </div>
+              </div>
+            )}
+            {isResumeMode && (
+              <div style={{ marginTop: 12, background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 10, padding: '14px 16px' }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#0A66C2', marginBottom: 4 }}>
+                  &#128161; Want a deeper LinkedIn analysis?
+                </div>
+                <div style={{ fontSize: 12, color: '#64748B', lineHeight: 1.5 }}>
+                  Upload your LinkedIn PDF for a more detailed profile rewrite.{' '}
+                  <a href="/?tab=linkedin" style={{ color: '#0A66C2', fontWeight: 600 }}>Upload LinkedIn PDF &rarr;</a>
                 </div>
               </div>
             )}
@@ -2467,7 +2482,7 @@ export default function ResultsPage() {
       {/* ═══ 2. WHAT WAS HOLDING YOUR PROFILE BACK ═══ */}
       {(missingKeywords.length > 0 || weakVerbs.length > 0 || quantBreakdown) && (
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 16px 16px' }}>
-          <div style={{ fontSize: 18, fontWeight: 700, color: '#191919', marginBottom: 12 }}>What Was Holding Your Profile Back</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: '#191919', marginBottom: 12 }}>{isResumeMode ? 'What Was Holding Your Resume Back' : 'What Was Holding Your Profile Back'}</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
 
             {/* Card 1: Missing Keywords */}
@@ -2551,8 +2566,13 @@ export default function ResultsPage() {
 
           {/* Headline card */}
           <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }} id="rewrite-section">
+            {isResumeMode && (
+              <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, padding: '8px 12px', marginBottom: 12, fontSize: 12, color: '#0A66C2', fontWeight: 600 }}>
+                &#128161; LinkedIn content generated from your resume &mdash; copy these to your LinkedIn profile
+              </div>
+            )}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <span style={{ fontSize: 16, fontWeight: 700, color: '#191919' }}>Headline</span>
+              <span style={{ fontSize: 16, fontWeight: 700, color: '#191919' }}>{isResumeMode ? 'LinkedIn Headline' : 'Headline'}</span>
               <CopyBtn text={rewrite.rewritten_headline} field="headline-top" />
             </div>
             <div style={{ background: '#F0F7FF', borderRadius: 10, padding: '14px 18px', fontSize: 16, fontWeight: 600, color: '#191919', lineHeight: 1.5 }}>
@@ -2587,7 +2607,7 @@ export default function ResultsPage() {
           {/* About card */}
           <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <span style={{ fontSize: 16, fontWeight: 700, color: '#191919' }}>About</span>
+              <span style={{ fontSize: 16, fontWeight: 700, color: '#191919' }}>{isResumeMode ? 'LinkedIn About' : 'About'}</span>
               <CopyBtn text={rewrite.rewritten_about} field="about" />
             </div>
             <div style={{ fontSize: 14, color: '#333', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}
@@ -2605,7 +2625,7 @@ export default function ResultsPage() {
 
           {/* Experience card */}
           <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }}>
-            <span style={{ fontSize: 16, fontWeight: 700, color: '#191919', display: 'block', marginBottom: 14 }}>Experience</span>
+            <span style={{ fontSize: 16, fontWeight: 700, color: '#191919', display: 'block', marginBottom: 14 }}>{isResumeMode ? 'Improved Experience Bullets' : 'Experience'}</span>
             {rewrite.rewritten_experience?.map((exp, i) => (
               <div key={i} style={{ background: '#F9FAFB', borderRadius: 10, padding: '16px 18px', marginBottom: 10 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
@@ -2650,22 +2670,22 @@ export default function ResultsPage() {
           <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: '#191919', marginBottom: 14 }}>Next Steps</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {/* Step 1: Profile scored */}
+              {/* Step 1: Scored */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#057642' }}>
                 <span style={{ fontSize: 16 }}>&#9989;</span>
-                <span style={{ fontWeight: 600 }}>Profile scored</span>
+                <span style={{ fontWeight: 600 }}>{isResumeMode ? 'Resume scored' : 'Profile scored'}</span>
                 <span style={{ marginLeft: 'auto', fontSize: 11, color: '#999' }}>Done</span>
               </div>
-              {/* Step 2: Profile rewritten */}
+              {/* Step 2: Rewritten */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#057642' }}>
                 <span style={{ fontSize: 16 }}>&#9989;</span>
-                <span style={{ fontWeight: 600 }}>Profile rewritten</span>
+                <span style={{ fontWeight: 600 }}>{isResumeMode ? 'Resume improved + LinkedIn generated' : 'Profile rewritten'}</span>
                 <span style={{ marginLeft: 'auto', fontSize: 11, color: '#999' }}>Done</span>
               </div>
               {/* Step 3: Copy to LinkedIn */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#191919' }}>
                 <span style={{ width: 18, height: 18, borderRadius: 4, border: '2px solid #D1D5DB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} />
-                <span style={{ fontWeight: 600, flex: 1 }}>Copy sections to LinkedIn</span>
+                <span style={{ fontWeight: 600, flex: 1 }}>{isResumeMode ? 'Copy LinkedIn content to profile' : 'Copy sections to LinkedIn'}</span>
                 <button onClick={() => {
                   handleCopy(
                     `HEADLINE:\n${rewrite.rewritten_headline}\n\nABOUT:\n${rewrite.rewritten_about}\n\nSKILLS:\n${rewrite.suggested_skills?.map(s => s.skill).join(', ') || ''}`,
@@ -2675,10 +2695,10 @@ export default function ResultsPage() {
                   {copiedField === 'copy-all' ? 'Copied!' : 'Copy All'}
                 </button>
               </div>
-              {/* Step 4: Generate resume */}
+              {/* Step 4: Generate/download resume */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#191919' }}>
                 <span style={{ width: 18, height: 18, borderRadius: 4, border: '2px solid #D1D5DB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} />
-                <span style={{ fontWeight: 600, flex: 1 }}>Generate resume</span>
+                <span style={{ fontWeight: 600, flex: 1 }}>{isResumeMode ? 'Download improved resume' : 'Generate resume'}</span>
                 <button onClick={handleResumeCTA} style={{ padding: '4px 12px', background: '#057642', color: 'white', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                   Build
                 </button>
