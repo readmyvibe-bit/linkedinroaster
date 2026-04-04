@@ -113,11 +113,11 @@ router.post('/generate', async (req: Request, res: Response) => {
   try {
     const { orderId, userDetails, targetRole, targetCompany, jobDescription,
       additionalAchievements, certifications, languages, experienceYears,
-      templateId, pageCount, uploadedResumeText } = req.body;
+      templateId, pageCount, uploadedResumeText, noJd } = req.body;
 
     if (!orderId) return res.status(400).json({ error: 'Missing orderId' });
     if (!targetRole) return res.status(400).json({ error: 'Missing target role' });
-    if (!jobDescription || jobDescription.length < 100)
+    if (!noJd && (!jobDescription || jobDescription.length < 100))
       return res.status(400).json({ error: 'Job description must be at least 100 characters' });
     if (!userDetails?.name || !userDetails?.email)
       return res.status(400).json({ error: 'Name and email are required' });

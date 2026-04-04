@@ -165,9 +165,27 @@ function ResumeFormContent() {
         // Pre-fill from order data
         if (data.email) setEmail(data.email);
         if (source === 'roast') {
-          if (data.parsed_profile?.name) setFullName(data.parsed_profile.name);
-          if (data.parsed_profile?.location) setLocation(data.parsed_profile.location);
+          const pp = data.parsed_profile || {};
+          if (pp.name) setFullName(pp.name);
+          if (pp.location) setLocation(pp.location);
+          if (pp.headline) setTargetRole(pp.headline.split('|')[0]?.trim() || '');
           if (data.linkedin_url) setLinkedinUrl(data.linkedin_url);
+          // Auto-fill achievements from experience
+          if (pp.experience?.length) {
+            const achievementLines = pp.experience
+              .slice(0, 3)
+              .map((e: any) => `${e.title || ''} at ${e.company || ''}`)
+              .filter(Boolean)
+              .join('\n');
+            if (achievementLines) setKeyAchievements(achievementLines);
+          }
+          // Auto-fill skills as certifications
+          if (pp.certifications?.length) setCertifications(pp.certifications.slice(0, 5));
+          // Calculate experience years
+          if (pp.experience?.length) {
+            const years = pp.experience.length <= 2 ? '1-3' : pp.experience.length <= 4 ? '3-7' : '7+';
+            setTotalExperience(years);
+          }
         } else {
           // Build order — pre-fill ALL available data
           const fi = data.form_input || {};
@@ -247,6 +265,7 @@ function ResumeFormContent() {
         targetRole,
         targetCompany,
         jobDescription: noJd ? '' : jobDescription,
+        noJd,
         additionalAchievements: keyAchievements,
         certifications,
         languages,
@@ -611,9 +630,10 @@ function ResumeFormContent() {
                 const count = isAll ? TEMPLATES.length : TEMPLATES.filter(t => t.category === cat).length;
                 return (
                   <button key={cat} type="button" onClick={() => setTemplateFilter(cat)} style={{
-                    padding: '4px 12px', borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: 'none',
+                    padding: '4px 10px', borderRadius: 16, fontSize: 11, fontWeight: 600, cursor: 'pointer', border: 'none',
                     background: templateFilter === cat ? '#0A66C2' : '#F3F2EF',
                     color: templateFilter === cat ? '#fff' : '#666',
+                    whiteSpace: 'nowrap',
                   }}>{cat} ({count})</button>
                 );
               })}

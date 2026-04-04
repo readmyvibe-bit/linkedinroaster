@@ -138,7 +138,7 @@ export default function ResumePreviewPage() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 0', borderTop: '1px solid var(--bg-subtle)', gap: 8, flexWrap: 'wrap' }}>
             <div style={{ fontSize: 13, color: 'var(--text-secondary)', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{resume.target_role}</span>
-              {resume.target_company && <span> at {resume.target_company}</span>}
+              {resume.target_company && !resume.target_company.toLowerCase().includes('must be at least') && <span> at {resume.target_company}</span>}
             </div>
             <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0, flexWrap: 'nowrap' }}>
               <button onClick={() => setShowTemplateModal(true)} className="saas-btn saas-btn-ghost" style={{ fontSize: 11, padding: '4px 10px' }}>Template &#9662;</button>
@@ -258,7 +258,7 @@ export default function ResumePreviewPage() {
           {/* Details */}
           <div className="saas-card" style={{ padding: 16 }}>
             <div className="saas-label" style={{ marginBottom: 10 }}>Details</div>
-            {[{ l: 'Role', v: resume.target_role }, { l: 'Company', v: resume.target_company }, { l: 'Template', v: currentTemplate?.name }, { l: 'Density', v: printSize.charAt(0).toUpperCase() + printSize.slice(1) }].filter(d => d.v).map((d, i) => (
+            {[{ l: 'Role', v: resume.target_role }, { l: 'Company', v: resume.target_company && !resume.target_company.toLowerCase().includes('must be at least') ? resume.target_company : undefined }, { l: 'Template', v: currentTemplate?.name }, { l: 'Density', v: printSize.charAt(0).toUpperCase() + printSize.slice(1) }].filter(d => d.v).map((d, i) => (
               <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-muted)', padding: '5px 0', borderBottom: '1px solid var(--bg-subtle)' }}>
                 <span>{d.l}</span><span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{d.v}</span>
               </div>

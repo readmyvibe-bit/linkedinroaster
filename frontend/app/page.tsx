@@ -1284,8 +1284,16 @@ export default function Home() {
               <ScoreBadge score={teaser.score} />
               <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 12, lineHeight: 1.5 }}>
                 {inputSource === 'resume'
-                  ? 'Based on resume analysis. Full ATS optimization typically improves this by 30-40 points.'
-                  : 'Based on headline analysis. Full profile score is typically 30-40 points lower.'}
+                  ? (teaser.score >= 70
+                      ? 'Good ATS score! Our AI can still optimize keywords, formatting, and bullet points for even better results.'
+                      : teaser.score >= 50
+                        ? 'Decent foundation. ATS optimization can improve keyword matching and bullet structure.'
+                        : 'Your resume needs work. Our AI rewrite typically improves scores by 30-40 points.')
+                  : (teaser.score >= 70
+                      ? 'Strong profile! A few targeted fixes can make it exceptional.'
+                      : teaser.score >= 50
+                        ? 'Decent foundation. Full rewrite can improve this significantly.'
+                        : 'Your profile needs work. Full analysis typically reveals 30-40 points of improvement.')}
               </p>
             </div>
 

@@ -260,7 +260,7 @@ export default function InterviewPrepPage() {
             <div style={{ fontSize: 16, fontWeight: 700, color: '#004182' }}>Interview Prep</div>
             {prep.target_role && (
               <div style={{ fontSize: 12, color: '#666' }}>
-                {prep.target_role}{prep.target_company ? ` at ${prep.target_company}` : ''}
+                {prep.target_role}{prep.target_company && !prep.target_company.toLowerCase().includes('must be at least') ? ` at ${prep.target_company}` : ''}
                 {prep.career_stage && <span style={{ marginLeft: 8, background: '#F0F7FF', color: '#0A66C2', padding: '1px 8px', borderRadius: 10, fontSize: 11 }}>{prep.career_stage}</span>}
               </div>
             )}

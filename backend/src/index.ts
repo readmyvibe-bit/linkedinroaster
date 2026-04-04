@@ -934,7 +934,17 @@ app.get('/api/orders/:id', rateLimiter('poll', 60, 60), async (req: Request, res
       },
       referral_code: refCode,
       referral_url: `https://profileroaster.in/?ref=${refCode}`,
-      parsed_profile: o.parsed_profile ? { name: o.parsed_profile.full_name || o.parsed_profile.name || o.parsed_profile.headline?.split('|')[0]?.trim(), location: o.parsed_profile.location } : undefined,
+      parsed_profile: o.parsed_profile ? {
+        name: o.parsed_profile.full_name || o.parsed_profile.name || o.parsed_profile.headline?.split('|')[0]?.trim(),
+        location: o.parsed_profile.location,
+        headline: o.parsed_profile.headline,
+        experience: o.parsed_profile.experience,
+        education: o.parsed_profile.education,
+        skills: o.parsed_profile.skills,
+        certifications: o.parsed_profile.certifications,
+        about: o.parsed_profile.about,
+      } : undefined,
+      email: o.email,
     });
   } catch (err) {
     console.error('GET /api/orders/:id error:', err);
