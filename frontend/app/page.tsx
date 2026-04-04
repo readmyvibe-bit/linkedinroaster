@@ -419,6 +419,12 @@ export default function Home() {
   const [rateLimited, setRateLimited] = useState(false);
   const [showPdfGuide, setShowPdfGuide] = useState(false);
 
+  // Multi-section paste state
+  const [pasteAbout, setPasteAbout] = useState('');
+  const [pasteExperience, setPasteExperience] = useState('');
+  const [pasteEducation, setPasteEducation] = useState('');
+  const [pasteSkills, setPasteSkills] = useState('');
+
   // PDF upload state
   const [pdfUploading, setPdfUploading] = useState(false);
   const [pdfParsed, setPdfParsed] = useState<any>(null);
@@ -517,6 +523,15 @@ export default function Home() {
       alert('Please paste your actual LinkedIn headline.');
       return;
     }
+    // Combine all paste sections into raw_paste for the order flow
+    const sections = [
+      `Headline: ${trimmed}`,
+      pasteAbout.trim() && `About:\n${pasteAbout.trim()}`,
+      pasteExperience.trim() && `Experience:\n${pasteExperience.trim()}`,
+      pasteEducation.trim() && `Education:\n${pasteEducation.trim()}`,
+      pasteSkills.trim() && `Skills: ${pasteSkills.trim()}`,
+    ].filter(Boolean).join('\n\n');
+    setPdfRawPaste(sections);
     await runTeaser(trimmed);
   }
 
@@ -889,18 +904,74 @@ export default function Home() {
                   <>
                     {!showPasteInput ? (
                       <div onClick={() => setShowPasteInput(true)} style={{ fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center', marginBottom: 10, cursor: 'pointer' }}>
-                        Don{"'"}t have your PDF? <u>Paste your headline instead</u>
+                        Don{"'"}t have your PDF? <u>Paste your profile sections instead</u>
                       </div>
                     ) : (
-                      <div style={{ marginBottom: 10 }}>
-                        <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 600, marginBottom: 6 }}>Paste your LinkedIn headline:</div>
-                        <textarea ref={textareaRef} value={headline} onChange={e => setHeadline(e.target.value)}
-                          placeholder="e.g. Senior Manager | B2B Sales | 6+ Years" rows={2} maxLength={500}
-                          style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box', lineHeight: 1.5 }}
-                        />
-                        {headline.length > 0 && headline.trim().length < 10 && (
-                          <p style={{ fontSize: 11, color: '#CC1016', marginTop: 4 }}>Please paste your complete headline.</p>
-                        )}
+                      <div style={{ marginBottom: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <div style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 700, marginBottom: 2 }}>
+                          &#128241; On mobile? Paste your profile sections below
+                        </div>
+                        <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4, lineHeight: 1.5 }}>
+                          Open LinkedIn app &rarr; Go to your profile &rarr; Long-press each section to copy &rarr; Paste here
+                        </div>
+
+                        {/* Headline (required) */}
+                        <div>
+                          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Headline <span style={{ color: '#DC2626' }}>*</span></label>
+                          <textarea ref={textareaRef} value={headline} onChange={e => setHeadline(e.target.value)}
+                            placeholder="e.g. Senior Manager | B2B Sales | 6+ Years" rows={2} maxLength={500}
+                            style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box', lineHeight: 1.5 }}
+                          />
+                          {headline.length > 0 && headline.trim().length < 10 && (
+                            <p style={{ fontSize: 11, color: '#CC1016', marginTop: 2 }}>Please paste your complete headline.</p>
+                          )}
+                        </div>
+
+                        {/* About (optional) */}
+                        <div>
+                          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>About <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 400 }}>optional</span></label>
+                          <textarea value={pasteAbout} onChange={e => setPasteAbout(e.target.value)}
+                            placeholder="Paste your LinkedIn About section here..." rows={3}
+                            style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, outline: 'none', resize: 'vertical', boxSizing: 'border-box', lineHeight: 1.5 }}
+                          />
+                        </div>
+
+                        {/* Experience (optional) */}
+                        <div>
+                          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Experience <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 400 }}>optional</span></label>
+                          <textarea value={pasteExperience} onChange={e => setPasteExperience(e.target.value)}
+                            placeholder="Paste all your experience entries..." rows={3}
+                            style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, outline: 'none', resize: 'vertical', boxSizing: 'border-box', lineHeight: 1.5 }}
+                          />
+                        </div>
+
+                        {/* Education (optional) */}
+                        <div>
+                          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Education <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 400 }}>optional</span></label>
+                          <textarea value={pasteEducation} onChange={e => setPasteEducation(e.target.value)}
+                            placeholder="Paste your education details..." rows={2}
+                            style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, outline: 'none', resize: 'vertical', boxSizing: 'border-box', lineHeight: 1.5 }}
+                          />
+                        </div>
+
+                        {/* Skills (optional) */}
+                        <div>
+                          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Skills <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 400 }}>optional</span></label>
+                          <textarea value={pasteSkills} onChange={e => setPasteSkills(e.target.value)}
+                            placeholder="e.g. Python, React, Project Management, AWS..." rows={2}
+                            style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, outline: 'none', resize: 'vertical', boxSizing: 'border-box', lineHeight: 1.5 }}
+                          />
+                        </div>
+
+                        {/* Section count indicator */}
+                        {(() => {
+                          const filled = [headline.trim(), pasteAbout.trim(), pasteExperience.trim(), pasteEducation.trim(), pasteSkills.trim()].filter(s => s.length > 0).length;
+                          return filled > 0 ? (
+                            <div style={{ fontSize: 11, color: filled >= 3 ? 'var(--success)' : 'var(--text-secondary)', textAlign: 'center' }}>
+                              {filled}/5 sections filled {filled < 3 ? '— paste more for a deeper analysis' : '— great, enough for a full rewrite!'}
+                            </div>
+                          ) : null;
+                        })()}
                       </div>
                     )}
 
@@ -914,10 +985,11 @@ export default function Home() {
                       </button>
                       {showPdfGuide && (
                         <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', padding: '4px 0' }}>&#128187; On Desktop / Laptop:</div>
                           {[
                             { step: '1', title: 'Go to your LinkedIn profile', desc: 'Open LinkedIn \u2192 Click your photo \u2192 "View Profile"' },
                             { step: '2', title: 'Click "More" \u2192 "Save to PDF"', desc: 'Below your headline, click the "More..." button, then "Save to PDF"' },
-                            { step: '3', title: 'Upload the downloaded PDF', desc: 'Drop it into the upload box above. Done!' },
+                            { step: '3', title: 'Upload the downloaded PDF here', desc: 'Drop it into the upload box above. Done!' },
                           ].map((s) => (
                             <div key={s.step} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', background: 'var(--bg-subtle)', borderRadius: 'var(--radius-sm)', padding: '10px 12px' }}>
                               <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'var(--accent)', color: 'white', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{s.step}</div>
@@ -927,6 +999,23 @@ export default function Home() {
                               </div>
                             </div>
                           ))}
+                          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', padding: '8px 0 4px' }}>&#128241; On Mobile (no PDF option in app):</div>
+                          {[
+                            { step: '1', title: 'Open browser, not the app', desc: 'Open Chrome or Safari \u2192 go to linkedin.com \u2192 log in' },
+                            { step: '2', title: 'Request Desktop Site', desc: 'Chrome: tap \u22ee \u2192 "Desktop site" &bull; Safari: tap aA \u2192 "Request Desktop Website"' },
+                            { step: '3', title: 'Save to PDF', desc: 'Go to your profile \u2192 "More" \u2192 "Save to PDF" \u2192 upload here' },
+                          ].map((s) => (
+                            <div key={`m${s.step}`} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', background: '#FEF3C7', borderRadius: 'var(--radius-sm)', padding: '10px 12px' }}>
+                              <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#D97706', color: 'white', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{s.step}</div>
+                              <div>
+                                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{s.title}</div>
+                                <div style={{ fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{s.desc}</div>
+                              </div>
+                            </div>
+                          ))}
+                          <div style={{ fontSize: 11, color: 'var(--accent)', fontWeight: 600, textAlign: 'center', padding: '4px 0' }}>
+                            &#128161; Easier option: Just paste your profile sections above!
+                          </div>
                         </div>
                       )}
                     </div>
@@ -1014,10 +1103,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Below-hero referral redeemer */}
-          <div style={{ maxWidth: 1100, margin: '16px auto 0', textAlign: 'center' }}>
-            <ReferralCodeRedeemer product="roast" />
-          </div>
         </div>
       </section>
 
