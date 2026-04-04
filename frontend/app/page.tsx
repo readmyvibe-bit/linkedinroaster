@@ -164,10 +164,10 @@ function ReferralCodeRedeemer({ product }: { product: 'roast' | 'build' }) {
               {fileUploading ? (
                 <span style={{ color: '#0A66C2', fontWeight: 600 }}>Parsing...</span>
               ) : profileData ? (
-                <span style={{ color: '#057642', fontWeight: 600 }}>&#9989; {fileName} loaded</span>
+                <span style={{ color: '#057642', fontWeight: 600 }}>{'\u2705'} {fileName} loaded</span>
               ) : (
                 <span style={{ color: '#0A66C2', fontWeight: 600 }}>
-                  {refInputMode === 'resume' ? '&#128196; Upload Resume (PDF/DOCX)' : '&#128188; Upload LinkedIn PDF'}
+                  {refInputMode === 'resume' ? '\uD83D\uDCC4 Upload Resume (PDF/DOCX)' : '\uD83D\uDCBC Upload LinkedIn PDF'}
                 </span>
               )}
             </div>
