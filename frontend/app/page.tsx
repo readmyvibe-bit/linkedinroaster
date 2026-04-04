@@ -902,78 +902,80 @@ export default function Home() {
                 {/* Paste fallback + PDF guide + CTA */}
                 {!pdfParsed && !pdfUploading && (
                   <>
-                    {!showPasteInput ? (
-                      <div onClick={() => setShowPasteInput(true)} style={{ fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center', marginBottom: 10, cursor: 'pointer' }}>
-                        Don{"'"}t have your PDF? <u>Paste your profile sections instead</u>
-                      </div>
-                    ) : (
-                      <div style={{ marginBottom: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        <div style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 700, marginBottom: 2 }}>
-                          &#128241; On mobile? Paste your profile sections below
-                        </div>
-                        <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4, lineHeight: 1.5 }}>
-                          Open LinkedIn app &rarr; Go to your profile &rarr; Long-press each section to copy &rarr; Paste here
-                        </div>
+                    {/* Collapsible "Paste your profile sections" */}
+                    <div style={{ marginBottom: 10 }}>
+                      <button
+                        onClick={() => setShowPasteInput(!showPasteInput)}
+                        style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'var(--accent)', cursor: 'pointer', padding: 0, border: 'none', background: 'none', width: '100%' }}
+                      >
+                        &#128241; Don{"'"}t have your PDF? Paste your profile sections {showPasteInput ? '\u25B2' : '\u25BC'}
+                      </button>
+                      {showPasteInput && (
+                        <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 4, lineHeight: 1.5 }}>
+                            Open LinkedIn app &rarr; Go to your profile &rarr; Long-press each section to copy &rarr; Paste here
+                          </div>
 
-                        {/* Headline (required) */}
-                        <div>
-                          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Headline <span style={{ color: '#DC2626' }}>*</span></label>
-                          <textarea ref={textareaRef} value={headline} onChange={e => setHeadline(e.target.value)}
-                            placeholder="e.g. Senior Manager | B2B Sales | 6+ Years" rows={2} maxLength={500}
-                            style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box', lineHeight: 1.5 }}
-                          />
-                          {headline.length > 0 && headline.trim().length < 10 && (
-                            <p style={{ fontSize: 11, color: '#CC1016', marginTop: 2 }}>Please paste your complete headline.</p>
-                          )}
-                        </div>
+                          {/* Headline (required) */}
+                          <div>
+                            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Headline <span style={{ color: '#DC2626' }}>*</span></label>
+                            <textarea ref={textareaRef} value={headline} onChange={e => setHeadline(e.target.value)}
+                              placeholder="e.g. Senior Manager | B2B Sales | 6+ Years" rows={2} maxLength={500}
+                              style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box', lineHeight: 1.5 }}
+                            />
+                            {headline.length > 0 && headline.trim().length < 10 && (
+                              <p style={{ fontSize: 11, color: '#CC1016', marginTop: 2 }}>Please paste your complete headline.</p>
+                            )}
+                          </div>
 
-                        {/* About (optional) */}
-                        <div>
-                          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>About <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 400 }}>optional</span></label>
-                          <textarea value={pasteAbout} onChange={e => setPasteAbout(e.target.value)}
-                            placeholder="Paste your LinkedIn About section here..." rows={3}
-                            style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, outline: 'none', resize: 'vertical', boxSizing: 'border-box', lineHeight: 1.5 }}
-                          />
-                        </div>
+                          {/* About (optional) */}
+                          <div>
+                            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>About <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 400 }}>optional</span></label>
+                            <textarea value={pasteAbout} onChange={e => setPasteAbout(e.target.value)}
+                              placeholder="Paste your LinkedIn About section here..." rows={3}
+                              style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, outline: 'none', resize: 'vertical', boxSizing: 'border-box', lineHeight: 1.5 }}
+                            />
+                          </div>
 
-                        {/* Experience (optional) */}
-                        <div>
-                          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Experience <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 400 }}>optional</span></label>
-                          <textarea value={pasteExperience} onChange={e => setPasteExperience(e.target.value)}
-                            placeholder="Paste all your experience entries..." rows={3}
-                            style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, outline: 'none', resize: 'vertical', boxSizing: 'border-box', lineHeight: 1.5 }}
-                          />
-                        </div>
+                          {/* Experience (optional) */}
+                          <div>
+                            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Experience <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 400 }}>optional</span></label>
+                            <textarea value={pasteExperience} onChange={e => setPasteExperience(e.target.value)}
+                              placeholder="Paste all your experience entries..." rows={3}
+                              style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, outline: 'none', resize: 'vertical', boxSizing: 'border-box', lineHeight: 1.5 }}
+                            />
+                          </div>
 
-                        {/* Education (optional) */}
-                        <div>
-                          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Education <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 400 }}>optional</span></label>
-                          <textarea value={pasteEducation} onChange={e => setPasteEducation(e.target.value)}
-                            placeholder="Paste your education details..." rows={2}
-                            style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, outline: 'none', resize: 'vertical', boxSizing: 'border-box', lineHeight: 1.5 }}
-                          />
-                        </div>
+                          {/* Education (optional) */}
+                          <div>
+                            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Education <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 400 }}>optional</span></label>
+                            <textarea value={pasteEducation} onChange={e => setPasteEducation(e.target.value)}
+                              placeholder="Paste your education details..." rows={2}
+                              style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, outline: 'none', resize: 'vertical', boxSizing: 'border-box', lineHeight: 1.5 }}
+                            />
+                          </div>
 
-                        {/* Skills (optional) */}
-                        <div>
-                          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Skills <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 400 }}>optional</span></label>
-                          <textarea value={pasteSkills} onChange={e => setPasteSkills(e.target.value)}
-                            placeholder="e.g. Python, React, Project Management, AWS..." rows={2}
-                            style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, outline: 'none', resize: 'vertical', boxSizing: 'border-box', lineHeight: 1.5 }}
-                          />
-                        </div>
+                          {/* Skills (optional) */}
+                          <div>
+                            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'block' }}>Skills <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 400 }}>optional</span></label>
+                            <textarea value={pasteSkills} onChange={e => setPasteSkills(e.target.value)}
+                              placeholder="e.g. Python, React, Project Management, AWS..." rows={2}
+                              style={{ width: '100%', padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', fontSize: 13, outline: 'none', resize: 'vertical', boxSizing: 'border-box', lineHeight: 1.5 }}
+                            />
+                          </div>
 
-                        {/* Section count indicator */}
-                        {(() => {
-                          const filled = [headline.trim(), pasteAbout.trim(), pasteExperience.trim(), pasteEducation.trim(), pasteSkills.trim()].filter(s => s.length > 0).length;
-                          return filled > 0 ? (
-                            <div style={{ fontSize: 11, color: filled >= 3 ? 'var(--success)' : 'var(--text-secondary)', textAlign: 'center' }}>
-                              {filled}/5 sections filled {filled < 3 ? '— paste more for a deeper analysis' : '— great, enough for a full rewrite!'}
-                            </div>
-                          ) : null;
-                        })()}
-                      </div>
-                    )}
+                          {/* Section count indicator */}
+                          {(() => {
+                            const filled = [headline.trim(), pasteAbout.trim(), pasteExperience.trim(), pasteEducation.trim(), pasteSkills.trim()].filter(s => s.length > 0).length;
+                            return filled > 0 ? (
+                              <div style={{ fontSize: 11, color: filled >= 3 ? 'var(--success)' : 'var(--text-secondary)', textAlign: 'center' }}>
+                                {filled}/5 sections filled {filled < 3 ? '— paste more for a deeper analysis' : '— great, enough for a full rewrite!'}
+                              </div>
+                            ) : null;
+                          })()}
+                        </div>
+                      )}
+                    </div>
 
                     {/* Collapsible "How to download LinkedIn PDF" */}
                     <div style={{ marginBottom: 10 }}>
@@ -1022,13 +1024,13 @@ export default function Home() {
 
                     {/* CTA */}
                     <button
-                      onClick={() => { if (!showPasteInput) { setShowPasteInput(true); return; } handleTeaserSubmit(); }}
-                      disabled={loading || (showPasteInput && headline.trim().length < 10)}
+                      onClick={() => { if (!showPasteInput && !headline.trim()) { setShowPasteInput(true); return; } handleTeaserSubmit(); }}
+                      disabled={loading || headline.trim().length < 10}
                       className="saas-btn saas-btn-primary"
                       style={{
                         width: '100%', padding: '14px 24px', borderRadius: 'var(--radius-pill)', border: 'none',
                         fontSize: 15, fontWeight: 700, cursor: 'pointer',
-                        opacity: loading || (showPasteInput && headline.trim().length < 10) ? 0.5 : 1,
+                        opacity: loading || headline.trim().length < 10 ? 0.5 : 1,
                         boxShadow: 'var(--shadow-md)',
                       }}
                     >
