@@ -860,9 +860,9 @@ router.post('/referral-codes/generate', async (req: Request, res: Response) => {
   try {
     const { product, plan, notes } = req.body;
     if (!product || !plan) return res.status(400).json({ error: 'product and plan required' });
-    if (!['roast', 'build'].includes(product)) return res.status(400).json({ error: 'product must be roast or build' });
+    if (!['roast', 'build', 'rewrite'].includes(product)) return res.status(400).json({ error: 'product must be roast, rewrite, or build' });
 
-    const productPrefix = product === 'roast' ? 'ROAST' : 'BUILD';
+    const productPrefix = product === 'build' ? 'BUILD' : 'PR';
     const planPrefix = plan.slice(0, 3).toUpperCase();
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let random = '';

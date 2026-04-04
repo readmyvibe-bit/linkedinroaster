@@ -2593,19 +2593,23 @@ function printPageWrapper(body: string, pageCount?: number): string {
 *{margin:0;padding:0;box-sizing:border-box}
 html{width:210mm}
 body{width:100%;margin:0;padding:0;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important;font-size:11px}
-.print-content-root{width:100%;max-width:210mm}
+.print-content-root{width:100%;max-width:210mm;min-height:calc(297mm - 24mm);box-sizing:border-box}
+.print-content-root>div{min-height:calc(297mm - 24mm);box-sizing:border-box}
+.resume-body{min-height:calc(297mm - 24mm);box-sizing:border-box}
 .resume-wrapper{width:100%;position:relative}
 .two-col{display:flex;width:100%;min-height:calc(297mm - 24mm)}
-.two-col-left{flex-shrink:0}
-.two-col-right{flex:1}
+.two-col-left{flex-shrink:0;min-height:calc(297mm - 24mm)}
+.two-col-right{flex:1;min-height:calc(297mm - 24mm)}
 @media print{
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   html,body{width:210mm!important;overflow:visible!important}
-  .print-content-root{width:100%!important;transform:none!important}
+  .print-content-root{width:100%!important;transform:none!important;min-height:calc(297mm - 24mm)!important}
+  .print-content-root>div{min-height:calc(297mm - 24mm)!important;box-sizing:border-box!important}
+  .resume-body{min-height:calc(297mm - 24mm)!important}
   .entry{page-break-inside:avoid;break-inside:avoid}
   .section-block{page-break-inside:avoid;break-inside:avoid}
-  .two-col{min-height:auto!important}
-  [style*="min-height"]{min-height:auto!important}
+  .two-col{min-height:calc(297mm - 24mm)!important}
+  .two-col-left,.two-col-right{min-height:calc(297mm - 24mm)!important}
 }
 </style></head><body><div class="print-content-root">${body}</div></body></html>`;
 }

@@ -914,7 +914,7 @@ app.get('/api/orders/:id', rateLimiter('poll', 60, 60), async (req: Request, res
       });
     }
 
-    const refCode = 'ROAST' + o.id.replace(/-/g, '').slice(0, 6).toUpperCase();
+    const refCode = 'PR' + o.id.replace(/-/g, '').slice(0, 8).toUpperCase();
     await query(
       `INSERT INTO referrals (referrer_email, referral_code)
        VALUES ($1, $2) ON CONFLICT (referral_code) DO NOTHING`,

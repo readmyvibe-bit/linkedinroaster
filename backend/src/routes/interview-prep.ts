@@ -1,13 +1,16 @@
 import { Router, Request, Response } from 'express';
 import { query } from '../db';
 import { generateInterviewPrep } from '../services/interview-prep';
+import { generateInterviewPrepV2 } from '../services/interview-prep-v2';
 
 const router = Router();
+
+const PIPELINE_VERSION = process.env.INTERVIEW_PREP_PIPELINE || 'v2';
 
 // POST /api/interview-prep — create or return existing prep
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { resume_id } = req.body;
+    const { resume_id, interview_level } = req.body;
     if (!resume_id) return res.status(400).json({ error: 'Missing resume_id' });
 
     // Validate resume exists
@@ -30,15 +33,21 @@ router.post('/', async (req: Request, res: Response) => {
 
     // Create new prep row
     const result = await query(
-      `INSERT INTO interview_preps (resume_id, status) VALUES ($1, 'queued') RETURNING id`,
-      [resume_id],
+      `INSERT INTO interview_preps (resume_id, status, pipeline_version) VALUES ($1, 'queued', $2) RETURNING id`,
+      [resume_id, PIPELINE_VERSION],
     );
     const prepId = result.rows[0].id;
 
-    // Fire and forget — run generation in background
-    generateInterviewPrep(prepId, resume_id).catch((err) => {
-      console.error(`[interview-prep] Background generation failed for ${prepId}:`, err.message);
-    });
+    // Fire and forget — run generation in background (v2 or v1)
+    if (PIPELINE_VERSION === 'v2') {
+      generateInterviewPrepV2(prepId, resume_id, interview_level).catch((err) => {
+        console.error(`[interview-prep-v2] Background generation failed for ${prepId}:`, err.message);
+      });
+    } else {
+      generateInterviewPrep(prepId, resume_id).catch((err) => {
+        console.error(`[interview-prep] Background generation failed for ${prepId}:`, err.message);
+      });
+    }
 
     res.json({ id: prepId, status: 'queued' });
   } catch (err: any) {
@@ -51,7 +60,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const result = await query(
-      `SELECT id, resume_id, status, prep_data, career_stage, target_role, target_company, error_message, created_at, completed_at
+      `SELECT id, resume_id, status, prep_data, career_stage, interview_level, pipeline_version, generation_meta, target_role, target_company, error_message, created_at, completed_at
        FROM interview_preps WHERE id=$1`,
       [req.params.id],
     );

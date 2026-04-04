@@ -57,8 +57,8 @@ export default function ResumePreviewPage() {
     const density = getContentDensity(resume.resume_data);
     const adaptive = getAdaptiveSpacingCSS(density, printSize);
     if (adaptive) html = html.replace('</style>', adaptive + '</style>');
-    if (printSize === 'compact') html = html.replace('</style>', 'body{font-size:92%!important;line-height:1.35!important}body div,body p{margin-bottom:2px!important}</style>');
-    else if (printSize === 'spacious') html = html.replace('</style>', 'body{font-size:108%!important;line-height:1.65!important}body div,body section{margin-bottom:4px!important}</style>');
+    if (printSize === 'compact') html = html.replace('</style>', 'body{font-size:10px!important;line-height:1.3!important}.print-content-root>div{padding:28px!important}.print-content-root div[style*="margin-bottom"]{margin-bottom:4px!important}</style>');
+    else if (printSize === 'spacious') html = html.replace('</style>', 'body{font-size:12px!important;line-height:1.8!important}.print-content-root>div{padding:48px!important}.print-content-root div[style*="margin-bottom:14px"]{margin-bottom:24px!important}.print-content-root div[style*="margin-bottom:24px"]{margin-bottom:32px!important}.print-content-root div[style*="margin-bottom:10px"]{margin-bottom:18px!important}.print-content-root div[style*="margin-bottom:6px"]{margin-bottom:12px!important}</style>');
     if (fitOnePage) {
       html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 10mm 8mm 10mm}');
       html = html.replace('</style>', 'body{font-size:90%!important;line-height:1.3!important}body div,body p{margin-bottom:1px!important}</style>');

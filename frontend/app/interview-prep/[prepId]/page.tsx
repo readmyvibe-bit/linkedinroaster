@@ -67,6 +67,16 @@ interface PrepResponse {
   status: string;
   prep_data: PrepData | null;
   career_stage: string;
+  interview_level?: string;
+  pipeline_version?: string;
+  generation_meta?: {
+    degraded?: boolean;
+    degraded_reason?: string;
+    question_count?: number;
+    mcq_count?: number;
+    duration_ms?: number;
+    interview_level?: string;
+  };
   target_role: string;
   target_company: string;
   resume_id: string;
@@ -77,9 +87,13 @@ interface PrepResponse {
 
 // ─── Loading stages ───
 const LOADING_STAGES = [
-  'Analyzing job description...',
-  'Generating questions...',
-  'Building cheat sheet...',
+  'Planning question strategy...',
+  'Analyzing role requirements...',
+  'Generating skeleton questions...',
+  'Building STAR answers...',
+  'Creating cheat sheet...',
+  'Generating quiz questions...',
+  'Final quality check...',
 ];
 
 // ─── Category colors ───
@@ -261,7 +275,14 @@ export default function InterviewPrepPage() {
             {prep.target_role && (
               <div style={{ fontSize: 12, color: '#666' }}>
                 {prep.target_role}{prep.target_company && !prep.target_company.toLowerCase().includes('must be at least') ? ` at ${prep.target_company}` : ''}
-                {prep.career_stage && <span style={{ marginLeft: 8, background: '#F0F7FF', color: '#0A66C2', padding: '1px 8px', borderRadius: 10, fontSize: 11 }}>{prep.career_stage}</span>}
+                {(prep.interview_level || prep.career_stage) && (
+                  <span style={{ marginLeft: 8, background: '#F0F7FF', color: '#0A66C2', padding: '1px 8px', borderRadius: 10, fontSize: 11, fontWeight: 600 }}>
+                    {(prep.interview_level || prep.career_stage || '').charAt(0).toUpperCase() + (prep.interview_level || prep.career_stage || '').slice(1)} Level
+                  </span>
+                )}
+                {prep.pipeline_version === 'v2' && (
+                  <span style={{ marginLeft: 4, background: '#ECFDF5', color: '#059669', padding: '1px 6px', borderRadius: 10, fontSize: 10, fontWeight: 600 }}>v2</span>
+                )}
               </div>
             )}
           </div>
@@ -277,6 +298,36 @@ export default function InterviewPrepPage() {
           </div>
         </div>
       </div>
+
+      {/* ─── DEGRADED BANNER ─── */}
+      {prep.generation_meta?.degraded && (
+        <div style={{ background: '#FEF3C7', borderBottom: '1px solid #FDE68A', padding: '10px 16px' }}>
+          <div style={{ maxWidth: 900, margin: '0 auto', fontSize: 13, color: '#92400E', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 16 }}>&#9888;&#65039;</span>
+            <span>Some sections may be incomplete. {prep.generation_meta.degraded_reason || 'AI generation was partially successful.'}</span>
+          </div>
+        </div>
+      )}
+
+      {/* ─── FAILED — RETRY ─── */}
+      {prep.status === 'failed' && (
+        <div style={{ background: '#FEF2F2', borderBottom: '1px solid #FECACA', padding: '16px' }}>
+          <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
+            <div style={{ fontSize: 14, color: '#DC2626', fontWeight: 600, marginBottom: 8 }}>Generation failed: {prep.error_message || 'Unknown error'}</div>
+            <button
+              onClick={async () => {
+                try {
+                  const r = await fetch(`${API_URL}/api/interview-prep`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ resume_id: prep.resume_id }) });
+                  const d = await r.json();
+                  if (d.id && d.id !== prep.id) window.location.href = `/interview-prep/${d.id}`;
+                  else window.location.reload();
+                } catch { alert('Retry failed.'); }
+              }}
+              style={{ padding: '8px 20px', background: '#DC2626', color: 'white', border: 'none', borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+            >Retry Generation</button>
+          </div>
+        </div>
+      )}
 
       {/* ─── TABS ─── */}
       <div style={{ background: '#fff', borderBottom: '1px solid #E0E0E0', padding: '0 16px' }}>
