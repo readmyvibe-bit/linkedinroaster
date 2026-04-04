@@ -4,15 +4,23 @@ import { query } from '../db';
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!);
 
-// ─── Schema migration (additive, safe to re-run) ───
-const v2MigrationPromise = query(`
-  ALTER TABLE interview_preps ADD COLUMN IF NOT EXISTS interview_level TEXT DEFAULT 'mid';
-  ALTER TABLE interview_preps ADD COLUMN IF NOT EXISTS pipeline_version TEXT DEFAULT 'v1';
-  ALTER TABLE interview_preps ADD COLUMN IF NOT EXISTS generation_meta JSONB;
-`).then(() => console.log('[interview-prep-v2] Schema updated'))
-  .catch((err: any) => {
-    if (!err.message?.includes('already exists')) console.error('[interview-prep-v2] Migration:', err.message);
-  });
+// ─── Schema migration (lazy — only runs on first generateInterviewPrepV2 call) ───
+let v2MigrationDone = false;
+async function ensureV2Schema() {
+  if (v2MigrationDone) return;
+  try {
+    await query(`
+      ALTER TABLE interview_preps ADD COLUMN IF NOT EXISTS interview_level TEXT DEFAULT 'mid';
+      ALTER TABLE interview_preps ADD COLUMN IF NOT EXISTS pipeline_version TEXT DEFAULT 'v1';
+      ALTER TABLE interview_preps ADD COLUMN IF NOT EXISTS generation_meta JSONB;
+    `);
+    v2MigrationDone = true;
+    console.log('[interview-prep-v2] Schema updated');
+  } catch (err: any) {
+    if (err.message?.includes('already exists')) v2MigrationDone = true;
+    else console.error('[interview-prep-v2] Migration:', err.message);
+  }
+}
 
 // ─── Helpers ───
 
@@ -447,7 +455,7 @@ function validatePrepData(data: any): ValidationResult {
 // ─── C4 Main: Phased Pipeline ───
 
 export async function generateInterviewPrepV2(prepId: string, resumeId: string, userLevelOverride?: string): Promise<void> {
-  await v2MigrationPromise;
+  await ensureV2Schema();
   const startTime = Date.now();
 
   try {
