@@ -1252,10 +1252,18 @@ export default function Home() {
                     </>
                   )}
 
-                  {/* Trust line */}
-                  <div style={{ fontSize: 11, color: 'var(--text-secondary)', textAlign: 'center', marginTop: 10 }}>
-                    &#9889; Free &bull; No signup &bull; Results in seconds
-                  </div>
+                  {/* Trust line — hide when rate limited */}
+                  {!rateLimited && (
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', marginTop: 12 }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 12 }}>
+                        <span>Free score</span>
+                        <span style={{ color: 'var(--border-strong)' }}>·</span>
+                        <span>No signup</span>
+                        <span style={{ color: 'var(--border-strong)' }}>·</span>
+                        <span>Results in seconds</span>
+                      </span>
+                    </div>
+                  )}
 
                   {/* Referral code link */}
                   <div style={{ textAlign: 'center', marginTop: 8 }}>
