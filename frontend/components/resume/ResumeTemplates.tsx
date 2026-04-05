@@ -87,36 +87,18 @@ interface TemplateDefinition {
 // ─── Template Definitions ────────────────────────────────────────────────────
 
 export const TEMPLATES: (TemplateDefinition & { proOnly?: boolean })[] = [
-  // Standard-accessible (18) + Pro-only (10) = 28 total
+  // 11 templates — all single-column, ATS-optimized
   { id: 'classic', name: 'Classic Professional', description: 'Traditional clean layout. Maximum ATS compatibility.', category: 'ATS-Friendly', atsLevel: 'high', bestFor: ['any', 'general', 'corporate'] },
   { id: 'modern', name: 'Modern Accent', description: 'Blue accent styling with skill tags. ATS safe.', category: 'ATS-Friendly', atsLevel: 'high', bestFor: ['tech', 'analyst', 'engineer'] },
   { id: 'minimal', name: 'Minimalist', description: 'Ultra clean with maximum whitespace.', category: 'ATS-Friendly', atsLevel: 'high', bestFor: ['consulting', 'finance', 'any'] },
-  { id: 'compact', name: 'Compact Dense', description: 'Maximum content in minimum space. Perfect for 1-page.', category: 'ATS-Friendly', atsLevel: 'high', bestFor: ['experienced', 'senior', 'any'] },
+  { id: 'compact', name: 'Compact Dense', description: 'Maximum content in minimum space.', category: 'ATS-Friendly', atsLevel: 'high', bestFor: ['experienced', 'senior', 'any'] },
   { id: 'technical', name: 'Technical Developer', description: 'Code-inspired design for engineering roles.', category: 'ATS-Friendly', atsLevel: 'high', bestFor: ['engineer', 'developer', 'tech', 'devops'] },
-  { id: 'bold', name: 'Bold Statement', description: 'High impact with strong visual hierarchy.', category: 'Professional', atsLevel: 'medium', bestFor: ['sales', 'marketing', 'leadership'] },
-  { id: 'elegant', name: 'Elegant Refined', description: 'Sophisticated design for consulting and finance.', category: 'Professional', atsLevel: 'medium', bestFor: ['consulting', 'finance', 'management'] },
-  { id: 'executive', name: 'Executive Premium', description: 'Refined formal layout for senior professionals.', category: 'Professional', atsLevel: 'medium', bestFor: ['executive', 'director', 'vp', 'cto'] },
-  { id: 'monochrome', name: 'Monochrome Prestige', description: 'Pure black and white luxury typography.', category: 'Premium', atsLevel: 'high', bestFor: ['corporate', 'finance', 'law'] },
-  { id: 'serif', name: 'Professional Serif', description: 'Classic serif typography for consulting and finance.', category: 'Premium', atsLevel: 'high', bestFor: ['consulting', 'finance', 'academia'] },
-  { id: 'headline', name: 'Headline Impact', description: 'Large summary section. Perfect for sales and CS roles.', category: 'Premium', atsLevel: 'medium', bestFor: ['sales', 'customer success', 'account manager'] },
-  { id: 'divider', name: 'Modern Divider', description: 'Elegant dividers between sections. Minimalist rhythm.', category: 'Premium', atsLevel: 'medium', bestFor: ['product', 'design', 'marketing'] },
-  // Pro-only (10)
-  { id: 'crimson', name: 'Crimson Authority', description: 'Deep red accents. Commanding leadership presence.', category: 'Premium', proOnly: true, atsLevel: 'medium', bestFor: ['leadership', 'executive', 'director'] },
-  { id: 'ocean', name: 'Ocean Professional', description: 'Teal accents. Calm and trustworthy.', category: 'Premium', proOnly: true, atsLevel: 'medium', bestFor: ['hr', 'healthcare', 'education'] },
-  { id: 'slategold', name: 'Slate & Gold', description: 'Dark slate with gold accents. Luxury corporate.', category: 'Premium', proOnly: true, atsLevel: 'medium', bestFor: ['finance', 'consulting', 'corporate'] },
-  { id: 'indigo', name: 'Indigo Modern', description: 'Purple accents for tech and startup roles.', category: 'Premium', proOnly: true, atsLevel: 'medium', bestFor: ['startup', 'tech', 'product'] },
-  { id: 'sidebar', name: 'Modern Sidebar', description: 'Dark sidebar with clean main content area.', category: 'Visual', proOnly: true, atsLevel: 'low', bestFor: ['creative', 'design', 'marketing'] },
-  { id: 'splitmodern', name: 'Split Modern', description: 'Light sidebar with skills and education.', category: 'Visual', proOnly: true, atsLevel: 'low', bestFor: ['analyst', 'researcher', 'tech'] },
-  { id: 'highlight', name: 'Highlight Sections', description: 'Full-width header with highlighted side panel.', category: 'Visual', proOnly: true, atsLevel: 'low', bestFor: ['product', 'operations', 'manager'] },
-  { id: 'corporate', name: 'Corporate Formal', description: 'Navy header with structured sidebar layout.', category: 'Visual', proOnly: true, atsLevel: 'low', bestFor: ['corporate', 'admin', 'operations'] },
-  { id: 'campus', name: 'Campus Placement', description: 'Indian campus placement format. Photo, personal details, education-first.', category: 'India', atsLevel: 'medium', bestFor: ['fresher', 'student', 'campus'] },
-  { id: 'fresher', name: 'Fresher & Intern', description: 'Projects-first layout for students and freshers with little work experience.', category: 'India', atsLevel: 'high', bestFor: ['fresher', 'intern', 'student'] },
-  { id: 'salesbd', name: 'Sales & BD', description: 'Metrics-forward layout for sales, BDR, and business development roles.', category: 'India', atsLevel: 'high', bestFor: ['sales', 'business development', 'account manager', 'customer success'] },
-  { id: 'operator', name: 'Operator Grid', description: 'Slate header, cyan accents, gridded skills. For PMs, founders, and operators.', category: 'Visual', proOnly: true, atsLevel: 'low', bestFor: ['product manager', 'founder', 'operations'] },
-  { id: 'editorial', name: 'Editorial Canvas', description: 'Warm paper, terracotta accents. For marketing, content, and creative roles.', category: 'Visual', proOnly: true, atsLevel: 'low', bestFor: ['content', 'marketing', 'writer', 'creative'] },
-  { id: 'skylight', name: 'Skylight Cabin', description: 'Elegant layout for cabin crew and inflight roles. Photo, languages, certifications first.', category: 'India', atsLevel: 'medium', bestFor: ['cabin crew', 'aviation', 'hospitality'] },
-  { id: 'ramp', name: 'Ramp & Terminal', description: 'Structured operations layout for airport ground staff, gate agents, and cargo roles.', category: 'India', atsLevel: 'medium', bestFor: ['airport', 'ground staff', 'logistics'] },
-  { id: 'clinical', name: 'Clinical Care', description: 'Trust-forward layout for nurses, technicians, and allied health. Certifications highlighted.', category: 'India', atsLevel: 'medium', bestFor: ['nurse', 'medical', 'healthcare', 'clinical'] },
+  { id: 'bold', name: 'Bold Statement', description: 'High impact with strong visual hierarchy.', category: 'Professional', atsLevel: 'high', bestFor: ['sales', 'marketing', 'leadership'] },
+  { id: 'monochrome', name: 'Monochrome Prestige', description: 'Pure black and white luxury typography.', category: 'Professional', atsLevel: 'high', bestFor: ['corporate', 'finance', 'law'] },
+  { id: 'headline', name: 'Headline Impact', description: 'Large summary section. Perfect for sales and CS roles.', category: 'Professional', atsLevel: 'high', bestFor: ['sales', 'customer success', 'account manager'] },
+  { id: 'campus', name: 'Campus Placement', description: 'Indian campus format. Photo, personal details, education-first.', category: 'India', atsLevel: 'high', bestFor: ['fresher', 'student', 'campus'] },
+  { id: 'salesbd', name: 'Sales & BD', description: 'Metrics-forward layout for sales and business development.', category: 'India', atsLevel: 'high', bestFor: ['sales', 'business development', 'account manager', 'customer success'] },
+  { id: 'skylight', name: 'Aviation & Hospitality', description: 'Photo layout for cabin crew, aviation, and hospitality roles.', category: 'India', atsLevel: 'high', bestFor: ['cabin crew', 'aviation', 'hospitality'] },
 ];
 
 // ─── Template Recommendation ─────────────────────────────────────────────────
@@ -3505,47 +3487,45 @@ export function buildPrintHTML(data: ResumeData, templateId: string, opts?: { fi
     default: html = printClassic(data); break;
   }
 
-  // Inject layout CSS based on options
-  const density = opts?.density || getContentDensity(data);
-  const printSize = opts?.printSize || data.printSize;
-  const fitOnePage = opts?.fitOnePage ?? data.fitOnePage;
+  // ═══ SMART AUTO-PAGE SYSTEM ═══
+  // Goal: fit to 1 page naturally. If content overflows by a small amount,
+  // compress slightly. If real overflow, allow 2nd page gracefully.
+  //
+  // A4 printable height ≈ 273mm (297mm - 24mm margins) ≈ 1032px at 96dpi
+  // We use CSS-only compression ladder — no JS measurement needed because
+  // the browser's print engine handles pagination. We just control spacing.
 
+  const density = opts?.density || getContentDensity(data);
   let layoutCSS = '';
 
-  // Density-based spacing adjustments
-  const adaptiveCSS = getAdaptiveSpacingCSS(density, printSize);
-  if (adaptiveCSS) layoutCSS += adaptiveCSS;
+  // Always remove forced min-height — let content determine height
+  layoutCSS += `
+    .print-content-root, .print-content-root > div, .resume-body,
+    .two-col, .two-col-left, .two-col-right {
+      min-height: auto !important;
+    }
+    .entry { page-break-inside: avoid; break-inside: avoid; }
+    .section-block { page-break-inside: avoid; break-inside: avoid; }
+  `;
 
-  // Print size overrides
-  if (printSize === 'compact') {
+  // Density-based compression: sparse gets more air, dense gets tighter
+  if (density === 'sparse') {
+    // Sparse: expand spacing to fill page naturally
     layoutCSS += `
-      body { font-size: 10px !important; line-height: 1.35 !important; }
-      .resume-wrapper, .resume-body { padding: 24px 28px !important; }
+      body { line-height: 1.7 !important; font-size: 11.5px !important; }
+      .entry { margin-bottom: 14px !important; }
     `;
-  } else if (printSize === 'spacious') {
+  } else if (density === 'dense') {
+    // Dense: compress to fit — tighter spacing, slightly smaller text
     layoutCSS += `
-      body { font-size: 12px !important; line-height: 1.7 !important; }
-      .resume-wrapper, .resume-body { padding: 44px !important; }
-      .entry, div[style*="margin-bottom"] { margin-bottom: 16px !important; }
+      body { line-height: 1.35 !important; font-size: 10.5px !important; }
+      .entry { margin-bottom: 6px !important; }
     `;
-  }
-
-  // Fit-on-one-page: shrink to fit
-  if (fitOnePage) {
+  } else {
+    // Medium: standard — slight tightening if needed
     layoutCSS += `
-      .print-content-root, .print-content-root > div, .resume-body, .two-col, .two-col-left, .two-col-right {
-        min-height: auto !important;
-      }
-    `;
-  }
-
-  // Multi-page mode: relax min-height so content flows naturally
-  if (!fitOnePage) {
-    layoutCSS += `
-      .print-content-root, .print-content-root > div, .resume-body {
-        min-height: auto !important;
-      }
-      .entry { page-break-inside: avoid; break-inside: avoid; }
+      body { line-height: 1.45 !important; }
+      .entry { margin-bottom: 10px !important; }
     `;
   }
 

@@ -154,7 +154,7 @@ router.get('/data', dashAuth, async (req: Request, res: Response) => {
 
     // Interview preps — joined via resumes
     const interviewPreps = await query(
-      `SELECT ip.id, ip.target_role, ip.target_company, ip.status, ip.created_at
+      `SELECT ip.id, ip.target_role, ip.target_company, ip.status, ip.interview_level, ip.created_at
        FROM interview_preps ip
        JOIN resumes r ON r.id = ip.resume_id
        WHERE r.order_id IN (
@@ -162,6 +162,7 @@ router.get('/data', dashAuth, async (req: Request, res: Response) => {
          UNION
          SELECT id FROM build_orders WHERE email=$1
        )
+       AND ip.status != 'failed'
        ORDER BY ip.created_at DESC`,
       [email],
     );
@@ -228,7 +229,7 @@ router.get('/data', dashAuth, async (req: Request, res: Response) => {
       })),
       interviewPreps: interviewPreps.rows.map((ip: any) => ({
         id: ip.id, targetRole: ip.target_role, targetCompany: ip.target_company,
-        status: ip.status, createdAt: ip.created_at,
+        status: ip.status, interviewLevel: ip.interview_level, createdAt: ip.created_at,
       })),
     });
   } catch (err: any) {

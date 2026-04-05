@@ -389,7 +389,12 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
                   ))}
                   {section === 'preps' && preps.map((p: any) => (
                     <a key={p.id} href={`/interview-prep/${p.id}`} target="_blank" rel="noreferrer" className="saas-card" style={{ padding: '18px 20px', textDecoration: 'none', display: 'block' }}>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>{p.targetRole || 'Interview Prep'}</div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{p.targetRole || 'Interview Prep'}</div>
+                        {p.interviewLevel && (
+                          <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 10, background: 'var(--accent-subtle)', color: 'var(--accent)', textTransform: 'uppercase' }}>{p.interviewLevel}</span>
+                        )}
+                      </div>
                       {p.targetCompany && <div style={{ fontSize: 12, color: 'var(--accent)', marginBottom: 4 }}>{p.targetCompany}</div>}
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-muted)' }}>
                         <span>{new Date(p.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>

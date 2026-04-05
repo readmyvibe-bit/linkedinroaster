@@ -59,20 +59,32 @@ router.post('/', async (req: Request, res: Response) => {
     if (!resumeResult.rows.length) return res.status(404).json({ error: 'Resume not found' });
     const resume = resumeResult.rows[0];
 
-    // Check if prep already exists and is ready/processing
+    // Check if prep already exists for this resume + level combination
     const existing = await query(
-      `SELECT id, status, prep_data, interview_level, pipeline_version, generation_meta,
-              career_stage, target_role, target_company, error_message, created_at, completed_at
+      `SELECT id, status, interview_level
        FROM interview_preps
-       WHERE resume_id=$1 ORDER BY created_at DESC LIMIT 1`,
+       WHERE resume_id=$1 ORDER BY created_at DESC`,
       [resume_id],
     );
     if (existing.rows.length) {
-      const prep = existing.rows[0];
-      if (prep.status === 'ready' || prep.status === 'processing' || prep.status === 'queued') {
-        return res.json({ id: prep.id, status: prep.status });
+      // If a prep with the SAME level (or auto-detected) is processing/queued, return it
+      const activePrep = existing.rows.find((p: any) =>
+        (p.status === 'processing' || p.status === 'queued')
+      );
+      if (activePrep) return res.json({ id: activePrep.id, status: activePrep.status });
+
+      // If requesting a specific level and a ready prep with that level exists, return it
+      if (interview_level) {
+        const matchingReady = existing.rows.find((p: any) =>
+          p.status === 'ready' && p.interview_level === interview_level
+        );
+        if (matchingReady) return res.json({ id: matchingReady.id, status: matchingReady.status });
+      } else {
+        // No level specified (auto-detect) — return any ready prep
+        const anyReady = existing.rows.find((p: any) => p.status === 'ready');
+        if (anyReady) return res.json({ id: anyReady.id, status: anyReady.status });
       }
-      // If failed, allow creating a new one (below)
+      // Otherwise allow creating a new one (different level or all failed)
     }
 
     // Quota check — count existing non-failed preps for this resume
