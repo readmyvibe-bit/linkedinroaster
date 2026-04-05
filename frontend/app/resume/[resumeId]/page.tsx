@@ -79,7 +79,19 @@ export default function ResumePreviewPage() {
 
   function handleCopyCL() { if (!resume?.cover_letter) return; navigator.clipboard.writeText(resume.cover_letter).then(() => { setCoverLetterCopied(true); setTimeout(() => setCoverLetterCopied(false), 2000); }); }
 
-  const handleInterview = async () => { try { const r = await fetch(`${API_URL}/api/interview-prep`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ resume_id: resume?.id }) }); const d = await r.json(); if (d.id) window.open(`/interview-prep/${d.id}`, '_blank'); else alert(d.error || 'Failed'); } catch { alert('Failed.'); } };
+  const [interviewLevel, setInterviewLevel] = useState('');
+  const [showLevelPicker, setShowLevelPicker] = useState(false);
+  const handleInterview = async (level?: string) => {
+    try {
+      const body: any = { resume_id: resume?.id };
+      if (level) body.interview_level = level;
+      const r = await fetch(`${API_URL}/api/interview-prep`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const d = await r.json();
+      if (d.id) window.open(`/interview-prep/${d.id}`, '_blank');
+      else alert(d.error || 'Failed');
+    } catch { alert('Failed.'); }
+    setShowLevelPicker(false);
+  };
   const handleUpgrade = async () => { try { const r = await fetch(`${API_URL}/api/orders/${resume?.order_id}/upgrade`, { method: 'POST', headers: { 'Content-Type': 'application/json' } }); const d = await r.json(); if (d.razorpay_order_id) { const z = new (window as any).Razorpay({ key: d.razorpay_key, amount: d.amount, currency: d.currency, order_id: d.razorpay_order_id, name: 'ProfileRoaster', description: 'Upgrade to Pro', theme: { color: '#0A66C2' }, handler: () => window.location.reload() }); z.open(); } else alert(d.error || 'Failed'); } catch { alert('Failed.'); } };
 
   // Loading
@@ -134,7 +146,17 @@ export default function ResumePreviewPage() {
               <button onClick={handleDownloadPDF} className="saas-btn saas-btn-primary">Download PDF</button>
               <a href={`/resume/${resume.id}/edit`} className="saas-btn saas-btn-ghost" style={{ color: 'var(--success)' }}>Edit</a>
               <a href={`${API_URL}/api/resume/${resume.id}/download/txt`} className="saas-btn saas-btn-ghost">TXT</a>
-              <button onClick={handleInterview} className="saas-btn saas-btn-ghost" style={{ color: '#7C3AED' }}>Interview Prep</button>
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <button onClick={() => setShowLevelPicker(!showLevelPicker)} className="saas-btn saas-btn-ghost" style={{ color: '#7C3AED' }}>Interview Prep &#9662;</button>
+                {showLevelPicker && (
+                  <div style={{ position: 'absolute', top: '100%', left: 0, background: '#fff', border: '1px solid #E0E0E0', borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 50, minWidth: 200, padding: '6px 0', marginTop: 4 }}>
+                    <button onClick={() => handleInterview()} style={{ display: 'block', width: '100%', padding: '8px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', fontSize: 13, color: '#333' }}>Auto-detect level</button>
+                    {[{ v: 'entry', l: 'Entry (0-2 yrs)' }, { v: 'mid', l: 'Mid (2-5 yrs)' }, { v: 'senior', l: 'Senior (5-10 yrs)' }, { v: 'lead', l: 'Lead (10+ yrs)' }].map(o => (
+                      <button key={o.v} onClick={() => handleInterview(o.v)} style={{ display: 'block', width: '100%', padding: '8px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', fontSize: 13, color: '#333' }}>{o.l}</button>
+                    ))}
+                  </div>
+                )}
+              </div>
               <a href="/dashboard" target="_blank" rel="noreferrer" className="saas-btn saas-btn-ghost">Dashboard</a>
             </div>
             {/* Mobile: just ATS badge */}

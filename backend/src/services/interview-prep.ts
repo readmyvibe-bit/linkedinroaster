@@ -62,6 +62,7 @@ async function geminiCall(systemPrompt: string, userPrompt: string): Promise<any
 
 export async function generateInterviewPrep(prepId: string, resumeId: string): Promise<void> {
   await migrationPromise;
+  const v1StartTime = Date.now();
 
   try {
     // Update status to processing
@@ -136,7 +137,7 @@ EDUCATION:
 ${educationText || 'No education listed'}
 `.trim();
 
-    const hasJD = jobDescription && jobDescription.trim().length > 20;
+    const hasJD = jobDescription && jobDescription.trim().length > 50;
 
     const jdContext = hasJD
       ? `JOB DESCRIPTION:\n${jobDescription}`
@@ -278,7 +279,7 @@ RULES:
       mcq: (call1Result.mcq || []).filter((m: any) => m.question && m.question !== '...'),
     };
 
-    const durationMs = Date.now() - Date.now(); // approximate — v1 doesn't track start time inline
+    const durationMs = Date.now() - v1StartTime;
     const meta = {
       pipeline_version: 'v1',
       interview_level: careerStage,

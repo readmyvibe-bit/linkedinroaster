@@ -53,8 +53,14 @@ async function geminiPhaseWithRetry(prompt: string, system: string, opts: { temp
   try {
     return await geminiPhase(prompt, system, opts);
   } catch (err: any) {
-    if (err.message === 'MAX_TOKENS' || err.message?.includes('parse')) {
-      console.log('[interview-prep-v2] Retrying phase with gemini-2.5-pro');
+    const msg = err.message || '';
+    const isRetryable = msg === 'MAX_TOKENS'
+      || msg.includes('parse')
+      || msg.includes('Unexpected token')
+      || msg.includes('JSON')
+      || err instanceof SyntaxError;
+    if (isRetryable) {
+      console.log(`[interview-prep-v2] Retrying phase with gemini-2.5-pro (reason: ${msg.slice(0, 80)})`);
       return await geminiPhase(prompt, system, { ...opts, model: 'gemini-2.5-pro', maxTokens: (opts.maxTokens || 4096) + 2048 });
     }
     throw err;
@@ -496,16 +502,34 @@ export async function generateInterviewPrepV2(prepId: string, resumeId: string, 
     const profile = normalizeCandidateProfile(resume.resume_data || {}, resume, order);
     const level = inferInterviewLevel(profile, userLevelOverride);
 
+    // career_stage uses legacy v1 semantics for analytics consistency
+    const careerStage = profile.roles.length === 0 ? 'fresher'
+      : profile.roles.length <= 2 ? 'early'
+      : profile.roles.length <= 5 ? 'mid' : 'senior';
+
     await query(
       `UPDATE interview_preps SET interview_level=$1, career_stage=$2, target_role=$3, target_company=$4, order_id=$5 WHERE id=$6`,
-      [level, level, profile.targetRole, profile.targetCompany, resume.order_id, prepId],
+      [level, careerStage, profile.targetRole, profile.targetCompany, resume.order_id, prepId],
     );
 
     console.log(`[interview-prep-v2] ${prepId}: Level=${level}, Experience=${Math.round(profile.totalExperienceMonths / 12)}yr, HasJD=${profile.hasJD}`);
 
     // 3. Phase 1 — Plan
     console.log(`[interview-prep-v2] ${prepId}: Phase 1 — Plan`);
-    const plan = await phase1_plan(profile, level);
+    let plan = await phase1_plan(profile, level);
+
+    // Validate question_mix sums to 15 with valid categories
+    const validCategories = ['behavioral', 'role_specific', 'situational', 'culture'];
+    const mix = plan.question_mix || {};
+    const mixSum = Object.values(mix).reduce((s: number, v: any) => s + (typeof v === 'number' ? v : 0), 0);
+    const hasValidKeys = Object.keys(mix).every(k => validCategories.includes(k));
+    if (mixSum !== 15 || !hasValidKeys) {
+      console.warn(`[interview-prep-v2] ${prepId}: Phase 1 bad mix (sum=${mixSum}, keys=${Object.keys(mix)}). Using defaults.`);
+      plan = {
+        question_mix: { behavioral: 5, role_specific: 5, situational: 3, culture: 2 },
+        focus_themes: plan.focus_themes?.length ? plan.focus_themes : ['role fit', 'technical depth', 'problem solving'],
+      };
+    }
 
     // 4. Phase 2 — Brief
     console.log(`[interview-prep-v2] ${prepId}: Phase 2 — Brief`);
@@ -557,12 +581,13 @@ export async function generateInterviewPrepV2(prepId: string, resumeId: string, 
       );
       console.log(`[interview-prep-v2] ${prepId}: Complete in ${durationMs}ms — ${validation.questionCount} questions, ${validation.mcqCount} MCQs${validation.degraded ? ' (degraded)' : ''}`);
     } else {
-      // Save what we have as degraded
+      // Hard failure — below minimum thresholds, save as failed with what we have for debugging
+      const failMeta = { ...meta, degraded: true, degraded_reason: validation.errors.join('; ') };
       await query(
-        `UPDATE interview_preps SET status='ready', prep_data=$1, generation_meta=$2, completed_at=NOW() WHERE id=$3`,
-        [JSON.stringify(prepData), JSON.stringify({ ...meta, degraded: true, degraded_reason: validation.errors.join('; ') }), prepId],
+        `UPDATE interview_preps SET status='failed', prep_data=$1, generation_meta=$2, error_message=$3, completed_at=NOW() WHERE id=$4`,
+        [JSON.stringify(prepData), JSON.stringify(failMeta), `Insufficient content: ${validation.errors.join('; ')}`, prepId],
       );
-      console.warn(`[interview-prep-v2] ${prepId}: Saved as degraded — ${validation.errors.join(', ')}`);
+      console.warn(`[interview-prep-v2] ${prepId}: Failed validation — ${validation.errors.join(', ')}`);
     }
   } catch (err: any) {
     console.error(`[interview-prep-v2] ${prepId}: Failed —`, err.message);

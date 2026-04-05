@@ -224,24 +224,46 @@ export default function InterviewPrepPage() {
           }} />
           <div style={{ fontSize: 18, fontWeight: 700, color: '#333', marginBottom: 8 }}>Preparing Your Interview Kit</div>
           <div style={{ fontSize: 14, color: '#0A66C2', fontWeight: 600, marginBottom: 8 }}>{LOADING_STAGES[loadingStage]}</div>
-          <div style={{ fontSize: 12, color: '#888' }}>This takes 30-60 seconds</div>
+          <div style={{ fontSize: 12, color: '#888' }}>This usually takes 1-2 minutes</div>
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       </div>
     );
   }
 
-  // ─── Error State ───
-  if (error || !prep?.prep_data) {
+  // ─── Error / Failed State ───
+  if (error || prep?.status === 'failed' || !prep?.prep_data) {
+    const isFailed = prep?.status === 'failed';
+    const errorMsg = error || prep?.error_message || 'Failed to generate interview prep.';
     return (
       <div style={{ minHeight: '100vh', background: '#F3F2EF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center', background: '#fff', borderRadius: 12, padding: '40px 32px', border: '1px solid #E0E0E0', maxWidth: 400 }}>
-          <div style={{ fontSize: 18, fontWeight: 700, color: '#CC1016', marginBottom: 8 }}>Something went wrong</div>
-          <div style={{ fontSize: 14, color: '#666', marginBottom: 20 }}>{error || 'Failed to generate interview prep.'}</div>
-          <button onClick={() => { if (prep?.resume_id) window.location.href = `/resume/${prep.resume_id}`; else window.history.back(); }} style={{
-            padding: '10px 24px', background: '#0A66C2', color: '#fff', border: 'none',
-            borderRadius: 24, fontSize: 14, fontWeight: 600, cursor: 'pointer',
-          }}>Go Back</button>
+        <div style={{ textAlign: 'center', background: '#fff', borderRadius: 12, padding: '40px 32px', border: '1px solid #E0E0E0', maxWidth: 440 }}>
+          <div style={{ fontSize: 18, fontWeight: 700, color: '#CC1016', marginBottom: 8 }}>
+            {isFailed ? 'Generation Failed' : 'Something went wrong'}
+          </div>
+          <div style={{ fontSize: 14, color: '#666', marginBottom: 20 }}>{errorMsg}</div>
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+            {isFailed && prep?.resume_id && (
+              <button
+                onClick={async () => {
+                  try {
+                    const body: any = { resume_id: prep.resume_id };
+                    if (prep.interview_level) body.interview_level = prep.interview_level;
+                    const r = await fetch(`${API_URL}/api/interview-prep`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+                    const d = await r.json();
+                    if (d.error) { alert(d.error); return; }
+                    if (d.id && d.id !== prep.id) window.location.href = `/interview-prep/${d.id}`;
+                    else window.location.reload();
+                  } catch { alert('Retry failed.'); }
+                }}
+                style={{ padding: '10px 24px', background: '#DC2626', color: '#fff', border: 'none', borderRadius: 24, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
+              >Retry Generation</button>
+            )}
+            <button onClick={() => { if (prep?.resume_id) window.location.href = `/resume/${prep.resume_id}`; else window.history.back(); }} style={{
+              padding: '10px 24px', background: '#0A66C2', color: '#fff', border: 'none',
+              borderRadius: 24, fontSize: 14, fontWeight: 600, cursor: 'pointer',
+            }}>Go Back</button>
+          </div>
         </div>
       </div>
     );
@@ -313,37 +335,23 @@ export default function InterviewPrepPage() {
 
       {/* ─── DEGRADED BANNER ─── */}
       {prep.generation_meta?.degraded && (
-        <div style={{ background: '#FEF3C7', borderBottom: '1px solid #FDE68A', padding: '10px 16px' }}>
-          <div style={{ maxWidth: 900, margin: '0 auto', fontSize: 13, color: '#92400E', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 16 }}>&#9888;&#65039;</span>
-            <span>Some sections may be incomplete. {prep.generation_meta.degraded_reason || 'AI generation was partially successful.'}</span>
+        <div style={{ background: '#FEF3C7', borderBottom: '1px solid #FDE68A', padding: '12px 16px' }}>
+          <div style={{ maxWidth: 900, margin: '0 auto', fontSize: 13, color: '#92400E' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+              <span style={{ fontSize: 16 }}>&#9888;&#65039;</span>
+              <strong>Partial results</strong>
+            </div>
+            <div style={{ paddingLeft: 24 }}>
+              {prep.generation_meta.degraded_reason || 'Some sections have fewer items than expected.'}
+              <span style={{ display: 'block', marginTop: 4, fontSize: 12, color: '#78600E' }}>
+                Tip: Adding a detailed job description or more resume content usually improves results. You can regenerate from the resume page.
+              </span>
+            </div>
           </div>
         </div>
       )}
 
-      {/* ─── FAILED — RETRY ─── */}
-      {prep.status === 'failed' && (
-        <div style={{ background: '#FEF2F2', borderBottom: '1px solid #FECACA', padding: '16px' }}>
-          <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
-            <div style={{ fontSize: 14, color: '#DC2626', fontWeight: 600, marginBottom: 8 }}>Generation failed: {prep.error_message || 'Unknown error'}</div>
-            <button
-              onClick={async () => {
-                try {
-                  const body: any = { resume_id: prep.resume_id };
-                  // Preserve interview_level from original request
-                  if (prep.interview_level) body.interview_level = prep.interview_level;
-                  const r = await fetch(`${API_URL}/api/interview-prep`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-                  const d = await r.json();
-                  if (d.error) { alert(d.error); return; }
-                  if (d.id && d.id !== prep.id) window.location.href = `/interview-prep/${d.id}`;
-                  else window.location.reload();
-                } catch { alert('Retry failed.'); }
-              }}
-              style={{ padding: '8px 20px', background: '#DC2626', color: 'white', border: 'none', borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
-            >Retry Generation</button>
-          </div>
-        </div>
-      )}
+      {/* Failed preps are caught by the error screen above — no dead block here */}
 
       {/* ─── TABS ─── */}
       <div style={{ background: '#fff', borderBottom: '1px solid #E0E0E0', padding: '0 16px' }}>
