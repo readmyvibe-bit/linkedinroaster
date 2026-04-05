@@ -86,6 +86,7 @@ function ReferralCodeRedeemer() {
           code: code.trim(),
           email: redeemEmail.trim(),
           profile_data: profileData.trim() ? { raw_paste: profileData.trim() } : undefined,
+          input_source: refInputMode === 'paste' ? 'questionnaire' : refInputMode,
         }),
       });
       const data = await res.json();

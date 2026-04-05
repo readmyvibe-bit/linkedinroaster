@@ -282,7 +282,9 @@ CRITICAL RULES:
 // POST /api/redeem-code — Redeem a one-time referral code
 app.post('/api/redeem-code', async (req: Request, res: Response) => {
   try {
-    const { code, email, headline, form_input, profile_data } = req.body;
+    const { code, email, headline, form_input, profile_data, input_source } = req.body;
+    const validInputSources = ['resume', 'linkedin', 'questionnaire'];
+    const safeInputSource = validInputSources.includes(input_source) ? input_source : 'linkedin';
     if (!code || !email)
       return res.status(400).json({ error: 'code and email are required' });
     if (!validateEmail(email))
@@ -310,11 +312,11 @@ app.post('/api/redeem-code', async (req: Request, res: Response) => {
       const amounts: Record<string, number> = { standard: 49900, pro: 99900 };
       const result = await query(
         `INSERT INTO orders (email, plan, amount_paise, payment_status, payment_type,
-         profile_input, profile_hash, ip_address, processing_status)
-         VALUES ($1, $2, $3, 'paid', 'referral_code', $4, $5, $6, 'queued') RETURNING id`,
+         profile_input, profile_hash, ip_address, processing_status, input_source)
+         VALUES ($1, $2, $3, 'paid', 'referral_code', $4, $5, $6, 'queued', $7) RETURNING id`,
         [
           email, rc.plan, amounts[rc.plan] || 29900,
-          JSON.stringify({ raw_paste: profileText.trim() }), hash, req.ip,
+          JSON.stringify({ raw_paste: profileText.trim() }), hash, req.ip, safeInputSource,
         ],
       );
       const orderId = result.rows[0].id;
