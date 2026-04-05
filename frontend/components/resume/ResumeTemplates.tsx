@@ -3471,7 +3471,7 @@ function printClinical(data: ResumeData): string {
   return printPageWrapper(h);
 }
 
-export function buildPrintHTML(data: ResumeData, templateId: string, pageCount?: number): string {
+export function buildPrintHTML(data: ResumeData, templateId: string, opts?: { fitOnePage?: boolean; printSize?: string; density?: 'sparse' | 'medium' | 'dense' }): string {
   let html: string;
   switch (templateId) {
     case 'modern': html = printModern(data); break;
@@ -3503,6 +3503,55 @@ export function buildPrintHTML(data: ResumeData, templateId: string, pageCount?:
     case 'clinical': html = printClinical(data); break;
     case 'classic':
     default: html = printClassic(data); break;
+  }
+
+  // Inject layout CSS based on options
+  const density = opts?.density || getContentDensity(data);
+  const printSize = opts?.printSize || data.printSize;
+  const fitOnePage = opts?.fitOnePage ?? data.fitOnePage;
+
+  let layoutCSS = '';
+
+  // Density-based spacing adjustments
+  const adaptiveCSS = getAdaptiveSpacingCSS(density, printSize);
+  if (adaptiveCSS) layoutCSS += adaptiveCSS;
+
+  // Print size overrides
+  if (printSize === 'compact') {
+    layoutCSS += `
+      body { font-size: 10px !important; line-height: 1.35 !important; }
+      .resume-wrapper, .resume-body { padding: 24px 28px !important; }
+    `;
+  } else if (printSize === 'spacious') {
+    layoutCSS += `
+      body { font-size: 12px !important; line-height: 1.7 !important; }
+      .resume-wrapper, .resume-body { padding: 44px !important; }
+      .entry, div[style*="margin-bottom"] { margin-bottom: 16px !important; }
+    `;
+  }
+
+  // Fit-on-one-page: shrink to fit
+  if (fitOnePage) {
+    layoutCSS += `
+      .print-content-root, .print-content-root > div, .resume-body, .two-col, .two-col-left, .two-col-right {
+        min-height: auto !important;
+      }
+    `;
+  }
+
+  // Multi-page mode: relax min-height so content flows naturally
+  if (!fitOnePage) {
+    layoutCSS += `
+      .print-content-root, .print-content-root > div, .resume-body {
+        min-height: auto !important;
+      }
+      .entry { page-break-inside: avoid; break-inside: avoid; }
+    `;
+  }
+
+  // Inject layout CSS before closing </style>
+  if (layoutCSS) {
+    html = html.replace('</style>', `${layoutCSS}\n</style>`);
   }
 
   return html;

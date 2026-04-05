@@ -61,8 +61,14 @@ async function geminiPhaseWithRetry(prompt: string, system: string, opts: { temp
       || err instanceof SyntaxError
       || err.name === 'SyntaxError';
     if (isRetryable) {
-      console.log(`[interview-prep-v2] Retrying phase with gemini-2.5-pro (reason: ${msg.slice(0, 80)})`);
-      return await geminiPhase(prompt, system, { ...opts, model: 'gemini-2.5-pro', maxTokens: (opts.maxTokens || 4096) + 2048 });
+      console.log(`[interview-prep-v2] Retry 1: gemini-2.5-pro with +2048 tokens (reason: ${msg.slice(0, 80)})`);
+      try {
+        return await geminiPhase(prompt, system, { ...opts, model: 'gemini-2.5-pro', maxTokens: (opts.maxTokens || 4096) + 2048 });
+      } catch (err2: any) {
+        // Second retry with even more tokens
+        console.log(`[interview-prep-v2] Retry 2: gemini-2.5-pro with +4096 tokens`);
+        return await geminiPhase(prompt, system, { ...opts, model: 'gemini-2.5-pro', maxTokens: (opts.maxTokens || 4096) + 4096 });
+      }
     }
     throw err;
   }
@@ -500,7 +506,7 @@ Generate exactly 15 questions. Return JSON array:
 ]
 Each question must be specific to THIS candidate's background and target role. No generic questions.${profile.hasJD ? ' Every question must map to at least one JD theme.' : ''}`;
 
-  const result = await geminiPhaseWithRetry(prompt, system, { temperature: 0.5, maxTokens: 5120 });
+  const result = await geminiPhaseWithRetry(prompt, system, { temperature: 0.5, maxTokens: 8192 });
   return Array.isArray(result) ? result : result.questions || result;
 }
 
@@ -539,7 +545,7 @@ Return JSON array (one per question):
   }
 ]`;
 
-    const result = await geminiPhaseWithRetry(prompt, system, { temperature: 0.5, maxTokens: 6144 });
+    const result = await geminiPhaseWithRetry(prompt, system, { temperature: 0.5, maxTokens: 8192 });
     const items = Array.isArray(result) ? result : result.questions || [];
     answered.push(...items);
   }
