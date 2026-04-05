@@ -61,14 +61,10 @@ async function geminiPhaseWithRetry(prompt: string, system: string, opts: { temp
       || err instanceof SyntaxError
       || err.name === 'SyntaxError';
     if (isRetryable) {
-      console.log(`[interview-prep-v2] Retry 1: gemini-2.5-pro with +2048 tokens (reason: ${msg.slice(0, 80)})`);
-      try {
-        return await geminiPhase(prompt, system, { ...opts, model: 'gemini-2.5-pro', maxTokens: (opts.maxTokens || 4096) + 2048 });
-      } catch (err2: any) {
-        // Second retry with even more tokens
-        console.log(`[interview-prep-v2] Retry 2: gemini-2.5-pro with +4096 tokens`);
-        return await geminiPhase(prompt, system, { ...opts, model: 'gemini-2.5-pro', maxTokens: (opts.maxTokens || 4096) + 4096 });
-      }
+      // Pro model has 65K output limit — give it generous room
+      const proTokens = Math.max((opts.maxTokens || 4096) * 2, 16384);
+      console.log(`[interview-prep-v2] Retry with gemini-2.5-pro @ ${proTokens} tokens (reason: ${msg.slice(0, 80)})`);
+      return await geminiPhase(prompt, system, { ...opts, model: 'gemini-2.5-pro', maxTokens: proTokens });
     }
     throw err;
   }
@@ -545,9 +541,16 @@ Return JSON array (one per question):
   }
 ]`;
 
-    const result = await geminiPhaseWithRetry(prompt, system, { temperature: 0.5, maxTokens: 8192 });
-    const items = Array.isArray(result) ? result : result.questions || [];
-    answered.push(...items);
+    try {
+      const result = await geminiPhaseWithRetry(prompt, system, { temperature: 0.5, maxTokens: 8192 });
+      const items = Array.isArray(result) ? result : result.questions || [];
+      answered.push(...items);
+    } catch (batchErr: any) {
+      // If one batch fails, continue with others — partial answers better than none
+      console.warn(`[interview-prep-v2] STAR batch ${Math.floor(i / 3) + 1} failed: ${batchErr.message?.slice(0, 100)}. Continuing with remaining batches.`);
+      // Add skeleton questions without STAR answers so they're counted
+      batch.forEach((q: any) => answered.push({ ...q, suggested_answer: { situation: 'Unable to generate — please prepare your own STAR answer for this question.', task: '', action: '', result: '' } }));
+    }
   }
   return answered;
 }
@@ -696,18 +699,32 @@ export async function generateInterviewPrepV2(prepId: string, resumeId: string, 
 
     console.log(`[interview-prep-v2] ${prepId}: Level=${level}, Experience=${Math.round(profile.totalExperienceMonths / 12)}yr, HasJD=${profile.hasJD}`);
 
-    // 3. Phase 0 — JD Extraction (new)
+    // 3. Phase 0 — JD Extraction (new, non-fatal)
     console.log(`[interview-prep-v2] ${prepId}: Phase 0 — JD Extraction`);
-    const jdAnalysis = await phase0_jdExtraction(profile);
+    let jdAnalysis: JdAnalysis = { must_have_skills: [], nice_to_have: [], tools: [], responsibilities: [], seniority_signals: [], themes: [], red_flags: [] };
+    try {
+      jdAnalysis = await phase0_jdExtraction(profile);
+    } catch (e: any) {
+      console.warn(`[interview-prep-v2] ${prepId}: Phase 0 failed (non-fatal): ${e.message?.slice(0, 100)}`);
+    }
 
-    // 3b. Gap Map (code-level + LLM bridge)
+    // 3b. Gap Map (code-level + LLM bridge, non-fatal)
     console.log(`[interview-prep-v2] ${prepId}: Computing gap map (${jdAnalysis.themes.length} themes)`);
     let gapMap = computeGapMap(jdAnalysis, profile);
-    gapMap = await enrichGapBridges(gapMap, profile);
+    try {
+      gapMap = await enrichGapBridges(gapMap, profile);
+    } catch (e: any) {
+      console.warn(`[interview-prep-v2] ${prepId}: Gap bridge enrichment failed (non-fatal): ${e.message?.slice(0, 100)}`);
+    }
 
-    // 3c. Company Context
+    // 3c. Company Context (non-fatal)
     console.log(`[interview-prep-v2] ${prepId}: Building company context`);
-    const companyContext = await buildCompanyContext(profile, jdAnalysis);
+    let companyContext: CompanyContext = { summary: '', inferred_from: profile.hasJD ? 'jd_only' : 'public_patterns', interview_style_guess: 'mixed' };
+    try {
+      companyContext = await buildCompanyContext(profile, jdAnalysis);
+    } catch (e: any) {
+      console.warn(`[interview-prep-v2] ${prepId}: Company context failed (non-fatal): ${e.message?.slice(0, 100)}`);
+    }
 
     // 4. Phase 1 — Plan
     console.log(`[interview-prep-v2] ${prepId}: Phase 1 — Plan`);
