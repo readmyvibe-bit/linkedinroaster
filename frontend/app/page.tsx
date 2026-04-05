@@ -961,30 +961,27 @@ export default function Home() {
 
             {/* RIGHT (45%) — Upload Card with Tabs */}
             <div style={{ flex: '1 1 380px', minWidth: 0, maxWidth: 500 }}>
-              <div style={{ background: 'var(--bg-surface)', borderRadius: 'var(--radius-lg)', border: '2px solid var(--accent)', boxShadow: '0 8px 32px rgba(10,102,194,0.1)', overflow: 'hidden' }}>
+              <div style={{ background: 'var(--bg-surface)', borderRadius: 16, border: '1px solid var(--border-default)', boxShadow: '0 4px 24px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)', overflow: 'hidden' }}>
 
-                {/* Free hook banner */}
-                <div style={{ background: 'var(--warning-subtle)', borderBottom: '1px solid #FDE68A', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ fontSize: 18, flexShrink: 0 }}>&#127873;</span>
-                  <div style={{ fontSize: 13, color: '#92400E', fontWeight: 600, lineHeight: 1.4 }}>
-                    <strong style={{ color: '#B45309' }}>See why recruiters ignore you &mdash; FREE</strong>
+                {/* Tab navigation — clean pills */}
+                <div style={{ padding: '16px 20px 0', background: 'var(--bg-surface)' }}>
+                  <div style={{ display: 'inline-flex', gap: 4, padding: 4, background: 'var(--bg-canvas)', borderRadius: 10, width: '100%' }}>
+                    <button onClick={() => { setActiveInputTab('resume'); setInputSource('resume'); }}
+                      style={{ flex: 1, padding: '9px 12px', fontSize: 13, fontWeight: activeInputTab === 'resume' ? 700 : 500, borderRadius: 8, border: 'none', cursor: 'pointer', background: activeInputTab === 'resume' ? 'var(--bg-surface)' : 'transparent', color: activeInputTab === 'resume' ? 'var(--accent)' : 'var(--text-secondary)', boxShadow: activeInputTab === 'resume' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none', transition: 'all 0.15s' }}>
+                      Resume
+                    </button>
+                    <button onClick={() => { setActiveInputTab('linkedin'); setInputSource('linkedin'); }}
+                      style={{ flex: 1, padding: '9px 12px', fontSize: 13, fontWeight: activeInputTab === 'linkedin' ? 700 : 500, borderRadius: 8, border: 'none', cursor: 'pointer', background: activeInputTab === 'linkedin' ? 'var(--bg-surface)' : 'transparent', color: activeInputTab === 'linkedin' ? 'var(--accent)' : 'var(--text-secondary)', boxShadow: activeInputTab === 'linkedin' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none', transition: 'all 0.15s' }}>
+                      LinkedIn
+                    </button>
+                    <button onClick={() => { setActiveInputTab('questionnaire'); setInputSource('questionnaire'); }}
+                      style={{ flex: 1, padding: '9px 12px', fontSize: 13, fontWeight: activeInputTab === 'questionnaire' ? 700 : 500, borderRadius: 8, border: 'none', cursor: 'pointer', background: activeInputTab === 'questionnaire' ? 'var(--bg-surface)' : 'transparent', color: activeInputTab === 'questionnaire' ? 'var(--accent)' : 'var(--text-secondary)', boxShadow: activeInputTab === 'questionnaire' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none', transition: 'all 0.15s' }}>
+                      No File
+                    </button>
                   </div>
                 </div>
 
-                {/* Tab navigation */}
-                <div style={{ display: 'flex', borderBottom: '1px solid var(--border-default)', background: 'var(--bg-canvas)' }}>
-                  <button onClick={() => { setActiveInputTab('resume'); setInputSource('resume'); }} style={tabStyle('resume')}>
-                    &#128196; Resume
-                  </button>
-                  <button onClick={() => { setActiveInputTab('linkedin'); setInputSource('linkedin'); }} style={tabStyle('linkedin')}>
-                    &#128188; LinkedIn PDF
-                  </button>
-                  <button onClick={() => { setActiveInputTab('questionnaire'); setInputSource('questionnaire'); }} style={tabStyle('questionnaire')}>
-                    &#9997;&#65039; No File?
-                  </button>
-                </div>
-
-                <div style={{ padding: '20px 24px' }}>
+                <div style={{ padding: '20px 20px 16px' }}>
 
                   {/* ═══ CONFIRMATION SCREEN ═══ */}
                   {showConfirmScreen ? (
@@ -1050,7 +1047,12 @@ export default function Home() {
                           boxShadow: 'var(--shadow-md)',
                         }}
                       >
-                        {loading ? 'Analyzing...' : 'Looks Good \u2014 Get My Free Score \u2192'}
+                        {loading ? (
+                          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                            <span style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 0.6s linear infinite', display: 'inline-block' }} />
+                            Analyzing...
+                          </span>
+                        ) : 'Get My Free Score \u2192'}
                       </button>
                       <div onClick={resetUpload} style={{ fontSize: 12, color: 'var(--accent)', textAlign: 'center', marginTop: 8, cursor: 'pointer', textDecoration: 'underline' }}>
                         Upload a different file
@@ -1067,10 +1069,10 @@ export default function Home() {
                             onDragOver={(e) => { e.preventDefault(); setResumeDragOver(true); }}
                             onDragLeave={(e) => { e.preventDefault(); setResumeDragOver(false); }}
                             style={{
-                              border: `2px dashed ${resumeDragOver ? 'var(--accent)' : resumeParsed ? 'var(--success)' : '#94B8DB'}`,
-                              borderRadius: 'var(--radius-md)', padding: 24, textAlign: 'center', marginBottom: 10,
-                              background: resumeDragOver ? '#E8F0FE' : resumeParsed ? 'var(--success-subtle)' : '#F0F7FF',
-                              cursor: resumeUploading ? 'wait' : 'pointer', transition: 'all var(--transition)',
+                              border: `1.5px dashed ${resumeDragOver ? 'var(--accent)' : resumeParsed ? 'var(--success)' : '#CBD5E1'}`,
+                              borderRadius: 12, padding: 28, textAlign: 'center', marginBottom: 12,
+                              background: resumeDragOver ? '#F0F7FF' : resumeParsed ? '#F0FDF4' : '#FAFBFC',
+                              cursor: resumeUploading ? 'wait' : 'pointer', transition: 'all 0.2s',
                             }}
                           >
                             <input ref={resumeInputRef} type="file" accept=".pdf,.docx" onChange={e => { const f = e.target.files?.[0]; if (f) uploadAndParseResume(f); }} style={{ display: 'none' }} />
@@ -1083,12 +1085,9 @@ export default function Home() {
                               </>
                             ) : (
                               <>
-                                <div style={{ fontSize: 40, marginBottom: 8 }}>&#128196;</div>
-                                <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--accent)' }}>{resumeDragOver ? 'Drop your resume here!' : 'Drop your resume here'}</div>
-                                <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 6 }}>or click to browse &bull; PDF or DOCX</div>
-                                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 8, lineHeight: 1.5 }}>
-                                  Got it in WhatsApp or Gmail? Tap the file &rarr; Share &rarr; Upload here
-                                </div>
+                                <div style={{ width: 44, height: 44, borderRadius: 12, background: 'var(--accent-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 20 }}>&#128196;</div>
+                                <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>{resumeDragOver ? 'Drop here' : 'Upload your resume'}</div>
+                                <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>PDF or DOCX &bull; click or drag</div>
                               </>
                             )}
                           </div>
@@ -1099,8 +1098,10 @@ export default function Home() {
                             </div>
                           )}
 
-                          <div style={{ fontSize: 11, color: 'var(--text-secondary)', textAlign: 'center', marginTop: 6, lineHeight: 1.5 }}>
-                            &#128274; Your resume is encrypted and never shared. Only AI reads it.
+                          <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginTop: 8, fontSize: 11, color: 'var(--text-muted)' }}>
+                            <span>&#128274; Encrypted</span>
+                            <span>&#9889; Instant</span>
+                            <span>&#127873; Free</span>
                           </div>
                         </div>
                       )}
@@ -1274,56 +1275,74 @@ export default function Home() {
       {/* TEASER RESULT                       */}
       {/* ═══════════════════════════════════ */}
       {teaser && (
-        <section ref={resultRef} style={{ background: 'var(--bg-canvas)', borderBottom: '1px solid var(--border-default)', padding: '28px 16px', animation: 'resultAppear 0.5s ease forwards' }}>
-          <div style={{ maxWidth: 700, margin: '0 auto', width: '100%', boxSizing: 'border-box' as const }}>
-            {/* Score card */}
-            <div className="saas-card" style={{ padding: '20px 16px', marginBottom: 12 }}>
-              <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 8, textTransform: 'uppercase' as const, letterSpacing: 1 }}>
-                {inputSource === 'resume' ? 'Your ATS Score' : 'Your Profile Score'}
-              </p>
-              <ScoreBadge score={teaser.score} />
-              <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 12, lineHeight: 1.5 }}>
-                {inputSource === 'resume'
-                  ? (teaser.score >= 70
-                      ? 'Good ATS score! Our AI can still optimize keywords, formatting, and bullet points for even better results.'
-                      : teaser.score >= 50
-                        ? 'Decent foundation. ATS optimization can improve keyword matching and bullet structure.'
-                        : 'Your resume needs work. Our AI rewrite typically improves scores by 30-40 points.')
-                  : (teaser.score >= 70
-                      ? 'Strong profile! A few targeted fixes can make it exceptional.'
-                      : teaser.score >= 50
-                        ? 'Decent foundation. Full rewrite can improve this significantly.'
-                        : 'Your profile needs work. Full analysis typically reveals 30-40 points of improvement.')}
-              </p>
+        <section ref={resultRef} style={{ background: 'var(--bg-canvas)', borderBottom: '1px solid var(--border-default)', padding: '32px 16px', animation: 'resultAppear 0.5s ease forwards' }}>
+          <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%', boxSizing: 'border-box' as const }}>
+
+            {/* ═══ 3-COLUMN GRID ═══ */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16, marginBottom: 20 }}>
+
+              {/* BOX 1: Score */}
+              <div style={{ background: 'var(--bg-surface)', borderRadius: 16, border: '1px solid var(--border-default)', padding: '24px 20px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+                <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase' as const, letterSpacing: 1.5, marginBottom: 12 }}>
+                  {inputSource === 'resume' ? 'ATS Score' : 'Profile Score'}
+                </p>
+                <div style={{ position: 'relative', width: 100, height: 100, marginBottom: 12 }}>
+                  <svg width="100" height="100" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="#E5E7EB" strokeWidth="6" />
+                    <circle cx="50" cy="50" r="42" fill="none" stroke={teaser.score >= 70 ? 'var(--success)' : teaser.score >= 40 ? '#D97706' : '#DC2626'} strokeWidth="6" strokeDasharray={`${teaser.score * 2.64} 264`} strokeLinecap="round" transform="rotate(-90 50 50)" />
+                  </svg>
+                  <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ fontSize: 28, fontWeight: 900, color: teaser.score >= 70 ? 'var(--success)' : teaser.score >= 40 ? '#D97706' : '#DC2626' }}>{teaser.score}</span>
+                  </div>
+                </div>
+                <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                  {teaser.score >= 70 ? 'Strong foundation — AI can still optimize further.'
+                    : teaser.score >= 50 ? 'Decent start. Optimization can boost 20-30 points.'
+                    : 'Needs work. AI rewrite typically adds 30-40 points.'}
+                </p>
+              </div>
+
+              {/* BOX 2: Headline */}
+              <div style={{ background: 'var(--bg-surface)', borderRadius: 16, border: '1px solid var(--border-default)', padding: '24px 20px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>&#10003;</div>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>AI-Suggested Headline</p>
+                </div>
+                {teaser.suggested_headline ? (
+                  <>
+                    <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 10, padding: '14px 16px', flex: 1 }}>
+                      <p style={{ fontSize: 14, color: 'var(--text-primary)', fontWeight: 600, lineHeight: 1.5, margin: 0 }}>{teaser.suggested_headline}</p>
+                    </div>
+                    <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 10 }}>1 of many variations in full rewrite</p>
+                  </>
+                ) : (
+                  <div style={{ background: '#F8FAFC', borderRadius: 10, padding: '20px 16px', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>Unlock with full analysis</p>
+                  </div>
+                )}
+              </div>
+
+              {/* BOX 3: Interview Question */}
+              <div style={{ background: 'var(--bg-surface)', borderRadius: 16, border: '1px solid var(--border-default)', padding: '24px 20px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: '#ECFEFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0, color: '#0891B2' }}>?</div>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>A Recruiter Would Ask</p>
+                </div>
+                {teaser.sample_interview_question ? (
+                  <>
+                    <div style={{ background: '#F0FDFA', border: '1px solid #99F6E4', borderRadius: 10, padding: '14px 16px', flex: 1 }}>
+                      <p style={{ fontSize: 14, color: 'var(--text-primary)', fontWeight: 500, lineHeight: 1.6, margin: 0, fontStyle: 'italic' }}>&#8220;{teaser.sample_interview_question}&#8221;</p>
+                    </div>
+                    <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 10 }}>15 questions + STAR answers in full kit</p>
+                  </>
+                ) : (
+                  <div style={{ background: '#F8FAFC', borderRadius: 10, padding: '20px 16px', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>Unlock with full analysis</p>
+                  </div>
+                )}
+              </div>
+
             </div>
-
-            {/* AI-Suggested Headline */}
-            {teaser.suggested_headline && (
-              <div style={{ background: 'var(--bg-surface)', border: '2px solid var(--success)', borderRadius: 'var(--radius-md)', boxShadow: '0 2px 12px rgba(5,118,66,0.08)', padding: '18px 16px', marginBottom: 12 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--success)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>&#10003;</div>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--success)' }}>AI-Suggested Headline</p>
-                </div>
-                <div style={{ background: 'var(--success-subtle)', border: '1px solid #BBF7D0', borderRadius: 'var(--radius-sm)', padding: '14px 16px' }}>
-                  <p style={{ fontSize: 15, color: 'var(--text-primary)', fontWeight: 600, lineHeight: 1.5, margin: 0 }}>{teaser.suggested_headline}</p>
-                </div>
-                <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 8 }}>This is 1 of many variations you get with the full rewrite.</p>
-              </div>
-            )}
-
-            {/* Interview Question */}
-            {teaser.sample_interview_question && (
-              <div style={{ background: 'var(--bg-surface)', border: '2px solid #0891B2', borderRadius: 'var(--radius-md)', boxShadow: '0 2px 12px rgba(8,145,178,0.08)', padding: '18px 16px', marginBottom: 12 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#0891B2', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>?</div>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: '#0891B2' }}>A Recruiter Would Ask You</p>
-                </div>
-                <div style={{ background: '#ECFEFF', border: '1px solid #A5F3FC', borderRadius: 'var(--radius-sm)', padding: '14px 16px' }}>
-                  <p style={{ fontSize: 14, color: 'var(--text-primary)', fontWeight: 500, lineHeight: 1.6, margin: 0, fontStyle: 'italic' }}>&#8220;{teaser.sample_interview_question}&#8221;</p>
-                </div>
-                <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 8 }}>Unlock 15 personalized questions + STAR-format answers + cheat sheet</p>
-              </div>
-            )}
 
             {/* 3 Resume Previews */}
             {currentParsed && (() => {
@@ -1331,39 +1350,32 @@ export default function Home() {
               const recIds = ['classic', 'salesbd', 'headline'];
               if (!resumeData) return null;
               return (
-                <div style={{ marginBottom: 12 }}>
-                  <div className="saas-card" style={{ padding: '18px 16px' }}>
-                    <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
-                      {inputSource === 'resume'
-                        ? 'Your Resume \u2014 Built From Your Existing Resume'
-                        : 'Your Resume \u2014 Built From Your LinkedIn'}
-                    </p>
-                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>Real data from your {inputSource === 'resume' ? 'resume' : 'profile'}. Unlock to download.</p>
-                    <div style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingBottom: 8 }}>
-                      {recIds.map(tid => {
-                        const tmpl = TEMPLATES.find(t => t.id === tid);
-                        return (
-                          <div key={tid} style={{ flexShrink: 0, width: 280, position: 'relative', overflow: 'hidden', borderRadius: 'var(--radius-md)', border: '2px solid var(--border-default)', background: 'var(--bg-surface)', cursor: 'pointer' }}
-                            onClick={scrollToPricing}>
-                            <div style={{ height: 360, overflow: 'hidden' }}>
-                              <div style={{ transform: 'scale(0.4)', transformOrigin: 'top left', width: '250%', pointerEvents: 'none' }}>
-                                {renderResumeHTML(resumeData, tid)}
-                              </div>
-                            </div>
-                            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 120, background: 'linear-gradient(transparent, rgba(255,255,255,0.7) 30%, white 70%)', zIndex: 2 }} />
-                            <div style={{ position: 'absolute', top: '45%', left: '50%', transform: 'translate(-50%,-50%) rotate(-30deg)', fontSize: 16, fontWeight: 800, color: 'rgba(10,102,194,0.06)', whiteSpace: 'nowrap', pointerEvents: 'none', letterSpacing: 4, zIndex: 1 }}>
-                              ProfileRoaster
-                            </div>
-                            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '12px 14px', background: 'var(--bg-surface)', borderTop: '1px solid var(--bg-subtle)', zIndex: 3, textAlign: 'center' }}>
-                              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{tmpl?.name}</div>
-                              <div style={{ fontSize: 11, fontWeight: 700, background: 'linear-gradient(135deg, var(--accent), var(--accent-hover))', color: 'white', padding: '6px 16px', borderRadius: 'var(--radius-pill)', display: 'inline-block' }}>
-                                Unlock Full Resume &rarr;
-                              </div>
+                <div style={{ marginBottom: 16 }}>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
+                    {inputSource === 'resume' ? 'Your Resume' : 'Resume From Your LinkedIn'}
+                  </p>
+                  <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>Built from your data. 28 templates available.</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14 }}>
+                    {recIds.map(tid => {
+                      const tmpl = TEMPLATES.find(t => t.id === tid);
+                      return (
+                        <div key={tid} style={{ position: 'relative', overflow: 'hidden', borderRadius: 12, border: '1px solid var(--border-default)', background: 'var(--bg-surface)', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}
+                          onClick={scrollToPricing}>
+                          <div style={{ height: 320, overflow: 'hidden' }}>
+                            <div style={{ transform: 'scale(0.38)', transformOrigin: 'top left', width: '263%', pointerEvents: 'none' }}>
+                              {renderResumeHTML(resumeData, tid)}
                             </div>
                           </div>
-                        );
-                      })}
-                    </div>
+                          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 100, background: 'linear-gradient(transparent, white)', zIndex: 2 }} />
+                          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '10px 14px', background: 'var(--bg-surface)', borderTop: '1px solid #F0F0F0', zIndex: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{tmpl?.name}</span>
+                            <span style={{ fontSize: 11, fontWeight: 700, background: 'var(--accent)', color: 'white', padding: '5px 14px', borderRadius: 20 }}>
+                              Unlock &rarr;
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               );
