@@ -1748,6 +1748,7 @@ export default function ResultsPage() {
   const isPro = plan === 'pro';
   const inputSource = (data as any).input_source || 'linkedin';
   const isResumeMode = inputSource === 'resume';
+  const isQuestionnaireMode = inputSource === 'questionnaire';
 
   // Ranking
   const afterScore = scores.after.overall;
@@ -1859,6 +1860,9 @@ export default function ResultsPage() {
 
           {/* Banner gradient */}
           <div style={{ background: 'linear-gradient(135deg, #004182 0%, #0B69C7 50%, #057642 100%)', padding: '24px 28px 20px', color: 'white' }}>
+            <div style={{ textAlign: 'center', fontSize: 10, fontWeight: 700, letterSpacing: 2, opacity: 0.7, marginBottom: 8, textTransform: 'uppercase' }}>
+              {isResumeMode ? 'ATS Resume Score' : isQuestionnaireMode ? 'Profile Score' : 'LinkedIn Profile Score'}
+            </div>
             {/* Score row */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 14 }}>
               <div style={{ textAlign: 'center' }}>
@@ -1874,12 +1878,16 @@ export default function ResultsPage() {
             </div>
             {/* Human-readable dimension chips */}
             <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}>
-              {[
+              {(isResumeMode ? [
+                { label: 'ATS Keywords', b: scores.before.ats || 0, a: scores.after.ats || 0 },
+                { label: 'Action Verbs', b: Math.round((scores.before.experience || 0) * 0.8), a: scores.after.experience || 0 },
+                { label: 'Quantification', b: Math.round((scores.before.completeness || 0) * 0.7), a: scores.after.completeness || 0 },
+              ] : [
                 { label: 'Headline', b: scores.before.headline, a: scores.after.headline },
                 { label: 'About', b: scores.before.about, a: scores.after.about },
                 { label: 'Experience', b: scores.before.experience, a: scores.after.experience },
                 { label: 'ATS', b: scores.before.ats || 0, a: scores.after.ats || 0 },
-              ].map(s => (
+              ]).map(s => (
                 <span key={s.label} style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: '4px 12px', fontSize: 11, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                   {s.label}: <span style={{ color: improvementColor(s.b, s.a) }}>{improvementLabel(s.b, s.a)}</span>
                 </span>
@@ -1907,18 +1915,24 @@ export default function ResultsPage() {
             {improvement > 0 && (
               <div style={{ marginTop: 16, background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 10, padding: '14px 16px' }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#057642' }}>
-                  &#9989; {isResumeMode ? 'Your resume' : 'Your profile'} improved by {improvement} points. {isResumeMode ? 'Download your improved resume and copy LinkedIn content below.' : 'Copy your rewritten sections below.'}
+                  &#9989; {isResumeMode
+                    ? 'Your ATS resume score improved by ' + improvement + ' points. Build your optimized resume and copy LinkedIn content below.'
+                    : isQuestionnaireMode
+                    ? 'Your profile score improved by ' + improvement + ' points. Build your resume and LinkedIn content below.'
+                    : 'Your profile improved by ' + improvement + ' points. Copy your rewritten sections below.'}
                 </div>
               </div>
             )}
-            {isResumeMode && (
+            {(isResumeMode || isQuestionnaireMode) && (
               <div style={{ marginTop: 12, background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 10, padding: '14px 16px' }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#0A66C2', marginBottom: 4 }}>
-                  &#128161; Want a deeper LinkedIn analysis?
+                  {isResumeMode ? 'Want a deeper LinkedIn analysis?' : 'Want a more accurate score?'}
                 </div>
                 <div style={{ fontSize: 12, color: '#64748B', lineHeight: 1.5 }}>
-                  Upload your LinkedIn PDF for a more detailed profile rewrite.{' '}
-                  <a href="/?tab=linkedin" style={{ color: '#0A66C2', fontWeight: 600 }}>Upload LinkedIn PDF &rarr;</a>
+                  {isResumeMode
+                    ? <>Upload your LinkedIn PDF for a more detailed profile rewrite. <a href="/?tab=linkedin" style={{ color: '#0A66C2', fontWeight: 600 }}>Upload LinkedIn PDF &rarr;</a></>
+                    : <>Upload your resume or LinkedIn PDF for a detailed, personalized analysis. <a href="/?tab=resume" style={{ color: '#0A66C2', fontWeight: 600 }}>Upload Resume &rarr;</a></>
+                  }
                 </div>
               </div>
             )}
@@ -1929,7 +1943,7 @@ export default function ResultsPage() {
       {/* ═══ 2. WHAT WAS HOLDING YOUR PROFILE BACK ═══ */}
       {(missingKeywords.length > 0 || weakVerbs.length > 0 || quantBreakdown) && (
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 16px 16px' }}>
-          <div style={{ fontSize: 18, fontWeight: 700, color: '#191919', marginBottom: 12 }}>{isResumeMode ? 'What Was Holding Your Resume Back' : 'What Was Holding Your Profile Back'}</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: '#191919', marginBottom: 12 }}>{isResumeMode ? 'Resume Improvements — What AI Fixed' : isQuestionnaireMode ? 'Profile Improvements' : 'What Was Holding Your Profile Back'}</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
 
             {/* Card 1: Missing Keywords */}
@@ -2010,6 +2024,31 @@ export default function ResultsPage() {
 
         {/* LEFT COLUMN (60%) */}
         <div style={{ flex: '1 1 580px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+          {/* Resume Builder CTA — primary for resume users */}
+          {isResumeMode && (
+            <div style={{ background: 'linear-gradient(135deg, #057642, #16A34A)', borderRadius: 12, padding: '24px 28px', color: 'white' }}>
+              <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>Your Improved Resume is Ready</div>
+              <div style={{ fontSize: 13, opacity: 0.9, lineHeight: 1.5, marginBottom: 16 }}>
+                AI fixed {missingKeywords.length > 0 ? missingKeywords.length + ' missing keywords, ' : ''}{weakVerbs.length > 0 ? weakVerbs.length + ' weak verbs, ' : ''}and optimized your bullets for ATS scanners. Build your resume now.
+              </div>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button onClick={handleResumeCTA} style={{ padding: '12px 28px', background: 'white', color: '#057642', border: 'none', borderRadius: 50, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+                  Build My Resume
+                </button>
+                <a href="#rewrite-section" style={{ padding: '12px 20px', background: 'rgba(255,255,255,0.2)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 50, fontSize: 13, fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
+                  See LinkedIn Suggestions
+                </a>
+              </div>
+            </div>
+          )}
+
+          {isResumeMode && (
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#191919', padding: '8px 0 0' }}>
+              LinkedIn Profile Suggestions
+              <span style={{ fontSize: 12, fontWeight: 400, color: '#666', marginLeft: 8 }}>Based on your resume</span>
+            </div>
+          )}
 
           {/* Headline card */}
           <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }} id="rewrite-section">
@@ -2126,30 +2165,48 @@ export default function ResultsPage() {
               {/* Step 2: Rewritten */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#057642' }}>
                 <span style={{ fontSize: 16 }}>&#9989;</span>
-                <span style={{ fontWeight: 600 }}>{isResumeMode ? 'Resume improved + LinkedIn generated' : 'Profile rewritten'}</span>
+                <span style={{ fontWeight: 600 }}>{isResumeMode ? 'ATS keywords + verbs optimized' : isQuestionnaireMode ? 'Profile content generated' : 'Profile rewritten'}</span>
                 <span style={{ marginLeft: 'auto', fontSize: 11, color: '#999' }}>Done</span>
               </div>
-              {/* Step 3: Copy to LinkedIn */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#191919' }}>
-                <span style={{ width: 18, height: 18, borderRadius: 4, border: '2px solid #D1D5DB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} />
-                <span style={{ fontWeight: 600, flex: 1 }}>{isResumeMode ? 'Copy LinkedIn content to profile' : 'Copy sections to LinkedIn'}</span>
-                <button onClick={() => {
-                  handleCopy(
-                    `HEADLINE:\n${rewrite.rewritten_headline}\n\nABOUT:\n${rewrite.rewritten_about}\n\nSKILLS:\n${rewrite.suggested_skills?.map(s => s.skill).join(', ') || ''}`,
-                    'copy-all'
-                  );
-                }} style={{ padding: '4px 12px', background: '#0B69C7', color: 'white', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                  {copiedField === 'copy-all' ? 'Copied!' : 'Copy All'}
-                </button>
-              </div>
-              {/* Step 4: Generate/download resume */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#191919' }}>
-                <span style={{ width: 18, height: 18, borderRadius: 4, border: '2px solid #D1D5DB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} />
-                <span style={{ fontWeight: 600, flex: 1 }}>{isResumeMode ? 'Download improved resume' : 'Generate resume'}</span>
-                <button onClick={handleResumeCTA} style={{ padding: '4px 12px', background: '#057642', color: 'white', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                  Build
-                </button>
-              </div>
+              {isResumeMode ? (
+                <>
+                  {/* Step 3: Build resume (primary for resume users) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#191919' }}>
+                    <span style={{ width: 18, height: 18, borderRadius: 4, border: '2px solid #D1D5DB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} />
+                    <span style={{ fontWeight: 600, flex: 1 }}>Build & download resume</span>
+                    <button onClick={handleResumeCTA} style={{ padding: '4px 12px', background: '#057642', color: 'white', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                      Build
+                    </button>
+                  </div>
+                  {/* Step 4: Copy LinkedIn content */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#191919' }}>
+                    <span style={{ width: 18, height: 18, borderRadius: 4, border: '2px solid #D1D5DB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} />
+                    <span style={{ fontWeight: 600, flex: 1 }}>Copy LinkedIn suggestions to profile</span>
+                    <button onClick={() => { handleCopy(`HEADLINE:\n${rewrite.rewritten_headline}\n\nABOUT:\n${rewrite.rewritten_about}\n\nSKILLS:\n${rewrite.suggested_skills?.map(s => s.skill).join(', ') || ''}`, 'copy-all'); }} style={{ padding: '4px 12px', background: '#F3F4F6', color: '#191919', border: '1px solid #D1D5DB', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                      {copiedField === 'copy-all' ? 'Copied!' : 'Copy All'}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Step 3: Copy to LinkedIn (primary for LinkedIn users) */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#191919' }}>
+                    <span style={{ width: 18, height: 18, borderRadius: 4, border: '2px solid #D1D5DB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} />
+                    <span style={{ fontWeight: 600, flex: 1 }}>{isQuestionnaireMode ? 'Copy content to LinkedIn' : 'Copy sections to LinkedIn'}</span>
+                    <button onClick={() => { handleCopy(`HEADLINE:\n${rewrite.rewritten_headline}\n\nABOUT:\n${rewrite.rewritten_about}\n\nSKILLS:\n${rewrite.suggested_skills?.map(s => s.skill).join(', ') || ''}`, 'copy-all'); }} style={{ padding: '4px 12px', background: '#0B69C7', color: 'white', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                      {copiedField === 'copy-all' ? 'Copied!' : 'Copy All'}
+                    </button>
+                  </div>
+                  {/* Step 4: Generate resume */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#191919' }}>
+                    <span style={{ width: 18, height: 18, borderRadius: 4, border: '2px solid #D1D5DB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} />
+                    <span style={{ fontWeight: 600, flex: 1 }}>Generate resume</span>
+                    <button onClick={handleResumeCTA} style={{ padding: '4px 12px', background: '#057642', color: 'white', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                      Build
+                    </button>
+                  </div>
+                </>
+              )}
               {/* Step 5: Interview prep */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#191919' }}>
                 <span style={{ width: 18, height: 18, borderRadius: 4, border: '2px solid #D1D5DB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} />

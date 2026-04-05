@@ -220,11 +220,25 @@ function ProfileInputForm({
   const [rawPaste, setRawPaste] = useState(initialRawPaste || '');
   const [jobDescription, setJobDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [sparseWarning, setSparseWarning] = useState(false);
 
   const sourceLabel = inputSource === 'resume' ? 'Your Resume Data' : inputSource === 'linkedin' ? 'Your LinkedIn Profile (from PDF)' : 'Your Profile Data';
 
+  // Check if questionnaire data is sparse (only headline, no experience/skills)
+  const isSparseQuestionnaire = inputSource === 'questionnaire' && rawPaste.trim().length > 0 && (() => {
+    const text = rawPaste.trim().toLowerCase();
+    const hasExperience = text.includes('experience:') && text.split('experience:')[1]?.trim().length > 20;
+    const hasSkills = text.includes('skills:') && text.split('skills:')[1]?.trim().length > 5;
+    return !hasExperience && !hasSkills;
+  })();
+
   async function handleSubmit() {
     if (!email.trim() || !rawPaste.trim()) return;
+    // Show sparse warning on first click for questionnaire users with minimal data
+    if (isSparseQuestionnaire && !sparseWarning) {
+      setSparseWarning(true);
+      return; // Show warning, don't block — next click proceeds
+    }
     setSubmitting(true);
     try {
       const res = await fetch(`${API_URL}/api/orders`, {
@@ -332,6 +346,16 @@ function ProfileInputForm({
             style={{ width: '100%', padding: '12px 16px', borderRadius: 10, border: '1px solid #E0E0E0', fontSize: 14, outline: 'none', resize: 'none', boxSizing: 'border-box' }}
           />
         )}
+        {sparseWarning && isSparseQuestionnaire && (
+          <div style={{ background: '#FFFBEB', border: '1px solid #F59E0B', borderRadius: 10, padding: '12px 16px' }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#92400E', marginBottom: 4 }}>
+              Limited data notice
+            </div>
+            <div style={{ fontSize: 12, color: '#78350F', lineHeight: 1.6 }}>
+              You only provided a headline. Your results will be less detailed. You can still proceed, or go back to add more info for better results.
+            </div>
+          </div>
+        )}
         <button
           onClick={handleSubmit}
           disabled={submitting || !email.trim() || !rawPaste.trim()}
@@ -343,7 +367,7 @@ function ProfileInputForm({
             boxShadow: '0 4px 16px rgba(10,102,194,0.35)',
           }}
         >
-          {submitting ? 'Creating order...' : `Pay \u20b9${plan === 'pro' ? '999' : '499'} & Get Full Rewrite`}
+          {submitting ? 'Creating order...' : sparseWarning && isSparseQuestionnaire ? `Proceed Anyway \u2014 \u20b9${plan === 'pro' ? '999' : '499'}` : `Pay \u20b9${plan === 'pro' ? '999' : '499'} & Get Full Rewrite`}
         </button>
       </div>
     </div>
@@ -427,6 +451,8 @@ export default function Home() {
   // Core state
   const [headline, setHeadline] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingStage, setLoadingStage] = useState('');
+  const [loadingProgress, setLoadingProgress] = useState(0);
   const [teaser, setTeaser] = useState<TeaserResult | null>(null);
   const [email, setEmail] = useState('');
   const [emailSaved, setEmailSaved] = useState(false);
@@ -510,6 +536,10 @@ export default function Home() {
     if (count >= 5) { setRateLimited(true); return; }
 
     setLoading(true);
+    setLoadingStage('Parsing your profile...');
+    setLoadingProgress(20);
+    const stageTimer = setTimeout(() => { setLoadingStage('Analyzing headline & keywords...'); setLoadingProgress(50); }, 2000);
+    const stageTimer2 = setTimeout(() => { setLoadingStage('Generating your score...'); setLoadingProgress(80); }, 4000);
     try {
       const res = await fetch(`${API_URL}/api/teaser`, {
         method: 'POST',
@@ -532,6 +562,10 @@ export default function Home() {
     } catch {
       alert('Could not reach the server. Please try again.');
     } finally {
+      clearTimeout(stageTimer);
+      clearTimeout(stageTimer2);
+      setLoadingProgress(0);
+      setLoadingStage('');
       setLoading(false);
     }
   }
@@ -809,6 +843,11 @@ export default function Home() {
               {teaser ? 'Get Everything for \u20b9499 \u2192' : 'Get Started \u2014 \u20b9499 \u2192'}
             </button>
             <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 12 }}>Secure payment via Razorpay (UPI / Card / Net Banking)</div>
+            {inputSource === 'questionnaire' && !qExperience.trim() && (
+              <div style={{ fontSize: 11, color: '#92400E', marginTop: 6 }}>
+                Tip: Add experience details above for better results
+              </div>
+            )}
           </div>
 
           {/* Pro */}
@@ -1226,11 +1265,27 @@ export default function Home() {
                         </div>
                       )}
 
-                      {/* Loading indicator */}
-                      {loading && (
-                        <div style={{ textAlign: 'center', padding: '10px 0' }}>
-                          <div style={{ fontSize: 14, color: 'var(--accent)', fontWeight: 600 }}>Analyzing your profile...</div>
-                          <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>Generating your free score</div>
+                      {/* Shimmer loading indicator */}
+                      {loading && !teaser && (
+                        <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px', marginTop: 16 }}>
+                          <style>{`
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+                          `}</style>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+                            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#0B69C7', animation: 'pulse 1.5s infinite' }} />
+                            <span style={{ fontSize: 14, fontWeight: 600, color: '#191919' }}>{loadingStage}</span>
+                          </div>
+                          {/* Progress bar */}
+                          <div style={{ height: 4, borderRadius: 2, background: '#F3F4F6', overflow: 'hidden', marginBottom: 12 }}>
+                            <div style={{ height: '100%', borderRadius: 2, background: 'linear-gradient(90deg, #0B69C7, #057642)', transition: 'width 1s ease', width: `${loadingProgress}%` }} />
+                          </div>
+                          {/* Skeleton lines */}
+                          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+                            {[75, 60, 45].map((w, i) => (
+                              <div key={i} style={{ height: 12, borderRadius: 6, width: `${w}%`, background: 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
+                            ))}
+                          </div>
                         </div>
                       )}
 
@@ -1345,6 +1400,27 @@ export default function Home() {
               </div>
 
             </div>
+
+            {/* Sparse profile warning for questionnaire users */}
+            {teaser && inputSource === 'questionnaire' && !qExperience.trim() && !qSkills.trim() && (
+              <div style={{ background: '#FFFBEB', border: '1px solid #F59E0B', borderRadius: 10, padding: '14px 18px', marginTop: 12, marginBottom: 16 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#92400E', marginBottom: 4 }}>
+                  Limited data detected
+                </div>
+                <div style={{ fontSize: 12, color: '#78350F', lineHeight: 1.6 }}>
+                  You only provided a headline. For a more accurate score and better results, add your experience and skills above.
+                  Or upload your resume for the best results.
+                </div>
+                <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                  <button onClick={() => { setActiveInputTab('questionnaire'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ padding: '6px 14px', background: '#F59E0B', color: 'white', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                    Add More Details
+                  </button>
+                  <button onClick={() => { setActiveInputTab('resume'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ padding: '6px 14px', background: 'white', color: '#92400E', border: '1px solid #F59E0B', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                    Upload Resume Instead
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* 3 Resume Previews */}
             {currentParsed && (() => {
