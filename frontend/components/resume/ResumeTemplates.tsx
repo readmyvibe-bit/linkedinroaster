@@ -1502,26 +1502,15 @@ function renderCampus(data: ResumeData): React.ReactNode {
       {data.education && data.education.length > 0 && (
         <div style={{ marginBottom: '12px' }}>
           {sectionHeader('Education')}
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-            <thead>
-              <tr style={{ background: '#f0f4f8' }}>
-                <th style={{ border: '1px solid #ddd', padding: '5px 10px', textAlign: 'left', fontWeight: 700 }}>Degree</th>
-                <th style={{ border: '1px solid #ddd', padding: '5px 10px', textAlign: 'left', fontWeight: 700 }}>Institution</th>
-                <th style={{ border: '1px solid #ddd', padding: '5px 10px', textAlign: 'center', fontWeight: 700 }}>Year</th>
-                <th style={{ border: '1px solid #ddd', padding: '5px 10px', textAlign: 'center', fontWeight: 700 }}>GPA/%</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.education.map((edu, i) => (
-                <tr key={i}>
-                  <td style={{ border: '1px solid #ddd', padding: '5px 10px' }}>{getEduDegree(edu)}</td>
-                  <td style={{ border: '1px solid #ddd', padding: '5px 10px' }}>{getEduSchool(edu)}</td>
-                  <td style={{ border: '1px solid #ddd', padding: '5px 10px', textAlign: 'center' }}>{getEduDates(edu)}</td>
-                  <td style={{ border: '1px solid #ddd', padding: '5px 10px', textAlign: 'center' }}>{edu.gpa || '—'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {data.education.map((edu, i) => (
+            <div key={i} style={{ padding: '8px 10px', background: i % 2 === 0 ? '#f0f4f8' : 'transparent', borderBottom: '1px solid #ddd', marginBottom: 2 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                <span style={{ fontWeight: 700, color: '#111' }}>{getEduDegree(edu)}</span>
+                <span style={{ fontSize: '11px', color: '#666' }}>{getEduDates(edu)}</span>
+              </div>
+              <div style={{ fontSize: '11px', color: '#555' }}>{getEduSchool(edu)}{edu.gpa ? ` — GPA: ${edu.gpa}` : ''}</div>
+            </div>
+          ))}
         </div>
       )}
       {/* Experience */}
@@ -3064,19 +3053,12 @@ function printCampus(data: ResumeData): string {
   // Education table
   if (data.education?.length) {
     h += `<div style="margin-bottom:12px">${hdr('Education')}`;
-    h += `<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#f0f4f8">`;
-    h += `<th style="border:1px solid #ddd;padding:5px 10px;text-align:left;font-weight:700">Degree</th>`;
-    h += `<th style="border:1px solid #ddd;padding:5px 10px;text-align:left;font-weight:700">Institution</th>`;
-    h += `<th style="border:1px solid #ddd;padding:5px 10px;text-align:center;font-weight:700">Year</th>`;
-    h += `<th style="border:1px solid #ddd;padding:5px 10px;text-align:center;font-weight:700">GPA/%</th>`;
-    h += `</tr></thead><tbody>`;
-    data.education.forEach(edu => {
-      h += `<tr><td style="border:1px solid #ddd;padding:5px 10px">${esc(getEduDegree(edu))}</td>`;
-      h += `<td style="border:1px solid #ddd;padding:5px 10px">${esc(getEduSchool(edu))}</td>`;
-      h += `<td style="border:1px solid #ddd;padding:5px 10px;text-align:center">${esc(getEduDates(edu))}</td>`;
-      h += `<td style="border:1px solid #ddd;padding:5px 10px;text-align:center">${esc(edu.gpa || '') || '&mdash;'}</td></tr>`;
+    data.education.forEach((edu, i) => {
+      h += `<div class="entry" style="padding:8px 10px;background:${i % 2 === 0 ? '#f0f4f8' : 'transparent'};border-bottom:1px solid #ddd;margin-bottom:2px">`;
+      h += `<div style="display:flex;justify-content:space-between;flex-wrap:wrap"><span style="font-weight:700;color:#111">${esc(getEduDegree(edu))}</span><span style="font-size:11px;color:#666">${esc(getEduDates(edu))}</span></div>`;
+      h += `<div style="font-size:11px;color:#555">${esc(getEduSchool(edu))}${edu.gpa ? ` &mdash; GPA: ${esc(edu.gpa)}` : ''}</div></div>`;
     });
-    h += `</tbody></table></div>`;
+    h += `</div>`;
   }
   // Experience
   if (data.experience?.length) {

@@ -52,7 +52,8 @@
     "satori": "^0.26.0",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.2",
-    "uuid": "^13.0.0"
+    "uuid": "^13.0.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
