@@ -208,30 +208,38 @@ export default function ResumePreviewPage() {
       </header>
 
       {/* ═══ MOBILE TOP TOOLBAR — Template, Settings, Prep ═══ */}
-      <div className="flex sm:!hidden" style={{ background: 'var(--bg-surface)', borderBottom: '1px solid rgba(15,23,42,0.06)', padding: '8px 12px', gap: 6, alignItems: 'center', overflowX: 'auto', flexShrink: 0 }}>
-        <button onClick={() => setShowTemplateModal(true)} style={{ fontSize: 11, fontWeight: 500, padding: '7px 10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', background: 'transparent', cursor: 'pointer', color: 'var(--text-secondary)', whiteSpace: 'nowrap', flexShrink: 0 }}>
-          {currentTemplate?.name || 'Template'} &#9662;
+      <div className="sm:!hidden" style={{ background: 'var(--bg-surface)', borderBottom: '1px solid rgba(15,23,42,0.06)', padding: '10px 12px' }}>
+        {/* Row 1: Template (full width) */}
+        <button onClick={() => setShowTemplateModal(true)} style={{ width: '100%', fontSize: 13, fontWeight: 500, padding: '10px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', background: 'transparent', cursor: 'pointer', color: 'var(--text-primary)', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <span>{currentTemplate?.name || 'Choose Template'}</span>
+          <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>&#9662;</span>
         </button>
-        <div style={{ display: 'inline-flex', background: 'var(--bg-subtle)', borderRadius: 6, padding: 2, flexShrink: 0 }}>
-          {(['compact', 'standard', 'spacious'] as const).map(s => (
-            <button key={s} onClick={() => { setPrintSize(s); savePrintSettings(s, fitOnePage); }} style={{ fontSize: 10, fontWeight: printSize === s ? 600 : 400, padding: '5px 7px', borderRadius: 4, border: 'none', cursor: 'pointer', background: printSize === s ? 'var(--bg-surface)' : 'transparent', color: printSize === s ? 'var(--text-primary)' : 'var(--text-muted)', boxShadow: printSize === s ? 'var(--shadow-xs)' : 'none' }}>{s.charAt(0).toUpperCase()}</button>
-          ))}
-        </div>
-        <div style={{ display: 'inline-flex', background: 'var(--bg-subtle)', borderRadius: 6, padding: 2, flexShrink: 0 }}>
-          {[{ v: true, l: '1P' }, { v: false, l: '2P' }].map(p => (
-            <button key={String(p.v)} onClick={() => { setFitOnePage(p.v); savePrintSettings(printSize, p.v); }} style={{ fontSize: 10, fontWeight: fitOnePage === p.v ? 600 : 400, padding: '5px 7px', borderRadius: 4, border: 'none', cursor: 'pointer', background: fitOnePage === p.v ? 'var(--bg-surface)' : 'transparent', color: fitOnePage === p.v ? 'var(--text-primary)' : 'var(--text-muted)', boxShadow: fitOnePage === p.v ? 'var(--shadow-xs)' : 'none' }}>{p.l}</button>
-          ))}
-        </div>
-        <div data-level-picker-root style={{ position: 'relative', flexShrink: 0 }}>
-          <button type="button" disabled={prepLoading} onClick={() => !prepLoading && setShowLevelPicker(!showLevelPicker)} style={{ fontSize: 11, fontWeight: 500, padding: '7px 10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', background: 'transparent', cursor: 'pointer', color: '#7C3AED', opacity: prepLoading ? 0.6 : 1, whiteSpace: 'nowrap' }}>Prep &#9662;</button>
-          {showLevelPicker && (
-            <div style={{ position: 'absolute', top: '100%', right: 0, background: '#fff', border: '1px solid var(--border-default)', borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 60, minWidth: 160, padding: '4px 0', marginTop: 4 }}>
-              <button type="button" disabled={prepLoading} onClick={() => handleInterview()} style={{ display: 'block', width: '100%', padding: '10px 14px', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', fontSize: 13, color: '#333' }}>Auto-detect</button>
-              {[{ v: 'entry', l: 'Entry' }, { v: 'mid', l: 'Mid' }, { v: 'senior', l: 'Senior' }, { v: 'lead', l: 'Lead' }].map(o => (
-                <button type="button" key={o.v} disabled={prepLoading} onClick={() => handleInterview(o.v)} style={{ display: 'block', width: '100%', padding: '10px 14px', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', fontSize: 13, color: '#333' }}>{o.l}</button>
-              ))}
-            </div>
-          )}
+        {/* Row 2: Density + Pages + Prep */}
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {/* Density segmented */}
+          <div style={{ display: 'inline-flex', background: 'var(--bg-subtle)', borderRadius: 'var(--radius-sm)', padding: 3, flex: 1 }}>
+            {(['compact', 'standard', 'spacious'] as const).map(s => (
+              <button key={s} onClick={() => { setPrintSize(s); savePrintSettings(s, fitOnePage); }} style={{ flex: 1, fontSize: 12, fontWeight: printSize === s ? 600 : 400, padding: '8px 4px', borderRadius: 6, border: 'none', cursor: 'pointer', background: printSize === s ? 'var(--bg-surface)' : 'transparent', color: printSize === s ? 'var(--text-primary)' : 'var(--text-muted)', boxShadow: printSize === s ? 'var(--shadow-xs)' : 'none', transition: 'all var(--transition)' }}>{s.charAt(0).toUpperCase()}</button>
+            ))}
+          </div>
+          {/* Pages toggle */}
+          <div style={{ display: 'inline-flex', background: 'var(--bg-subtle)', borderRadius: 'var(--radius-sm)', padding: 3 }}>
+            {[{ v: true, l: '1P' }, { v: false, l: '2P' }].map(p => (
+              <button key={String(p.v)} onClick={() => { setFitOnePage(p.v); savePrintSettings(printSize, p.v); }} style={{ fontSize: 12, fontWeight: fitOnePage === p.v ? 600 : 400, padding: '8px 12px', borderRadius: 6, border: 'none', cursor: 'pointer', background: fitOnePage === p.v ? 'var(--bg-surface)' : 'transparent', color: fitOnePage === p.v ? 'var(--text-primary)' : 'var(--text-muted)', boxShadow: fitOnePage === p.v ? 'var(--shadow-xs)' : 'none', transition: 'all var(--transition)' }}>{p.l}</button>
+            ))}
+          </div>
+          {/* Prep */}
+          <div data-level-picker-root style={{ position: 'relative' }}>
+            <button type="button" disabled={prepLoading} onClick={() => !prepLoading && setShowLevelPicker(!showLevelPicker)} style={{ fontSize: 12, fontWeight: 600, padding: '8px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', background: 'transparent', cursor: 'pointer', color: '#7C3AED', opacity: prepLoading ? 0.6 : 1, whiteSpace: 'nowrap' }}>Prep &#9662;</button>
+            {showLevelPicker && (
+              <div style={{ position: 'absolute', top: '100%', right: 0, background: '#fff', border: '1px solid var(--border-default)', borderRadius: 10, boxShadow: '0 4px 16px rgba(0,0,0,0.12)', zIndex: 60, minWidth: 180, padding: '6px 0', marginTop: 6 }}>
+                <button type="button" disabled={prepLoading} onClick={() => handleInterview()} style={{ display: 'block', width: '100%', padding: '12px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', fontSize: 14, color: '#333' }}>Auto-detect</button>
+                {[{ v: 'entry', l: 'Entry (0-2 yrs)' }, { v: 'mid', l: 'Mid (2-5 yrs)' }, { v: 'senior', l: 'Senior (5-10 yrs)' }, { v: 'lead', l: 'Lead (10+ yrs)' }].map(o => (
+                  <button type="button" key={o.v} disabled={prepLoading} onClick={() => handleInterview(o.v)} style={{ display: 'block', width: '100%', padding: '12px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', fontSize: 14, color: '#333' }}>{o.l}</button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
