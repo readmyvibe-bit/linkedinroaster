@@ -9,7 +9,7 @@ import { validatePrepData } from '../interview-prep-v2';
 import {
   PERFECT_PREP_DATA, DEGRADED_PREP_DATA, INVALID_PREP_DATA_TOO_FEW,
   PREP_DATA_WITH_PLACEHOLDERS, PREP_DATA_NO_BRIEF, PREP_DATA_BAD_MCQS,
-  PREP_DATA_SHORT_STAR,
+  PREP_DATA_SHORT_STAR, PERFECT_JD_PREP_DATA, JD_PREP_NO_LINKAGE, JD_PREP_FEW_GAPS,
 } from './fixtures';
 
 describe('validatePrepData', () => {
@@ -205,5 +205,37 @@ describe('validatePrepData', () => {
     expect(result.degraded).toBe(true);
     // Errors are populated (not full 15/10) but still valid
     expect(result.errors.length).toBeGreaterThan(0);
+  });
+
+  // ─── JD-Specific Validation (hasJD = true) ───
+
+  describe('JD-specific validation', () => {
+    it('passes full JD prep data with all fields', () => {
+      const result = validatePrepData(PERFECT_JD_PREP_DATA, true);
+      expect(result.valid).toBe(true);
+    });
+
+    it('flags missing JD analysis themes when hasJD', () => {
+      const data = { ...PERFECT_JD_PREP_DATA, jd_analysis: null };
+      const result = validatePrepData(data, true);
+      expect(result.errors.some(e => e.includes('JD analysis'))).toBe(true);
+    });
+
+    it('flags too few gap map items when hasJD', () => {
+      const result = validatePrepData(JD_PREP_FEW_GAPS, true);
+      expect(result.errors.some(e => e.includes('gap map'))).toBe(true);
+    });
+
+    it('flags missing per-question JD linkage when hasJD', () => {
+      const result = validatePrepData(JD_PREP_NO_LINKAGE, true);
+      expect(result.errors.some(e => e.includes('JD linkage'))).toBe(true);
+    });
+
+    it('does not flag JD fields when hasJD is false', () => {
+      const data = { ...PERFECT_PREP_DATA, jd_analysis: null, gap_map: null };
+      const result = validatePrepData(data, false);
+      expect(result.errors.every(e => !e.includes('JD'))).toBe(true);
+      expect(result.errors.every(e => !e.includes('gap'))).toBe(true);
+    });
   });
 });

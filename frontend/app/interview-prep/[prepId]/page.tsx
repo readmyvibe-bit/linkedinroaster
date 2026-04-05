@@ -13,11 +13,36 @@ interface CompanyBrief {
   red_flags: string[];
 }
 
+interface CompanyContext {
+  summary: string;
+  inferred_from: 'jd_only' | 'public_patterns';
+  interview_style_guess: string;
+}
+
+interface JdAnalysis {
+  must_have_skills: string[];
+  nice_to_have: string[];
+  tools: string[];
+  responsibilities: string[];
+  seniority_signals: string[];
+  themes: string[];
+  red_flags: string[];
+}
+
+interface GapItem {
+  jd_theme: string;
+  resume_evidence: string | null;
+  bridge_talking_point: string;
+  status: 'strong' | 'partial' | 'gap';
+}
+
 interface Question {
   id: number;
   category: string;
   question: string;
   why_they_ask: string;
+  jd_themes?: string[];
+  why_for_this_role?: string;
   suggested_answer: {
     situation: string;
     task: string;
@@ -56,6 +81,9 @@ interface MCQ {
 
 interface PrepData {
   company_brief: CompanyBrief;
+  company_context?: CompanyContext;
+  jd_analysis?: JdAnalysis | null;
+  gap_map?: GapItem[] | null;
   questions: Question[];
   ask_them: AskThem[];
   cheat_sheet: CheatSheet;
@@ -302,7 +330,11 @@ export default function InterviewPrepPage() {
   );
   const hasMcqs = mcqs.length > 0;
 
+  const hasGapMap = (data.gap_map || []).length > 0;
+  const hasJdAnalysis = data.jd_analysis && data.jd_analysis.themes?.length > 0;
+
   const tabs = [
+    ...(hasGapMap ? [{ id: 'gaps', label: 'JD Gaps' }] : []),
     { id: 'brief', label: 'Company Brief' },
     { id: 'questions', label: `Questions (${questions.length})` },
     { id: 'ask_them', label: 'Your Questions' },
@@ -385,12 +417,109 @@ export default function InterviewPrepPage() {
         </div>
       </div>
 
+      {/* ─── JD COVERAGE SUMMARY ─── */}
+      {hasGapMap && (
+        <div style={{ background: '#fff', borderBottom: '1px solid #E0E0E0', padding: '12px 16px' }}>
+          <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#333' }}>JD Coverage:</span>
+            {(() => {
+              const gm = data.gap_map || [];
+              const strong = gm.filter(g => g.status === 'strong').length;
+              const partial = gm.filter(g => g.status === 'partial').length;
+              const gaps = gm.filter(g => g.status === 'gap').length;
+              return (
+                <>
+                  <span style={{ fontSize: 12, padding: '2px 10px', borderRadius: 10, background: '#ECFDF5', color: '#059669', fontWeight: 600 }}>{strong} Strong</span>
+                  <span style={{ fontSize: 12, padding: '2px 10px', borderRadius: 10, background: '#FEF3C7', color: '#92400E', fontWeight: 600 }}>{partial} Partial</span>
+                  <span style={{ fontSize: 12, padding: '2px 10px', borderRadius: 10, background: '#FEF2F2', color: '#DC2626', fontWeight: 600 }}>{gaps} Gap{gaps !== 1 ? 's' : ''}</span>
+                  <span style={{ fontSize: 12, color: '#888' }}>{Math.round((strong / Math.max(gm.length, 1)) * 100)}% match</span>
+                </>
+              );
+            })()}
+          </div>
+        </div>
+      )}
+      {!hasJdAnalysis && (
+        <div style={{ background: '#F8FAFC', borderBottom: '1px solid #E0E0E0', padding: '10px 16px' }}>
+          <div style={{ maxWidth: 900, margin: '0 auto', fontSize: 12, color: '#64748B', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span>&#9432;</span> No job description provided — questions are role-based. Add a JD when generating for job-specific prep.
+          </div>
+        </div>
+      )}
+
       {/* ─── TAB CONTENT ─── */}
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '20px 16px 60px' }}>
+
+        {/* TAB: JD Gaps */}
+        {activeTab === 'gaps' && hasGapMap && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* JD Requirements Summary */}
+            {hasJdAnalysis && (
+              <div style={{ background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #E0E0E0', marginBottom: 4 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#333', marginBottom: 12 }}>JD Requirements</div>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+                  {data.jd_analysis!.must_have_skills.map((s, i) => (
+                    <span key={i} style={{ fontSize: 11, padding: '3px 10px', borderRadius: 10, background: '#FEF2F2', color: '#DC2626', fontWeight: 600, border: '1px solid #FECACA' }}>{s}</span>
+                  ))}
+                  {data.jd_analysis!.nice_to_have.map((s, i) => (
+                    <span key={`n${i}`} style={{ fontSize: 11, padding: '3px 10px', borderRadius: 10, background: '#F0F7FF', color: '#0A66C2', fontWeight: 500 }}>{s}</span>
+                  ))}
+                </div>
+                {data.jd_analysis!.tools.length > 0 && (
+                  <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
+                    <strong>Tools:</strong> {data.jd_analysis!.tools.join(', ')}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Gap Items */}
+            {(data.gap_map || []).map((gap, i) => {
+              const statusColors = { strong: { bg: '#ECFDF5', border: '#059669', text: '#059669', icon: '\u2713' }, partial: { bg: '#FEF3C7', border: '#D97706', text: '#92400E', icon: '\u25CB' }, gap: { bg: '#FEF2F2', border: '#DC2626', text: '#DC2626', icon: '\u2717' } };
+              const c = statusColors[gap.status] || statusColors.gap;
+              return (
+                <div key={i} style={{ background: '#fff', borderRadius: 12, border: '1px solid #E0E0E0', overflow: 'hidden' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 20px', borderLeft: `4px solid ${c.border}` }}>
+                    <span style={{ fontSize: 16, color: c.text, fontWeight: 700, width: 24, textAlign: 'center' }}>{c.icon}</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a' }}>{gap.jd_theme}</div>
+                      <span style={{ fontSize: 11, padding: '1px 8px', borderRadius: 8, background: c.bg, color: c.text, fontWeight: 600, textTransform: 'uppercase' }}>{gap.status}</span>
+                    </div>
+                  </div>
+                  <div style={{ padding: '0 20px 14px 56px' }}>
+                    {gap.resume_evidence && (
+                      <div style={{ fontSize: 12, color: '#059669', marginBottom: 6 }}>
+                        <strong>Evidence:</strong> {gap.resume_evidence}
+                      </div>
+                    )}
+                    {gap.bridge_talking_point && (
+                      <div style={{ fontSize: 12, color: '#0A66C2', background: '#F0F7FF', padding: '8px 12px', borderRadius: 8 }}>
+                        <strong>Talking point:</strong> {gap.bridge_talking_point}
+                      </div>
+                    )}
+                    {!gap.resume_evidence && !gap.bridge_talking_point && (
+                      <div style={{ fontSize: 12, color: '#999', fontStyle: 'italic' }}>No matching experience found. Prepare to address this proactively.</div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* TAB: Company Brief */}
         {activeTab === 'brief' && data.company_brief && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {/* Company Context (if available) */}
+            {data.company_context?.summary && (
+              <div style={{ background: '#F0F7FF', borderRadius: 12, padding: 20, border: '1px solid #D0E3F7' }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#004182', marginBottom: 8 }}>Role Context</div>
+                <div style={{ fontSize: 13, color: '#333', lineHeight: 1.6 }}>{data.company_context.summary}</div>
+                <div style={{ fontSize: 11, color: '#888', marginTop: 8, fontStyle: 'italic' }}>
+                  Inferred from {data.company_context.inferred_from === 'jd_only' ? 'job description' : 'role patterns'} | Expected style: {data.company_context.interview_style_guess}
+                </div>
+              </div>
+            )}
             {/* Interview Style */}
             <div style={{ background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #E0E0E0' }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#333', marginBottom: 8 }}>Interview Style</div>
@@ -504,6 +633,22 @@ export default function InterviewPrepPage() {
                           <div style={{ fontSize: 12, fontWeight: 700, color: '#666', marginBottom: 4, textTransform: 'uppercase' }}>Why They Ask</div>
                           <div style={{ fontSize: 13, color: '#333', lineHeight: 1.6 }}>{q.why_they_ask}</div>
                         </div>
+
+                        {/* JD Linkage */}
+                        {(q.jd_themes?.length || q.why_for_this_role) && (
+                          <div style={{ marginBottom: 16, background: '#F0F7FF', borderRadius: 8, padding: '10px 14px', border: '1px solid #D0E3F7' }}>
+                            {q.jd_themes && q.jd_themes.length > 0 && (
+                              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: q.why_for_this_role ? 6 : 0 }}>
+                                {q.jd_themes.map((t, ti) => (
+                                  <span key={ti} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 8, background: '#0A66C2', color: '#fff', fontWeight: 600 }}>{t}</span>
+                                ))}
+                              </div>
+                            )}
+                            {q.why_for_this_role && (
+                              <div style={{ fontSize: 12, color: '#004182', lineHeight: 1.5 }}>{q.why_for_this_role}</div>
+                            )}
+                          </div>
+                        )}
 
                         {/* STAR Answer */}
                         <div style={{ marginBottom: 16 }}>

@@ -205,13 +205,17 @@ export const ORDER_NO_JD = {
 
 // ─── Prep Data Fixtures (for validatePrepData) ───
 
-function makeQuestion(id: number, category: string, valid = true): any {
+function makeQuestion(id: number, category: string, valid = true, withJd = false): any {
   if (!valid) return { id, category, question: '...' };
   return {
     id,
     category,
     question: `Tell me about a time you demonstrated ${category} skills in a challenging project situation?`,
     why_they_ask: 'To assess your problem-solving approach',
+    ...(withJd ? {
+      jd_themes: ['distributed systems', 'problem-solving'],
+      why_for_this_role: 'This role requires handling production incidents in a distributed microservices environment, making crisis management experience critical.',
+    } : {}),
     suggested_answer: {
       situation: 'At my previous company, we faced a critical production outage that affected 10K users during peak hours.',
       task: 'I was responsible for identifying the root cause and coordinating the fix across three teams.',
@@ -333,4 +337,52 @@ export const PREP_DATA_SHORT_STAR = {
       },
     };
   }),
+};
+
+// ─── JD-Specific Prep Data Fixtures ───
+
+export const JD_ANALYSIS_FIXTURE: any = {
+  must_have_skills: ['Java', 'distributed systems', 'microservices'],
+  nice_to_have: ['Kubernetes', 'GCP'],
+  tools: ['AWS', 'Kubernetes', 'Jenkins'],
+  responsibilities: ['Build scalable systems', 'Mentor junior engineers', 'Lead technical design'],
+  seniority_signals: ['5+ years', 'senior individual contributor'],
+  themes: ['distributed systems', 'microservices', 'leadership', 'system design', 'performance optimization'],
+  red_flags: ['no system design experience', 'job hopping'],
+};
+
+export const GAP_MAP_FIXTURE: any[] = [
+  { jd_theme: 'distributed systems', resume_evidence: 'Software Engineer at Infosys: "Built microservices serving 2M+ requests daily"', bridge_talking_point: '', status: 'strong' },
+  { jd_theme: 'microservices', resume_evidence: 'Listed in skills: Kubernetes', bridge_talking_point: '', status: 'strong' },
+  { jd_theme: 'leadership', resume_evidence: 'Software Engineer at Infosys: "Mentored team of 5 junior developers"', bridge_talking_point: '', status: 'partial' },
+  { jd_theme: 'system design', resume_evidence: null, bridge_talking_point: 'Led monolith-to-microservices migration which required extensive system design decisions.', status: 'partial' },
+  { jd_theme: 'performance optimization', resume_evidence: null, bridge_talking_point: 'Reduced deployment time by 60% through CI/CD pipeline optimization, demonstrating performance mindset.', status: 'gap' },
+];
+
+export const PERFECT_JD_PREP_DATA = {
+  ...PERFECT_PREP_DATA,
+  jd_analysis: JD_ANALYSIS_FIXTURE,
+  gap_map: GAP_MAP_FIXTURE,
+  company_context: {
+    summary: 'Based on the job description, this team builds distributed backend systems at scale.',
+    inferred_from: 'jd_only' as const,
+    interview_style_guess: 'technical',
+  },
+  questions: [
+    ...Array.from({ length: 5 }, (_, i) => makeQuestion(i + 1, 'behavioral', true, true)),
+    ...Array.from({ length: 5 }, (_, i) => makeQuestion(i + 6, 'role_specific', true, true)),
+    ...Array.from({ length: 3 }, (_, i) => makeQuestion(i + 11, 'situational', true, true)),
+    ...Array.from({ length: 2 }, (_, i) => makeQuestion(i + 14, 'culture', true, true)),
+  ],
+};
+
+export const JD_PREP_NO_LINKAGE = {
+  ...PERFECT_JD_PREP_DATA,
+  // Questions without jd_themes / why_for_this_role — should flag in JD validation
+  questions: PERFECT_PREP_DATA.questions,  // no JD fields
+};
+
+export const JD_PREP_FEW_GAPS = {
+  ...PERFECT_JD_PREP_DATA,
+  gap_map: [{ jd_theme: 'only one', resume_evidence: null, bridge_talking_point: '', status: 'gap' as const }],
 };

@@ -263,6 +263,31 @@ const LEVEL_RUBRICS: Record<InterviewLevel, string> = {
 - Tone: Board-level. Test vision, judgment, and executive presence.`,
 };
 
+// ─── JD Analysis Types ───
+
+export interface JdAnalysis {
+  must_have_skills: string[];
+  nice_to_have: string[];
+  tools: string[];
+  responsibilities: string[];
+  seniority_signals: string[];
+  themes: string[];
+  red_flags: string[];
+}
+
+export interface GapItem {
+  jd_theme: string;
+  resume_evidence: string | null;
+  bridge_talking_point: string;
+  status: 'strong' | 'partial' | 'gap';
+}
+
+export interface CompanyContext {
+  summary: string;
+  inferred_from: 'jd_only' | 'public_patterns';
+  interview_style_guess: string;
+}
+
 // ─── C4: Phased Pipeline ───
 
 function buildResumeContext(profile: CandidateProfile): string {
@@ -293,6 +318,131 @@ const GLOBAL_RULES = `ABSOLUTE RULES:
 - NEVER fabricate company names, metrics, or achievements not in the resume.
 - Every field must be fully written — NO "..." or placeholder text.
 - Ground all STAR answers in the actual resume data provided.`;
+
+// ─── Phase 0: JD Extraction (LLM) ───
+
+async function phase0_jdExtraction(profile: CandidateProfile): Promise<JdAnalysis> {
+  if (!profile.hasJD) {
+    return { must_have_skills: [], nice_to_have: [], tools: [], responsibilities: [], seniority_signals: [], themes: [], red_flags: [] };
+  }
+  const system = `You are a job description analyst. Extract structured requirements from the JD.\n${GLOBAL_RULES}`;
+  const prompt = `JOB DESCRIPTION:\n${profile.jobDescription.slice(0, 8000)}
+
+TARGET ROLE: ${profile.targetRole}
+${profile.targetCompany ? `COMPANY: ${profile.targetCompany}` : ''}
+
+Extract structured data from this JD. Return JSON:
+{
+  "must_have_skills": ["skills explicitly required — exact phrases from JD"],
+  "nice_to_have": ["skills listed as preferred/bonus/nice-to-have"],
+  "tools": ["specific tools, frameworks, platforms mentioned"],
+  "responsibilities": ["key responsibilities/deliverables (max 6)"],
+  "seniority_signals": ["phrases indicating expected seniority level"],
+  "themes": ["5-8 overarching themes: e.g. 'distributed systems', 'people management', 'data-driven decisions'"],
+  "red_flags": ["what they screen against / dealbreakers mentioned"]
+}
+Extract ONLY what the JD actually says. Do NOT infer or add skills not mentioned.`;
+
+  return geminiPhaseWithRetry(prompt, system, { temperature: 0.2, maxTokens: 2048 });
+}
+
+// ─── Gap Map: Code-level comparison + LLM bridge points ───
+
+function computeGapMap(jdAnalysis: JdAnalysis, profile: CandidateProfile): GapItem[] {
+  if (!jdAnalysis.themes.length) return [];
+
+  const allBullets = profile.roles.flatMap(r => r.bullets).join(' ').toLowerCase();
+  const allSkills = profile.skills.map(s => s.toLowerCase());
+  const allTitles = profile.roles.map(r => r.title.toLowerCase()).join(' ');
+  const summaryLower = profile.summary.toLowerCase();
+  const allText = `${allBullets} ${allSkills.join(' ')} ${allTitles} ${summaryLower}`;
+
+  // Combine must_have_skills + themes for gap analysis
+  const jdItems = [...new Set([...jdAnalysis.themes, ...jdAnalysis.must_have_skills])];
+
+  return jdItems.map(theme => {
+    const themeLower = theme.toLowerCase();
+    const words = themeLower.split(/\s+/).filter(w => w.length > 2);
+
+    // Check if resume has evidence for this theme
+    const hasExactMatch = allText.includes(themeLower);
+    const wordMatches = words.filter(w => allText.includes(w));
+    const matchRatio = words.length > 0 ? wordMatches.length / words.length : 0;
+
+    // Find specific bullet evidence
+    let evidence: string | null = null;
+    for (const role of profile.roles) {
+      const matchBullet = role.bullets.find(b => {
+        const bLower = b.toLowerCase();
+        return bLower.includes(themeLower) || wordMatches.some(w => bLower.includes(w));
+      });
+      if (matchBullet) {
+        evidence = `${role.title} at ${role.company}: "${matchBullet}"`;
+        break;
+      }
+    }
+    if (!evidence && allSkills.some(s => themeLower.includes(s) || s.includes(themeLower))) {
+      evidence = `Listed in skills: ${profile.skills.find(s => themeLower.includes(s.toLowerCase()) || s.toLowerCase().includes(themeLower))}`;
+    }
+
+    const status: GapItem['status'] = hasExactMatch || matchRatio > 0.7 ? 'strong'
+      : matchRatio > 0.3 || evidence ? 'partial' : 'gap';
+
+    return { jd_theme: theme, resume_evidence: evidence, bridge_talking_point: '', status };
+  });
+}
+
+async function enrichGapBridges(gaps: GapItem[], profile: CandidateProfile): Promise<GapItem[]> {
+  const gapsNeedingBridge = gaps.filter(g => g.status === 'gap' || g.status === 'partial');
+  if (!gapsNeedingBridge.length) return gaps;
+
+  const system = `You are an interview coach. For each gap between a JD requirement and a candidate's resume, suggest a 1-2 sentence talking point the candidate can use to bridge the gap. Use ONLY facts from the resume — do NOT fabricate experience.\n${GLOBAL_RULES}`;
+  const prompt = `${buildResumeContext(profile)}
+
+GAPS TO BRIDGE:
+${gapsNeedingBridge.map((g, i) => `${i + 1}. JD requires: "${g.jd_theme}" | Resume evidence: ${g.resume_evidence || 'none found'} | Status: ${g.status}`).join('\n')}
+
+Return JSON array (one per gap, same order):
+[
+  {"jd_theme": "exact theme", "bridge_talking_point": "1-2 sentences showing how existing experience is transferable or how eagerness to learn compensates"}
+]`;
+
+  try {
+    const bridges = await geminiPhaseWithRetry(prompt, system, { temperature: 0.4, maxTokens: 2048 });
+    const bridgeArr = Array.isArray(bridges) ? bridges : [];
+    gapsNeedingBridge.forEach((g, i) => {
+      if (bridgeArr[i]?.bridge_talking_point) g.bridge_talking_point = bridgeArr[i].bridge_talking_point;
+    });
+  } catch (err: any) {
+    console.warn(`[interview-prep-v2] Gap bridge enrichment failed: ${err.message}`);
+  }
+  return gaps;
+}
+
+// ─── Company Context (honest, inferred) ───
+
+async function buildCompanyContext(profile: CandidateProfile, jdAnalysis: JdAnalysis): Promise<CompanyContext> {
+  if (!profile.hasJD && !profile.targetCompany) {
+    return { summary: '', inferred_from: 'public_patterns', interview_style_guess: 'mixed' };
+  }
+  const system = `You are a recruitment analyst. Infer company context ONLY from the JD text and role title. Do NOT hallucinate company facts, revenue, employee count, or founding year unless explicitly stated in the JD. Label everything as inferred.\n${GLOBAL_RULES}`;
+  const prompt = `${profile.hasJD ? `JOB DESCRIPTION:\n${profile.jobDescription.slice(0, 4000)}` : `ROLE: ${profile.targetRole}`}
+${profile.targetCompany ? `COMPANY NAME: ${profile.targetCompany}` : ''}
+JD THEMES: ${jdAnalysis.themes.join(', ') || 'none'}
+
+Return JSON:
+{
+  "summary": "2-3 sentences about what this role/team likely does based ONLY on the JD text. Start with 'Based on the job description...'",
+  "inferred_from": "${profile.hasJD ? 'jd_only' : 'public_patterns'}",
+  "interview_style_guess": "behavioral | technical | system_design | mixed — inferred from JD emphasis"
+}`;
+
+  try {
+    return await geminiPhaseWithRetry(prompt, system, { temperature: 0.3, maxTokens: 1024 });
+  } catch {
+    return { summary: '', inferred_from: profile.hasJD ? 'jd_only' : 'public_patterns', interview_style_guess: 'mixed' };
+  }
+}
 
 async function phase1_plan(profile: CandidateProfile, level: InterviewLevel): Promise<{ question_mix: Record<string, number>; focus_themes: string[] }> {
   const system = `You are an expert interview prep strategist. Plan the question distribution for a ${level}-level candidate.\n${GLOBAL_RULES}`;
@@ -332,36 +482,43 @@ async function phase2_brief(profile: CandidateProfile): Promise<any> {
   return geminiPhaseWithRetry(prompt, system, { temperature: 0.3, maxTokens: 2048 });
 }
 
-async function phase3_skeleton(profile: CandidateProfile, level: InterviewLevel, plan: { question_mix: Record<string, number>; focus_themes: string[] }): Promise<any[]> {
-  const system = `You are an expert interviewer. Generate question skeletons (no answers yet).\n${GLOBAL_RULES}\n${LEVEL_RUBRICS[level]}`;
+async function phase3_skeleton(profile: CandidateProfile, level: InterviewLevel, plan: { question_mix: Record<string, number>; focus_themes: string[] }, jdAnalysis: JdAnalysis): Promise<any[]> {
+  const jdContext = profile.hasJD
+    ? `\nJOB DESCRIPTION (excerpt):\n${profile.jobDescription.slice(0, 4000)}\n\nSTRUCTURED JD REQUIREMENTS:\n- Must have: ${jdAnalysis.must_have_skills.join(', ')}\n- Tools: ${jdAnalysis.tools.join(', ')}\n- Themes: ${jdAnalysis.themes.join(', ')}`
+    : '';
+  const system = `You are an expert interviewer. Generate question skeletons (no answers yet). ${profile.hasJD ? 'Each question MUST link to specific JD themes.' : ''}\n${GLOBAL_RULES}\n${LEVEL_RUBRICS[level]}`;
   const prompt = `${buildResumeContext(profile)}
-${profile.hasJD ? `\nJOB DESCRIPTION (excerpt):\n${profile.jobDescription.slice(0, 4000)}` : ''}
+${jdContext}
 
 QUESTION MIX: ${JSON.stringify(plan.question_mix)}
 FOCUS THEMES: ${plan.focus_themes.join(', ')}
 
 Generate exactly 15 questions. Return JSON array:
 [
-  {"id": 1, "category": "behavioral", "question": "full question text", "why_they_ask": "1-2 sentences", "difficulty": "${level}"},
+  {"id": 1, "category": "behavioral", "question": "full question text", "why_they_ask": "1-2 sentences", "difficulty": "${level}"${profile.hasJD ? ', "jd_themes": ["1-3 JD themes this tests"], "why_for_this_role": "1-2 sentences explaining why THIS company/role needs this answer, tied to JD"' : ''}},
   ...15 total
 ]
-Each question must be specific to THIS candidate's background and target role. No generic questions.`;
+Each question must be specific to THIS candidate's background and target role. No generic questions.${profile.hasJD ? ' Every question must map to at least one JD theme.' : ''}`;
 
-  const result = await geminiPhaseWithRetry(prompt, system, { temperature: 0.5, maxTokens: 4096 });
+  const result = await geminiPhaseWithRetry(prompt, system, { temperature: 0.5, maxTokens: 5120 });
   return Array.isArray(result) ? result : result.questions || result;
 }
 
-async function phase4_starBatch(profile: CandidateProfile, level: InterviewLevel, questions: any[]): Promise<any[]> {
+async function phase4_starBatch(profile: CandidateProfile, level: InterviewLevel, questions: any[], jdAnalysis: JdAnalysis, gaps: GapItem[]): Promise<any[]> {
   const answered: any[] = [];
+  const gapContext = gaps.filter(g => g.status !== 'strong').length > 0
+    ? `\nGAPS TO ADDRESS IN ANSWERS:\n${gaps.filter(g => g.status !== 'strong').map(g => `- ${g.jd_theme}: ${g.bridge_talking_point || 'show transferable skills'}`).join('\n')}`
+    : '';
   // Process in batches of 5
   for (let i = 0; i < questions.length; i += 5) {
     const batch = questions.slice(i, i + 5);
-    const system = `You are an expert interview coach. Generate STAR answers grounded ONLY in the resume.\n${GLOBAL_RULES}\n${LEVEL_RUBRICS[level]}`;
+    const system = `You are an expert interview coach. Generate STAR answers grounded ONLY in the resume.${profile.hasJD ? ' When a question targets a JD gap, the answer should explicitly bridge it using transferable experience.' : ''}\n${GLOBAL_RULES}\n${LEVEL_RUBRICS[level]}`;
     const prompt = `${buildResumeContext(profile)}
+${profile.hasJD ? `\nJD THEMES: ${jdAnalysis.themes.join(', ')}` : ''}${gapContext}
 
 Generate STAR answers for these questions. Use ONLY facts from the resume above.
 QUESTIONS:
-${batch.map((q: any, j: number) => `${j + 1}. [${q.category}] ${q.question}`).join('\n')}
+${batch.map((q: any, j: number) => `${j + 1}. [${q.category}] ${q.question}${q.jd_themes?.length ? ` (JD themes: ${q.jd_themes.join(', ')})` : ''}`).join('\n')}
 
 Return JSON array (one per question):
 [
@@ -370,6 +527,7 @@ Return JSON array (one per question):
     "category": "${batch[0]?.category || 'behavioral'}",
     "question": "exact question text",
     "why_they_ask": "reason",
+    ${profile.hasJD ? '"jd_themes": ["themes from JD this tests"],\n    "why_for_this_role": "1-2 sentences on why this matters for THIS specific role/company",' : ''}
     "suggested_answer": {
       "situation": "specific context from resume (2-3 sentences)",
       "task": "what needed to be done (1-2 sentences)",
@@ -377,7 +535,7 @@ Return JSON array (one per question):
       "result": "measurable outcome from resume (1-2 sentences)"
     },
     "common_mistakes": ["2 mistakes to avoid"],
-    "follow_ups": ["2 likely follow-up questions"]
+    "follow_ups": ["2 likely follow-up questions${profile.hasJD ? ' — tied to JD themes' : ''}"]
   }
 ]`;
 
@@ -437,7 +595,7 @@ export interface ValidationResult {
   mcqCount: number;
 }
 
-export function validatePrepData(data: any): ValidationResult {
+export function validatePrepData(data: any, hasJD = false): ValidationResult {
   const errors: string[] = [];
   const questions = data.questions || [];
   const mcqs = data.mcq || [];
@@ -467,6 +625,23 @@ export function validatePrepData(data: any): ValidationResult {
   if (validAsk.length < 5) errors.push(`Only ${validAsk.length}/5 valid ask-them questions`);
   if (!data.company_brief) errors.push('Missing company brief');
   if (!data.cheat_sheet) errors.push('Missing cheat sheet');
+
+  // JD-specific validation (only when JD was provided)
+  if (hasJD) {
+    const jdAnalysis = data.jd_analysis;
+    if (!jdAnalysis || !jdAnalysis.themes?.length) {
+      errors.push('Missing JD analysis themes');
+    }
+    const gapMap = data.gap_map || [];
+    if (gapMap.length < 3) {
+      errors.push(`Only ${gapMap.length} gap map items (expected 3+)`);
+    }
+    // Check per-question JD linkage
+    const qsWithJdLink = validQs.filter((q: any) => q.why_for_this_role && q.why_for_this_role.length > 15);
+    if (qsWithJdLink.length < Math.floor(validQs.length * 0.5)) {
+      errors.push(`Only ${qsWithJdLink.length}/${validQs.length} questions have JD linkage`);
+    }
+  }
 
   // Full pass: meets ideal thresholds
   const fullPass = validQs.length >= 12 && validMcqs.length >= 8 && validAsk.length >= 3;
@@ -515,7 +690,20 @@ export async function generateInterviewPrepV2(prepId: string, resumeId: string, 
 
     console.log(`[interview-prep-v2] ${prepId}: Level=${level}, Experience=${Math.round(profile.totalExperienceMonths / 12)}yr, HasJD=${profile.hasJD}`);
 
-    // 3. Phase 1 — Plan
+    // 3. Phase 0 — JD Extraction (new)
+    console.log(`[interview-prep-v2] ${prepId}: Phase 0 — JD Extraction`);
+    const jdAnalysis = await phase0_jdExtraction(profile);
+
+    // 3b. Gap Map (code-level + LLM bridge)
+    console.log(`[interview-prep-v2] ${prepId}: Computing gap map (${jdAnalysis.themes.length} themes)`);
+    let gapMap = computeGapMap(jdAnalysis, profile);
+    gapMap = await enrichGapBridges(gapMap, profile);
+
+    // 3c. Company Context
+    console.log(`[interview-prep-v2] ${prepId}: Building company context`);
+    const companyContext = await buildCompanyContext(profile, jdAnalysis);
+
+    // 4. Phase 1 — Plan
     console.log(`[interview-prep-v2] ${prepId}: Phase 1 — Plan`);
     let plan = await phase1_plan(profile, level);
 
@@ -528,40 +716,43 @@ export async function generateInterviewPrepV2(prepId: string, resumeId: string, 
       console.warn(`[interview-prep-v2] ${prepId}: Phase 1 bad mix (sum=${mixSum}, keys=${Object.keys(mix)}). Using defaults.`);
       plan = {
         question_mix: { behavioral: 5, role_specific: 5, situational: 3, culture: 2 },
-        focus_themes: plan.focus_themes?.length ? plan.focus_themes : ['role fit', 'technical depth', 'problem solving'],
+        focus_themes: plan.focus_themes?.length ? plan.focus_themes : jdAnalysis.themes.slice(0, 5).concat(['role fit', 'technical depth']).slice(0, 5),
       };
     }
 
-    // 4. Phase 2 — Brief
+    // 5. Phase 2 — Brief
     console.log(`[interview-prep-v2] ${prepId}: Phase 2 — Brief`);
     const brief = await phase2_brief(profile);
 
-    // 5. Phase 3 — Skeleton
+    // 6. Phase 3 — Skeleton (with JD analysis)
     console.log(`[interview-prep-v2] ${prepId}: Phase 3 — Skeleton (15 questions)`);
-    const skeleton = await phase3_skeleton(profile, level, plan);
+    const skeleton = await phase3_skeleton(profile, level, plan, jdAnalysis);
 
-    // 6. Phase 4 — STAR answers (batched)
+    // 7. Phase 4 — STAR answers (with JD + gaps)
     console.log(`[interview-prep-v2] ${prepId}: Phase 4 — STAR answers (${skeleton.length} questions in batches)`);
-    const questions = await phase4_starBatch(profile, level, skeleton);
+    const questions = await phase4_starBatch(profile, level, skeleton, jdAnalysis, gapMap);
 
-    // 7. Phase 5 — Extras
+    // 8. Phase 5 — Extras
     console.log(`[interview-prep-v2] ${prepId}: Phase 5 — Ask-them + Cheat sheet`);
     const extras = await phase5_extras(profile, level);
 
-    // 8. Phase 6 — MCQ
+    // 9. Phase 6 — MCQ
     console.log(`[interview-prep-v2] ${prepId}: Phase 6 — MCQs`);
     const mcqs = await phase6_mcq(profile, level);
 
-    // 9. Phase 7 — Merge + Validate
-    const prepData = {
+    // 10. Phase 7 — Merge + Validate
+    const prepData: any = {
       company_brief: brief,
+      company_context: companyContext,
+      jd_analysis: profile.hasJD ? jdAnalysis : null,
+      gap_map: gapMap.length > 0 ? gapMap : null,
       questions: questions.filter((q: any) => q.question && !q.question.includes('...')),
       ask_them: (extras.ask_them || []).filter((a: any) => a.question && !a.question.includes('...')),
       cheat_sheet: extras.cheat_sheet || {},
       mcq: mcqs.filter((m: any) => m.question && m.options?.length === 4),
     };
 
-    const validation = validatePrepData(prepData);
+    const validation = validatePrepData(prepData, profile.hasJD);
     const durationMs = Date.now() - startTime;
     const meta = {
       pipeline_version: 'v2',
