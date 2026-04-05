@@ -137,7 +137,7 @@ export default function ResultsEmail({
             <Section style={upsellSection}>
               <Text style={upsellTitle}>Upgrade to Pro — ₹500</Text>
               <Text style={upsellDesc}>
-                All 28 premium templates + priority processing
+                All 11 premium templates + ATS keywords + priority processing
               </Text>
               <Button style={upsellButton} href={`${resultsUrl}#upgrade`}>
                 Upgrade Now →
@@ -168,30 +168,30 @@ export default function ResultsEmail({
 
 // ─── Styles ───
 const main = { backgroundColor: '#F3F2EF', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" };
-const container = { maxWidth: '580px', margin: '0 auto', backgroundColor: '#FFFFFF', borderRadius: '8px', overflow: 'hidden' as const };
+const container = { maxWidth: '580px', margin: '0 auto', backgroundColor: '#FFFFFF', borderRadius: '8px', overflow: 'hidden' as const, width: '100%', boxSizing: 'border-box' as const };
 const header = { backgroundColor: '#004182', padding: '24px', textAlign: 'center' as const };
 const headerText = { color: '#FFFFFF', fontSize: '20px', fontWeight: '700' as const, margin: '0' };
 const subheaderText = { color: '#FFFFFF', fontSize: '14px', opacity: 0.9, margin: '4px 0 0' };
 const scoreSection = { padding: '24px', textAlign: 'center' as const };
-const scoreCol = { width: '45%', textAlign: 'center' as const };
+const scoreCol = { width: '45%', textAlign: 'center' as const, boxSizing: 'border-box' as const };
 const beforeBox = { backgroundColor: '#FEE2E2', borderRadius: '8px', padding: '16px', display: 'inline-block' as const };
 const afterBox = { backgroundColor: '#DCFCE7', borderRadius: '8px', padding: '16px', display: 'inline-block' as const };
 const scoreLabel = { fontSize: '11px', fontWeight: '700' as const, letterSpacing: '1px', margin: '0', color: '#666666' };
 const scoreNumber = { fontSize: '36px', fontWeight: '800' as const, margin: '4px 0 0', color: '#CC1016' };
 const scoreNumberGreen = { fontSize: '36px', fontWeight: '800' as const, margin: '4px 0 0', color: '#057642' };
 const improvementText = { fontSize: '14px', color: '#057642', fontWeight: '600' as const, marginTop: '12px' };
-const saveBox = { margin: '0 24px', padding: '14px 18px', backgroundColor: '#FEF3C7', border: '1px solid #F59E0B', borderLeft: '4px solid #F59E0B', borderRadius: '8px', textAlign: 'center' as const };
+const saveBox = { margin: '0 24px', padding: '14px 18px', backgroundColor: '#FEF3C7', border: '1px solid #F59E0B', borderLeft: '4px solid #F59E0B', borderRadius: '8px', textAlign: 'center' as const, boxSizing: 'border-box' as const, maxWidth: 'calc(100% - 48px)' };
 const saveTitle = { fontSize: '14px', fontWeight: '700' as const, color: '#92400E', margin: '0 0 12px' };
 const divider = { borderColor: '#E0E0E0', margin: '24px 0' };
 const sectionTitle = { fontSize: '18px', fontWeight: '700' as const, color: '#191919', padding: '0 24px' };
-const rewriteCard = { margin: '8px 24px', padding: '12px 16px', backgroundColor: '#F0F9FF', borderLeft: '3px solid #0A66C2', borderRadius: '4px' };
-const rewriteText = { fontSize: '16px', fontWeight: '600' as const, color: '#191919', margin: '0', lineHeight: '1.4' };
-const rewriteTextSmall = { fontSize: '13px', color: '#191919', margin: '0', lineHeight: '1.6', whiteSpace: 'pre-wrap' as const };
+const rewriteCard = { margin: '8px 24px', padding: '14px 16px', backgroundColor: '#F0F9FF', borderLeft: '3px solid #0A66C2', borderRadius: '4px', maxWidth: 'calc(100% - 48px)', boxSizing: 'border-box' as const, wordBreak: 'break-word' as const };
+const rewriteText = { fontSize: '16px', fontWeight: '600' as const, color: '#191919', margin: '0', lineHeight: '1.4', wordBreak: 'break-word' as const, overflowWrap: 'break-word' as const };
+const rewriteTextSmall = { fontSize: '13px', color: '#191919', margin: '0', lineHeight: '1.6', whiteSpace: 'pre-wrap' as const, wordBreak: 'break-word' as const, overflowWrap: 'break-word' as const };
 const expTitle = { fontSize: '14px', fontWeight: '600' as const, color: '#191919', padding: '8px 24px 0', margin: '0' };
-const bulletText = { fontSize: '13px', color: '#191919', padding: '0 24px 0 36px', margin: '4px 0', lineHeight: '1.5' };
-const variationRow = { margin: '4px 24px', padding: '8px 12px', backgroundColor: '#F3F2EF', borderRadius: '4px' };
+const bulletText = { fontSize: '13px', color: '#191919', padding: '0 24px 0 36px', margin: '4px 0', lineHeight: '1.5', wordBreak: 'break-word' as const, overflowWrap: 'break-word' as const };
+const variationRow = { margin: '4px 24px', padding: '8px 12px', backgroundColor: '#F3F2EF', borderRadius: '4px', boxSizing: 'border-box' as const, maxWidth: 'calc(100% - 48px)' };
 const variationStyle = { fontSize: '10px', fontWeight: '600' as const, color: '#0A66C2', margin: '0', textTransform: 'uppercase' as const };
-const variationHeadline = { fontSize: '13px', color: '#191919', margin: '2px 0 0' };
+const variationHeadline = { fontSize: '13px', color: '#191919', margin: '2px 0 0', wordBreak: 'break-word' as const, overflowWrap: 'break-word' as const };
 const ctaButton = { backgroundColor: '#0A66C2', color: '#FFFFFF', padding: '12px 32px', borderRadius: '24px', fontSize: '14px', fontWeight: '600' as const, textDecoration: 'none' };
 const upsellSection = { margin: '0 24px 24px', padding: '16px', backgroundColor: '#004182', borderRadius: '8px', textAlign: 'center' as const };
 const upsellTitle = { color: '#FFFFFF', fontSize: '16px', fontWeight: '700' as const, margin: '0 0 4px' };

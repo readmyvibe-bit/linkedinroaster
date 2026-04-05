@@ -144,7 +144,7 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
 
   // Unified activity list
   const activity = [
-    ...rewrites.map((o: any) => ({ type: 'rewrite', id: o.id, title: o.title || 'LinkedIn Rewrite', status: o.status, date: o.createdAt, plan: o.plan, url: `/results/${o.id}`, score: o.beforeScore != null ? `${o.beforeScore}→${o.afterScore}` : null, usage: o.maxResumes > 0 ? `${o.resumesUsed || 0}/${o.maxResumes}` : null })),
+    ...rewrites.map((o: any) => ({ type: 'rewrite', id: o.id, title: o.title || 'Profile Analysis', status: o.status, date: o.createdAt, plan: o.plan, url: `/results/${o.id}`, score: o.beforeScore != null ? `${o.beforeScore}→${o.afterScore}` : null, usage: o.maxResumes > 0 ? `${o.resumesUsed || 0}/${o.maxResumes}` : null })),
     ...builds.map((o: any) => ({ type: 'build', id: o.id, title: o.headline || 'LinkedIn Build', status: o.status, date: o.createdAt, plan: o.plan, url: `/build/results/${o.id}`, score: null, usage: o.maxResumes > 0 ? `${o.resumesUsed || 0}/${o.maxResumes}` : null })),
     ...resumes.map((r: any) => ({ type: 'resume', id: r.id, title: r.targetRole || 'Resume', status: 'generated', date: r.createdAt, plan: null, url: `/resume/${r.id}`, score: r.atsScore ? `ATS ${r.atsScore}%` : null, usage: null })),
     ...preps.map((p: any) => ({ type: 'prep', id: p.id, title: p.targetRole || 'Interview Prep', status: p.status, date: p.createdAt, plan: null, url: `/interview-prep/${p.id}`, score: null, usage: null })),
@@ -153,7 +153,7 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
   const sections = [
     { key: 'overview', label: 'Overview' },
     { key: 'activity', label: 'Activity' },
-    { key: 'rewrites', label: `Rewrites (${rewrites.length})` },
+    { key: 'rewrites', label: `Orders (${rewrites.length})` },
     { key: 'builds', label: `Builds (${builds.length})` },
     { key: 'resumes', label: `Resumes (${resumes.length})` },
     { key: 'preps', label: `Preps (${preps.length})` },
@@ -228,7 +228,7 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
             }}>{s.label}</button>
           ))}
           <div style={{ borderTop: '1px solid var(--border-default)', margin: '12px 20px', paddingTop: 12 }}>
-            <a href="/" style={{ display: 'block', padding: '8px 0', fontSize: 12, color: 'var(--text-muted)', textDecoration: 'none' }}>+ New Rewrite</a>
+            <a href="/" style={{ display: 'block', padding: '8px 0', fontSize: 12, color: 'var(--text-muted)', textDecoration: 'none' }}>+ New Order</a>
             <a href="/build" style={{ display: 'block', padding: '8px 0', fontSize: 12, color: 'var(--text-muted)', textDecoration: 'none' }}>+ New Build</a>
           </div>
         </nav>
@@ -252,13 +252,13 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
             {section === 'overview' && (
               <>
                 <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 4 }}>Welcome back{firstName ? `, ${firstName}` : ''}</h1>
-                <p style={{ fontSize: 14, color: 'var(--text-secondary)', margin: '0 0 24px' }}>Your profile rewrites, resumes, and interview preps</p>
+                <p style={{ fontSize: 14, color: 'var(--text-secondary)', margin: '0 0 24px' }}>Your orders, resumes, and interview preps</p>
 
                 {/* KPI pills */}
                 <div style={{ display: 'flex', gap: 10, marginBottom: 24, flexWrap: 'wrap' }}>
                   {[
                     { v: totalOrders, l: 'Orders', c: 'var(--accent)', bg: 'var(--accent-subtle)' },
-                    { v: rewrites.length, l: 'Rewrites', c: '#7C3AED', bg: '#F5F3FF' },
+                    { v: rewrites.length, l: 'Orders', c: '#7C3AED', bg: '#F5F3FF' },
                     { v: builds.length, l: 'Builds', c: 'var(--success)', bg: 'var(--success-subtle)' },
                     { v: resumes.length, l: 'Resumes', c: '#EA580C', bg: '#FFF7ED' },
                     { v: preps.length, l: 'Preps', c: '#0891B2', bg: '#ECFEFF' },
@@ -274,7 +274,7 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
 
                 {/* CTAs */}
                 <div style={{ display: 'flex', gap: 10, marginBottom: 32 }}>
-                  <a href="/" className="saas-btn saas-btn-primary" style={{ borderRadius: 'var(--radius-sm)' }}>+ New Rewrite</a>
+                  <a href="/" className="saas-btn saas-btn-primary" style={{ borderRadius: 'var(--radius-sm)' }}>+ New Order</a>
                   <a href="/build" className="saas-btn saas-btn-ghost" style={{ color: 'var(--success)' }}>+ New Build</a>
                 </div>
 
@@ -311,7 +311,7 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
                     <h3 style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 8 }}>No orders yet</h3>
                     <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 24 }}>Get started with a profile rewrite or build from scratch.</p>
                     <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-                      <a href="/" className="saas-btn saas-btn-primary" style={{ borderRadius: 'var(--radius-pill)' }}>Rewrite My Profile</a>
+                      <a href="/" className="saas-btn saas-btn-primary" style={{ borderRadius: 'var(--radius-pill)' }}>Analyze My Profile</a>
                       <a href="/build" className="saas-btn saas-btn-ghost">Build My LinkedIn</a>
                     </div>
                   </div>

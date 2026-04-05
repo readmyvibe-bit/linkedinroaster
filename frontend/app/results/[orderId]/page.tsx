@@ -1625,6 +1625,10 @@ export default function ResultsPage() {
   // Hooks for results view (must be before any early returns)
   const [copiedField, setCopiedField] = useState('');
   const [headlineTab, setHeadlineTab] = useState(0);
+  const [linkedinFile, setLinkedinFile] = useState<File | null>(null);
+  const [linkedinUploading, setLinkedinUploading] = useState(false);
+  const [linkedinUploadDone, setLinkedinUploadDone] = useState(false);
+  const linkedinFileRef = useRef<HTMLInputElement>(null);
 
   const fetchOrder = useCallback(async () => {
     try {
@@ -1923,16 +1927,66 @@ export default function ResultsPage() {
                 </div>
               </div>
             )}
-            {(isResumeMode || isQuestionnaireMode) && (
+            {isResumeMode && (
+              <div style={{ marginTop: 12, background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 10, padding: '16px 18px' }}>
+                <input
+                  type="file"
+                  accept=".pdf"
+                  ref={linkedinFileRef}
+                  style={{ display: 'none' }}
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    setLinkedinFile(file);
+                    setLinkedinUploading(true);
+                    try {
+                      const formData = new FormData();
+                      formData.append('file', file);
+                      const res = await fetch(`${API_URL}/api/linkedin-pdf/parse`, { method: 'POST', body: formData });
+                      const parsed = await res.json();
+                      if (!res.ok) { alert(parsed.error || 'Failed to parse PDF'); return; }
+                      const rawText = parsed.raw_paste || parsed.rawText || JSON.stringify(parsed.parsed || '');
+                      sessionStorage.setItem('linkedin_parsed', rawText);
+                      window.location.href = '/?tab=linkedin&from=results';
+                    } catch {
+                      alert('Could not parse file. Please try again.');
+                    } finally {
+                      setLinkedinUploading(false);
+                    }
+                  }}
+                />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#0A66C2', marginBottom: 4 }}>
+                      Get a LinkedIn-specific analysis
+                    </div>
+                    <div style={{ fontSize: 12, color: '#64748B', lineHeight: 1.5 }}>
+                      Upload your LinkedIn PDF for a detailed profile score and rewrite tailored to LinkedIn.
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => linkedinFileRef.current?.click()}
+                    disabled={linkedinUploading}
+                    style={{ padding: '10px 18px', background: '#0A66C2', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', opacity: linkedinUploading ? 0.6 : 1 }}
+                  >
+                    {linkedinUploading ? 'Parsing...' : 'Upload LinkedIn PDF'}
+                  </button>
+                </div>
+                {linkedinFile && !linkedinUploading && (
+                  <div style={{ marginTop: 8, fontSize: 12, color: '#057642' }}>
+                    &#10003; {linkedinFile.name} parsed — redirecting to start your LinkedIn analysis...
+                  </div>
+                )}
+              </div>
+            )}
+            {isQuestionnaireMode && (
               <div style={{ marginTop: 12, background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 10, padding: '14px 16px' }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#0A66C2', marginBottom: 4 }}>
-                  {isResumeMode ? 'Want a deeper LinkedIn analysis?' : 'Want a more accurate score?'}
+                  Want a more accurate score?
                 </div>
                 <div style={{ fontSize: 12, color: '#64748B', lineHeight: 1.5 }}>
-                  {isResumeMode
-                    ? <>Upload your LinkedIn PDF for a more detailed profile rewrite. <a href="/?tab=linkedin" style={{ color: '#0A66C2', fontWeight: 600 }}>Upload LinkedIn PDF &rarr;</a></>
-                    : <>Upload your resume or LinkedIn PDF for a detailed, personalized analysis. <a href="/?tab=resume" style={{ color: '#0A66C2', fontWeight: 600 }}>Upload Resume &rarr;</a></>
-                  }
+                  Upload your resume or LinkedIn PDF for a detailed, personalized analysis.{' '}
+                  <a href="/?tab=resume" style={{ color: '#0A66C2', fontWeight: 600 }}>Upload Resume &rarr;</a>
                 </div>
               </div>
             )}
