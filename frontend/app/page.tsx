@@ -598,7 +598,7 @@ export default function Home() {
       setConfirmSkills((p.skills || []).join(', '));
       setShowConfirmScreen(true);
     } catch (err: any) {
-      console.error('Resume upload error:', err);
+      // Resume upload error — user sees error message below
       setResumeError('Could not reach the server. Please check your internet connection.');
     } finally {
       setResumeUploading(false);
@@ -658,7 +658,7 @@ export default function Home() {
       setConfirmSkills((p.skills || []).join(', '));
       setShowConfirmScreen(true);
     } catch (err: any) {
-      console.error('PDF upload error:', err);
+      // PDF upload error — user sees error message below
       setPdfError('Could not reach the server. Please check your internet connection.');
     } finally {
       setPdfUploading(false);
@@ -1724,6 +1724,7 @@ export default function Home() {
               { label: 'Dashboard', href: '/dashboard' },
               { label: 'Terms', href: '/terms' },
               { label: 'Privacy', href: '/privacy' },
+              { label: 'Refund', href: '/refund' },
             ].map((l, i) => (
               <a key={i} href={l.href} style={{ fontSize: 13, color: '#94A3B8', textDecoration: 'none' }}>{l.label}</a>
             ))}

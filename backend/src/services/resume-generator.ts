@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { query } from '../db';
 import { jsonrepair } from 'jsonrepair';
+import { validateResumeData } from './resume-validator';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
 
@@ -313,7 +314,17 @@ Return ONLY the cover letter text. No JSON. No formatting markers.`,
     coverLetter = ((coverLetterResponse.content[0] as any).text || '').trim();
   }
 
-  // 6. Save to DB
+  // 6. Validate AI output
+  const validation = validateResumeData(resumeData);
+  if (!validation.valid) {
+    console.warn(`[resume-generator] Validation failed for order ${input.orderId}: ${validation.errors.join('; ')}`);
+    // Don't block — save with warnings logged. Resume data is still usable.
+  }
+  if (validation.warnings.length > 0) {
+    console.log(`[resume-generator] Warnings for order ${input.orderId}: ${validation.warnings.join('; ')}`);
+  }
+
+  // 7. Save to DB
   const result = await query(
     `INSERT INTO resumes (order_id, email, job_description, target_role, target_company, template_id, page_count, resume_data, ats_score, keywords_matched, keywords_missing, recommendations, cover_letter, status)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, 'generated')

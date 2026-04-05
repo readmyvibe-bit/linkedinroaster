@@ -127,12 +127,14 @@ router.post('/', async (req: Request, res: Response) => {
 
     // Fire and forget — run generation in background (v2 or v1)
     if (PIPELINE_VERSION === 'v2') {
-      generateInterviewPrepV2(prepId, resume_id, interview_level).catch((err) => {
+      generateInterviewPrepV2(prepId, resume_id, interview_level).catch(async (err) => {
         console.error(`[interview-prep-v2] Background generation failed for ${prepId}:`, err.message);
+        try { await query(`UPDATE interview_preps SET status='failed', error_message=$1 WHERE id=$2 AND status != 'ready'`, [err.message?.slice(0, 500) || 'Unknown error', prepId]); } catch {}
       });
     } else {
-      generateInterviewPrep(prepId, resume_id).catch((err) => {
+      generateInterviewPrep(prepId, resume_id).catch(async (err) => {
         console.error(`[interview-prep] Background generation failed for ${prepId}:`, err.message);
+        try { await query(`UPDATE interview_preps SET status='failed', error_message=$1 WHERE id=$2 AND status != 'ready'`, [err.message?.slice(0, 500) || 'Unknown error', prepId]); } catch {}
       });
     }
 

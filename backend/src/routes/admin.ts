@@ -51,8 +51,10 @@ function adminAuth(req: Request, res: Response, next: NextFunction) {
   return res.status(401).json({ error: 'Unauthorized' });
 }
 
+// Auth ALL admin endpoints
 router.use('/overview', adminAuth);
 router.use('/orders', adminAuth);
+router.use('/build-orders', adminAuth);
 router.use('/teasers', adminAuth);
 router.use('/revenue', adminAuth);
 router.use('/referrals', adminAuth);
@@ -61,6 +63,10 @@ router.use('/approve-order', adminAuth);
 router.use('/reprocess-order', adminAuth);
 router.use('/reprocess-build-order', adminAuth);
 router.use('/interview-preps', adminAuth);
+router.use('/quality', adminAuth);
+router.use('/emails', adminAuth);
+router.use('/codes', adminAuth);
+router.use('/influencers', adminAuth);
 
 // POST /api/admin/nuke-all — delete ALL data (use with extreme caution)
 router.use('/nuke-all', adminAuth);

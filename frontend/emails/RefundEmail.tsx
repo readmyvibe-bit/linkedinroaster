@@ -11,11 +11,11 @@ export default function RefundEmail({ orderId }: RefundEmailProps) {
   return (
     <Html>
       <Head />
-      <Preview>Your refund has been processed — Profile Roaster</Preview>
+      <Preview>Your refund has been processed — ProfileRoaster</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>
-            <Text style={headerText}>🔥 Profile Roaster</Text>
+            <Text style={headerText}>🔥 ProfileRoaster</Text>
           </Section>
 
           <Section style={content}>

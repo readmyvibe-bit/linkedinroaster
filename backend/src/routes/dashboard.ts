@@ -47,6 +47,12 @@ router.post('/send-otp', async (req: Request, res: Response) => {
     if (!hasOrders.rows[0].found)
       return res.json({ found: false });
 
+    // Rate limit: max 3 OTPs per email per 10 minutes
+    const otpRateKey = `dash-otp-rate:${email}`;
+    const otpCount = parseInt(await redis.get(otpRateKey) || '0', 10);
+    if (otpCount >= 3) return res.status(429).json({ error: 'Too many OTP requests. Try again in a few minutes.' });
+    await redis.setex(otpRateKey, 600, (otpCount + 1).toString());
+
     // Generate OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     await redis.setex(`dash-otp:${email}`, 600, otp); // 10 min
