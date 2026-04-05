@@ -3,40 +3,99 @@
 
 /* ─── SaaS Design Tokens ─── */
 :root {
-  --bg-canvas: #F4F6F9;
+  /* Canvas & surfaces */
+  --bg-canvas: #F8FAFC;
   --bg-surface: #FFFFFF;
-  --bg-subtle: #EEF1F6;
-  --border-default: #E2E6ED;
-  --border-strong: #C5CDD8;
+  --bg-subtle: #F1F5F9;
+  --bg-elevated: #FFFFFF;
+  --border-default: #E2E8F0;
+  --border-strong: #CBD5E1;
+  /* Text */
   --text-primary: #0F172A;
-  --text-secondary: #64748B;
+  --text-secondary: #475569;
   --text-muted: #94A3B8;
+  /* Accent */
   --accent: #0A66C2;
   --accent-hover: #004182;
   --accent-subtle: #EFF6FF;
+  /* Semantic */
   --success: #059669;
   --success-subtle: #ECFDF5;
   --warning: #D97706;
   --warning-subtle: #FFFBEB;
   --danger: #DC2626;
   --danger-subtle: #FEF2F2;
-  --overlay: rgba(15, 23, 42, 0.45);
+  --overlay: rgba(15, 23, 42, 0.5);
+  /* Radii */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
+  --radius-xl: 24px;
   --radius-pill: 9999px;
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
-  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
-  --shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.12);
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
+  --shadow-card-hover: 0 4px 12px rgba(15, 23, 42, 0.08), 0 2px 4px rgba(15, 23, 42, 0.04);
+  /* Type scale */
+  --fs-micro: 10px;
+  --fs-small: 12px;
+  --fs-body: 14px;
+  --fs-md: 16px;
+  --fs-lg: 20px;
+  --fs-xl: 24px;
+  --fs-2xl: 32px;
+  --fs-display: 42px;
+  /* Motion */
   --transition: 150ms ease;
+  --transition-slow: 300ms ease;
+  /* Layout */
+  --max-w: 1280px;
+  --section-py: 80px;
+  --section-py-mobile: 48px;
+}
+
+/* ─── SaaS Scroll Animations ─── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 
 body {
-  background-color: var(--li-gray);
-  background-image: radial-gradient(circle, #d5d4d0 0.8px, transparent 0.8px);
-  background-size: 24px 24px;
-  color: var(--li-text-primary);
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
   margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Landing-specific SaaS styles ─── */
+.landing-nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-default);
+}
+.landing-section { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+@media (min-width: 640px) { .landing-section { padding: 0 32px; } }
+@media (min-width: 1024px) { .landing-section { padding: 0 48px; } }
+
+.icon-tile {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 18px;
+}
+
+.saas-eyebrow {
+  font-size: var(--fs-small); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--accent);
 }
 
 /* ─── SaaS Component Styles ─── */
@@ -76,11 +135,11 @@ body {
 .saas-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  transition: box-shadow var(--transition);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  transition: box-shadow var(--transition), border-color var(--transition);
 }
-.saas-card:hover { box-shadow: var(--shadow-md); }
+.saas-card:hover { box-shadow: var(--shadow-card-hover); border-color: var(--border-strong); }
 
 .saas-label {
   font-size: 11px;

@@ -864,19 +864,18 @@ export default function Home() {
   return (
     <main style={{ minHeight: '100vh', background: 'var(--bg-canvas)' }}>
       {/* ─── NAV ─── */}
-      <nav style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)', padding: '10px 16px', position: 'sticky', top: 0, zIndex: 100 }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <a href="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
-            <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--accent)' }}>Profile</span>
-            <span style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)' }}>Roaster</span>
+      <nav className="landing-nav">
+        <div className="landing-section" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 56 }}>
+          <a href="/" style={{ textDecoration: 'none', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 2 }}>
+            <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--accent)', letterSpacing: '-0.02em' }}>Profile</span>
+            <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>Roaster</span>
           </a>
-          <div className="hidden sm:flex" style={{ gap: 14, alignItems: 'center' }}>
-            <a href="/dashboard" className="saas-btn saas-btn-ghost" style={{ fontSize: 13, padding: '6px 12px', textDecoration: 'none' }}>Dashboard</a>
-            <a href="/pricing" className="saas-btn saas-btn-ghost" style={{ fontSize: 13, padding: '6px 12px', textDecoration: 'none' }}>Pricing</a>
+          <div className="hidden sm:flex" style={{ gap: 8, alignItems: 'center' }}>
+            <a href="/dashboard" style={{ fontSize: 14, color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 500, padding: '6px 12px', borderRadius: 'var(--radius-sm)', transition: 'all var(--transition)' }}>Dashboard</a>
+            <a href="/pricing" style={{ fontSize: 14, color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 500, padding: '6px 12px', borderRadius: 'var(--radius-sm)', transition: 'all var(--transition)' }}>Pricing</a>
             <button
-              className="saas-btn saas-btn-primary"
               onClick={() => heroRef.current?.scrollIntoView({ behavior: 'smooth' })}
-              style={{ fontSize: 13, padding: '8px 18px', borderRadius: 'var(--radius-pill)' }}
+              style={{ fontSize: 14, fontWeight: 600, padding: '8px 20px', borderRadius: 'var(--radius-pill)', border: 'none', cursor: 'pointer', background: 'var(--accent)', color: 'white', transition: 'all var(--transition)' }}
             >
               Get Free Score
             </button>
@@ -884,18 +883,22 @@ export default function Home() {
           <button
             className="sm:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, display: 'flex', flexDirection: 'column', gap: 4 }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8, display: 'flex', flexDirection: 'column', gap: 5, borderRadius: 'var(--radius-sm)' }}
             aria-label="Menu"
           >
-            <span style={{ display: 'block', width: 20, height: 2, background: 'var(--text-primary)', borderRadius: 1, transition: 'all 0.2s', transform: mobileMenuOpen ? 'rotate(45deg) translateY(6px)' : 'none' }} />
-            <span style={{ display: 'block', width: 20, height: 2, background: 'var(--text-primary)', borderRadius: 1, transition: 'all 0.2s', opacity: mobileMenuOpen ? 0 : 1 }} />
-            <span style={{ display: 'block', width: 20, height: 2, background: 'var(--text-primary)', borderRadius: 1, transition: 'all 0.2s', transform: mobileMenuOpen ? 'rotate(-45deg) translateY(-6px)' : 'none' }} />
+            <span style={{ display: 'block', width: 18, height: 2, background: 'var(--text-primary)', borderRadius: 2, transition: 'all 0.2s', transform: mobileMenuOpen ? 'rotate(45deg) translateY(7px)' : 'none' }} />
+            <span style={{ display: 'block', width: 18, height: 2, background: 'var(--text-primary)', borderRadius: 2, transition: 'all 0.2s', opacity: mobileMenuOpen ? 0 : 1 }} />
+            <span style={{ display: 'block', width: 18, height: 2, background: 'var(--text-primary)', borderRadius: 2, transition: 'all 0.2s', transform: mobileMenuOpen ? 'rotate(-45deg) translateY(-7px)' : 'none' }} />
           </button>
         </div>
         {mobileMenuOpen && (
-          <div className="sm:hidden" style={{ borderTop: '1px solid var(--bg-subtle)', marginTop: 8, paddingTop: 8 }}>
-            <a href="/dashboard" onClick={() => setMobileMenuOpen(false)} style={{ display: 'block', padding: '10px 8px', fontSize: 14, color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 600 }}>Dashboard</a>
-            <a href="/pricing" onClick={() => setMobileMenuOpen(false)} style={{ display: 'block', padding: '10px 8px', fontSize: 14, color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 600 }}>Pricing</a>
+          <div className="sm:hidden" style={{ borderTop: '1px solid var(--border-default)', padding: '8px 24px 12px' }}>
+            <a href="/dashboard" onClick={() => setMobileMenuOpen(false)} style={{ display: 'block', padding: '10px 0', fontSize: 15, color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 600 }}>Dashboard</a>
+            <a href="/pricing" onClick={() => setMobileMenuOpen(false)} style={{ display: 'block', padding: '10px 0', fontSize: 15, color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 600 }}>Pricing</a>
+            <button
+              onClick={() => { setMobileMenuOpen(false); heroRef.current?.scrollIntoView({ behavior: 'smooth' }); }}
+              style={{ display: 'block', width: '100%', marginTop: 8, padding: '12px', borderRadius: 'var(--radius-sm)', border: 'none', background: 'var(--accent)', color: 'white', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}
+            >Get Free Score</button>
           </div>
         )}
       </nav>
@@ -903,59 +906,54 @@ export default function Home() {
       {/* ═══════════════════════════════════ */}
       {/* HERO — Two Columns                  */}
       {/* ═══════════════════════════════════ */}
-      <section ref={heroRef} style={{ background: 'linear-gradient(135deg, #F8FAFF 0%, #EEF2FF 40%, #F0F7FF 100%)', borderBottom: '1px solid var(--border-default)', padding: '48px 24px 56px' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ display: 'flex', gap: 40, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+      <section ref={heroRef} style={{ background: 'var(--bg-canvas)', borderBottom: '1px solid var(--border-default)', padding: '64px 0 72px' }}>
+        <div className="landing-section">
+          <div style={{ display: 'flex', gap: 48, alignItems: 'center', flexWrap: 'wrap' }}>
 
-            {/* LEFT (55%) — Value Proposition */}
+            {/* LEFT — Value Proposition */}
             <div style={{ flex: '1.2 1 420px', minWidth: 0 }}>
-              <h1 style={{ fontSize: 36, fontWeight: 900, color: 'var(--text-primary)', marginBottom: 6, lineHeight: 1.15 }}>
-                Not Getting Calls <span style={{ color: '#CC1016' }}>from HR?</span>
+              <div className="saas-eyebrow" style={{ marginBottom: 12 }}>Free profile score</div>
+              <h1 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 12, lineHeight: 1.15, letterSpacing: '-0.02em' }}>
+                Not getting calls from HR?<br />
+                <span style={{ color: 'var(--accent)' }}>Your resume might be the problem.</span>
               </h1>
-              <h2 style={{ fontSize: 26, fontWeight: 900, color: 'var(--accent)', marginTop: 0, marginBottom: 16, lineHeight: 1.2 }}>
-                Your Resume &amp; LinkedIn Profile Might Be the Problem
-              </h2>
-              <p style={{ fontSize: 15, color: 'var(--text-secondary)', marginBottom: 24, lineHeight: 1.7 }}>
-                Upload your resume or LinkedIn PDF &mdash; AI finds what{"'"}s killing your chances and fixes it in minutes. Get a complete rewrite, ATS resume, and interview prep.
+              <p style={{ fontSize: 16, color: 'var(--text-secondary)', marginBottom: 32, lineHeight: 1.7, maxWidth: 520 }}>
+                Upload your resume or LinkedIn PDF. AI scores it, rewrites your profile, builds an ATS resume, and preps you for interviews — in minutes.
               </p>
 
-              {/* 4 bullet points */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+              {/* Value bullets with icon tiles */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 32 }}>
                 {[
-                  { icon: '&#128196;', text: 'Upload resume or LinkedIn PDF for instant analysis' },
-                  { icon: '&#127919;', text: 'ATS score + LinkedIn profile score + AI rewrite' },
-                  { icon: '&#127908;', text: 'Personalized interview questions + STAR answers' },
-                  { icon: '&#9993;&#65039;', text: 'Cover letter matched to your target role' },
+                  { bg: 'var(--accent-subtle)', color: 'var(--accent)', icon: '📄', title: 'Instant ATS analysis', desc: 'Upload resume or LinkedIn PDF' },
+                  { bg: 'var(--success-subtle)', color: 'var(--success)', icon: '✍️', title: 'AI-powered rewrite', desc: 'Headline, about, experience bullets' },
+                  { bg: '#F5F3FF', color: '#7C3AED', icon: '🎯', title: 'Interview prep kit', desc: '15 STAR-format questions + cheat sheet' },
+                  { bg: '#FFF7ED', color: '#EA580C', icon: '📋', title: 'ATS resume builder', desc: '11 templates, instant PDF download' },
                 ].map((item, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ fontSize: 18, flexShrink: 0 }} dangerouslySetInnerHTML={{ __html: item.icon }} />
-                    <span style={{ fontSize: 14, color: '#334155', fontWeight: 500 }}>{item.text}</span>
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <div className="icon-tile" style={{ background: item.bg, color: item.color, fontSize: 18 }}>{item.icon}</div>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{item.title}</div>
+                      <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>{item.desc}</div>
+                    </div>
                   </div>
                 ))}
               </div>
 
-              {/* Before / After score */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20, flexWrap: 'wrap' }}>
-                <div style={{ background: '#FEF2F2', borderRadius: 'var(--radius-sm)', padding: '8px 16px', textAlign: 'center' }}>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: '#CC1016', letterSpacing: 1 }}>BEFORE</div>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: '#CC1016' }}>42</div>
+              {/* Before / After comparison strip */}
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-md)', padding: '10px 20px', boxShadow: 'var(--shadow-xs)' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--danger)', letterSpacing: 1, textTransform: 'uppercase' }}>Before</div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--danger)' }}>42</div>
                 </div>
-                <div style={{ fontSize: 18, color: '#CBD5E1' }}>&rarr;</div>
-                <div style={{ background: 'var(--success-subtle)', borderRadius: 'var(--radius-sm)', padding: '8px 16px', textAlign: 'center' }}>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--success)', letterSpacing: 1 }}>AFTER</div>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--success)' }}>87</div>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12m0 0l-4-4m4 4l-4 4" stroke="#CBD5E1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--success)', letterSpacing: 1, textTransform: 'uppercase' }}>After</div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--success)' }}>87</div>
                 </div>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>+45 points</div>
-                  <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Average improvement</div>
+                <div style={{ borderLeft: '1px solid var(--border-default)', paddingLeft: 12, marginLeft: 4 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>+45 pts</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>avg improvement</div>
                 </div>
-              </div>
-
-              {/* Trust microcopy */}
-              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>
-                <span>&#128274; No signup</span>
-                <span>&#9889; Instant results</span>
-                <span>&#127873; 100% free analysis</span>
               </div>
             </div>
 
@@ -1275,14 +1273,18 @@ export default function Home() {
       {/* TEASER RESULT                       */}
       {/* ═══════════════════════════════════ */}
       {teaser && (
-        <section ref={resultRef} style={{ background: 'var(--bg-canvas)', borderBottom: '1px solid var(--border-default)', padding: '32px 16px', animation: 'resultAppear 0.5s ease forwards' }}>
-          <div style={{ maxWidth: 1100, margin: '0 auto', width: '100%', boxSizing: 'border-box' as const }}>
+        <section ref={resultRef} style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)', padding: '48px 0', animation: 'fadeInUp 0.5s ease forwards' }}>
+          <div className="landing-section">
+            <div style={{ marginBottom: 24 }}>
+              <div className="saas-eyebrow" style={{ marginBottom: 8 }}>Your free preview</div>
+              <h2 style={{ fontSize: 'var(--fs-xl)', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Here{"'"}s what we found</h2>
+            </div>
 
             {/* ═══ 3-COLUMN GRID ═══ */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 16, marginBottom: 20 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 28 }}>
 
               {/* BOX 1: Score */}
-              <div style={{ background: 'var(--bg-surface)', borderRadius: 16, border: '1px solid var(--border-default)', padding: '24px 20px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+              <div className="saas-card" style={{ padding: '28px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
                 <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase' as const, letterSpacing: 1.5, marginBottom: 12 }}>
                   {inputSource === 'resume' ? 'ATS Score' : 'Profile Score'}
                 </p>
@@ -1303,7 +1305,7 @@ export default function Home() {
               </div>
 
               {/* BOX 2: Headline */}
-              <div style={{ background: 'var(--bg-surface)', borderRadius: 16, border: '1px solid var(--border-default)', padding: '24px 20px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column' }}>
+              <div className="saas-card" style={{ padding: '28px 24px', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
                   <div style={{ width: 32, height: 32, borderRadius: 8, background: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>&#10003;</div>
                   <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>AI-Suggested Headline</p>
@@ -1323,7 +1325,7 @@ export default function Home() {
               </div>
 
               {/* BOX 3: Interview Question */}
-              <div style={{ background: 'var(--bg-surface)', borderRadius: 16, border: '1px solid var(--border-default)', padding: '24px 20px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column' }}>
+              <div className="saas-card" style={{ padding: '28px 24px', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
                   <div style={{ width: 32, height: 32, borderRadius: 8, background: '#ECFEFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0, color: '#0891B2' }}>?</div>
                   <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>A Recruiter Would Ask</p>
@@ -1381,25 +1383,25 @@ export default function Home() {
               );
             })()}
 
-            {/* 3 Locked items */}
-            <div className="saas-card" style={{ padding: '18px 16px', marginBottom: 12 }}>
-              <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12 }}>
-                {inputSource === 'resume' ? 'What we found in your resume:' : 'What we found beyond your headline:'}
+            {/* Locked insights */}
+            <div className="saas-card" style={{ padding: '24px', marginBottom: 20 }}>
+              <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 16 }}>
+                Unlock your full analysis
               </p>
               {[
-                { icon: '\uD83D\uDD12', text: inputSource === 'resume' ? 'ATS keyword gaps & optimization tips hidden' : '2 critical profile issues hidden' },
-                { icon: '\uD83D\uDD12', text: inputSource === 'resume' ? 'AI-generated LinkedIn profile content hidden' : 'ATS keyword gaps hidden' },
-                { icon: '\uD83D\uDD12', text: '5 interview questions tailored to your profile hidden' },
+                { text: inputSource === 'resume' ? 'ATS keyword gaps + optimization tips' : '2 critical profile issues identified' },
+                { text: inputSource === 'resume' ? 'AI-generated LinkedIn profile content' : 'ATS keyword gap analysis' },
+                { text: '15 personalized interview questions + STAR answers' },
               ].map((item, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'var(--bg-canvas)', borderRadius: 'var(--radius-sm)', marginBottom: 8, border: '1px solid var(--border-default)' }}>
-                  <span style={{ fontSize: 18 }}>{item.icon}</span>
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: 'var(--bg-subtle)', borderRadius: 'var(--radius-sm)', marginBottom: 8 }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1a4 4 0 00-4 4v3H3a1 1 0 00-1 1v5a1 1 0 001 1h10a1 1 0 001-1V9a1 1 0 00-1-1h-1V5a4 4 0 00-4-4zm-2 4a2 2 0 114 0v3H6V5z" fill="var(--text-muted)"/></svg>
                   <span style={{ fontSize: 14, color: 'var(--text-secondary)', fontWeight: 500 }}>{item.text}</span>
                 </div>
               ))}
             </div>
 
-            {/* Blue gradient CTA */}
-            <div style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent-hover))', borderRadius: 'var(--radius-md)', padding: '22px 16px', textAlign: 'center' }}>
+            {/* CTA strip */}
+            <div style={{ background: 'var(--accent)', borderRadius: 'var(--radius-lg)', padding: '28px 24px', textAlign: 'center' }}>
               <p style={{ fontSize: 18, fontWeight: 800, color: 'white', marginBottom: 8 }}>
                 {inputSource === 'resume'
                   ? 'Get Full Resume Rewrite + LinkedIn Profile + Interview Prep'
@@ -1508,22 +1510,25 @@ export default function Home() {
       {!teaser && (
         <>
           {/* ── Everything You Need ── */}
-          <section style={{ padding: '56px 24px', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)' }}>
-            <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 32, fontWeight: 900, color: 'var(--text-primary)', textAlign: 'center', marginBottom: 8 }}>Everything You Need to Land Interviews</h2>
-              <p style={{ fontSize: 16, color: 'var(--text-secondary)', textAlign: 'center', marginBottom: 40 }}>One payment. Four powerful tools. Zero subscriptions.</p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
+          <section style={{ padding: 'var(--section-py) 0', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)' }}>
+            <div className="landing-section">
+              <div style={{ textAlign: 'center', marginBottom: 48 }}>
+                <div className="saas-eyebrow" style={{ marginBottom: 8 }}>Complete career toolkit</div>
+                <h2 style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 8, letterSpacing: '-0.02em' }}>Everything you need to land interviews</h2>
+                <p style={{ fontSize: 'var(--fs-md)', color: 'var(--text-secondary)', maxWidth: 480, margin: '0 auto' }}>One payment. Four powerful tools. Zero subscriptions.</p>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 24 }}>
                 {[
-                  { icon: '&#128293;', title: 'Fix What\u2019s Blocking You', desc: 'AI scores your resume & profile, identifies issues, and rewrites your headline, about, and experience.', free: true },
-                  { icon: '&#127919;', title: 'Answer Like a Top Candidate', desc: 'Personalized interview questions based on YOUR resume + target JD. STAR-format answers + cheat sheet + quiz.', free: false },
-                  { icon: '&#128196;', title: 'Get Past ATS Filters', desc: 'Professional resume matched to your job description. ATS-optimized templates. PDF + TXT download.', free: false },
-                  { icon: '&#9993;&#65039;', title: 'Stand Out in Applications', desc: 'Personalized cover letter for every application. Ready to copy-paste.', free: false },
+                  { bg: 'var(--accent-subtle)', color: 'var(--accent)', icon: '✍️', title: 'Profile Rewrite', desc: 'AI scores your resume & profile, identifies issues, and rewrites everything.', free: true },
+                  { bg: '#F5F3FF', color: '#7C3AED', icon: '🎯', title: 'Interview Prep', desc: '15 personalized questions + STAR answers + cheat sheet + MCQ quiz.', free: false },
+                  { bg: '#FFF7ED', color: '#EA580C', icon: '📄', title: 'ATS Resume', desc: 'Professional resume matched to your JD. 11 ATS-optimized templates.', free: false },
+                  { bg: 'var(--success-subtle)', color: 'var(--success)', icon: '📋', title: 'Cover Letter', desc: 'Personalized cover letter for every application. Ready to use.', free: false },
                 ].map((f, i) => (
-                  <div key={i} className="saas-card" style={{ padding: '24px 20px', textAlign: 'center' }}>
-                    <div style={{ fontSize: 36, marginBottom: 12 }} dangerouslySetInnerHTML={{ __html: f.icon }} />
-                    <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{f.title}</div>
-                    <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{f.desc}</div>
-                    {f.free && <div style={{ display: 'inline-block', background: 'var(--success)', color: 'white', fontSize: 12, fontWeight: 700, padding: '6px 16px', borderRadius: 'var(--radius-pill)', marginTop: 12, letterSpacing: 0.5 }}>FREE &mdash; Try Now</div>}
+                  <div key={i} className="saas-card" style={{ padding: '28px 24px' }}>
+                    <div className="icon-tile" style={{ background: f.bg, color: f.color, marginBottom: 16 }}>{f.icon}</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{f.title}</div>
+                    <div style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{f.desc}</div>
+                    {f.free && <div style={{ display: 'inline-block', background: 'var(--success)', color: 'white', fontSize: 12, fontWeight: 700, padding: '6px 16px', borderRadius: 'var(--radius-pill)', marginTop: 14, letterSpacing: 0.5 }}>Free</div>}
                   </div>
                 ))}
               </div>
@@ -1531,21 +1536,22 @@ export default function Home() {
           </section>
 
           {/* ── How It Works ── */}
-          <section style={{ padding: '56px 24px', background: 'linear-gradient(135deg, #F8FAFF 0%, #F0F7FF 100%)', borderBottom: '1px solid var(--border-default)' }}>
-            <div style={{ maxWidth: 900, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 32, fontWeight: 900, color: 'var(--text-primary)', textAlign: 'center', marginBottom: 8 }}>How It Works</h2>
-              <p style={{ fontSize: 16, color: 'var(--text-secondary)', textAlign: 'center', marginBottom: 40 }}>Three steps. That{"'"}s it.</p>
-              <div style={{ display: 'flex', gap: 0, alignItems: 'flex-start', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <section style={{ padding: 'var(--section-py) 0', background: 'var(--bg-canvas)', borderBottom: '1px solid var(--border-default)' }}>
+            <div className="landing-section">
+              <div style={{ textAlign: 'center', marginBottom: 48 }}>
+                <div className="saas-eyebrow" style={{ marginBottom: 8 }}>Simple process</div>
+                <h2 style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>Three steps. That{"'"}s it.</h2>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 32, maxWidth: 900, margin: '0 auto' }}>
                 {[
-                  { num: '1', title: 'Upload Your File', desc: 'Upload your resume (PDF/DOCX) or LinkedIn PDF. Or fill a quick form.' },
-                  { num: '2', title: 'AI Analyzes & Builds', desc: 'Scores your profile, rewrites it, generates resume + interview prep' },
-                  { num: '3', title: 'Download & Apply', desc: 'Everything ready. Start applying with confidence today.' },
+                  { num: '1', title: 'Upload your file', desc: 'Resume (PDF/DOCX), LinkedIn PDF, or fill a quick form.' },
+                  { num: '2', title: 'AI analyzes & builds', desc: 'Scores your profile, rewrites it, generates resume + interview prep.' },
+                  { num: '3', title: 'Download & apply', desc: 'Everything ready. Start applying with confidence today.' },
                 ].map((s, i) => (
-                  <div key={i} style={{ flex: '1 1 200px', textAlign: 'center', padding: '0 16px', position: 'relative', minWidth: 200 }}>
-                    <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--accent)', color: 'white', fontSize: 20, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>{s.num}</div>
+                  <div key={i} style={{ textAlign: 'center', position: 'relative' }}>
+                    <div style={{ width: 48, height: 48, borderRadius: 14, background: 'var(--accent)', color: 'white', fontSize: 20, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>{s.num}</div>
                     <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{s.title}</div>
-                    <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{s.desc}</div>
-                    {i < 2 && <span className="hidden md:block" style={{ position: 'absolute', right: -12, top: 24, fontSize: 20, color: '#CBD5E1' }}>&rarr;</span>}
+                    <div style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{s.desc}</div>
                   </div>
                 ))}
               </div>
@@ -1553,15 +1559,17 @@ export default function Home() {
           </section>
 
           {/* ── See Real Results ── */}
-          <section style={{ padding: '56px 24px', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)' }}>
-            <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 26, fontWeight: 900, color: 'var(--text-primary)', textAlign: 'center', marginBottom: 8 }}>See Real Results</h2>
-              <p style={{ fontSize: 16, color: 'var(--text-secondary)', textAlign: 'center', marginBottom: 32 }}>Actual output from ProfileRoaster.</p>
+          <section style={{ padding: 'var(--section-py) 0', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)' }}>
+            <div className="landing-section" style={{ maxWidth: 1000 }}>
+              <div style={{ textAlign: 'center', marginBottom: 40 }}>
+                <div className="saas-eyebrow" style={{ marginBottom: 8 }}>Real output</div>
+                <h2 style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>See what ProfileRoaster generates</h2>
+              </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
 
                 {/* Rewrite Before/After */}
                 <div className="saas-card" style={{ overflow: 'hidden' }}>
-                  <div style={{ padding: '12px 16px', fontSize: 12, fontWeight: 700, color: 'white', background: 'linear-gradient(135deg, var(--accent), var(--accent-hover))' }}>&#9997;&#65039; AI Profile Rewrite</div>
+                  <div style={{ padding: '12px 16px', fontSize: 12, fontWeight: 700, color: 'white', background: 'var(--accent)' }}>&#9997;&#65039; AI Profile Rewrite</div>
                   <div style={{ padding: 16 }}>
                     <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 'var(--radius-sm)', padding: '10px 14px', marginBottom: 10 }}>
                       <div style={{ fontSize: 10, fontWeight: 700, color: '#DC2626', marginBottom: 4 }}>&#10007; BEFORE</div>
@@ -1582,7 +1590,7 @@ export default function Home() {
 
                 {/* Resume Preview */}
                 <div className="saas-card" style={{ overflow: 'hidden' }}>
-                  <div style={{ padding: '12px 16px', fontSize: 12, fontWeight: 700, color: 'white', background: 'linear-gradient(135deg, var(--accent), var(--accent-hover))' }}>&#128196; ATS Resume</div>
+                  <div style={{ padding: '12px 16px', fontSize: 12, fontWeight: 700, color: 'white', background: 'var(--accent)' }}>&#128196; ATS Resume</div>
                   <div style={{ padding: 0 }}>
                     <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', margin: 12, borderRadius: 4, padding: 14, fontSize: 11 }}>
                       <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 2 }}>Priya Mehta</div>
@@ -1636,9 +1644,12 @@ export default function Home() {
           {!showPricing && !selectedPlan && pricingSection}
 
           {/* ── FAQ ── */}
-          <section style={{ padding: '56px 24px', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)' }}>
-            <div style={{ maxWidth: 700, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 28, fontWeight: 900, color: 'var(--text-primary)', textAlign: 'center', marginBottom: 32 }}>Frequently Asked Questions</h2>
+          <section style={{ padding: 'var(--section-py) 0', background: 'var(--bg-canvas)', borderBottom: '1px solid var(--border-default)' }}>
+            <div className="landing-section" style={{ maxWidth: 720 }}>
+              <div style={{ textAlign: 'center', marginBottom: 40 }}>
+                <div className="saas-eyebrow" style={{ marginBottom: 8 }}>FAQ</div>
+                <h2 style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>Frequently asked questions</h2>
+              </div>
               {[
                 { q: 'Is the profile score really free?', a: 'Yes! Upload your resume or LinkedIn PDF and get an instant AI score with a suggested headline \u2014 completely free, no signup required.' },
                 { q: 'What do I get with the paid plan?', a: 'A complete profile rewrite (headline, about, experience), ATS-optimized resume in multiple templates, personalized cover letter, and interview prep with questions, STAR-format answers, cheat sheet, and quiz.' },
@@ -1658,7 +1669,7 @@ export default function Home() {
                     }}
                   >
                     <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', paddingRight: 16 }}>{item.q}</span>
-                    <span style={{ fontSize: 18, color: 'var(--text-secondary)', flexShrink: 0, transition: 'transform 0.2s', transform: faqOpen === i ? 'rotate(180deg)' : 'none' }}>&#9660;</span>
+                    <span style={{ fontSize: 20, color: 'var(--text-muted)', flexShrink: 0, transition: 'transform 0.2s', transform: faqOpen === i ? 'rotate(45deg)' : 'none', fontWeight: 300, lineHeight: 1 }}>+</span>
                   </button>
                   {faqOpen === i && (
                     <div style={{ padding: '0 0 16px', fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
@@ -1671,10 +1682,10 @@ export default function Home() {
           </section>
 
           {/* ── Final CTA ── */}
-          <section style={{ background: 'linear-gradient(135deg, var(--accent-hover) 0%, var(--accent) 100%)', padding: '48px 16px', textAlign: 'center' }}>
-            <div style={{ maxWidth: 600, margin: '0 auto' }}>
-              <div style={{ fontSize: 28, fontWeight: 900, color: 'white', marginBottom: 8 }}>Stop losing interviews.</div>
-              <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.8)', marginBottom: 12, lineHeight: 1.6 }}>Every day with a weak profile is another recruiter who scrolled past you.</div>
+          <section style={{ background: 'var(--accent)', padding: '64px 0', textAlign: 'center' }}>
+            <div className="landing-section" style={{ maxWidth: 600 }}>
+              <div style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'white', marginBottom: 12, letterSpacing: '-0.02em' }}>Stop losing interviews.</div>
+              <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.85)', marginBottom: 12, lineHeight: 1.7 }}>Every day with a weak profile is another recruiter who scrolled past you.</div>
               <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)', marginBottom: 28, lineHeight: 1.6 }}>
                 Resume writers charge &#8377;3,000&ndash;15,000 and take days.<br />
                 We do everything in under 3 minutes for &#8377;499. One time. No subscription.
