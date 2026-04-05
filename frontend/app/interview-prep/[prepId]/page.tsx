@@ -127,6 +127,7 @@ export default function InterviewPrepPage() {
   const [loading, setLoading] = useState(true);
   const [loadingStage, setLoadingStage] = useState(0);
   const [error, setError] = useState('');
+  const [timedOut, setTimedOut] = useState(false);
 
   // Tab state
   const [activeTab, setActiveTab] = useState('questions');
@@ -167,7 +168,8 @@ export default function InterviewPrepPage() {
     let timeout: ReturnType<typeof setTimeout>;
 
     function poll() {
-      if (!loading || attempt >= maxAttempts) return;
+      if (!loading) return;
+      if (attempt >= maxAttempts) { setTimedOut(true); return; }
       attempt++;
       // Backoff: 2s, 2s, 3s, 3s, 4s, 5s... capped at 8s
       const delay = Math.min(2000 + Math.floor(attempt / 3) * 1000, 8000);
@@ -222,9 +224,21 @@ export default function InterviewPrepPage() {
             width: 48, height: 48, border: '4px solid #E0E0E0', borderTopColor: '#0A66C2',
             borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 20px',
           }} />
-          <div style={{ fontSize: 18, fontWeight: 700, color: '#333', marginBottom: 8 }}>Preparing Your Interview Kit</div>
-          <div style={{ fontSize: 14, color: '#0A66C2', fontWeight: 600, marginBottom: 8 }}>{LOADING_STAGES[loadingStage]}</div>
-          <div style={{ fontSize: 12, color: '#888' }}>This usually takes 1-2 minutes</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: '#333', marginBottom: 8 }}>
+            {timedOut ? 'Still working...' : 'Preparing Your Interview Kit'}
+          </div>
+          {timedOut ? (
+            <>
+              <div style={{ fontSize: 14, color: '#92400E', fontWeight: 600, marginBottom: 8 }}>This is taking longer than usual.</div>
+              <button onClick={() => window.location.reload()} style={{ padding: '8px 20px', background: '#0A66C2', color: '#fff', border: 'none', borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: 'pointer', marginBottom: 8 }}>Refresh</button>
+              <div style={{ fontSize: 12, color: '#888' }}>Or check back in a minute</div>
+            </>
+          ) : (
+            <>
+              <div style={{ fontSize: 14, color: '#0A66C2', fontWeight: 600, marginBottom: 8 }}>{LOADING_STAGES[loadingStage]}</div>
+              <div style={{ fontSize: 12, color: '#888' }}>This usually takes 1-2 minutes</div>
+            </>
+          )}
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       </div>

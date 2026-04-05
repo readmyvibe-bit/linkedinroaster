@@ -57,8 +57,9 @@ async function geminiPhaseWithRetry(prompt: string, system: string, opts: { temp
     const isRetryable = msg === 'MAX_TOKENS'
       || msg.includes('parse')
       || msg.includes('Unexpected token')
-      || msg.includes('JSON')
-      || err instanceof SyntaxError;
+      || msg.includes('JSON at position')
+      || err instanceof SyntaxError
+      || err.name === 'SyntaxError';
     if (isRetryable) {
       console.log(`[interview-prep-v2] Retrying phase with gemini-2.5-pro (reason: ${msg.slice(0, 80)})`);
       return await geminiPhase(prompt, system, { ...opts, model: 'gemini-2.5-pro', maxTokens: (opts.maxTokens || 4096) + 2048 });

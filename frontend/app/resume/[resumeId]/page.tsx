@@ -79,7 +79,6 @@ export default function ResumePreviewPage() {
 
   function handleCopyCL() { if (!resume?.cover_letter) return; navigator.clipboard.writeText(resume.cover_letter).then(() => { setCoverLetterCopied(true); setTimeout(() => setCoverLetterCopied(false), 2000); }); }
 
-  const [interviewLevel, setInterviewLevel] = useState('');
   const [showLevelPicker, setShowLevelPicker] = useState(false);
   const handleInterview = async (level?: string) => {
     try {
@@ -347,7 +346,7 @@ export default function ResumePreviewPage() {
       <div className="flex sm:!hidden" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'var(--bg-surface)', borderTop: '1px solid var(--border-default)', padding: '10px 16px', zIndex: 50, gap: 8, boxShadow: 'var(--shadow-md)' }}>
         <button onClick={handleDownloadPDF} className="saas-btn saas-btn-primary" style={{ flex: 1, justifyContent: 'center' }}>Download PDF</button>
         <a href={`/resume/${resume.id}/edit`} className="saas-btn saas-btn-ghost">Edit</a>
-        <button onClick={() => setShowTemplateModal(true)} className="saas-btn saas-btn-ghost">Templates</button>
+        <button onClick={() => handleInterview()} className="saas-btn saas-btn-ghost" style={{ color: '#7C3AED' }}>Prep</button>
       </div>
     </div>
   );

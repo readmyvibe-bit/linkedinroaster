@@ -176,4 +176,34 @@ describe('validatePrepData', () => {
     const result = validatePrepData(data);
     expect(result.errors.some(e => e.includes('ask-them'))).toBe(true);
   });
+
+  // ─── Hard failure → should map to status='failed' in pipeline ───
+
+  it('hard failure (below minimum) returns valid=false for pipeline to save as failed', () => {
+    const data = {
+      ...PERFECT_PREP_DATA,
+      questions: PERFECT_PREP_DATA.questions.slice(0, 8), // 8 < 10 minimum
+      mcq: PERFECT_PREP_DATA.mcq.slice(0, 4), // 4 < 6 minimum
+    };
+    const result = validatePrepData(data);
+    expect(result.valid).toBe(false);
+    expect(result.degraded).toBe(false);
+    expect(result.questionCount).toBe(8);
+    expect(result.mcqCount).toBe(4);
+    expect(result.errors.length).toBeGreaterThan(0);
+  });
+
+  it('degraded pass (between min and full) returns valid=true, degraded=true', () => {
+    const data = {
+      ...PERFECT_PREP_DATA,
+      questions: PERFECT_PREP_DATA.questions.slice(0, 10),
+      mcq: PERFECT_PREP_DATA.mcq.slice(0, 7),
+      ask_them: PERFECT_PREP_DATA.ask_them.slice(0, 4),
+    };
+    const result = validatePrepData(data);
+    expect(result.valid).toBe(true);
+    expect(result.degraded).toBe(true);
+    // Errors are populated (not full 15/10) but still valid
+    expect(result.errors.length).toBeGreaterThan(0);
+  });
 });
