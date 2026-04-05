@@ -456,7 +456,7 @@ export function validatePrepData(data: any): ValidationResult {
     m.question && m.question.length > 15 &&
     m.options && m.options.length === 4 &&
     m.options.every((o: string) => o && o.length > 2 && o !== '...') &&
-    typeof m.correct === 'number'
+    typeof m.correct === 'number' && m.correct >= 0 && m.correct <= 3
   );
 
   // Validate ask_them

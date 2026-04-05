@@ -343,10 +343,20 @@ export default function ResumePreviewPage() {
       </div>
 
       {/* ═══ MOBILE STICKY ═══ */}
-      <div className="flex sm:!hidden" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'var(--bg-surface)', borderTop: '1px solid var(--border-default)', padding: '10px 16px', zIndex: 50, gap: 8, boxShadow: 'var(--shadow-md)' }}>
+      <div className="flex sm:!hidden" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'var(--bg-surface)', borderTop: '1px solid var(--border-default)', padding: '10px 16px', zIndex: 50, gap: 8, boxShadow: 'var(--shadow-md)', flexWrap: 'wrap' }}>
         <button onClick={handleDownloadPDF} className="saas-btn saas-btn-primary" style={{ flex: 1, justifyContent: 'center' }}>Download PDF</button>
         <a href={`/resume/${resume.id}/edit`} className="saas-btn saas-btn-ghost">Edit</a>
-        <button onClick={() => handleInterview()} className="saas-btn saas-btn-ghost" style={{ color: '#7C3AED' }}>Prep</button>
+        <div style={{ position: 'relative' }}>
+          <button onClick={() => setShowLevelPicker(!showLevelPicker)} className="saas-btn saas-btn-ghost" style={{ color: '#7C3AED' }}>Prep &#9662;</button>
+          {showLevelPicker && (
+            <div style={{ position: 'absolute', bottom: '100%', right: 0, background: '#fff', border: '1px solid #E0E0E0', borderRadius: 8, boxShadow: '0 -4px 12px rgba(0,0,0,0.1)', zIndex: 60, minWidth: 180, padding: '6px 0', marginBottom: 4 }}>
+              <button onClick={() => handleInterview()} style={{ display: 'block', width: '100%', padding: '10px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', fontSize: 14, color: '#333' }}>Auto-detect</button>
+              {[{ v: 'entry', l: 'Entry' }, { v: 'mid', l: 'Mid' }, { v: 'senior', l: 'Senior' }, { v: 'lead', l: 'Lead' }].map(o => (
+                <button key={o.v} onClick={() => handleInterview(o.v)} style={{ display: 'block', width: '100%', padding: '10px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', fontSize: 14, color: '#333' }}>{o.l}</button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
