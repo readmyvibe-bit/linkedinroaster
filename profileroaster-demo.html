@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ProfileRoaster — Animated Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--accent:#0A66C2;--accent-hover:#004182;--accent-subtle:#EFF6FF;
+--success:#059669;--success-subtle:#ECFDF5;
+--danger:#DC2626;--danger-subtle:#FEF2F2;
+--warning:#D97706;--warning-subtle:#FFFBEB;
+--bg-canvas:#F4F6F9;--bg-surface:#FFFFFF;--bg-subtle:#EEF1F6;
+--text-primary:#0F172A;--text-secondary:#64748B;--text-muted:#94A3B8;
+--border-default:#E2E6ED;--li-border:#E0E0E0;
+--radius-sm:8px;--radius-md:12px;--radius-lg:16px;--radius-pill:9999px;
+--shadow-sm:0 1px 2px rgba(0,0,0,0.05);--shadow-md:0 4px 12px rgba(0,0,0,0.08);--shadow-lg:0 8px 24px rgba(0,0,0,0.12);
+}
+body{font-family:'Inter',system-ui,sans-serif;background:#1a1a1a;display:flex;align-items:center;justify-content:center;min-height:100vh;overflow:hidden}
+.phone{width:390px;height:844px;background:#F3F2EF;background-image:radial-gradient(circle,#d5d4d0 .8px,transparent .8px);background-size:24px 24px;border-radius:28px;overflow:hidden;position:relative;box-shadow:0 0 0 4px #222,0 0 0 6px #444,0 20px 60px rgba(0,0,0,.5)}
+.phone-inner{width:100%;height:100%;overflow-y:auto;overflow-x:hidden;position:relative;scrollbar-width:none}
+.phone-inner::-webkit-scrollbar{display:none}
+.scene{display:none;width:100%;min-height:100%;animation:fadeIn .4s ease}
+.scene.active{display:block}
+.cursor{position:fixed;width:12px;height:12px;background:var(--accent);border-radius:50%;z-index:9999;pointer-events:none;transition:all .35s cubic-bezier(.4,0,.2,1);box-shadow:0 0 8px rgba(10,102,194,.5);opacity:0}
+.cursor.visible{opacity:1}
+.cursor.clicking{transform:scale(.6)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes countUp{from{opacity:.5}to{opacity:1}}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(10,102,194,.3)}50%{box-shadow:0 0 0 8px rgba(10,102,194,0)}}
+@keyframes spinIn{from{transform:scale(0) rotate(-180deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+@keyframes typing{from{width:0}to{width:100%}}
+.skel{background:linear-gradient(90deg,var(--bg-subtle) 25%,#E8ECF2 50%,var(--bg-subtle) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:var(--radius-sm);height:14px}
+.saas-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;border:none;white-space:nowrap}
+.saas-btn-primary{background:var(--accent);color:#fff}
+.saas-btn-ghost{background:transparent;color:var(--text-secondary);border:1px solid var(--border-default)}
+.saas-card{background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--radius-md);box-shadow:var(--shadow-sm)}
+.li-card{background:#fff;border:1px solid var(--li-border);border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.saas-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted)}
+.saas-metric{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:var(--radius-pill);font-size:12px;font-weight:700}
+.dots{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:100}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3);transition:all .3s}
+.dot.active{background:#fff;width:18px;border-radius:3px}
+.replay-btn{position:absolute;bottom:12px;right:16px;z-index:100;background:rgba(255,255,255,.15);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.2);border-radius:var(--radius-pill);padding:4px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.replay-btn:hover{background:rgba(255,255,255,.25)}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+
+<!-- PHONE FRAME -->
+<div class="phone">
+<div class="phone-inner" id="phoneInner">
+
+<!-- ═══ SCENE 1: Landing Page ═══ -->
+<div class="scene" id="scene1">
+<nav style="background:#fff;border-bottom:1px solid var(--border-default);padding:10px 16px;position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center">
+<div><span style="font-size:16px;font-weight:800;color:var(--accent)">Profile</span><span style="font-size:16px;font-weight:800;color:var(--text-primary)">Roaster</span></div>
+<button class="saas-btn saas-btn-primary" style="font-size:12px;padding:6px 14px;border-radius:var(--radius-pill)">Get Free Score</button>
+</nav>
+<div style="background:linear-gradient(135deg,#F8FAFF 0%,#EEF2FF 40%,#F0F7FF 100%);padding:24px 16px 28px">
+<h1 style="font-size:26px;font-weight:900;color:var(--text-primary);line-height:1.15;margin-bottom:4px">Not Getting Calls <span style="color:var(--danger)">from HR?</span></h1>
+<p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6">Your Resume & LinkedIn Profile Might Be the Problem</p>
+<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155;font-weight:500"><span style="color:var(--success);font-size:15px">✓</span>Upload resume or LinkedIn PDF for instant analysis</div>
+<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155;font-weight:500"><span style="color:var(--success);font-size:15px">✓</span>ATS score + LinkedIn profile score + AI rewrite</div>
+<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155;font-weight:500"><span style="color:var(--success);font-size:15px">✓</span>Personalized interview questions + STAR answers</div>
+<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155;font-weight:500"><span style="color:var(--success);font-size:15px">✓</span>Cover letter matched to your target role</div>
+</div>
+</div>
+<div style="padding:0 16px 20px">
+<div style="background:var(--bg-surface);border:2px solid var(--accent);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);overflow:hidden">
+<div style="background:var(--warning-subtle);border-bottom:1px solid #FDE68A;padding:8px 14px;display:flex;align-items:center;gap:8px;font-size:12px;color:#92400E;font-weight:600">🎁 Upload your PDF → Get your Profile Score FREE</div>
+<div style="display:flex;border-bottom:1px solid var(--border-default);background:var(--bg-canvas)">
+<div style="flex:1;padding:8px;font-size:12px;font-weight:700;color:#fff;background:var(--accent);text-align:center;border-bottom:2px solid var(--accent)">📄 Resume</div>
+<div style="flex:1;padding:8px;font-size:12px;font-weight:500;color:var(--text-secondary);text-align:center">💼 LinkedIn PDF</div>
+<div style="flex:1;padding:8px;font-size:12px;font-weight:500;color:var(--text-secondary);text-align:center">✏️ No File?</div>
+</div>
+<div style="padding:16px">
+<div id="dropzone1" style="border:2px dashed #CBD5E1;border-radius:var(--radius-md);padding:24px;text-align:center;background:#F8FAFC;transition:all .3s">
+<div style="font-size:32px;margin-bottom:6px">📤</div>
+<div style="font-size:14px;font-weight:600;color:var(--accent)">Drop your Resume here</div>
+<div style="font-size:12px;color:var(--text-muted);margin-top:4px">or click to browse • .pdf or .docx</div>
+</div>
+<button id="cta1" class="saas-btn saas-btn-primary" style="width:100%;padding:14px 24px;border-radius:var(--radius-pill);font-size:15px;font-weight:700;margin-top:12px;justify-content:center">Get My Free Score →</button>
+<div style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:10px">🔒 No login needed • ⚡ Results in 60 sec • 💳 Razorpay secured</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ═══ SCENE 2: File Selection ═══ -->
+<div class="scene" id="scene2">
+<nav style="background:#fff;border-bottom:1px solid var(--border-default);padding:10px 16px;display:flex;justify-content:space-between;align-items:center">
+<div><span style="font-size:16px;font-weight:800;color:var(--accent)">Profile</span><span style="font-size:16px;font-weight:800;color:var(--text-primary)">Roaster</span></div>
+</nav>
+<div style="padding:16px">
+<div style="background:var(--bg-surface);border:2px solid var(--accent);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);overflow:hidden">
+<div style="padding:12px;border-bottom:1px solid var(--border-default);display:flex;background:var(--bg-canvas)">
+<div style="flex:1;padding:8px;font-size:12px;font-weight:700;color:#fff;background:var(--accent);text-align:center;border-radius:var(--radius-sm)">📄 Resume</div>
+</div>
+<div style="padding:16px">
+<div id="dropzone2" style="border:2px dashed #CBD5E1;border-radius:var(--radius-md);padding:24px;text-align:center;background:#F8FAFC;transition:all .3s">
+<div style="font-size:32px;margin-bottom:6px">📤</div>
+<div style="font-size:14px;font-weight:600;color:var(--accent)">Drop your Resume here</div>
+</div>
+</div>
+</div>
+</div>
+<!-- File picker overlay -->
+<div id="filePicker" style="position:absolute;bottom:-300px;left:0;right:0;background:#fff;border-radius:16px 16px 0 0;box-shadow:var(--shadow-lg);padding:20px;transition:bottom .4s ease;z-index:60">
+<div style="font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:16px">Select File</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border-default);font-size:13px;color:var(--text-secondary);display:flex;align-items:center;gap:10px">📁 Google Drive</div>
+<div style="padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border-default);font-size:13px;color:var(--text-secondary);display:flex;align-items:center;gap:10px">💬 WhatsApp Files</div>
+<div id="fileOption" style="padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border-default);font-size:13px;color:var(--text-secondary);display:flex;align-items:center;gap:10px;transition:all .3s">📱 Phone Storage</div>
+<div id="fileSelected" style="padding:12px;border-radius:var(--radius-sm);background:var(--accent-subtle);border:1px solid var(--accent);font-size:13px;color:var(--accent);font-weight:600;display:flex;align-items:center;gap:10px;opacity:0;transition:opacity .3s">📄 Rahul_Sharma_Resume.pdf</div>
+</div>
+</div>
+</div>
+
+<!-- ═══ SCENE 3: Processing ═══ -->
+<div class="scene" id="scene3">
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:40px 24px;background:var(--bg-canvas);background-image:radial-gradient(circle,#d5d4d0 .8px,transparent .8px);background-size:24px 24px">
+<div style="margin-bottom:24px"><span style="font-size:24px;font-weight:800;color:var(--accent)">Profile</span><span style="font-size:24px;font-weight:800;color:var(--text-primary)">Roaster</span></div>
+<div style="font-size:14px;color:var(--text-secondary);margin-bottom:24px">Analyzing your profile...</div>
+<div style="width:100%;height:8px;background:var(--bg-subtle);border-radius:var(--radius-pill);overflow:hidden;margin-bottom:32px">
+<div id="progressBar" style="height:100%;width:0%;background:var(--accent);border-radius:var(--radius-pill);transition:width .8s ease"></div>
+</div>
+<div id="stages" style="width:100%;display:flex;flex-direction:column;gap:10px">
+<div class="stage" style="font-size:14px;color:var(--text-muted);padding:8px 12px;border-radius:var(--radius-sm);display:flex;align-items:center;gap:8px">📄 Parsing resume...</div>
+<div class="stage" style="font-size:14px;color:var(--text-muted);padding:8px 12px;border-radius:var(--radius-sm);display:flex;align-items:center;gap:8px;opacity:.4">🔍 Analyzing profile strength...</div>
+<div class="stage" style="font-size:14px;color:var(--text-muted);padding:8px 12px;border-radius:var(--radius-sm);display:flex;align-items:center;gap:8px;opacity:.4">✨ Generating LinkedIn rewrite...</div>
+<div class="stage" style="font-size:14px;color:var(--text-muted);padding:8px 12px;border-radius:var(--radius-sm);display:flex;align-items:center;gap:8px;opacity:.4">📊 Calculating ATS score...</div>
+<div class="stage" style="font-size:14px;color:var(--text-muted);padding:8px 12px;border-radius:var(--radius-sm);display:flex;align-items:center;gap:8px;opacity:.4">✅ Done! Preparing your results...</div>
+</div>
+</div>
+</div>
+
+<!-- ═══ SCENE 4: Teaser Results ═══ -->
+<div class="scene" id="scene4">
+<nav style="background:#fff;border-bottom:1px solid var(--border-default);padding:10px 16px;display:flex;justify-content:space-between;align-items:center">
+<div><span style="font-size:16px;font-weight:800;color:var(--accent)">Profile</span><span style="font-size:16px;font-weight:800;color:var(--text-primary)">Roaster</span></div>
+</nav>
+<div style="padding:16px;animation:slideUp .5s ease">
+<div class="li-card" style="padding:16px;margin-bottom:12px">
+<div class="saas-label" style="margin-bottom:8px">Your Profile Score</div>
+<div style="display:flex;align-items:center;gap:8px">
+<span id="scoreAnim" style="font-size:36px;font-weight:800;color:var(--danger)">0</span>
+<span style="font-size:14px;color:var(--text-muted)">/ 100</span>
+</div>
+<div style="height:6px;background:var(--bg-subtle);border-radius:3px;margin-top:10px;overflow:hidden"><div id="scoreBar" style="height:100%;width:0%;background:var(--danger);border-radius:3px;transition:width 1.5s ease"></div></div>
+<div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-top:12px">Here's what's holding you back:</div>
+<div style="background:var(--danger-subtle);border-radius:var(--radius-sm);padding:10px;margin-top:8px;font-size:12px;color:var(--danger);line-height:1.5">❌ Your headline screams "desperate" — no recruiter stops for "Seeking Opportunities"</div>
+<div style="background:var(--danger-subtle);border-radius:var(--radius-sm);padding:10px;margin-top:6px;font-size:12px;color:var(--danger);line-height:1.5">❌ Zero metrics in experience — you said "worked on projects" not "built apps used by 50K users"</div>
+</div>
+<div class="li-card" style="padding:14px;margin-bottom:12px;border-left:4px solid var(--success)">
+<div class="saas-label" style="margin-bottom:8px">💡 AI-Suggested Headline</div>
+<div style="font-size:12px;color:var(--danger);text-decoration:line-through;margin-bottom:6px">Software Engineer | Seeking Opportunities</div>
+<div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">↓</div>
+<div style="background:var(--success-subtle);padding:8px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;color:var(--success);line-height:1.4">Full-Stack Engineer | Built Apps for 50K+ Users | React + AWS</div>
+</div>
+<div class="li-card" style="padding:14px;margin-bottom:12px;border-left:4px solid #0891B2">
+<div class="saas-label" style="margin-bottom:8px">🎯 Sample Interview Question</div>
+<div style="font-size:13px;color:var(--text-primary);font-style:italic;line-height:1.5">"Tell me about a challenging technical project you led from scratch."</div>
+<div style="font-size:11px;color:var(--text-muted);margin-top:6px;font-style:italic">+ 14 more personalized questions after payment</div>
+</div>
+<div style="margin-bottom:12px">
+<div class="saas-label" style="margin-bottom:8px">📄 Resume Templates</div>
+<div style="display:flex;gap:10px;overflow:hidden">
+<div class="li-card" style="width:120px;height:160px;flex-shrink:0;position:relative;overflow:hidden"><div style="padding:8px;filter:blur(3px);font-size:8px;color:var(--text-muted);line-height:1.4">RAHUL SHARMA<br>Software Engineer<br>━━━━━━━━━━<br>Experience<br>• Built apps...<br>• Led team...<br>Education<br>VIT Vellore</div><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.5)"><span style="font-size:11px;font-weight:700;color:var(--accent)">🔒 Classic</span></div></div>
+<div class="li-card" style="width:120px;height:160px;flex-shrink:0;position:relative;overflow:hidden"><div style="padding:8px;filter:blur(3px);font-size:8px;color:var(--text-muted);line-height:1.4;border-left:3px solid var(--accent)">RAHUL SHARMA<br>Full-Stack Dev<br>━━━━━━━━━━<br>Summary<br>Results-driven...<br>Skills<br>React AWS</div><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.5)"><span style="font-size:11px;font-weight:700;color:var(--accent)">🔒 Modern</span></div></div>
+<div class="li-card" style="width:120px;height:160px;flex-shrink:0;position:relative;overflow:hidden"><div style="padding:8px;filter:blur(3px);font-size:8px;color:var(--text-muted);line-height:1.4">R. SHARMA<br>SWE @ Wipro<br>━━━━━━━━━━<br>Tech Stack<br>Python Java<br>React MySQL</div><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.5)"><span style="font-size:11px;font-weight:700;color:var(--accent)">🔒 Technical</span></div></div>
+</div>
+</div>
+<div style="font-size:12px;color:var(--text-muted);display:flex;flex-direction:column;gap:4px;margin-bottom:12px">
+<div>🔒 Full LinkedIn profile rewrite (Headline + About + Experience)</div>
+<div>🔒 ATS-optimized resume for your target role</div>
+<div>🔒 Personalized cover letter</div>
+<div>🔒 15 interview questions from your actual background</div>
+</div>
+<div id="paymentCTA" style="background:linear-gradient(135deg,#0A66C2,#004182);border-radius:var(--radius-lg);padding:20px;text-align:center">
+<div style="color:#fff;font-size:16px;font-weight:700;margin-bottom:4px">Unlock Everything →</div>
+<div style="color:rgba(255,255,255,.8);font-size:13px;margin-bottom:8px">₹499 one-time • No subscription</div>
+<div style="color:rgba(255,255,255,.5);font-size:11px">Secured by Razorpay • UPI / Card / Net Banking</div>
+</div>
+</div>
+</div>
+
+<!-- ═══ SCENE 5: Razorpay Payment ═══ -->
+<div class="scene" id="scene5">
+<div style="display:flex;flex-direction:column;min-height:100%;background:rgba(0,0,0,.4)">
+<div style="flex:1"></div>
+<div id="rzpModal" style="background:#fff;border-radius:16px 16px 0 0;box-shadow:var(--shadow-lg);overflow:hidden;transform:translateY(100%);transition:transform .4s ease">
+<div style="background:var(--accent);padding:16px 20px;display:flex;justify-content:space-between;align-items:center">
+<span style="color:#fff;font-size:16px;font-weight:700">ProfileRoaster</span>
+<span style="color:#fff;font-size:16px;font-weight:700">₹499</span>
+</div>
+<div style="padding:20px">
+<div style="background:var(--success-subtle);border:1px solid var(--success);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+<div style="width:20px;height:20px;border-radius:50%;border:2px solid var(--success);display:flex;align-items:center;justify-content:center"><div style="width:10px;height:10px;border-radius:50%;background:var(--success)"></div></div>
+<span style="font-size:14px;font-weight:600;color:var(--text-primary)">Pay with UPI</span>
+</div>
+<div style="margin-bottom:16px">
+<div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:6px">UPI ID</div>
+<div style="padding:12px;border:1px solid var(--border-default);border-radius:var(--radius-sm);font-size:14px;font-family:monospace;color:var(--text-primary)">rahul@upi</div>
+</div>
+<button id="rzpPay" class="saas-btn saas-btn-primary" style="width:100%;padding:14px;border-radius:var(--radius-pill);font-size:16px;font-weight:700;justify-content:center">Pay ₹499</button>
+</div>
+</div>
+</div>
+<!-- Success overlay -->
+<div id="paySuccess" style="position:absolute;inset:0;background:var(--success-subtle);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transition:opacity .4s;pointer-events:none;z-index:70">
+<div style="width:64px;height:64px;border-radius:50%;background:var(--success);display:flex;align-items:center;justify-content:center;font-size:32px;color:#fff;animation:spinIn .5s ease">✓</div>
+<div style="font-size:24px;font-weight:700;color:var(--success);margin-top:16px">Payment Successful!</div>
+<div style="font-size:14px;color:var(--text-secondary);margin-top:6px">Preparing your full results...</div>
+</div>
+</div>
+
+<!-- ═══ SCENE 6: Full Results ═══ -->
+<div class="scene" id="scene6">
+<div style="background:#0B69C7;padding:10px 16px;display:flex;justify-content:space-between;align-items:center">
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;color:rgba(255,255,255,.8)">← Dashboard</span><span style="color:rgba(255,255,255,.3)">|</span><span style="font-size:14px;font-weight:800;color:#fff">ProfileRoaster</span></div>
+<span style="font-size:10px;font-weight:700;color:var(--accent);background:#fff;padding:2px 8px;border-radius:10px">STANDARD</span>
+</div>
+<div style="padding:12px">
+<div class="li-card" style="overflow:hidden;margin-bottom:12px">
+<div style="background:linear-gradient(135deg,#004182 0%,#0B69C7 50%,#057642 100%);padding:16px;text-align:center;color:#fff">
+<div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px">
+<div><div style="font-size:28px;font-weight:800;opacity:.7">34</div><div style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;opacity:.6">Before</div></div>
+<span style="font-size:18px;opacity:.5">→</span>
+<div><div id="afterScore" style="font-size:40px;font-weight:800">0</div><div style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;opacity:.8">After</div></div>
+<span style="background:rgba(255,255,255,.2);font-size:13px;font-weight:800;padding:3px 12px;border-radius:16px">+44</span>
+</div>
+<div style="display:flex;justify-content:center;gap:6px;flex-wrap:wrap">
+<span style="background:rgba(255,255,255,.15);border-radius:10px;padding:3px 10px;font-size:10px;font-weight:600">Headline ↑</span>
+<span style="background:rgba(255,255,255,.15);border-radius:10px;padding:3px 10px;font-size:10px;font-weight:600">About ↑</span>
+<span style="background:rgba(255,255,255,.15);border-radius:10px;padding:3px 10px;font-size:10px;font-weight:600">Experience ↑</span>
+<span style="background:rgba(255,255,255,.15);border-radius:10px;padding:3px 10px;font-size:10px;font-weight:600">ATS ↑</span>
+</div>
+</div>
+<div style="padding:14px">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+<div style="width:40px;height:40px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;border:2px solid #fff;box-shadow:var(--shadow-sm)">RS</div>
+<div><div style="font-size:15px;font-weight:700;color:#191919">Rahul Sharma</div><div style="font-size:11px;color:#666">Bangalore • Top 15% of profiles</div></div>
+</div>
+<div style="background:var(--success-subtle);border:1px solid #BBF7D0;border-radius:8px;padding:10px;font-size:12px;font-weight:600;color:var(--success)">✓ Your profile is now recruiter-ready</div>
+</div>
+</div>
+<!-- Headline -->
+<div id="headlineCard" class="li-card" style="padding:14px;margin-bottom:12px;opacity:0;transition:opacity .5s,transform .5s;transform:translateY(10px)">
+<div class="saas-label" style="margin-bottom:6px">LinkedIn Headline</div>
+<div style="background:#F0F7FF;padding:10px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;color:#191919;line-height:1.4"><span id="headlineType"></span></div>
+<button class="saas-btn saas-btn-ghost" style="margin-top:8px;font-size:12px;padding:4px 12px">Copy</button>
+</div>
+<!-- Experience -->
+<div id="expCard" class="li-card" style="padding:14px;margin-bottom:12px;opacity:0;transition:opacity .5s,transform .5s;transform:translateY(10px)">
+<div class="saas-label" style="margin-bottom:6px">Experience</div>
+<div style="font-size:14px;font-weight:600;color:#191919;margin-bottom:8px">Software Engineer — Wipro</div>
+<div id="bullets" style="font-size:12px;color:#374151;line-height:1.6;display:flex;flex-direction:column;gap:4px"></div>
+</div>
+<!-- Next Steps -->
+<div id="stepsCard" class="li-card" style="padding:14px;margin-bottom:12px;opacity:0;transition:opacity .5s,transform .5s;transform:translateY(10px)">
+<div class="saas-label" style="margin-bottom:8px">Next Steps</div>
+<div style="display:flex;flex-direction:column;gap:6px;font-size:12px">
+<div style="color:var(--success);font-weight:600">✅ Profile analyzed</div>
+<div style="color:var(--success);font-weight:600">✅ Rewrite generated</div>
+<div style="display:flex;justify-content:space-between;align-items:center"><span style="color:var(--text-primary)">⬜ Build ATS Resume</span><button id="buildBtn" class="saas-btn saas-btn-primary" style="font-size:11px;padding:4px 12px;border-radius:var(--radius-pill)">Build Now</button></div>
+<div style="color:var(--text-muted)">⬜ Generate Cover Letter</div>
+<div style="color:var(--text-muted)">⬜ Interview Prep</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ═══ SCENE 7: Resume Loading ═══ -->
+<div class="scene" id="scene7">
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:40px 24px;background:var(--bg-canvas)">
+<div style="font-size:14px;color:var(--text-secondary);margin-bottom:20px">Building your ATS Resume...</div>
+<div style="width:100%;height:8px;background:var(--bg-subtle);border-radius:var(--radius-pill);overflow:hidden;margin-bottom:24px"><div id="resumeProgress" style="height:100%;width:0%;background:var(--success);border-radius:var(--radius-pill);transition:width 1.5s ease"></div></div>
+<div style="font-size:12px;color:var(--success);font-weight:600;display:flex;flex-direction:column;gap:4px;text-align:center" id="resumeStages"></div>
+</div>
+</div>
+
+<!-- ═══ SCENE 8: Resume Preview (/resume/[resumeId] wireframe) ═══ -->
+<!-- Matches app: sticky 2-row header, Template + print density + page count, Interview Prep ▼ (level picker; outside-click dismiss; "Starting…" blocks double-tab), TXT, Dashboard. On narrow viewports the md+ left rail is hidden — ATS card stacks above the preview. Resume includes KEY ACHIEVEMENTS. PDF: Compact | Standard | Spacious; Spacious uses .entry section gaps only (not every div). -->
+<div class="scene" id="scene8">
+<div style="min-height:100%;background:var(--bg-canvas);padding-bottom:52px">
+<header style="position:sticky;top:0;z-index:40;background:var(--bg-surface);border-bottom:1px solid var(--border-default);box-shadow:var(--shadow-sm)">
+<div style="padding:6px 10px;display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap">
+<div style="display:flex;align-items:center;gap:6px;min-width:0;flex-shrink:1">
+<span style="font-size:11px;color:var(--text-secondary);white-space:nowrap">← Results</span>
+<span style="font-size:12px;font-weight:700;color:var(--text-primary)">Resume</span>
+<span class="saas-metric" style="background:var(--success-subtle);color:var(--success);font-size:10px;padding:2px 8px;flex-shrink:0">ATS 87</span>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end">
+<button class="saas-btn saas-btn-primary" style="font-size:9px;padding:4px 8px;border-radius:var(--radius-pill)">Download PDF</button>
+<button class="saas-btn saas-btn-ghost" style="font-size:9px;padding:4px 6px;color:var(--success)">Edit</button>
+<button class="saas-btn saas-btn-ghost" style="font-size:9px;padding:4px 6px">TXT</button>
+<button class="saas-btn saas-btn-ghost" style="font-size:9px;padding:4px 6px;color:#7C3AED">Interview Prep ▼</button>
+<button class="saas-btn saas-btn-ghost" style="font-size:9px;padding:4px 6px">Dashboard</button>
+</div>
+</div>
+<div style="padding:5px 10px 6px;border-top:1px solid var(--bg-subtle);display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap">
+<div style="font-size:10px;color:var(--text-secondary);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:58%">
+<span style="font-weight:600;color:var(--text-primary)">Full Stack Developer</span><span> at Infosys</span>
+</div>
+<div style="display:flex;gap:4px;flex-shrink:0;flex-wrap:wrap">
+<span style="font-size:9px;padding:3px 7px;border:1px solid var(--border-default);border-radius:4px;background:var(--bg-surface);color:var(--text-secondary)">Template ▼</span>
+<span style="font-size:9px;padding:3px 7px;border:1px solid var(--border-default);border-radius:4px;background:var(--bg-surface);color:var(--text-secondary)">Standard</span>
+<span style="font-size:9px;padding:3px 7px;border:1px solid var(--border-default);border-radius:4px;background:var(--bg-surface);color:var(--text-secondary)">1 Page</span>
+</div>
+</div>
+<div style="padding:0 10px 6px;font-size:8px;color:var(--text-muted);line-height:1.35">Density: Compact · Standard · Spacious · 1 or 2 pages (saved with resume). Level picker: Auto-detect, Entry, Mid, Senior, Lead.</div>
+</header>
+<div style="padding:10px 12px 16px">
+<div class="saas-card" style="padding:10px;margin-bottom:10px">
+<div class="saas-label" style="margin-bottom:6px;font-size:9px">ATS Insights</div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+<div style="width:40px;height:40px;border-radius:50%;border:3px solid var(--success);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--success);flex-shrink:0">87</div>
+<div style="min-width:0"><div style="font-size:11px;font-weight:700;color:var(--success)">Excellent</div><div style="font-size:9px;color:var(--text-muted)">12/15 keywords</div></div>
+</div>
+<div style="height:4px;background:var(--bg-subtle);border-radius:2px;overflow:hidden"><div id="atsBar" style="height:100%;width:0%;background:var(--success);transition:width 1s ease"></div></div>
+<div style="margin-top:8px;display:flex;flex-direction:column;gap:3px;font-size:9px">
+<div style="color:var(--success)">✓ Matched keywords</div>
+<div style="color:var(--warning)">⚠ Add missing keywords</div>
+<button class="saas-btn saas-btn-ghost" style="width:100%;justify-content:center;font-size:9px;padding:4px 6px;margin-top:4px">View keywords</button>
+</div>
+</div>
+<div class="saas-card" style="padding:10px;margin-bottom:10px">
+<div class="saas-label" style="margin-bottom:6px;font-size:9px">Cover Letter</div>
+<div style="display:flex;flex-direction:column;gap:4px">
+<button class="saas-btn saas-btn-ghost" style="width:100%;justify-content:center;font-size:9px;padding:4px 6px">Copy Cover Letter</button>
+<button class="saas-btn saas-btn-ghost" style="width:100%;justify-content:center;font-size:9px;padding:4px 6px">Cover Letter PDF</button>
+</div>
+</div>
+<div style="background:var(--bg-subtle);border-radius:var(--radius-md);padding:10px;min-height:280px">
+<div style="position:relative;background:var(--bg-surface);border-radius:4px;box-shadow:var(--shadow-md);padding:14px;font-size:8px;line-height:1.5;color:#374151">
+<div style="text-align:center;margin-bottom:8px">
+<div style="font-size:13px;font-weight:700;color:#111;letter-spacing:0.5px">RAHUL SHARMA</div>
+<div style="font-size:7px;color:#666;margin-top:2px">rahul.sharma@gmail.com · +91 98765 43210 · Bangalore</div>
+</div>
+<div style="border-bottom:1px solid #D1D5DB;margin-bottom:6px"></div>
+<div style="font-size:7px;font-weight:700;text-transform:uppercase;color:#374151;border-bottom:1px solid #D1D5DB;padding-bottom:2px;margin-bottom:3px">Summary</div>
+<div style="margin-bottom:6px;font-size:7px">Results-driven Full-Stack Engineer with 2+ years building scalable web applications serving 50,000+ users.</div>
+<div style="font-size:7px;font-weight:700;text-transform:uppercase;color:#374151;border-bottom:1px solid #D1D5DB;padding-bottom:2px;margin-bottom:3px">Experience</div>
+<div class="entry" style="margin-bottom:6px">
+<div style="margin-bottom:2px"><span style="font-weight:700;font-size:7px">Software Engineer</span> <span style="font-size:6px;color:#666;font-style:italic">Jan 2022 – Present</span></div>
+<div style="font-size:6px;color:#555;font-style:italic;margin-bottom:2px">Wipro — Bangalore</div>
+<div style="font-size:7px;margin-bottom:1px">• Built full-stack apps serving 50,000+ daily users</div>
+<div style="font-size:7px;margin-bottom:1px">• Reduced API response time by 40%</div>
+<div style="font-size:7px">• Led team of 4 engineers</div>
+</div>
+<div style="font-size:7px;font-weight:700;text-transform:uppercase;color:#374151;border-bottom:1px solid #D1D5DB;padding-bottom:2px;margin-bottom:3px">Key achievements</div>
+<div style="margin-bottom:6px;font-size:7px">
+<div style="margin-bottom:1px">• Winner, internal hackathon 2024 — shipped customer chatbot MVP</div>
+<div style="margin-bottom:1px">• Spot award for on-call reliability (Q3)</div>
+<div>• Published internal playbook on API design (500+ reads)</div>
+</div>
+<div style="font-size:7px;font-weight:700;text-transform:uppercase;color:#374151;border-bottom:1px solid #D1D5DB;padding-bottom:2px;margin-bottom:3px">Education</div>
+<div style="font-size:7px;margin-bottom:5px"><span style="font-weight:700">B.Tech CSE</span> — VIT Vellore (2024)</div>
+<div style="font-size:7px;font-weight:700;text-transform:uppercase;color:#374151;border-bottom:1px solid #D1D5DB;padding-bottom:2px;margin-bottom:3px">Skills</div>
+<div style="font-size:7px">Python, Java, React, Node.js, MySQL, AWS, Git</div>
+</div>
+</div>
+<div style="display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-top:12px">
+<span class="saas-btn saas-btn-primary" style="font-size:9px;padding:5px 12px;border-radius:var(--radius-pill);pointer-events:none">Generate Another Resume</span>
+<span class="saas-btn saas-btn-ghost" style="font-size:9px;padding:5px 10px;border-radius:var(--radius-pill);pointer-events:none">Back to Results</span>
+</div>
+</div>
+<div style="position:sticky;bottom:0;left:0;right:0;background:var(--bg-surface);border-top:1px solid var(--border-default);padding:8px 10px;display:flex;gap:6px;flex-wrap:wrap;box-shadow:0 -4px 12px rgba(0,0,0,.06);z-index:30">
+<button class="saas-btn saas-btn-primary" style="flex:1;justify-content:center;font-size:10px;padding:6px 8px;min-width:0">Download PDF</button>
+<button class="saas-btn saas-btn-ghost" style="font-size:10px;padding:6px 8px">Edit</button>
+<button class="saas-btn saas-btn-ghost" style="font-size:10px;padding:6px 8px;color:#7C3AED">Prep ▼</button>
+</div>
+</div>
+</div>
+
+<!-- ═══ SCENE 9: Editor ═══ -->
+<div class="scene" id="scene9">
+<header style="background:var(--bg-surface);border-bottom:1px solid var(--border-default);padding:8px 12px;display:flex;justify-content:space-between;align-items:center">
+<div style="display:flex;align-items:center;gap:6px">
+<span style="font-size:12px;color:var(--text-secondary)">← Resume</span>
+<span style="font-size:13px;font-weight:700;color:var(--text-primary)">Edit</span>
+<span id="saveStatus" style="font-size:11px;font-weight:600;color:#057642">• Saved</span>
+</div>
+<div style="display:flex;gap:4px">
+<button class="saas-btn saas-btn-primary" style="font-size:10px;padding:4px 10px">Export PDF</button>
+</div>
+</header>
+<!-- Mobile toggle -->
+<div style="display:flex;gap:0;background:var(--bg-subtle);padding:4px;margin:0 12px 0">
+<div style="flex:1;text-align:center;padding:6px;font-size:12px;font-weight:600;background:var(--accent);color:#fff;border-radius:var(--radius-pill)">Edit</div>
+<div style="flex:1;text-align:center;padding:6px;font-size:12px;font-weight:600;color:var(--text-secondary)">Preview</div>
+</div>
+<!-- Tab bar -->
+<div style="display:flex;border-bottom:1px solid var(--border-default);padding:0 12px;overflow-x:auto;gap:0">
+<div style="flex-shrink:0;padding:8px 12px;font-size:11px;font-weight:600;color:var(--text-secondary);border-bottom:2px solid transparent">Contact</div>
+<div style="flex-shrink:0;padding:8px 12px;font-size:11px;font-weight:600;color:var(--accent);border-bottom:2px solid var(--accent)">Summary</div>
+<div style="flex-shrink:0;padding:8px 12px;font-size:11px;font-weight:600;color:var(--text-secondary);border-bottom:2px solid transparent">Experience</div>
+<div style="flex-shrink:0;padding:8px 12px;font-size:11px;font-weight:600;color:var(--text-secondary);border-bottom:2px solid transparent">Education</div>
+<div style="flex-shrink:0;padding:8px 12px;font-size:11px;font-weight:600;color:var(--text-secondary);border-bottom:2px solid transparent">Skills</div>
+</div>
+<!-- Form -->
+<div style="padding:16px;overflow-y:auto;height:calc(100% - 140px)">
+<div class="saas-label" style="margin-bottom:6px">Professional Summary</div>
+<div style="position:relative">
+<textarea id="summaryTA" style="width:100%;padding:10px;border:1px solid var(--border-default);border-radius:var(--radius-sm);font-size:12px;font-family:'Inter',sans-serif;line-height:1.6;resize:none;height:120px;outline:none;box-sizing:border-box;color:var(--text-primary)">Results-driven Full-Stack Engineer with 2+ years building scalable web applications serving 50,000+ users at Wipro.</textarea>
+<button id="enhanceBtn" style="position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;font-size:16px;opacity:.6;transition:opacity .3s" title="AI Enhance">✨</button>
+</div>
+<div style="margin-top:20px">
+<div class="saas-label" style="margin-bottom:6px">Experience</div>
+<div class="li-card" style="padding:12px;margin-bottom:8px">
+<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+<span style="cursor:grab;font-size:14px;color:var(--text-muted)">⋮⋮</span>
+<div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text-primary)">Software Engineer</div><div style="font-size:11px;color:var(--text-secondary)">Wipro • Jan 2022 – Present</div></div>
+</div>
+<div style="display:flex;gap:4px;align-items:flex-start;margin-bottom:6px">
+<span style="cursor:grab;font-size:10px;color:var(--text-muted);margin-top:6px">⋮</span>
+<textarea id="bulletTA" style="flex:1;padding:6px;border:1px solid var(--border-default);border-radius:4px;font-size:11px;font-family:'Inter',sans-serif;line-height:1.5;resize:none;height:36px;outline:none;box-sizing:border-box;color:var(--text-primary)">Built full-stack applications serving 50,000+ daily active users</textarea>
+<button id="enhanceBullet" style="background:none;border:none;cursor:pointer;font-size:14px;opacity:.6;flex-shrink:0;margin-top:4px">✨</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ═══ SCENE 10: End Card ═══ -->
+<div class="scene" id="scene10">
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;background:#fff;padding:40px 24px;text-align:center">
+<div style="margin-bottom:16px"><span style="font-size:28px;font-weight:800;color:var(--accent)">Profile</span><span style="font-size:28px;font-weight:800;color:var(--text-primary)">Roaster</span></div>
+<div style="font-size:20px;font-weight:600;color:var(--text-primary);margin-top:4px">Get Your Free Profile Score Today</div>
+<div style="font-size:14px;color:var(--text-secondary);margin-top:8px">Upload your resume. AI does the rest.</div>
+<div style="font-size:18px;font-weight:700;color:var(--accent);margin-top:20px">profileroaster.in</div>
+<div style="font-size:12px;color:var(--text-muted);margin-top:8px">Free to start • ₹499 one-time • No subscription</div>
+</div>
+</div>
+
+</div><!-- end phone-inner -->
+
+<!-- Scene dots + replay -->
+<div class="dots" id="dots"></div>
+<button class="replay-btn" id="replayBtn" onclick="startDemo()">↻ Replay</button>
+</div><!-- end phone -->
+
+<script>
+const SCENES=[
+{id:'scene1',dur:4000,enter:s1Enter},
+{id:'scene2',dur:3500,enter:s2Enter},
+{id:'scene3',dur:5000,enter:s3Enter},
+{id:'scene4',dur:6000,enter:s4Enter},
+{id:'scene5',dur:3500,enter:s5Enter},
+{id:'scene6',dur:7000,enter:s6Enter},
+{id:'scene7',dur:2500,enter:s7Enter},
+{id:'scene8',dur:5000,enter:s8Enter},
+{id:'scene9',dur:6000,enter:s9Enter},
+{id:'scene10',dur:3500,enter:s10Enter},
+];
+let currentScene=0,timer=null;
+const cursor=document.getElementById('cursor');
+const phone=document.querySelector('.phone');
+
+// Build dots
+const dotsEl=document.getElementById('dots');
+SCENES.forEach((_,i)=>{const d=document.createElement('div');d.className='dot';dotsEl.appendChild(d)});
+
+function showScene(idx){
+document.querySelectorAll('.scene').forEach(s=>s.classList.remove('active'));
+const s=document.getElementById(SCENES[idx].id);
+s.classList.add('active');
+document.getElementById('phoneInner').scrollTop=0;
+document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
+SCENES[idx].enter();
+}
+
+function nextScene(){
+currentScene++;
+if(currentScene>=SCENES.length)currentScene=0;
+showScene(currentScene);
+timer=setTimeout(nextScene,SCENES[currentScene].dur);
+}
+
+function startDemo(){
+clearTimeout(timer);
+currentScene=0;
+cursor.classList.remove('visible');
+showScene(0);
+timer=setTimeout(nextScene,SCENES[0].dur);
+}
+
+function moveCursor(x,y,delay){
+return new Promise(r=>{setTimeout(()=>{
+const pr=phone.getBoundingClientRect();
+cursor.style.left=(pr.left+x)+'px';
+cursor.style.top=(pr.top+y)+'px';
+cursor.classList.add('visible');
+r();
+},delay)});
+}
+
+function clickCursor(){
+cursor.classList.add('clicking');
+setTimeout(()=>cursor.classList.remove('clicking'),200);
+}
+
+// Scene controllers
+function s1Enter(){
+cursor.classList.remove('visible');
+}
+
+function s2Enter(){
+const dz=document.getElementById('dropzone2');
+const fp=document.getElementById('filePicker');
+const fs=document.getElementById('fileSelected');
+dz.style.borderColor='#CBD5E1';dz.style.background='#F8FAFC';
+fp.style.bottom='-300px';fs.style.opacity='0';
+setTimeout(()=>{moveCursor(195,280,0).then(()=>{
+dz.style.borderColor='var(--accent)';dz.style.background='var(--accent-subtle)';
+})},400);
+setTimeout(()=>{fp.style.bottom='0'},800);
+setTimeout(()=>{moveCursor(195,620,0).then(()=>clickCursor())},1500);
+setTimeout(()=>{fs.style.opacity='1'},1800);
+setTimeout(()=>{fp.style.bottom='-300px'},2200);
+setTimeout(()=>{
+dz.style.background='var(--success-subtle)';
+dz.style.borderColor='var(--success)';
+dz.innerHTML='<div style="font-size:14px;font-weight:600;color:var(--success)">✓ Rahul_Sharma_Resume.pdf</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px">Ready to analyze</div>';
+},2600);
+}
+
+function s3Enter(){
+cursor.classList.remove('visible');
+const pb=document.getElementById('progressBar');
+const stages=document.querySelectorAll('#stages .stage');
+pb.style.width='0%';
+stages.forEach((s,i)=>{s.style.opacity=i===0?'1':'.4';s.style.color='var(--text-muted)'});
+setTimeout(()=>pb.style.width='20%',200);
+setTimeout(()=>{stages[0].style.color='var(--success)';stages[0].innerHTML='✓ Parsed';stages[1].style.opacity='1';pb.style.width='40%'},1000);
+setTimeout(()=>{stages[1].style.color='var(--success)';stages[1].innerHTML='✓ Analyzed';stages[2].style.opacity='1';pb.style.width='60%'},2000);
+setTimeout(()=>{stages[2].style.color='var(--success)';stages[2].innerHTML='✓ Generated';stages[3].style.opacity='1';pb.style.width='80%'},3000);
+setTimeout(()=>{stages[3].style.color='var(--success)';stages[3].innerHTML='✓ Scored';stages[4].style.opacity='1';pb.style.width='100%'},4000);
+}
+
+function s4Enter(){
+cursor.classList.remove('visible');
+const sa=document.getElementById('scoreAnim');
+const sb=document.getElementById('scoreBar');
+sb.style.width='0%';
+let v=0;const iv=setInterval(()=>{v+=1;sa.textContent=v;if(v>=34){clearInterval(iv)}},40);
+setTimeout(()=>sb.style.width='34%',200);
+setTimeout(()=>{moveCursor(195,750,0)},4500);
+setTimeout(()=>{clickCursor()},5200);
+}
+
+function s5Enter(){
+const modal=document.getElementById('rzpModal');
+const ps=document.getElementById('paySuccess');
+modal.style.transform='translateY(100%)';ps.style.opacity='0';ps.style.pointerEvents='none';
+setTimeout(()=>modal.style.transform='translateY(0)',300);
+setTimeout(()=>{moveCursor(195,620,0).then(()=>clickCursor())},1500);
+setTimeout(()=>{
+document.getElementById('rzpPay').innerHTML='<span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite"></span>';
+const style=document.createElement('style');style.textContent='@keyframes spin{to{transform:rotate(360deg)}}';document.head.appendChild(style);
+},1800);
+setTimeout(()=>{ps.style.opacity='1';ps.style.pointerEvents='auto';cursor.classList.remove('visible')},2500);
+}
+
+function s6Enter(){
+cursor.classList.remove('visible');
+const as=document.getElementById('afterScore');
+const hc=document.getElementById('headlineCard');
+const ec=document.getElementById('expCard');
+const sc=document.getElementById('stepsCard');
+const ht=document.getElementById('headlineType');
+const bl=document.getElementById('bullets');
+hc.style.opacity='0';hc.style.transform='translateY(10px)';
+ec.style.opacity='0';ec.style.transform='translateY(10px)';
+sc.style.opacity='0';sc.style.transform='translateY(10px)';
+ht.textContent='';bl.innerHTML='';
+let v=34;const iv=setInterval(()=>{v+=1;as.textContent=v;if(v>=78)clearInterval(iv)},25);
+setTimeout(()=>{hc.style.opacity='1';hc.style.transform='translateY(0)'},1500);
+const headline='Full-Stack Engineer | Built Apps for 50K+ Users | React + AWS';
+let ci=0;
+setTimeout(()=>{const ti=setInterval(()=>{ci++;ht.textContent=headline.slice(0,ci);if(ci>=headline.length)clearInterval(ti)},25)},1800);
+setTimeout(()=>{ec.style.opacity='1';ec.style.transform='translateY(0)'},3000);
+const bullets=['• Developed full-stack applications serving 50,000+ daily active users using React and Node.js','• Reduced API response time by 40% through database query optimization and Redis caching','• Led team of 4 engineers to deliver project 2 weeks ahead of schedule'];
+bullets.forEach((b,i)=>{setTimeout(()=>{const d=document.createElement('div');d.textContent=b;d.style.animation='slideUp .3s ease';bl.appendChild(d)},3500+i*500)});
+setTimeout(()=>{sc.style.opacity='1';sc.style.transform='translateY(0)'},5000);
+setTimeout(()=>{
+document.getElementById('phoneInner').scrollTo({top:400,behavior:'smooth'});
+},5500);
+setTimeout(()=>{moveCursor(320,600,0).then(()=>clickCursor())},6200);
+}
+
+function s7Enter(){
+cursor.classList.remove('visible');
+const rp=document.getElementById('resumeProgress');
+const rs=document.getElementById('resumeStages');
+rp.style.width='0%';rs.innerHTML='';
+setTimeout(()=>rp.style.width='50%',200);
+setTimeout(()=>{rs.innerHTML='✓ Template applied';rp.style.width='75%'},800);
+setTimeout(()=>{rs.innerHTML='✓ Template applied • ✓ Keywords matched';rp.style.width='90%'},1400);
+setTimeout(()=>{rs.innerHTML='✓ Template applied • ✓ Keywords matched • ✓ ATS optimized';rp.style.width='100%'},2000);
+}
+
+function s8Enter(){
+cursor.classList.remove('visible');
+const ab=document.getElementById('atsBar');
+ab.style.width='0%';
+setTimeout(()=>ab.style.width='87%',500);
+setTimeout(()=>{document.getElementById('phoneInner').scrollTo({top:200,behavior:'smooth'})},2500);
+}
+
+function s9Enter(){
+cursor.classList.remove('visible');
+const ss=document.getElementById('saveStatus');
+ss.textContent='• Saved';ss.style.color='#057642';
+setTimeout(()=>{moveCursor(350,215,0)},1000);
+setTimeout(()=>{
+clickCursor();
+document.getElementById('enhanceBtn').style.opacity='1';
+ss.textContent='• Saving...';ss.style.color='#888';
+},1500);
+setTimeout(()=>{
+const ta=document.getElementById('summaryTA');
+ta.value='Results-driven Full-Stack Engineer specializing in scalable React + Node.js applications. Built and maintained products serving 50,000+ daily active users at Wipro, achieving 40% improvement in API performance through strategic optimization.';
+ss.textContent='• Saved';ss.style.color='#057642';
+document.getElementById('enhanceBtn').style.opacity='.6';
+},2500);
+setTimeout(()=>{moveCursor(340,510,0)},3500);
+setTimeout(()=>{
+clickCursor();
+document.getElementById('enhanceBullet').style.opacity='1';
+ss.textContent='• Saving...';ss.style.color='#888';
+},4000);
+setTimeout(()=>{
+document.getElementById('bulletTA').value='Architected and shipped full-stack applications serving 50,000+ DAU, driving 25% increase in user engagement';
+ss.textContent='• Saved';ss.style.color='#057642';
+document.getElementById('enhanceBullet').style.opacity='.6';
+},5000);
+}
+
+function s10Enter(){
+cursor.classList.remove('visible');
+}
+
+// Start
+startDemo();
+</script>
+</body>
+</html>

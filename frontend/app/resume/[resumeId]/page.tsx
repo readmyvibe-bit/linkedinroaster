@@ -57,14 +57,14 @@ export default function ResumePreviewPage() {
     const density = getContentDensity(resume.resume_data);
     const adaptive = getAdaptiveSpacingCSS(density, printSize);
     if (adaptive) html = html.replace('</style>', adaptive + '</style>');
-    if (printSize === 'compact') html = html.replace('</style>', 'body{font-size:10px!important;line-height:1.3!important}.print-content-root>div{padding:28px!important}.print-content-root div[style*="margin-bottom"]{margin-bottom:4px!important}</style>');
-    else if (printSize === 'spacious') html = html.replace('</style>', 'body{font-size:12px!important;line-height:1.8!important}.print-content-root>div{padding:48px!important}.print-content-root div[style*="margin-bottom:14px"]{margin-bottom:24px!important}.print-content-root div[style*="margin-bottom:24px"]{margin-bottom:32px!important}.print-content-root div[style*="margin-bottom:10px"]{margin-bottom:18px!important}.print-content-root div[style*="margin-bottom:6px"]{margin-bottom:12px!important}</style>');
+    if (printSize === 'compact') html = html.replace('</style>', 'body{font-size:10px!important;line-height:1.35!important}.print-content-root>div{padding:28px!important}</style>');
+    else if (printSize === 'spacious') html = html.replace('</style>', 'body{font-size:12px!important;line-height:1.65!important}.print-content-root>div{padding:40px 44px!important}.print-content-root .entry{margin-bottom:12px!important}</style>');
     if (fitOnePage) {
       html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 10mm 8mm 10mm}');
       html = html.replace('</style>', 'body{font-size:90%!important;line-height:1.3!important}body div,body p{margin-bottom:1px!important}</style>');
     } else {
-      // Multi-page: ensure content flows naturally across pages, no shrink-to-fit
-      html = html.replace('</style>', '@media print{html,body{width:210mm!important;min-height:auto!important}body{overflow:visible!important}.print-content-root{width:100%!important;transform:none!important}}</style>');
+      // Multi-page: natural flow; reset forced full-page min-heights so content does not balloon spacing
+      html = html.replace('</style>', '@media print{html,body{width:210mm!important;min-height:auto!important}body{overflow:visible!important}.print-content-root{width:100%!important;transform:none!important}.print-content-root,.print-content-root>div,.resume-body,.two-col,.two-col-left,.two-col-right{min-height:auto!important}}</style>');
     }
     const w = window.open('', '_blank'); if (!w) { alert('Allow popups.'); return; }
     w.document.write(html); w.document.close(); w.document.title = ' '; setTimeout(() => w.print(), 600);
@@ -80,16 +80,35 @@ export default function ResumePreviewPage() {
   function handleCopyCL() { if (!resume?.cover_letter) return; navigator.clipboard.writeText(resume.cover_letter).then(() => { setCoverLetterCopied(true); setTimeout(() => setCoverLetterCopied(false), 2000); }); }
 
   const [showLevelPicker, setShowLevelPicker] = useState(false);
+  const [prepLoading, setPrepLoading] = useState(false);
+
+  useEffect(() => {
+    if (!showLevelPicker) return;
+    const onDown = (e: MouseEvent) => {
+      const t = e.target;
+      if (t instanceof Element && t.closest('[data-level-picker-root]')) return;
+      setShowLevelPicker(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [showLevelPicker]);
+
   const handleInterview = async (level?: string) => {
+    if (prepLoading || !resume?.id) return;
+    setPrepLoading(true);
+    setShowLevelPicker(false);
     try {
-      const body: any = { resume_id: resume?.id };
+      const body: any = { resume_id: resume.id };
       if (level) body.interview_level = level;
       const r = await fetch(`${API_URL}/api/interview-prep`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       const d = await r.json();
       if (d.id) window.open(`/interview-prep/${d.id}`, '_blank');
       else alert(d.error || 'Failed');
-    } catch { alert('Failed.'); }
-    setShowLevelPicker(false);
+    } catch {
+      alert('Failed.');
+    } finally {
+      setPrepLoading(false);
+    }
   };
   const handleUpgrade = async () => { try { const r = await fetch(`${API_URL}/api/orders/${resume?.order_id}/upgrade`, { method: 'POST', headers: { 'Content-Type': 'application/json' } }); const d = await r.json(); if (d.razorpay_order_id) { const z = new (window as any).Razorpay({ key: d.razorpay_key, amount: d.amount, currency: d.currency, order_id: d.razorpay_order_id, name: 'ProfileRoaster', description: 'Upgrade to Pro', theme: { color: '#0A66C2' }, handler: () => window.location.reload() }); z.open(); } else alert(d.error || 'Failed'); } catch { alert('Failed.'); } };
 
@@ -145,13 +164,13 @@ export default function ResumePreviewPage() {
               <button onClick={handleDownloadPDF} className="saas-btn saas-btn-primary">Download PDF</button>
               <a href={`/resume/${resume.id}/edit`} className="saas-btn saas-btn-ghost" style={{ color: 'var(--success)' }}>Edit</a>
               <a href={`${API_URL}/api/resume/${resume.id}/download/txt`} className="saas-btn saas-btn-ghost">TXT</a>
-              <div style={{ position: 'relative', display: 'inline-block' }}>
-                <button onClick={() => setShowLevelPicker(!showLevelPicker)} className="saas-btn saas-btn-ghost" style={{ color: '#7C3AED' }}>Interview Prep &#9662;</button>
+              <div data-level-picker-root style={{ position: 'relative', display: 'inline-block' }}>
+                <button type="button" disabled={prepLoading} onClick={() => !prepLoading && setShowLevelPicker(!showLevelPicker)} className="saas-btn saas-btn-ghost" style={{ color: '#7C3AED', opacity: prepLoading ? 0.6 : 1 }}>{prepLoading ? 'Starting…' : 'Interview Prep'} &#9662;</button>
                 {showLevelPicker && (
                   <div style={{ position: 'absolute', top: '100%', left: 0, background: '#fff', border: '1px solid #E0E0E0', borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 50, minWidth: 200, padding: '6px 0', marginTop: 4 }}>
-                    <button onClick={() => handleInterview()} style={{ display: 'block', width: '100%', padding: '8px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', fontSize: 13, color: '#333' }}>Auto-detect level</button>
+                    <button type="button" disabled={prepLoading} onClick={() => handleInterview()} style={{ display: 'block', width: '100%', padding: '8px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: prepLoading ? 'wait' : 'pointer', fontSize: 13, color: '#333' }}>Auto-detect level</button>
                     {[{ v: 'entry', l: 'Entry (0-2 yrs)' }, { v: 'mid', l: 'Mid (2-5 yrs)' }, { v: 'senior', l: 'Senior (5-10 yrs)' }, { v: 'lead', l: 'Lead (10+ yrs)' }].map(o => (
-                      <button key={o.v} onClick={() => handleInterview(o.v)} style={{ display: 'block', width: '100%', padding: '8px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', fontSize: 13, color: '#333' }}>{o.l}</button>
+                      <button type="button" key={o.v} disabled={prepLoading} onClick={() => handleInterview(o.v)} style={{ display: 'block', width: '100%', padding: '8px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: prepLoading ? 'wait' : 'pointer', fontSize: 13, color: '#333' }}>{o.l}</button>
                     ))}
                   </div>
                 )}
@@ -346,13 +365,13 @@ export default function ResumePreviewPage() {
       <div className="flex sm:!hidden" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'var(--bg-surface)', borderTop: '1px solid var(--border-default)', padding: '10px 16px', zIndex: 50, gap: 8, boxShadow: 'var(--shadow-md)', flexWrap: 'wrap' }}>
         <button onClick={handleDownloadPDF} className="saas-btn saas-btn-primary" style={{ flex: 1, justifyContent: 'center' }}>Download PDF</button>
         <a href={`/resume/${resume.id}/edit`} className="saas-btn saas-btn-ghost">Edit</a>
-        <div style={{ position: 'relative' }}>
-          <button onClick={() => setShowLevelPicker(!showLevelPicker)} className="saas-btn saas-btn-ghost" style={{ color: '#7C3AED' }}>Prep &#9662;</button>
+        <div data-level-picker-root style={{ position: 'relative' }}>
+          <button type="button" disabled={prepLoading} onClick={() => !prepLoading && setShowLevelPicker(!showLevelPicker)} className="saas-btn saas-btn-ghost" style={{ color: '#7C3AED', opacity: prepLoading ? 0.6 : 1 }}>{prepLoading ? '…' : 'Prep'} &#9662;</button>
           {showLevelPicker && (
             <div style={{ position: 'absolute', bottom: '100%', right: 0, background: '#fff', border: '1px solid #E0E0E0', borderRadius: 8, boxShadow: '0 -4px 12px rgba(0,0,0,0.1)', zIndex: 60, minWidth: 180, padding: '6px 0', marginBottom: 4 }}>
-              <button onClick={() => handleInterview()} style={{ display: 'block', width: '100%', padding: '10px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', fontSize: 14, color: '#333' }}>Auto-detect</button>
+              <button type="button" disabled={prepLoading} onClick={() => handleInterview()} style={{ display: 'block', width: '100%', padding: '10px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: prepLoading ? 'wait' : 'pointer', fontSize: 14, color: '#333' }}>Auto-detect</button>
               {[{ v: 'entry', l: 'Entry' }, { v: 'mid', l: 'Mid' }, { v: 'senior', l: 'Senior' }, { v: 'lead', l: 'Lead' }].map(o => (
-                <button key={o.v} onClick={() => handleInterview(o.v)} style={{ display: 'block', width: '100%', padding: '10px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', fontSize: 14, color: '#333' }}>{o.l}</button>
+                <button type="button" key={o.v} disabled={prepLoading} onClick={() => handleInterview(o.v)} style={{ display: 'block', width: '100%', padding: '10px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: prepLoading ? 'wait' : 'pointer', fontSize: 14, color: '#333' }}>{o.l}</button>
               ))}
             </div>
           )}

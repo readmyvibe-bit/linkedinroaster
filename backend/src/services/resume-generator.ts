@@ -107,6 +107,7 @@ ATS Keywords: ${JSON.stringify(rewrite.ats_keywords || [])}
 Education: ${JSON.stringify(parsed.education || [])}
 Full Experience: ${JSON.stringify(parsed.experience || [])}
 Skills: ${JSON.stringify(parsed.skills || [])}
+Achievements / honors (if present in profile): ${JSON.stringify((parsed as any).achievements || [])}
 
 ═══ SOURCE 3: UPLOADED RESUME (user's own resume — most accurate personal data) ═══
 ${uploadedResumeText ? uploadedResumeText.slice(0, 4000) : 'No uploaded resume.'}
@@ -117,7 +118,7 @@ ${uploadedResumeText ? uploadedResumeText.slice(0, 4000) : 'No uploaded resume.'
 3. INCLUDE ALL JOBS: If Source 3 has more jobs than Source 1, include them all. Do not skip any employment.
 4. PERSONAL INFO: Use Source 3 for name, phone, email if available. Fall back to user-provided details.
 5. SKILLS: ONLY include skills that the user actually has — from Source 1, Source 2, or Source 3. NEVER add skills from the job description that the user has not listed. If the JD mentions "API Management" but the user has never listed it, do NOT add it. This is critical — fabricating skills the user doesn't have is dishonest and will fail in interviews.
-6. ACHIEVEMENTS: Include achievements from Source 3 that aren't already in experience bullets.
+6. ACHIEVEMENTS (CRITICAL): You MUST populate the JSON "achievements" array with every distinct award, honor, recognition, certification milestone, or key win stated in Source 2, Source 3, or Additional Achievements below — unless that exact text is already duplicated verbatim in a work bullet. If no such items exist in any source, use []. Never drop a real achievement to save space; shorten bullets elsewhere first.
 7. NEVER FABRICATE: Do not invent any degree, institution, company, achievement, certification, or SKILL not explicitly stated in any source. If no certifications exist in any source, return an empty certifications array. Do NOT guess or generate certifications. Do NOT add technical skills from the JD that the user doesn't have.
 
 CONTACT INFO:
@@ -137,7 +138,7 @@ ${input.jobDescription}
 
 STRICT ATS RULES:
 1. No tables, no columns, no text boxes, no graphics
-2. Standard section headers ONLY: PROFESSIONAL SUMMARY, WORK EXPERIENCE, EDUCATION, SKILLS
+2. Standard section headers: PROFESSIONAL SUMMARY, WORK EXPERIENCE, EDUCATION, SKILLS, and KEY ACHIEVEMENTS (or ACHIEVEMENTS) when any awards, honors, or standout wins exist in any source. KEY ACHIEVEMENTS is mandatory whenever Source 2, Source 3, or Additional Achievements lists items not already fully covered by experience bullets.
 3. All dates in MMM YYYY format (e.g., Jan 2020 - Present)
 4. Every bullet starts with a strong action verb
 5. Every bullet must include a metric, number, or measurable outcome
@@ -208,6 +209,8 @@ Extract ALL important keywords from the job description.
 For each, note whether it appears in the resume content.
 Provide 3-5 specific recommendations to improve the score.
 
+Before returning JSON: fill "achievements" with every honor, award, recognition, or standout win from Sources 1–3 and Additional Achievements that is not already fully repeated as an experience bullet. Use [] only when no such items exist in any source.
+
 Return ONLY valid JSON with this exact structure:
 {
   "contact": { "name": "", "email": "", "phone": "", "location": "", "linkedin": "", "website": "" },
@@ -250,6 +253,19 @@ Return ONLY valid JSON with this exact structure:
   } catch {
     resumeData = JSON.parse(jsonrepair(text));
   }
+
+  // Merge achievements from sources if the model omitted them
+  const parsedAch = Array.isArray((parsed as any).achievements)
+    ? (parsed as any).achievements.map((x: any) => (typeof x === 'string' ? x : String(x))).filter(Boolean)
+    : [];
+  const fromAdditional = input.additionalAchievements
+    ? input.additionalAchievements.split(/\n|•|;/).map(s => s.trim()).filter(Boolean)
+    : [];
+  const aiAch = Array.isArray(resumeData.achievements)
+    ? resumeData.achievements.map((x: any) => String(x).trim()).filter(Boolean)
+    : [];
+  const mergedAch = [...new Set([...aiAch, ...parsedAch, ...fromAdditional])];
+  if (mergedAch.length) resumeData.achievements = mergedAch;
 
   // 4. Extract ATS analysis
   const atsAnalysis = resumeData.ats_analysis || { score: 0, keywords_matched: [], keywords_missing: [], recommendations: [] };

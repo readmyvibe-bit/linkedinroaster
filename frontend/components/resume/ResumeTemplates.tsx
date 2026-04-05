@@ -2304,7 +2304,7 @@ function buildExpHTML(data: ResumeData, bullet: string, dateStyle: string, compa
     const dates = esc(getExpDates(exp));
     const company = [exp.company, exp.location].filter(Boolean).map(esc).join(' &mdash; ');
     const bullets = (exp.bullets || []).map(b => `<div style="padding-left:12px;text-indent:-12px;margin-bottom:2px">${bullet} ${esc(b)}</div>`).join('');
-    return `<div style="margin-bottom:${bullet === '&gt;' ? '12' : '10'}px"><div style="display:flex;justify-content:space-between;flex-wrap:wrap"><span style="${titleStyle}">${title}</span><span style="${dateStyle}">${dates}</span></div><div style="${companyStyle}">${company}</div>${bullets ? `<div style="margin-top:4px">${bullets}</div>` : ''}</div>`;
+    return `<div class="entry" style="margin-bottom:${bullet === '&gt;' ? '12' : '10'}px"><div style="display:flex;justify-content:space-between;flex-wrap:wrap"><span style="${titleStyle}">${title}</span><span style="${dateStyle}">${dates}</span></div><div style="${companyStyle}">${company}</div>${bullets ? `<div style="margin-top:4px">${bullets}</div>` : ''}</div>`;
   }).join('');
 }
 

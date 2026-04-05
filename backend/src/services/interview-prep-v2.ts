@@ -332,7 +332,7 @@ async function phase0_jdExtraction(profile: CandidateProfile): Promise<JdAnalysi
     return { must_have_skills: [], nice_to_have: [], tools: [], responsibilities: [], seniority_signals: [], themes: [], red_flags: [] };
   }
   const system = `You are a job description analyst. Extract structured requirements from the JD.\n${GLOBAL_RULES}`;
-  const prompt = `JOB DESCRIPTION:\n${profile.jobDescription.slice(0, 8000)}
+  const prompt = `JOB DESCRIPTION:\n${profile.jobDescription.slice(0, 4000)}
 
 TARGET ROLE: ${profile.targetRole}
 ${profile.targetCompany ? `COMPANY: ${profile.targetCompany}` : ''}
@@ -453,7 +453,7 @@ Return JSON:
 async function phase1_plan(profile: CandidateProfile, level: InterviewLevel): Promise<{ question_mix: Record<string, number>; focus_themes: string[] }> {
   const system = `You are an expert interview prep strategist. Plan the question distribution for a ${level}-level candidate.\n${GLOBAL_RULES}`;
   const prompt = `${buildResumeContext(profile)}
-${profile.hasJD ? `\nJOB DESCRIPTION:\n${profile.jobDescription.slice(0, 6000)}` : ''}
+${profile.hasJD ? `\nJOB DESCRIPTION:\n${profile.jobDescription.slice(0, 4000)}` : ''}
 
 ${LEVEL_RUBRICS[level]}
 
@@ -470,7 +470,7 @@ The mix must sum to exactly 15. Adjust distribution based on level and role.`;
 async function phase2_brief(profile: CandidateProfile): Promise<any> {
   const system = `You are an interview intelligence analyst. ${profile.hasJD ? 'Analyze the job description.' : 'Provide general role expectations.'}\n${GLOBAL_RULES}`;
   const prompt = profile.hasJD
-    ? `JOB DESCRIPTION:\n${profile.jobDescription.slice(0, 8000)}\n\nReturn JSON:
+    ? `JOB DESCRIPTION:\n${profile.jobDescription.slice(0, 4000)}\n\nReturn JSON:
 {
   "what_jd_emphasizes": ["3-5 key themes"],
   "interview_style": "behavioral | technical | mixed",
@@ -515,9 +515,9 @@ async function phase4_starBatch(profile: CandidateProfile, level: InterviewLevel
   const gapContext = gaps.filter(g => g.status !== 'strong').length > 0
     ? `\nGAPS TO ADDRESS IN ANSWERS:\n${gaps.filter(g => g.status !== 'strong').map(g => `- ${g.jd_theme}: ${g.bridge_talking_point || 'show transferable skills'}`).join('\n')}`
     : '';
-  // Process in batches of 5
-  for (let i = 0; i < questions.length; i += 5) {
-    const batch = questions.slice(i, i + 5);
+  // Process in batches of 3 to reduce per-call output size (MAX_TOKENS)
+  for (let i = 0; i < questions.length; i += 3) {
+    const batch = questions.slice(i, i + 3);
     const system = `You are an expert interview coach. Generate STAR answers grounded ONLY in the resume.${profile.hasJD ? ' When a question targets a JD gap, the answer should explicitly bridge it using transferable experience.' : ''}\n${GLOBAL_RULES}\n${LEVEL_RUBRICS[level]}`;
     const prompt = `${buildResumeContext(profile)}
 ${profile.hasJD ? `\nJD THEMES: ${jdAnalysis.themes.join(', ')}` : ''}${gapContext}

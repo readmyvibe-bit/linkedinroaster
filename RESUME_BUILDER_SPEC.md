@@ -606,70 +606,49 @@ GENERATE BUTTON:
 ### Page: /resume/[resumeId]
 
 ```
-Background: #F3F2EF
+Background: var(--bg-canvas) / #F4F6F9
 
-TOP BAR (sticky):
-  background: white
-  borderBottom: 1px solid #E0E0E0
-  padding: 12px 24px
-  display: flex, space-between
+HEADER (sticky, two rows):
+  Row 1 — breadcrumb + primary actions
+    Left: ← Results › Resume · ATS badge (score)
+    Right: [Download PDF] [Edit] [TXT]
+           [Interview Prep ▼]  — opens level picker (Auto-detect, Entry, Mid, Senior, Lead)
+           [Dashboard]
+    Behavior: Prep uses prepLoading ("Starting…") to avoid double window.open on rapid clicks.
+              Level picker wrapped in [data-level-picker-root]; mousedown outside closes it.
 
-  Left: "ProfileRoaster Resume" — logo
-  Right: buttons
-    [Edit Resume] (Session 2, disabled in Session 1)
-    [Download PDF]
-    [Download DOCX] (Session 3)
+  Row 2 — target role + print controls
+    Left: target_role (+ target_company when set)
+    Right: [Template ▼] opens modal (categories, recommended, Pro lock)
+           <select> Compact | Standard | Spacious  — PATCH resume_data.printSize
+           <select> 1 Page | 2 Pages               — PATCH resume_data.fitOnePage
+    PDF: density + fitOnePage applied in buildPrintHTML injection (spacious: body line-height
+         + .print-content-root .entry margin; avoid broad div[style*="margin-bottom"] selectors)
 
-ATS SCORE CARD (above resume):
-  max-width: 794px (A4 width), centered
-  background: white
-  borderRadius: 12px
-  padding: 20px
-  margin-bottom: 16px
-  display: flex, align-center, gap 20px
+MAIN (max-width ~1320, padding; flex row from md+):
+  LEFT COLUMN (hidden on small screens — md:flex, sticky ~top 120):
+    Card: ATS Insights — score ring, label, match bar, checklist, [View keywords] toggle
+          → Matched / Missing keyword pills when expanded
+    Card: Cover Letter — Copy, Cover Letter PDF (or "No cover letter" callout)
+    Card: Details — Role, Company, Template name, Density (print size label)
 
-  Left: Large score circle
-    width: 80px, height: 80px
-    border: 6px solid (color based on score)
-    borderRadius: 50%
-    center: score number, 28px bold
-    Below circle: "ATS Score" 12px
+  RIGHT — preview well:
+    Gray well, white surface, shadow; renderResumeHTML(resume_data, templateId)
+    Pro-only template: overlay + upgrade CTA
+    resume_data includes achievements[] → templates render Key achievements / KEY ACHIEVEMENTS
 
-  Middle: Keyword stats
-    "32 of 38 keywords matched"
-    Progress bar: green fill
-    "84% match rate"
+OPTIONAL BAND:
+  Full-width cover letter card below main when cover_letter present
 
-  Right: Quick stats column
-    "6 missing keywords"
-    "4 recommendations"
-    [View Details] expand button
+FOOTER:
+  [Generate Another Resume] [Back to Results] [Dashboard]
 
-EXPANDED KEYWORD SECTION (toggle):
-  Two columns:
-    Left: "Keywords Found" — green pills
-    Right: "Keywords Missing" — red pills
-
-  Recommendations list:
-    Each: lightbulb icon + text
-    "Add 'Client Retention' to your skills"
-
-RESUME PREVIEW:
-  max-width: 794px, centered
-  background: white
-  boxShadow: 0 2px 8px rgba(0,0,0,0.1)
-  padding: 40px (matches print margins)
-  minHeight: 1123px (A4 height)
-
-  Renders the selected template with resume_data
-  Read-only in Session 1
-
-  If 2 pages: show page break indicator
-
-BOTTOM ACTIONS:
-  "Generate Another Resume" button → back to /resume?orderId=xxx
-  "Back to Results" link → /results/orderId
+MOBILE (sm and below):
+  Sticky bottom bar: Download PDF | Edit | Prep ▼ (same level picker pattern)
+  No left rail — ATS + cover stack in scroll or rely on header only (see page.tsx)
 ```
+
+Animated demo wireframe: `profileroaster-demo.html` scene 8 mirrors this layout (including Key achievements in the mock resume and control labels).
 
 ---
 
