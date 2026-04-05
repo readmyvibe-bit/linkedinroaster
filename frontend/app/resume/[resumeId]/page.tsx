@@ -324,7 +324,7 @@ export default function ResumePreviewPage() {
                   <div className="saas-card" style={{ padding: '32px 40px', textAlign: 'center', maxWidth: 380, boxShadow: 'var(--shadow-lg)' }}>
                     <div style={{ fontSize: 32, marginBottom: 8 }}>{'\uD83D\uDD12'}</div>
                     <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--accent)', marginBottom: 8 }}>Pro Template</div>
-                    <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 16 }}>&ldquo;{currentTemplate?.name}&rdquo; requires Pro. Unlock all 28 templates.</div>
+                    <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 16 }}>&ldquo;{currentTemplate?.name}&rdquo; requires Pro. Unlock all 11 templates.</div>
                     <button onClick={handleUpgrade} className="saas-btn saas-btn-primary" style={{ borderRadius: 'var(--radius-pill)', padding: '12px 28px', fontSize: 15 }}>Upgrade &mdash; &#8377;500</button>
                   </div>
                 </div>

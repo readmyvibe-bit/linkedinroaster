@@ -28,7 +28,7 @@ const rewritePlans: Plan[] = [
     features: [
       { text: 'AI Profile Score + Analysis (free preview)', included: true },
       { text: 'Complete LinkedIn Rewrite', included: true },
-      { text: 'ATS Resume Builder (18 templates)', included: true },
+      { text: 'ATS Resume Builder (11 templates)', included: true },
       { text: 'Cover Letter Generator', included: true },
       { text: 'Interview Prep (15 questions + quiz)', included: true },
       { text: 'AI Enhance Editor', included: true },
@@ -43,7 +43,7 @@ const rewritePlans: Plan[] = [
     highlighted: true,
     features: [
       { text: 'Everything in Standard', included: true },
-      { text: 'All 28 premium templates', included: true },
+      { text: 'All 11 premium templates', included: true },
       { text: 'Priority processing', included: true },
       { text: 'Upgrade anytime for \u20B9500', included: true },
     ],
@@ -59,7 +59,7 @@ const buildPlans: Plan[] = [
     features: [
       { text: 'AI-generated LinkedIn profile (headline, about, experience, skills)', included: true },
       { text: '10-step LinkedIn setup guide', included: true },
-      { text: 'ATS Resume Builder (18 templates)', included: true },
+      { text: 'ATS Resume Builder (11 templates)', included: true },
       { text: 'Cover Letter Generator', included: true },
       { text: 'Interview Prep', included: true },
       { text: 'AI Enhance + Connection Templates', included: true },
@@ -73,7 +73,7 @@ const buildPlans: Plan[] = [
     highlighted: true,
     features: [
       { text: 'Everything in Standard', included: true },
-      { text: 'All 28 premium templates', included: true },
+      { text: 'All 11 premium templates', included: true },
       { text: 'Priority processing', included: true },
       { text: 'Upgrade anytime for \u20B9500', included: true },
     ],

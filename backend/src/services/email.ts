@@ -5,7 +5,7 @@ import RefundEmail from '../emails/RefundEmail';
 import TeaserFollowUpEmail from '../emails/TeaserFollowUpEmail';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 'dummy_key');
-const FROM = `Profile Roaster <${process.env.FROM_EMAIL || 'support@profileroaster.in'}>`;
+const FROM = `ProfileRoaster <${process.env.FROM_EMAIL || 'support@profileroaster.in'}>`;
 const EMAIL_ENABLED = !!process.env.RESEND_API_KEY;
 
 export async function sendResultsEmail(order: any): Promise<void> {
@@ -16,7 +16,7 @@ export async function sendResultsEmail(order: any): Promise<void> {
   const beforeScore = order.before_score || { overall: 0 };
   const afterScore = order.after_score || { overall: 0 };
 
-  const subject = `Your LinkedIn Rewrite is Ready — Score: ${beforeScore.overall}→${afterScore.overall}`;
+  const subject = `Your Resume + LinkedIn Rewrite is Ready — Score: ${beforeScore.overall} → ${afterScore.overall}`;
 
   const { error } = await resend.emails.send({
     from: FROM,

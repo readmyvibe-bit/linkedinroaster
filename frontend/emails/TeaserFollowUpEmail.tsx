@@ -29,7 +29,7 @@ export default function TeaserFollowUpEmail({
         <Container style={container}>
           {/* Header */}
           <Section style={header}>
-            <Text style={headerText}>🔥 Profile Roaster</Text>
+            <Text style={headerText}>🔥 ProfileRoaster</Text>
           </Section>
 
           <Section style={content}>
@@ -63,11 +63,11 @@ export default function TeaserFollowUpEmail({
 
             {/* CTA */}
             <Text style={ctaText}>
-              Get your full roast + complete rewrite for <strong>₹299</strong>
+              Get your full analysis + resume rewrite for <strong>₹499</strong>
             </Text>
             <Section style={{ textAlign: 'center' as const, margin: '16px 0' }}>
               <Button style={ctaButton} href={ctaUrl}>
-                Get My Full Roast →
+                Get My Full Rewrite →
               </Button>
             </Section>
 
@@ -85,7 +85,7 @@ export default function TeaserFollowUpEmail({
               <Link href={`https://profileroaster.in/unsubscribe?email=`} style={footerLink}>Unsubscribe</Link>
             </Text>
             <Text style={footerMuted}>
-              You received this because you tested your LinkedIn headline on Profile Roaster.
+              You received this because you tested your LinkedIn headline on ProfileRoaster.
             </Text>
           </Section>
         </Container>

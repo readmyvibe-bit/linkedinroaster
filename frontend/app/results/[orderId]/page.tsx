@@ -517,7 +517,7 @@ function RoastCard({ point, pointNumber, totalPoints }: { point: RoastPoint; poi
             cursor: 'pointer',
           }}
         >
-          {copied ? 'Copied!' : 'Copy Roast'}
+          {copied ? 'Copied!' : 'Copy Insight'}
         </button>
         <span style={{ fontSize: 10, color: '#aaa' }}>profileroaster.in</span>
       </div>
@@ -679,9 +679,9 @@ function RoastSheetPreview({
         background: '#004182', padding: '12px 32px',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
       }}>
-        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)' }}>Get your profile roasted at</span>
+        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)' }}>Get your profile rewritten at</span>
         <span style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>profileroaster.in</span>
-        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>#LinkedInRoast</span>
+        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>#ProfileRewrite</span>
       </div>
     </div>
   );
@@ -709,20 +709,17 @@ function RoastReportSection({
 
   const improvement = scores.after.overall - scores.before.overall;
   const firstRoast = roast.roast_points[0]?.roast || '';
-  const caption = `I just got my LinkedIn profile brutally roasted by AI \u{1F525}
-
-The verdict: [${roast.roast_title}]
-
-My worst roast point:
-"${firstRoast.length > 350 ? firstRoast.slice(0, firstRoast.slice(0, 350).lastIndexOf(' ')) + '...' : firstRoast}"
+  const caption = `AI rewrote my LinkedIn profile and resume \u{1F680}
 
 Score went from ${scores.before.overall} to ${scores.after.overall} (+${improvement} points)
 
-Best \u20B9${plan === 'pro' ? '799' : '299'} I spent on my career.
+Key insight: "${firstRoast.length > 250 ? firstRoast.slice(0, firstRoast.slice(0, 250).lastIndexOf(' ')) + '...' : firstRoast}"
 
-Get yours: profileroaster.in
+Best investment I made for my career.
 
-#LinkedInRoast #CareerGrowth #LinkedInTips #ProfileMakeover`;
+Try it: profileroaster.in
+
+#ProfileRewrite #CareerGrowth #LinkedInTips #ResumeBuilder`;
 
   async function handleDownload() {
     setDownloading(true);
@@ -1496,7 +1493,7 @@ function ResumeBuilderSection({ orderId, maxResumes = 3, plan = 'standard' }: { 
         <div style={{ background: 'linear-gradient(135deg, #004182, #0A66C2)', borderRadius: 10, padding: '16px 20px', marginTop: 4 }}>
           <p style={{ fontSize: 14, fontWeight: 700, color: 'white', margin: '0 0 4px' }}>Want more resumes?</p>
           <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', margin: '0 0 12px', lineHeight: 1.5 }}>
-            5 headline variations, all 28 templates, 3 cover letters, ATS keywords
+            5 headline variations, all 11 templates, 3 cover letters, ATS keywords
           </p>
           <button
             onClick={handleUpgrade}
@@ -1846,7 +1843,7 @@ function UpsellBanner({ orderId }: { orderId: string }) {
     >
       <p className="text-white text-sm font-bold mb-1">Upgrade to Pro for ₹500</p>
       <p className="text-white/80 text-xs mb-3">
-        5 headline variations, all 28 templates, 3 cover letters, ATS keywords
+        5 headline variations, all 11 templates, 3 cover letters, ATS keywords
       </p>
       <button
         onClick={handleUpgrade}
@@ -2723,7 +2720,7 @@ export default function ResultsPage() {
           {!isPro && (
             <div style={{ background: 'linear-gradient(135deg, #004182, #0B69C7)', borderRadius: 12, padding: '20px 24px', color: 'white' }}>
               <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>Upgrade to Pro</div>
-              <div style={{ fontSize: 13, opacity: 0.85, marginBottom: 12, lineHeight: 1.5 }}>5 headline variations, all 28 templates, 3 cover letters, ATS keywords</div>
+              <div style={{ fontSize: 13, opacity: 0.85, marginBottom: 12, lineHeight: 1.5 }}>5 headline variations, all 11 templates, 3 cover letters, ATS keywords</div>
               <button onClick={handleUpgrade} style={{ padding: '10px 24px', background: 'white', color: '#0B69C7', border: 'none', borderRadius: 50, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>Upgrade &#8212; &#8377;500</button>
             </div>
           )}

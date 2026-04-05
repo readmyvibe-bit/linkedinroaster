@@ -78,7 +78,7 @@ const ROAST_SEQUENCE: SequenceEmail[] = [
             }
           </p>
           <p style="font-size:14px;line-height:1.6;color:#555">
-            Paste any job description and AI builds a targeted, ATS-optimized resume in 60 seconds. 28 templates, PDF + TXT downloads.
+            Paste any job description and AI builds a targeted, ATS-optimized resume in 60 seconds. 11 templates, PDF + TXT downloads.
           </p>
           <div style="text-align:center;margin:24px 0">
             <a href="${BASE_URL}/results/${d.id}" style="display:inline-block;padding:12px 32px;background:#057642;color:white;border-radius:50px;font-size:15px;font-weight:700;text-decoration:none">

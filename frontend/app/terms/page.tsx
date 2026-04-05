@@ -143,15 +143,15 @@ export default function TermsPage() {
 
             <h3 className="font-semibold mt-4 mb-2">6.1 LinkedIn Profile Rewrite</h3>
             <ul className="list-disc pl-6 space-y-1">
-              <li><strong>Standard Plan:</strong> &#8377;499 (INR) &mdash; AI profile analysis + complete rewrite, ATS resume builder (18 templates), cover letter generator, interview prep</li>
-              <li><strong>Pro Plan:</strong> &#8377;999 (INR) &mdash; everything in Standard + all 28 premium templates, priority processing</li>
+              <li><strong>Standard Plan:</strong> &#8377;499 (INR) &mdash; AI profile analysis + complete rewrite, ATS resume builder (11 templates), cover letter generator, interview prep</li>
+              <li><strong>Pro Plan:</strong> &#8377;999 (INR) &mdash; everything in Standard + all 11 premium templates, priority processing</li>
               <li><strong>Upgrade (Standard to Pro):</strong> &#8377;500 (INR) &mdash; difference payment</li>
             </ul>
 
             <h3 className="font-semibold mt-4 mb-2">6.2 Build My LinkedIn</h3>
             <ul className="list-disc pl-6 space-y-1">
-              <li><strong>Standard:</strong> &#8377;499 (INR) &mdash; AI-generated profile, setup guide, connection templates, ATS resume builder (18 templates), cover letter, interview prep</li>
-              <li><strong>Pro:</strong> &#8377;999 (INR) &mdash; everything in Standard + all 28 premium templates, priority processing</li>
+              <li><strong>Standard:</strong> &#8377;499 (INR) &mdash; AI-generated profile, setup guide, connection templates, ATS resume builder (11 templates), cover letter, interview prep</li>
+              <li><strong>Pro:</strong> &#8377;999 (INR) &mdash; everything in Standard + all 11 premium templates, priority processing</li>
               <li><strong>Upgrade (Standard to Pro):</strong> &#8377;500 (INR) &mdash; difference payment</li>
             </ul>
 
@@ -193,7 +193,7 @@ export default function TermsPage() {
             <h2 className="text-lg font-bold mb-3">8. Resume Builder Terms</h2>
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li><strong>Resume limits:</strong> Standard plans include up to 10 resumes per order. Pro plans include up to 25 resumes per order. Limits are enforced per order, not per user.</li>
-              <li><strong>Template access:</strong> 18 templates are available to all plans. 10 additional premium templates are exclusive to Pro plans. Attempting to use a Pro template on a non-Pro plan will be blocked.</li>
+              <li><strong>Template access:</strong> 11 templates are available to all plans. 10 additional premium templates are exclusive to Pro plans. Attempting to use a Pro template on a non-Pro plan will be blocked.</li>
               <li><strong>Resume editing:</strong> Users may edit generated resumes at any time via the live editor. Edits are saved automatically.</li>
               <li><strong>Data accuracy:</strong> The AI generates resume content based on the data you provide. We do not fabricate education, certifications, or employment history. Users must verify all content for accuracy before using it in job applications.</li>
               <li><strong>PDF/TXT download:</strong> Users may download resumes in PDF (via browser print) and TXT format. Downloaded files are yours to use without restriction.</li>

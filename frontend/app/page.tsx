@@ -1354,7 +1354,7 @@ export default function Home() {
                   <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
                     {inputSource === 'resume' ? 'Your Resume' : 'Resume From Your LinkedIn'}
                   </p>
-                  <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>Built from your data. 28 templates available.</p>
+                  <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16 }}>Built from your data. 11 templates available.</p>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14 }}>
                     {recIds.map(tid => {
                       const tmpl = TEMPLATES.find(t => t.id === tid);

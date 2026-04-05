@@ -44,7 +44,7 @@ export default function ResultsEmail({
           {/* Header */}
           <Section style={header}>
             <Text style={headerText}>ProfileRoaster</Text>
-            <Text style={subheaderText}>Your Profile Rewrite Results</Text>
+            <Text style={subheaderText}>Your Resume + LinkedIn Rewrite</Text>
           </Section>
 
           {/* Score Comparison */}
@@ -137,7 +137,7 @@ export default function ResultsEmail({
               <tbody>
                 {[
                   'Complete LinkedIn profile rewrite',
-                  'ATS-optimized resume builder (18+ templates)',
+                  'ATS-optimized resume builder (11 templates)',
                   'Personalized interview prep (15 questions)',
                   'Cover letter generator',
                 ].map((item, i) => (
@@ -165,7 +165,7 @@ export default function ResultsEmail({
             <Section style={upsellSection}>
               <Text style={upsellTitle}>Upgrade to Pro — ₹500</Text>
               <Text style={upsellDesc}>
-                5 headline variations, all 28 templates, job-tailored cover letter, advanced interview coaching.
+                5 headline variations, all 11 premium templates, job-tailored cover letter, interview prep.
               </Text>
               <Button style={upsellButton} href={`${resultsUrl}#upgrade`}>
                 Upgrade Now →
@@ -192,7 +192,7 @@ export default function ResultsEmail({
 
 // ─── Styles ───
 const main = { backgroundColor: '#F4F6F9', fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" };
-const container = { maxWidth: '600px', margin: '0 auto', backgroundColor: '#FFFFFF', borderRadius: '8px', overflow: 'hidden' as const };
+const container: React.CSSProperties = { maxWidth: '600px', margin: '0 auto', backgroundColor: '#FFFFFF', borderRadius: '8px', overflow: 'hidden' as const, width: '100%', boxSizing: 'border-box' as const };
 const header = { backgroundColor: '#004182', padding: '24px 24px 20px', textAlign: 'center' as const };
 const headerText = { color: '#FFFFFF', fontSize: '20px', fontWeight: '700' as const, margin: '0' };
 const subheaderText = { color: '#FFFFFF', fontSize: '14px', opacity: 0.85, margin: '4px 0 0' };
@@ -205,9 +205,9 @@ const scoreNumberGreen = { fontSize: '32px', fontWeight: '800' as const, margin:
 const improvementText = { fontSize: '14px', color: '#057642', fontWeight: '600' as const, marginTop: '12px' };
 const divider = { borderColor: '#E0E0E0', margin: '20px 0' };
 const sectionTitle = { fontSize: '16px', fontWeight: '700' as const, color: '#191919', padding: '0 24px', margin: '0 0 8px' };
-const rewriteCard: React.CSSProperties = { margin: '0 24px 16px', padding: '12px 16px', backgroundColor: '#F0F9FF', borderLeft: '3px solid #0A66C2', borderRadius: '4px' };
+const rewriteCard: React.CSSProperties = { margin: '0 24px 16px', padding: '12px 16px', backgroundColor: '#F0F9FF', borderLeft: '3px solid #0A66C2', borderRadius: '4px', boxSizing: 'border-box' as const, maxWidth: 'calc(100% - 48px)', wordBreak: 'break-word' as const };
 const rewriteText = { fontSize: '15px', fontWeight: '600' as const, color: '#191919', margin: '0', lineHeight: '1.4' };
-const rewriteTextSmall = { fontSize: '13px', color: '#191919', margin: '0', lineHeight: '1.6', whiteSpace: 'pre-wrap' as const };
+const rewriteTextSmall = { fontSize: '13px', color: '#191919', margin: '0', lineHeight: '1.6', whiteSpace: 'pre-wrap' as const, wordBreak: 'break-word' as const, overflowWrap: 'break-word' as const };
 const expTitle = { fontSize: '14px', fontWeight: '600' as const, color: '#191919', margin: '8px 0 2px' };
 const bulletText = { fontSize: '12px', color: '#374151', padding: '0 0 0 12px', margin: '3px 0', lineHeight: '1.5' };
 const variationRow: React.CSSProperties = { margin: '4px 24px', padding: '8px 12px', backgroundColor: '#F3F2EF', borderRadius: '4px' };
