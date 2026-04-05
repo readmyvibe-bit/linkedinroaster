@@ -179,6 +179,168 @@ export function getAdaptiveSpacingCSS(density: 'sparse' | 'medium' | 'dense', pr
   return '';
 }
 
+// ─── Design Tokens ──────────────────────────────────────────────────────────
+
+const T = {
+  // Spacing scale (px)
+  sp: { xs: 2, sm: 4, md: 8, lg: 14, xl: 24, '2xl': 40 },
+  // Font sizes (px)
+  fs: { xs: 9, sm: 10, body: 11, md: 12, lg: 15, xl: 20, '2xl': 26, '3xl': 28, '4xl': 34 },
+  // Line heights
+  lh: { tight: 1.3, normal: 1.5, relaxed: 1.6, loose: 1.75 },
+  // Font families
+  ff: {
+    sans: 'Arial, Helvetica, sans-serif',
+    serif: 'Georgia, "Times New Roman", serif',
+    mono: '"Courier New", Courier, monospace',
+  },
+  // Neutral palette
+  c: {
+    black: '#111',
+    text: '#374151',
+    muted: '#555',
+    light: '#666',
+    border: '#D1D5DB',
+    bg: '#F8FAFC',
+    white: '#FFFFFF',
+  },
+  // Accent colors (per-template override)
+  accent: {
+    blue: '#0A66C2',
+    green: '#057642',
+    red: '#991B1B',
+    teal: '#0D9488',
+    gold: '#B8860B',
+    indigo: '#4F46E5',
+    orange: '#EA580C',
+    navy: '#004182',
+    slate: '#334155',
+    cyan: '#0891B2',
+  },
+  // Radii
+  r: { sm: 4, md: 8 },
+} as const;
+
+// ─── Shared JSX Builders ────────────────────────────────────────────────────
+
+interface SectionStyle {
+  headerFontSize?: number;
+  headerColor?: string;
+  headerBorder?: string;
+  headerTransform?: 'uppercase' | 'none';
+  sectionGap?: number;
+}
+
+function SectionHeader({ title, style: s }: { title: string; style: SectionStyle }) {
+  return (
+    <div style={{
+      fontSize: s.headerFontSize || T.fs.body,
+      fontWeight: 700,
+      textTransform: (s.headerTransform || 'uppercase') as any,
+      color: s.headerColor || T.c.text,
+      borderBottom: s.headerBorder || `1px solid ${T.c.border}`,
+      paddingBottom: T.sp.xs,
+      marginBottom: T.sp.md,
+    }}>{title}</div>
+  );
+}
+
+function ExperienceBlock({ data, dateColor, titleColor, bullet }: {
+  data: ResumeData; dateColor?: string; titleColor?: string; bullet?: string;
+}) {
+  if (!data.experience?.length) return null;
+  return (
+    <>
+      {data.experience.map((exp, i) => (
+        <div key={i} style={{ marginBottom: T.sp.lg - 4 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+            <span style={{ fontWeight: 700, color: titleColor || T.c.black }}>{getExpTitle(exp)}</span>
+            <span style={{ fontSize: T.fs.sm, color: dateColor || T.c.light, fontStyle: 'italic' }}>{getExpDates(exp)}</span>
+          </div>
+          <div style={{ color: T.c.muted, fontStyle: 'italic' }}>{[exp.company, exp.location].filter(Boolean).join(' — ')}</div>
+          {exp.bullets && exp.bullets.length > 0 && (
+            <div style={{ marginTop: T.sp.sm }}>
+              {exp.bullets.map((b, j) => (
+                <div key={j} style={{ paddingLeft: 12, textIndent: -12, marginBottom: T.sp.xs }}>{bullet || '•'} {b}</div>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </>
+  );
+}
+
+function EducationBlock({ data, dateColor }: { data: ResumeData; dateColor?: string }) {
+  if (!data.education?.length) return null;
+  return (
+    <>
+      {data.education.map((edu, i) => (
+        <div key={i} style={{ marginBottom: T.sp.md - 2 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+            <span style={{ fontWeight: 700 }}>{getEduDegree(edu)}</span>
+            <span style={{ fontSize: T.fs.sm, color: dateColor || T.c.light, fontStyle: 'italic' }}>{getEduDates(edu)}</span>
+          </div>
+          <div style={{ color: T.c.muted }}>{getEduSchool(edu)}{edu.gpa ? ` — GPA: ${edu.gpa}` : ''}</div>
+        </div>
+      ))}
+    </>
+  );
+}
+
+function SkillsGrouped({ data }: { data: ResumeData }) {
+  const groups = normalizeSkills(data.skills);
+  if (!groups.length) return null;
+  return (
+    <>
+      {groups.map((g, i) => (
+        <div key={i} style={{ marginBottom: T.sp.sm }}>
+          {groups.length > 1 && <span style={{ fontWeight: 700, fontSize: T.fs.sm }}>{g.label}: </span>}
+          <span>{g.items.join(', ')}</span>
+        </div>
+      ))}
+    </>
+  );
+}
+
+function SkillTags({ data, bgColor, textColor }: { data: ResumeData; bgColor?: string; textColor?: string }) {
+  const allSkills = flattenSkills(data.skills);
+  if (!allSkills.length) return null;
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: T.sp.md - 2 }}>
+      {allSkills.map((s, i) => (
+        <span key={i} style={{ background: bgColor || '#EFF6FF', color: textColor || '#1D4ED8', borderRadius: T.r.sm, padding: `${T.sp.xs}px ${T.sp.md}px`, fontSize: T.fs.sm }}>{s}</span>
+      ))}
+    </div>
+  );
+}
+
+function AchievementsBlock({ data, bullet }: { data: ResumeData; bullet?: string }) {
+  if (!data.achievements?.length) return null;
+  return (
+    <>
+      {data.achievements.map((a, i) => (
+        <div key={i} style={{ paddingLeft: 12, textIndent: -12, marginBottom: T.sp.xs }}>{bullet || '•'} {a}</div>
+      ))}
+    </>
+  );
+}
+
+function ContactLine({ contact, separator, separatorColor }: { contact: ContactInfo; separator?: string; separatorColor?: string }) {
+  const parts = [contact.email, contact.phone, contact.location, contact.linkedin, contact.website].filter(Boolean);
+  if (!parts.length) return null;
+  if (separatorColor) {
+    return (
+      <div style={{ fontSize: T.fs.sm, color: T.c.muted, marginTop: T.sp.sm }}>
+        {parts.map((p, i) => <span key={i}>{i > 0 && <span style={{ color: separatorColor, margin: `0 ${T.sp.md - 2}px` }}>{separator || '|'}</span>}{p}</span>)}
+      </div>
+    );
+  }
+  return (
+    <div style={{ fontSize: T.fs.sm, color: T.c.muted, marginTop: T.sp.sm }}>{parts.join(separator ? `  ${separator}  ` : '  |  ')}</div>
+  );
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function getExpTitle(exp: ExperienceEntry): string {
@@ -252,73 +414,19 @@ function flattenSkills(skills?: SkillsData): string[] {
 
 function renderClassic(data: ResumeData): React.ReactNode {
   const c = data.contact || {};
-  const contactParts = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean);
-  const skillGroups = normalizeSkills(data.skills);
+  const ss: SectionStyle = { headerFontSize: T.fs.body, headerColor: T.c.text, headerBorder: `1px solid ${T.c.border}` };
   return (
-    <div style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '11px', lineHeight: 1.5, color: '#374151', padding: '40px', maxWidth: '800px' }}>
-      <div style={{ marginBottom: '12px' }}>
-        <div style={{ fontSize: '26px', fontWeight: 700, color: '#111', textAlign: 'left' }}>{c.name || 'Your Name'}</div>
-        {contactParts.length > 0 && (
-          <div style={{ fontSize: '10px', color: '#555', marginTop: '4px' }}>{contactParts.join('  |  ')}</div>
-        )}
+    <div style={{ fontFamily: T.ff.sans, fontSize: T.fs.body, lineHeight: T.lh.normal, color: T.c.text, padding: T.sp['2xl'], maxWidth: 800 }}>
+      <div style={{ marginBottom: T.sp.lg - 2 }}>
+        <div style={{ fontSize: T.fs['2xl'], fontWeight: 700, color: T.c.black }}>{c.name || 'Your Name'}</div>
+        <ContactLine contact={c} />
       </div>
-      <div style={{ borderBottom: '1px solid #D1D5DB', marginBottom: '14px' }} />
-      {data.summary && (
-        <div style={{ marginBottom: '14px' }}>
-          <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase' as const, color: '#374151', borderBottom: '1px solid #D1D5DB', paddingBottom: '2px', marginBottom: '6px' }}>Summary</div>
-          <div>{data.summary}</div>
-        </div>
-      )}
-      {data.experience && data.experience.length > 0 && (
-        <div style={{ marginBottom: '14px' }}>
-          <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase' as const, color: '#374151', borderBottom: '1px solid #D1D5DB', paddingBottom: '2px', marginBottom: '6px' }}>Experience</div>
-          {data.experience.map((exp, i) => (
-            <div key={i} style={{ marginBottom: '10px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                <span style={{ fontWeight: 700, color: '#111' }}>{getExpTitle(exp)}</span>
-                <span style={{ fontSize: '10px', color: '#666', fontStyle: 'italic' }}>{getExpDates(exp)}</span>
-              </div>
-              <div style={{ color: '#555', fontStyle: 'italic' }}>{[exp.company, exp.location].filter(Boolean).join(' — ')}</div>
-              {exp.bullets && exp.bullets.length > 0 && (
-                <div style={{ marginTop: '4px' }}>
-                  {exp.bullets.map((b, j) => <div key={j} style={{ paddingLeft: '12px', textIndent: '-12px', marginBottom: '2px' }}>• {b}</div>)}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-      {data.education && data.education.length > 0 && (
-        <div style={{ marginBottom: '14px' }}>
-          <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase' as const, color: '#374151', borderBottom: '1px solid #D1D5DB', paddingBottom: '2px', marginBottom: '6px' }}>Education</div>
-          {data.education.map((edu, i) => (
-            <div key={i} style={{ marginBottom: '6px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                <span style={{ fontWeight: 700 }}>{getEduDegree(edu)}</span>
-                <span style={{ fontSize: '10px', color: '#666', fontStyle: 'italic' }}>{getEduDates(edu)}</span>
-              </div>
-              <div style={{ color: '#555' }}>{getEduSchool(edu)}{edu.gpa ? ` — GPA: ${edu.gpa}` : ''}</div>
-            </div>
-          ))}
-        </div>
-      )}
-      {skillGroups.length > 0 && (
-        <div style={{ marginBottom: '14px' }}>
-          <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase' as const, color: '#374151', borderBottom: '1px solid #D1D5DB', paddingBottom: '2px', marginBottom: '6px' }}>Skills</div>
-          {skillGroups.map((g, i) => (
-            <div key={i} style={{ marginBottom: '4px' }}>
-              {skillGroups.length > 1 && <span style={{ fontWeight: 700, fontSize: '10px' }}>{g.label}: </span>}
-              <span>{g.items.join(', ')}</span>
-            </div>
-          ))}
-        </div>
-      )}
-      {data.achievements && data.achievements.length > 0 && (
-        <div style={{ marginBottom: '14px' }}>
-          <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase' as const, color: '#374151', borderBottom: '1px solid #D1D5DB', paddingBottom: '2px', marginBottom: '6px' }}>Achievements</div>
-          {data.achievements.map((a, i) => <div key={i} style={{ paddingLeft: '12px', textIndent: '-12px', marginBottom: '2px' }}>• {a}</div>)}
-        </div>
-      )}
+      <div style={{ borderBottom: `1px solid ${T.c.border}`, marginBottom: T.sp.lg }} />
+      {data.summary && <div style={{ marginBottom: T.sp.lg }}><SectionHeader title="Summary" style={ss} /><div>{data.summary}</div></div>}
+      {data.experience?.length ? <div style={{ marginBottom: T.sp.lg }}><SectionHeader title="Experience" style={ss} /><ExperienceBlock data={data} /></div> : null}
+      {data.education?.length ? <div style={{ marginBottom: T.sp.lg }}><SectionHeader title="Education" style={ss} /><EducationBlock data={data} /></div> : null}
+      {normalizeSkills(data.skills).length > 0 && <div style={{ marginBottom: T.sp.lg }}><SectionHeader title="Skills" style={ss} /><SkillsGrouped data={data} /></div>}
+      {data.achievements?.length ? <div style={{ marginBottom: T.sp.lg }}><SectionHeader title="Achievements" style={ss} /><AchievementsBlock data={data} /></div> : null}
     </div>
   );
 }
@@ -327,71 +435,19 @@ function renderClassic(data: ResumeData): React.ReactNode {
 
 function renderModern(data: ResumeData): React.ReactNode {
   const c = data.contact || {};
-  const contactParts = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean);
-  const allSkills = flattenSkills(data.skills);
+  const accent = T.accent.blue;
+  const ss: SectionStyle = { headerFontSize: T.fs.md, headerColor: accent, headerBorder: 'none' };
   return (
-    <div style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '11px', lineHeight: 1.5, color: '#374151', padding: '40px', paddingLeft: '44px', maxWidth: '800px', borderLeft: '4px solid #0A66C2' }}>
-      <div style={{ marginBottom: '16px' }}>
-        <div style={{ fontSize: '28px', fontWeight: 700, color: '#0A66C2' }}>{c.name || 'Your Name'}</div>
-        {contactParts.length > 0 && (
-          <div style={{ fontSize: '10px', color: '#555', marginTop: '4px' }}>{contactParts.map((p, i) => <span key={i}>{i > 0 && <span style={{ color: '#0A66C2', margin: '0 6px' }}>|</span>}{p}</span>)}</div>
-        )}
+    <div style={{ fontFamily: T.ff.sans, fontSize: T.fs.body, lineHeight: T.lh.normal, color: T.c.text, padding: T.sp['2xl'], paddingLeft: 44, maxWidth: 800, borderLeft: `4px solid ${accent}` }}>
+      <div style={{ marginBottom: T.sp.xl - 8 }}>
+        <div style={{ fontSize: T.fs['3xl'], fontWeight: 700, color: accent }}>{c.name || 'Your Name'}</div>
+        <ContactLine contact={c} separatorColor={accent} />
       </div>
-      {data.summary && (
-        <div style={{ marginBottom: '24px' }}>
-          <div style={{ fontSize: '12px', fontWeight: 700, color: '#0A66C2', marginBottom: '6px' }}>SUMMARY</div>
-          <div>{data.summary}</div>
-        </div>
-      )}
-      {data.experience && data.experience.length > 0 && (
-        <div style={{ marginBottom: '24px' }}>
-          <div style={{ fontSize: '12px', fontWeight: 700, color: '#0A66C2', marginBottom: '6px' }}>EXPERIENCE</div>
-          {data.experience.map((exp, i) => (
-            <div key={i} style={{ marginBottom: '12px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                <span style={{ fontWeight: 700, color: '#111' }}>{getExpTitle(exp)}</span>
-                <span style={{ fontSize: '10px', color: '#666', fontStyle: 'italic' }}>{getExpDates(exp)}</span>
-              </div>
-              <div style={{ color: '#555', fontStyle: 'italic' }}>{[exp.company, exp.location].filter(Boolean).join(' — ')}</div>
-              {exp.bullets && exp.bullets.length > 0 && (
-                <div style={{ marginTop: '4px' }}>
-                  {exp.bullets.map((b, j) => <div key={j} style={{ paddingLeft: '12px', textIndent: '-12px', marginBottom: '2px' }}>• {b}</div>)}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-      {data.education && data.education.length > 0 && (
-        <div style={{ marginBottom: '24px' }}>
-          <div style={{ fontSize: '12px', fontWeight: 700, color: '#0A66C2', marginBottom: '6px' }}>EDUCATION</div>
-          {data.education.map((edu, i) => (
-            <div key={i} style={{ marginBottom: '6px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                <span style={{ fontWeight: 700 }}>{getEduDegree(edu)}</span>
-                <span style={{ fontSize: '10px', color: '#666', fontStyle: 'italic' }}>{getEduDates(edu)}</span>
-              </div>
-              <div style={{ color: '#555' }}>{getEduSchool(edu)}{edu.gpa ? ` — GPA: ${edu.gpa}` : ''}</div>
-            </div>
-          ))}
-        </div>
-      )}
-      {allSkills.length > 0 && (
-        <div style={{ marginBottom: '24px' }}>
-          <div style={{ fontSize: '12px', fontWeight: 700, color: '#0A66C2', marginBottom: '8px' }}>SKILLS</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-            {allSkills.map((s, i) => (
-              <span key={i} style={{ background: '#EFF6FF', color: '#1D4ED8', borderRadius: '4px', padding: '2px 8px', fontSize: '10px' }}>{s}</span>
-            ))}
-          </div>
-        </div>
-      )}
-      {data.achievements && data.achievements.length > 0 && (
-        <div style={{ marginBottom: '24px' }}>
-          <div style={{ fontSize: '12px', fontWeight: 700, color: '#0A66C2', marginBottom: '6px' }}>ACHIEVEMENTS</div>
-          {data.achievements.map((a, i) => <div key={i} style={{ paddingLeft: '12px', textIndent: '-12px', marginBottom: '2px' }}>• {a}</div>)}
-        </div>
-      )}
+      {data.summary && <div style={{ marginBottom: T.sp.xl }}><SectionHeader title="SUMMARY" style={ss} /><div>{data.summary}</div></div>}
+      {data.experience?.length ? <div style={{ marginBottom: T.sp.xl }}><SectionHeader title="EXPERIENCE" style={ss} /><ExperienceBlock data={data} /></div> : null}
+      {data.education?.length ? <div style={{ marginBottom: T.sp.xl }}><SectionHeader title="EDUCATION" style={ss} /><EducationBlock data={data} /></div> : null}
+      {flattenSkills(data.skills).length > 0 && <div style={{ marginBottom: T.sp.xl }}><SectionHeader title="SKILLS" style={{ ...ss, sectionGap: T.sp.md }} /><SkillTags data={data} /></div>}
+      {data.achievements?.length ? <div style={{ marginBottom: T.sp.xl }}><SectionHeader title="ACHIEVEMENTS" style={ss} /><AchievementsBlock data={data} /></div> : null}
     </div>
   );
 }
@@ -555,62 +611,47 @@ function renderCompact(data: ResumeData): React.ReactNode {
   const c = data.contact || {};
   const contactParts = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean);
   const allSkills = flattenSkills(data.skills);
+  const ss: SectionStyle = { headerFontSize: T.fs.xs, headerColor: T.c.muted, headerBorder: '0.5px solid #E5E7EB' };
   return (
-    <div style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '10px', lineHeight: 1.4, color: '#333', padding: '24px 32px', maxWidth: '800px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', marginBottom: '6px' }}>
-        <div style={{ fontSize: '20px', fontWeight: 700, color: '#111' }}>{c.name || 'Your Name'}</div>
-        {contactParts.length > 0 && (
-          <div style={{ fontSize: '9px', color: '#666', textAlign: 'right' }}>{contactParts.join(' | ')}</div>
-        )}
+    <div style={{ fontFamily: T.ff.sans, fontSize: T.fs.sm, lineHeight: T.lh.tight + 0.1, color: '#333', padding: `${T.sp.xl}px 32px`, maxWidth: 800 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', marginBottom: T.sp.md - 2 }}>
+        <div style={{ fontSize: T.fs.xl, fontWeight: 700, color: T.c.black }}>{c.name || 'Your Name'}</div>
+        {contactParts.length > 0 && <div style={{ fontSize: T.fs.xs, color: T.c.light, textAlign: 'right' }}>{contactParts.join(' | ')}</div>}
       </div>
-      <div style={{ borderBottom: '0.5px solid #D1D5DB', marginBottom: '6px' }} />
-      {data.summary && (
-        <div style={{ marginBottom: '6px' }}>
-          <div style={{ fontSize: '9px', fontWeight: 700, textTransform: 'uppercase' as const, color: '#555', borderBottom: '0.5px solid #E5E7EB', paddingBottom: '1px', marginBottom: '3px' }}>Summary</div>
-          <div>{data.summary}</div>
-        </div>
-      )}
-      {data.experience && data.experience.length > 0 && (
-        <div style={{ marginBottom: '6px' }}>
-          <div style={{ fontSize: '9px', fontWeight: 700, textTransform: 'uppercase' as const, color: '#555', borderBottom: '0.5px solid #E5E7EB', paddingBottom: '1px', marginBottom: '3px' }}>Experience</div>
+      <div style={{ borderBottom: `0.5px solid ${T.c.border}`, marginBottom: T.sp.md - 2 }} />
+      {data.summary && <div style={{ marginBottom: T.sp.md - 2 }}><SectionHeader title="Summary" style={ss} /><div>{data.summary}</div></div>}
+      {data.experience?.length ? (
+        <div style={{ marginBottom: T.sp.md - 2 }}>
+          <SectionHeader title="Experience" style={ss} />
           {data.experience.map((exp, i) => (
-            <div key={i} style={{ marginBottom: '8px' }}>
+            <div key={i} style={{ marginBottom: T.sp.md }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
                 <span><span style={{ fontWeight: 700 }}>{getExpTitle(exp)}</span>{exp.company ? `, ${exp.company}` : ''}{exp.location ? ` — ${exp.location}` : ''}</span>
-                <span style={{ fontSize: '9px', color: '#888', fontStyle: 'italic' }}>{getExpDates(exp)}</span>
+                <span style={{ fontSize: T.fs.xs, color: '#888', fontStyle: 'italic' }}>{getExpDates(exp)}</span>
               </div>
-              {exp.bullets && exp.bullets.length > 0 && (
-                <div style={{ marginTop: '2px' }}>
-                  {exp.bullets.map((b, j) => <div key={j} style={{ paddingLeft: '10px', textIndent: '-10px', marginBottom: '1px' }}>• {b}</div>)}
-                </div>
-              )}
+              {exp.bullets?.length ? <div style={{ marginTop: T.sp.xs }}>{exp.bullets.map((b, j) => <div key={j} style={{ paddingLeft: 10, textIndent: -10, marginBottom: 1 }}>• {b}</div>)}</div> : null}
             </div>
           ))}
         </div>
-      )}
-      {data.education && data.education.length > 0 && (
-        <div style={{ marginBottom: '6px' }}>
-          <div style={{ fontSize: '9px', fontWeight: 700, textTransform: 'uppercase' as const, color: '#555', borderBottom: '0.5px solid #E5E7EB', paddingBottom: '1px', marginBottom: '3px' }}>Education</div>
+      ) : null}
+      {data.education?.length ? (
+        <div style={{ marginBottom: T.sp.md - 2 }}>
+          <SectionHeader title="Education" style={ss} />
           {data.education.map((edu, i) => (
-            <div key={i} style={{ marginBottom: '4px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+            <div key={i} style={{ marginBottom: T.sp.sm, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
               <span><span style={{ fontWeight: 700 }}>{getEduDegree(edu)}</span> — {getEduSchool(edu)}{edu.gpa ? ` (GPA: ${edu.gpa})` : ''}</span>
-              <span style={{ fontSize: '9px', color: '#888', fontStyle: 'italic' }}>{getEduDates(edu)}</span>
+              <span style={{ fontSize: T.fs.xs, color: '#888', fontStyle: 'italic' }}>{getEduDates(edu)}</span>
             </div>
           ))}
         </div>
-      )}
-      {allSkills.length > 0 && (
-        <div style={{ marginBottom: '6px' }}>
-          <div style={{ fontSize: '9px', fontWeight: 700, textTransform: 'uppercase' as const, color: '#555', borderBottom: '0.5px solid #E5E7EB', paddingBottom: '1px', marginBottom: '3px' }}>Skills</div>
-          <div>{allSkills.join(', ')}</div>
+      ) : null}
+      {allSkills.length > 0 && <div style={{ marginBottom: T.sp.md - 2 }}><SectionHeader title="Skills" style={ss} /><div>{allSkills.join(', ')}</div></div>}
+      {data.achievements?.length ? (
+        <div style={{ marginBottom: T.sp.md - 2 }}>
+          <SectionHeader title="Achievements" style={ss} />
+          {data.achievements.map((a, i) => <div key={i} style={{ paddingLeft: 10, textIndent: -10, marginBottom: 1 }}>• {a}</div>)}
         </div>
-      )}
-      {data.achievements && data.achievements.length > 0 && (
-        <div style={{ marginBottom: '6px' }}>
-          <div style={{ fontSize: '9px', fontWeight: 700, textTransform: 'uppercase' as const, color: '#555', borderBottom: '0.5px solid #E5E7EB', paddingBottom: '1px', marginBottom: '3px' }}>Achievements</div>
-          {data.achievements.map((a, i) => <div key={i} style={{ paddingLeft: '10px', textIndent: '-10px', marginBottom: '1px' }}>• {a}</div>)}
-        </div>
-      )}
+      ) : null}
     </div>
   );
 }
@@ -2587,29 +2628,39 @@ function esc(s?: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function printPageWrapper(body: string, pageCount?: number): string {
+/**
+ * Wraps print HTML in A4 page container.
+ * - A4: 210mm x 297mm, margins: 12mm top/bottom, 14mm left/right → content height: 273mm
+ * - All backgrounds preserved via print-color-adjust:exact
+ * - Two-page mode: content naturally flows; page-break-inside:avoid on .entry/.section-block
+ * - Sidebar templates use .two-col layout with flex; sidebars use min-height:273mm to fill page
+ * - IMPORTANT: All sidebar print functions should use PAGE_CONTENT_HEIGHT (273mm), not 250mm or 297mm
+ */
+const PAGE_CONTENT_HEIGHT = 'calc(297mm - 24mm)'; // 273mm = A4 height minus top+bottom margins
+
+function printPageWrapper(body: string): string {
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><title> </title><style>
 @page{size:A4;margin:12mm 14mm 12mm 14mm}
 *{margin:0;padding:0;box-sizing:border-box}
 html{width:210mm}
-body{width:100%;margin:0;padding:0;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important;font-size:11px}
-.print-content-root{width:100%;max-width:210mm;min-height:calc(297mm - 24mm);box-sizing:border-box}
-.print-content-root>div{min-height:calc(297mm - 24mm);box-sizing:border-box}
-.resume-body{min-height:calc(297mm - 24mm);box-sizing:border-box}
+body{width:100%;margin:0;padding:0;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important;font-size:${T.fs.body}px}
+.print-content-root{width:100%;max-width:210mm;min-height:${PAGE_CONTENT_HEIGHT};box-sizing:border-box}
+.print-content-root>div{min-height:${PAGE_CONTENT_HEIGHT};box-sizing:border-box}
+.resume-body{min-height:${PAGE_CONTENT_HEIGHT};box-sizing:border-box}
 .resume-wrapper{width:100%;position:relative}
-.two-col{display:flex;width:100%;min-height:calc(297mm - 24mm)}
-.two-col-left{flex-shrink:0;min-height:calc(297mm - 24mm)}
-.two-col-right{flex:1;min-height:calc(297mm - 24mm)}
+.two-col{display:flex;width:100%;min-height:${PAGE_CONTENT_HEIGHT}}
+.two-col-left{flex-shrink:0;min-height:${PAGE_CONTENT_HEIGHT}}
+.two-col-right{flex:1;min-height:${PAGE_CONTENT_HEIGHT}}
 @media print{
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   html,body{width:210mm!important;overflow:visible!important}
-  .print-content-root{width:100%!important;transform:none!important;min-height:calc(297mm - 24mm)!important}
-  .print-content-root>div{min-height:calc(297mm - 24mm)!important;box-sizing:border-box!important}
-  .resume-body{min-height:calc(297mm - 24mm)!important}
+  .print-content-root{width:100%!important;transform:none!important;min-height:${PAGE_CONTENT_HEIGHT}!important}
+  .print-content-root>div{min-height:${PAGE_CONTENT_HEIGHT}!important;box-sizing:border-box!important}
+  .resume-body{min-height:${PAGE_CONTENT_HEIGHT}!important}
   .entry{page-break-inside:avoid;break-inside:avoid}
   .section-block{page-break-inside:avoid;break-inside:avoid}
-  .two-col{min-height:calc(297mm - 24mm)!important}
-  .two-col-left,.two-col-right{min-height:calc(297mm - 24mm)!important}
+  .two-col{min-height:${PAGE_CONTENT_HEIGHT}!important}
+  .two-col-left,.two-col-right{min-height:${PAGE_CONTENT_HEIGHT}!important}
 }
 </style></head><body><div class="print-content-root">${body}</div></body></html>`;
 }
@@ -2929,7 +2980,7 @@ function printSidebar(data: ResumeData): string {
   if (ach) main += `<div style="margin-bottom:16px">${mainHdr('Achievements')}${ach}</div>`;
   main += `</div>`;
 
-  return printPageWrapper(`<div class="resume-wrapper" style="font-family:Arial,Helvetica,sans-serif;font-size:10px;line-height:1.4;position:relative"><div style="position:absolute;top:0;left:0;bottom:0;width:30%;background:#1E293B;min-height:297mm"></div><div class="two-col" style="position:relative;z-index:1">${sidebar}${main}</div></div>`);
+  return printPageWrapper(`<div class="resume-wrapper" style="font-family:Arial,Helvetica,sans-serif;font-size:10px;line-height:1.4;position:relative"><div style="position:absolute;top:0;left:0;bottom:0;width:30%;background:#1E293B;min-height:calc(297mm - 24mm)"></div><div class="two-col" style="position:relative;z-index:1">${sidebar}${main}</div></div>`);
 }
 
 // ─── Print: Split Modern ────────────────────────────────────────────────────
@@ -2943,7 +2994,7 @@ function printSplitModern(data: ResumeData): string {
 
   let h = `<div class="resume-wrapper" style="font-family:Arial,Helvetica,sans-serif;font-size:10px;line-height:1.4">`;
   h += `<div style="padding:16px 24px 10px;border-bottom:2px solid #E2E8F0"><div style="font-size:22px;font-weight:700;color:#0F172A">${esc(c.name) || 'Your Name'}</div></div>`;
-  h += `<div style="position:relative"><div style="position:absolute;top:0;left:0;bottom:0;width:35%;background:#F1F5F9;min-height:250mm"></div><div class="two-col" style="position:relative;z-index:1">`;
+  h += `<div style="position:relative"><div style="position:absolute;top:0;left:0;bottom:0;width:35%;background:#F1F5F9;min-height:calc(297mm - 24mm)"></div><div class="two-col" style="position:relative;z-index:1">`;
 
   // Left panel
   h += `<div class="two-col-left" style="width:35%;background:#F1F5F9;padding:16px">`;
@@ -2999,7 +3050,7 @@ function printHighlight(data: ResumeData): string {
   if (cp) h += `<div style="font-size:9px;color:rgba(255,255,255,0.7);margin-top:3px">${cp}</div>`;
   h += `</div>`;
   // Body
-  h += `<div style="position:relative"><div style="position:absolute;top:0;right:0;bottom:0;width:35%;background:#F0F7FF;min-height:250mm"></div><div class="two-col" style="position:relative;z-index:1">`;
+  h += `<div style="position:relative"><div style="position:absolute;top:0;right:0;bottom:0;width:35%;background:#F0F7FF;min-height:calc(297mm - 24mm)"></div><div class="two-col" style="position:relative;z-index:1">`;
   // Left main
   h += `<div class="two-col-left" style="width:65%;padding:16px 16px 16px 24px;color:#333">`;
   if (data.summary) h += `<div style="margin-bottom:18px">${mainHdr('Summary')}<div>${esc(data.summary)}</div></div>`;
@@ -3046,7 +3097,7 @@ function printCorporate(data: ResumeData): string {
   if (cp) h += `<div style="font-size:9px;color:rgba(255,255,255,0.6);margin-top:3px">${cp}</div>`;
   h += `</div>`;
   // Body
-  h += `<div style="position:relative"><div style="position:absolute;top:0;left:0;bottom:0;width:28%;background:#F8FAFC;border-right:1px solid #E2E8F0;min-height:250mm"></div><div class="two-col" style="position:relative;z-index:1">`;
+  h += `<div style="position:relative"><div style="position:absolute;top:0;left:0;bottom:0;width:28%;background:#F8FAFC;border-right:1px solid #E2E8F0;min-height:calc(297mm - 24mm)"></div><div class="two-col" style="position:relative;z-index:1">`;
   // Left sidebar
   h += `<div class="two-col-left" style="width:28%;background:#F8FAFC;padding:16px 14px;border-right:1px solid #E2E8F0">`;
   if (skillGroups.length) {
@@ -3447,7 +3498,7 @@ function printFresher(data: ResumeData): string {
   if (cp) h += `<div style="font-size:13px;opacity:0.85;margin-top:5px">${cp}</div>`;
   h += `</div>`;
   // Two column
-  h += `<div style="position:relative"><div style="position:absolute;top:0;left:0;bottom:0;width:32%;background:#F5F3FF;min-height:250mm"></div><div class="two-col" style="position:relative;z-index:1">`;
+  h += `<div style="position:relative"><div style="position:absolute;top:0;left:0;bottom:0;width:32%;background:#F5F3FF;min-height:calc(297mm - 24mm)"></div><div class="two-col" style="position:relative;z-index:1">`;
   // Left sidebar
   h += `<div class="two-col-left" style="width:33%;background:#F5F3FF;padding:16px 14px;border-right:1px solid #E5E7EB">`;
   if (data.education?.length) {
@@ -3733,7 +3784,7 @@ function printRamp(data: ResumeData): string {
   if (ach) main += `<div style="margin-bottom:16px">${mainHdr('Training &amp; Achievements')}${ach}</div>`;
   main += `</div>`;
 
-  return printPageWrapper(`<div class="resume-wrapper" style="font-family:Arial,Helvetica,sans-serif;font-size:12.5px;line-height:1.5;position:relative"><div style="position:absolute;top:0;left:0;bottom:0;width:28%;background:#F4F4F5;min-height:297mm"></div><div class="two-col" style="position:relative;z-index:1">${sidebar}${main}</div></div>`);
+  return printPageWrapper(`<div class="resume-wrapper" style="font-family:Arial,Helvetica,sans-serif;font-size:12.5px;line-height:1.5;position:relative"><div style="position:absolute;top:0;left:0;bottom:0;width:28%;background:#F4F4F5;min-height:calc(297mm - 24mm)"></div><div class="two-col" style="position:relative;z-index:1">${sidebar}${main}</div></div>`);
 }
 
 // ─── Print: Clinical Care ─────────────────────────────────────────────────
