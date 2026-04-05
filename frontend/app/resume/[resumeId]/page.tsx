@@ -146,24 +146,24 @@ export default function ResumePreviewPage() {
   const filteredTemplates = filterCategory === 'All' ? TEMPLATES : TEMPLATES.filter(t => t.category === filterCategory);
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-canvas)' }}>
+    <div style={{ minHeight: '100vh', background: '#F7F8FA' }}>
 
       {/* ═══ HEADER ═══ */}
-      <header style={{ position: 'sticky', top: 0, zIndex: 100, background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)', boxShadow: 'var(--shadow-sm)' }}>
-        <div style={{ maxWidth: 1320, margin: '0 auto', padding: '0 16px' }}>
+      <header style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(255,255,255,0.88)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(15,23,42,0.06)' }}>
+        <div style={{ maxWidth: 1320, margin: '0 auto', padding: '0 24px' }}>
           {/* Row 1: Breadcrumb + desktop actions */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 48, gap: 8, flexWrap: 'wrap', padding: '6px 0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, flexShrink: 1 }}>
-              <a href={resultsUrl} style={{ fontSize: 13, color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 500, whiteSpace: 'nowrap' }}>&larr; Results</a>
-              <span className="hidden sm:inline" style={{ color: 'var(--border-default)' }}>&rsaquo;</span>
-              <span className="hidden sm:inline" style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>Resume</span>
-              <span className="hidden sm:inline saas-metric" style={{ background: resume.ats_score >= 80 ? 'var(--success-subtle)' : resume.ats_score >= 60 ? 'var(--accent-subtle)' : 'var(--warning-subtle)', color: scoreColor, whiteSpace: 'nowrap', flexShrink: 0 }}>ATS {resume.ats_score}</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 56, gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flexShrink: 1 }}>
+              <a href={resultsUrl} style={{ fontSize: 13, color: 'var(--text-muted)', textDecoration: 'none', fontWeight: 500, whiteSpace: 'nowrap' }}>&larr; Results</a>
+              <span className="hidden sm:inline" style={{ color: 'var(--border-default)', fontSize: 12 }}>/</span>
+              <span className="hidden sm:inline" style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>Resume</span>
+              <span className="hidden sm:inline" style={{ background: resume.ats_score >= 80 ? 'rgba(5,150,105,0.08)' : resume.ats_score >= 60 ? 'rgba(10,102,194,0.08)' : 'rgba(217,119,6,0.08)', color: scoreColor, padding: '3px 10px', borderRadius: 'var(--radius-pill)', fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}>ATS {resume.ats_score}</span>
             </div>
             {/* Desktop actions */}
-            <div className="hidden sm:flex" style={{ gap: 6, alignItems: 'center', flexShrink: 0 }}>
-              <button onClick={handleDownloadPDF} className="saas-btn saas-btn-primary">Download PDF</button>
-              <a href={`/resume/${resume.id}/edit`} className="saas-btn saas-btn-ghost" style={{ color: 'var(--success)' }}>Edit</a>
-              <a href={`${API_URL}/api/resume/${resume.id}/download/txt`} className="saas-btn saas-btn-ghost">TXT</a>
+            <div className="hidden sm:flex" style={{ gap: 8, alignItems: 'center', flexShrink: 0 }}>
+              <button onClick={handleDownloadPDF} style={{ fontSize: 13, fontWeight: 600, padding: '7px 20px', borderRadius: 'var(--radius-pill)', border: 'none', cursor: 'pointer', background: 'var(--accent)', color: 'white', transition: 'all var(--transition)' }}>Download PDF</button>
+              <a href={`/resume/${resume.id}/edit`} style={{ fontSize: 13, fontWeight: 500, color: 'var(--success)', textDecoration: 'none', padding: '7px 12px', borderRadius: 'var(--radius-sm)', transition: 'all var(--transition)' }}>Edit</a>
+              <a href={`${API_URL}/api/resume/${resume.id}/download/txt`} style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-muted)', textDecoration: 'none', padding: '7px 12px' }}>TXT</a>
               <div data-level-picker-root style={{ position: 'relative', display: 'inline-block' }}>
                 <button type="button" disabled={prepLoading} onClick={() => !prepLoading && setShowLevelPicker(!showLevelPicker)} className="saas-btn saas-btn-ghost" style={{ color: '#7C3AED', opacity: prepLoading ? 0.6 : 1 }}>{prepLoading ? 'Starting…' : 'Interview Prep'} &#9662;</button>
                 {showLevelPicker && (
@@ -181,19 +181,27 @@ export default function ResumePreviewPage() {
             <span className="sm:hidden saas-metric" style={{ background: resume.ats_score >= 80 ? 'var(--success-subtle)' : resume.ats_score >= 60 ? 'var(--accent-subtle)' : 'var(--warning-subtle)', color: scoreColor, whiteSpace: 'nowrap', fontSize: 12 }}>ATS {resume.ats_score}</span>
           </div>
           {/* Row 2: Role + controls */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 0', borderTop: '1px solid var(--bg-subtle)', gap: 8, flexWrap: 'wrap' }}>
-            <div style={{ fontSize: 13, color: 'var(--text-secondary)', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <div className="hidden sm:flex" style={{ alignItems: 'center', justifyContent: 'space-between', height: 44, gap: 12, borderTop: '1px solid rgba(15,23,42,0.04)' }}>
+            <div style={{ fontSize: 13, color: 'var(--text-muted)', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{resume.target_role}</span>
               {resume.target_company && !resume.target_company.toLowerCase().includes('must be at least') && <span> at {resume.target_company}</span>}
             </div>
-            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0, flexWrap: 'nowrap' }}>
-              <button onClick={() => setShowTemplateModal(true)} className="saas-btn saas-btn-ghost" style={{ fontSize: 11, padding: '4px 10px' }}>Template &#9662;</button>
-              <select value={printSize} onChange={e => { setPrintSize(e.target.value as any); savePrintSettings(e.target.value, fitOnePage); }} style={{ padding: '4px 8px', fontSize: 11, borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)', cursor: 'pointer', background: 'var(--bg-surface)' }}>
-                <option value="compact">Compact</option><option value="standard">Standard</option><option value="spacious">Spacious</option>
-              </select>
-              <select value={fitOnePage ? '1' : '2'} onChange={e => { const f = e.target.value === '1'; setFitOnePage(f); savePrintSettings(printSize, f); }} style={{ padding: '4px 8px', fontSize: 11, borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', color: 'var(--text-secondary)', cursor: 'pointer', background: 'var(--bg-surface)' }}>
-                <option value="1">1 Page</option><option value="2">2 Pages</option>
-              </select>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
+              <button onClick={() => setShowTemplateModal(true)} style={{ fontSize: 12, fontWeight: 500, padding: '5px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', background: 'transparent', cursor: 'pointer', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                {currentTemplate?.name || 'Template'} <span style={{ fontSize: 10, opacity: 0.5 }}>&#9662;</span>
+              </button>
+              {/* Density segmented control */}
+              <div style={{ display: 'inline-flex', background: 'var(--bg-subtle)', borderRadius: 'var(--radius-sm)', padding: 2 }}>
+                {(['compact', 'standard', 'spacious'] as const).map(s => (
+                  <button key={s} onClick={() => { setPrintSize(s); savePrintSettings(s, fitOnePage); }} style={{ fontSize: 11, fontWeight: printSize === s ? 600 : 400, padding: '4px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', background: printSize === s ? 'var(--bg-surface)' : 'transparent', color: printSize === s ? 'var(--text-primary)' : 'var(--text-muted)', boxShadow: printSize === s ? 'var(--shadow-xs)' : 'none', transition: 'all var(--transition)', textTransform: 'capitalize' }}>{s}</button>
+                ))}
+              </div>
+              {/* Pages toggle */}
+              <div style={{ display: 'inline-flex', background: 'var(--bg-subtle)', borderRadius: 'var(--radius-sm)', padding: 2 }}>
+                {[{ v: true, l: '1P' }, { v: false, l: '2P' }].map(p => (
+                  <button key={String(p.v)} onClick={() => { setFitOnePage(p.v); savePrintSettings(printSize, p.v); }} style={{ fontSize: 11, fontWeight: fitOnePage === p.v ? 600 : 400, padding: '4px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', background: fitOnePage === p.v ? 'var(--bg-surface)' : 'transparent', color: fitOnePage === p.v ? 'var(--text-primary)' : 'var(--text-muted)', boxShadow: fitOnePage === p.v ? 'var(--shadow-xs)' : 'none', transition: 'all var(--transition)' }}>{p.l}</button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -246,12 +254,12 @@ export default function ResumePreviewPage() {
       )}
 
       {/* ═══ MAIN ═══ */}
-      <div style={{ maxWidth: 1320, margin: '0 auto', padding: '24px 20px 48px', display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+      <div style={{ maxWidth: 1320, margin: '0 auto', padding: '28px 24px 48px', display: 'flex', gap: 28, alignItems: 'flex-start' }}>
 
-        {/* LEFT: Insights */}
-        <div className="hidden md:flex" style={{ width: 300, flexShrink: 0, flexDirection: 'column', gap: 16, position: 'sticky', top: 120 }}>
+        {/* LEFT: Sidebar */}
+        <div className="hidden md:flex" style={{ width: 300, flexShrink: 0, flexDirection: 'column', gap: 16, position: 'sticky', top: 112 }}>
           {/* ATS Score */}
-          <div className="saas-card" style={{ padding: 20 }}>
+          <div style={{ background: 'var(--bg-surface)', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(15,23,42,0.06)', boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)', padding: 20 }}>
             <div className="saas-label" style={{ marginBottom: 12 }}>ATS Insights</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
               <div style={{ width: 56, height: 56, borderRadius: '50%', border: `4px solid ${resume.ats_score >= 80 ? 'var(--success)' : resume.ats_score >= 60 ? 'var(--accent)' : 'var(--warning)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 800, color: scoreColor, flexShrink: 0 }}>{resume.ats_score}</div>
@@ -312,10 +320,10 @@ export default function ResumePreviewPage() {
           </div>
         </div>
 
-        {/* RIGHT: Preview Well */}
+        {/* RIGHT: Preview Stage */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ background: 'var(--bg-subtle)', borderRadius: 'var(--radius-md)', padding: 24, minHeight: 600 }}>
-            <div style={{ position: 'relative', background: 'var(--bg-surface)', borderRadius: 4, boxShadow: 'var(--shadow-md)', overflow: 'hidden' }}>
+          <div style={{ background: '#F0F2F5', borderRadius: 'var(--radius-xl)', padding: 28, minHeight: 600 }}>
+            <div style={{ position: 'relative', background: '#FFFFFF', borderRadius: 'var(--radius-md)', boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)', overflow: 'hidden', border: '1px solid rgba(15,23,42,0.04)' }}>
               <div style={getAdaptiveSpacingStyle(getContentDensity(rd), printSize)}>
                 {renderResumeHTML(rd, templateId)}
               </div>
@@ -336,28 +344,28 @@ export default function ResumePreviewPage() {
 
       {/* ═══ COVER LETTER BAND ═══ */}
       {resume.cover_letter && (
-        <div style={{ background: 'var(--bg-subtle)', borderTop: '1px solid var(--border-default)', padding: '32px 20px' }}>
+        <div style={{ borderTop: '1px solid rgba(15,23,42,0.06)', padding: '36px 24px', background: '#F7F8FA' }}>
           <div style={{ maxWidth: 800, margin: '0 auto' }}>
-            <div className="saas-card" style={{ overflow: 'hidden' }}>
-              <div style={{ background: 'var(--accent)', padding: '14px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: '#fff', fontSize: 15, fontWeight: 700 }}>Cover Letter</span>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button onClick={handleCopyCL} style={{ background: '#fff', color: 'var(--accent)', border: 'none', borderRadius: 'var(--radius-sm)', padding: '5px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{coverLetterCopied ? 'Copied!' : 'Copy'}</button>
-                  <button onClick={handleCLPdf} style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: 'none', borderRadius: 'var(--radius-sm)', padding: '5px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>PDF</button>
+            <div style={{ background: '#FFFFFF', borderRadius: 'var(--radius-lg)', border: '1px solid rgba(15,23,42,0.06)', boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)', overflow: 'hidden', borderLeft: '4px solid var(--accent)' }}>
+              <div style={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(15,23,42,0.04)' }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>Cover Letter</span>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <button onClick={handleCopyCL} style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)', border: 'none', borderRadius: 'var(--radius-sm)', padding: '5px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all var(--transition)' }}>{coverLetterCopied ? 'Copied!' : 'Copy'}</button>
+                  <button onClick={handleCLPdf} style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)', border: 'none', borderRadius: 'var(--radius-sm)', padding: '5px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all var(--transition)' }}>PDF</button>
                 </div>
               </div>
-              <div style={{ padding: 28, fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>{resume.cover_letter}</div>
+              <div style={{ padding: '24px 28px', fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>{resume.cover_letter}</div>
             </div>
           </div>
         </div>
       )}
 
       {/* ═══ FOOTER ═══ */}
-      <div style={{ background: 'var(--bg-surface)', borderTop: '1px solid var(--border-default)', padding: '16px 20px' }}>
+      <div style={{ background: '#F7F8FA', borderTop: '1px solid rgba(15,23,42,0.06)', padding: '20px 24px' }}>
         <div style={{ maxWidth: 800, margin: '0 auto', display: 'flex', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
-          <a href={`/resume?orderId=${resume.order_id}`} className="saas-btn saas-btn-primary" style={{ borderRadius: 'var(--radius-pill)' }}>Generate Another Resume</a>
-          <a href={resultsUrl} className="saas-btn saas-btn-ghost" style={{ borderRadius: 'var(--radius-pill)' }}>Back to Results</a>
-          <a href="/dashboard" target="_blank" rel="noreferrer" className="saas-btn saas-btn-ghost" style={{ borderRadius: 'var(--radius-pill)' }}>Dashboard</a>
+          <a href={`/resume?orderId=${resume.order_id}`} style={{ fontSize: 13, fontWeight: 600, padding: '8px 20px', borderRadius: 'var(--radius-pill)', border: 'none', background: 'var(--accent)', color: 'white', textDecoration: 'none', transition: 'all var(--transition)' }}>Generate Another Resume</a>
+          <a href={resultsUrl} style={{ fontSize: 13, fontWeight: 500, padding: '8px 20px', borderRadius: 'var(--radius-pill)', border: '1px solid var(--border-default)', background: 'transparent', color: 'var(--text-secondary)', textDecoration: 'none', transition: 'all var(--transition)' }}>Back to Results</a>
+          <a href="/dashboard" target="_blank" rel="noreferrer" style={{ fontSize: 13, fontWeight: 500, padding: '8px 20px', borderRadius: 'var(--radius-pill)', border: '1px solid var(--border-default)', background: 'transparent', color: 'var(--text-secondary)', textDecoration: 'none', transition: 'all var(--transition)' }}>Dashboard</a>
         </div>
       </div>
 
