@@ -4,23 +4,25 @@ import { query } from '../db';
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!);
 
-// ─── Schema migration (lazy — only runs on first generateInterviewPrepV2 call) ───
-let v2MigrationDone = false;
-async function ensureV2Schema() {
-  if (v2MigrationDone) return;
+// ─── Schema migration (runs once per process, idempotent) ───
+const v2MigrationPromise = (async () => {
   try {
     await query(`
       ALTER TABLE interview_preps ADD COLUMN IF NOT EXISTS interview_level TEXT DEFAULT 'mid';
       ALTER TABLE interview_preps ADD COLUMN IF NOT EXISTS pipeline_version TEXT DEFAULT 'v1';
       ALTER TABLE interview_preps ADD COLUMN IF NOT EXISTS generation_meta JSONB;
     `);
-    v2MigrationDone = true;
-    console.log('[interview-prep-v2] Schema updated');
+    // Additional indexes for performance
+    await query(`CREATE INDEX IF NOT EXISTS idx_interview_preps_status ON interview_preps(status)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_interview_preps_resume_status ON interview_preps(resume_id, status)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_interview_preps_created ON interview_preps(created_at DESC)`);
+    console.log('[interview-prep-v2] Schema + indexes updated');
   } catch (err: any) {
-    if (err.message?.includes('already exists')) v2MigrationDone = true;
-    else console.error('[interview-prep-v2] Migration:', err.message);
+    if (!err.message?.includes('already exists')) {
+      console.error('[interview-prep-v2] Migration:', err.message);
+    }
   }
-}
+})();
 
 // ─── Helpers ───
 
@@ -61,7 +63,7 @@ async function geminiPhaseWithRetry(prompt: string, system: string, opts: { temp
 
 // ─── C2: Input Normalization ───
 
-interface NormalizedRole {
+export interface NormalizedRole {
   title: string;
   company: string;
   startDate: string;
@@ -71,7 +73,7 @@ interface NormalizedRole {
   level: 'intern' | 'entry' | 'mid' | 'senior' | 'lead';
 }
 
-interface CandidateProfile {
+export interface CandidateProfile {
   name: string;
   targetRole: string;
   targetCompany: string;
@@ -102,7 +104,7 @@ function parseMonthYear(dateStr: string): Date | null {
 function estimateDurationMonths(startStr: string, endStr: string): number {
   const start = parseMonthYear(startStr);
   const end = parseMonthYear(endStr) || new Date();
-  if (!start) return 12; // default 1 year
+  if (!start) return 0; // unknown dates = 0 months, not 12
   const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
   return Math.max(1, months);
 }
@@ -123,11 +125,17 @@ export function normalizeCandidateProfile(resumeData: any, resume: any, order: a
   const education = resumeData.education || [];
   const jd = resume.job_description || order?.job_description || '';
 
-  const flatSkills = Array.isArray(skills)
-    ? (typeof skills[0] === 'string'
-      ? skills as string[]
-      : skills.flatMap((s: any) => s.skills || s.items || [s.label || s.category || '']))
-    : Object.values(skills).flat().map(String);
+  // Robust skill flattening — handles string[], object[], or Record<string, string[]>
+  let flatSkills: string[] = [];
+  if (Array.isArray(skills) && skills.length > 0) {
+    if (typeof skills[0] === 'string') {
+      flatSkills = skills as string[];
+    } else {
+      flatSkills = skills.flatMap((s: any) => s.skills || s.items || [s.label || s.category || ''].filter(Boolean));
+    }
+  } else if (skills && typeof skills === 'object') {
+    flatSkills = Object.values(skills).flat().map(String);
+  }
 
   const roles: NormalizedRole[] = experience.map((e: any) => {
     const startDate = e.start_date || e.dates?.split(/[-–]/)[0]?.trim() || '';
@@ -138,17 +146,21 @@ export function normalizeCandidateProfile(resumeData: any, resume: any, order: a
       startDate,
       endDate,
       durationMonths: estimateDurationMonths(startDate, endDate),
-      bullets: e.bullets || [],
+      bullets: Array.isArray(e.bullets) ? e.bullets : [],
       level: inferRoleLevel(e.title || e.role || ''),
     };
   });
 
   const totalExperienceMonths = roles.reduce((sum, r) => sum + r.durationMonths, 0);
 
+  // Clean target company — reject validation error messages
+  const rawCompany = resume.target_company || '';
+  const targetCompany = rawCompany.includes('must be at least') || rawCompany.length < 2 ? '' : rawCompany;
+
   return {
     name: contact.name || '',
     targetRole: resume.target_role || '',
-    targetCompany: resume.target_company && !resume.target_company.includes('must be at least') ? resume.target_company : '',
+    targetCompany,
     totalExperienceMonths,
     roles,
     skills: flatSkills.filter(Boolean),
@@ -163,7 +175,7 @@ export function normalizeCandidateProfile(resumeData: any, resume: any, order: a
 
 export type InterviewLevel = 'entry' | 'mid' | 'senior' | 'lead';
 
-function extractJdSignals(jd: string): { suggestedLevel: InterviewLevel | null; yearsRequired: number | null } {
+export function extractJdSignals(jd: string): { suggestedLevel: InterviewLevel | null; yearsRequired: number | null } {
   if (!jd || jd.length < 50) return { suggestedLevel: null, yearsRequired: null };
   const lower = jd.toLowerCase();
 
@@ -188,20 +200,23 @@ function extractJdSignals(jd: string): { suggestedLevel: InterviewLevel | null; 
 }
 
 export function inferInterviewLevel(profile: CandidateProfile, userOverride?: string): InterviewLevel {
-  // 1. User override
+  // 1. User override — always respected
   if (userOverride && ['entry', 'mid', 'senior', 'lead'].includes(userOverride)) return userOverride as InterviewLevel;
 
-  // 2. JD signals
+  // 2. JD signals (if JD provided)
   const jdSignals = extractJdSignals(profile.jobDescription);
   if (jdSignals.suggestedLevel) return jdSignals.suggestedLevel;
 
-  // 3. Title keywords from most recent roles
+  // 3. Fresher detection — no roles or zero experience
+  if (profile.roles.length === 0 || profile.totalExperienceMonths === 0) return 'entry';
+
+  // 4. Title keywords from most recent roles
   const recentRoles = profile.roles.slice(0, 2);
   const hasLeadTitle = recentRoles.some(r => r.level === 'lead' || r.level === 'senior');
   if (hasLeadTitle && profile.totalExperienceMonths > 84) return 'lead';
   if (hasLeadTitle) return 'senior';
 
-  // 4. Total experience bands (India-tuned)
+  // 5. Total experience bands (India-tuned)
   const months = profile.totalExperienceMonths;
   if (months <= 24) return 'entry';
   if (months <= 60) return 'mid';
@@ -407,7 +422,7 @@ Return JSON array:
 
 // ─── C6: Validation ───
 
-interface ValidationResult {
+export interface ValidationResult {
   valid: boolean;
   degraded: boolean;
   errors: string[];
@@ -415,7 +430,7 @@ interface ValidationResult {
   mcqCount: number;
 }
 
-function validatePrepData(data: any): ValidationResult {
+export function validatePrepData(data: any): ValidationResult {
   const errors: string[] = [];
   const questions = data.questions || [];
   const mcqs = data.mcq || [];
@@ -440,22 +455,25 @@ function validatePrepData(data: any): ValidationResult {
   // Validate ask_them
   const validAsk = askThem.filter((a: any) => a.question && a.question.length > 5 && !a.question.includes('...'));
 
-  if (validQs.length < 10) errors.push(`Only ${validQs.length}/15 valid questions`);
-  if (validMcqs.length < 6) errors.push(`Only ${validMcqs.length}/10 valid MCQs`);
-  if (validAsk.length < 3) errors.push(`Only ${validAsk.length}/5 valid ask-them questions`);
+  if (validQs.length < 15) errors.push(`Only ${validQs.length}/15 valid questions`);
+  if (validMcqs.length < 10) errors.push(`Only ${validMcqs.length}/10 valid MCQs`);
+  if (validAsk.length < 5) errors.push(`Only ${validAsk.length}/5 valid ask-them questions`);
   if (!data.company_brief) errors.push('Missing company brief');
   if (!data.cheat_sheet) errors.push('Missing cheat sheet');
 
-  const degraded = validQs.length >= 10 && validMcqs.length >= 6 && errors.length > 0;
-  const valid = validQs.length >= 12 && validMcqs.length >= 8 && validAsk.length >= 3;
+  // Full pass: meets ideal thresholds
+  const fullPass = validQs.length >= 12 && validMcqs.length >= 8 && validAsk.length >= 3;
+  // Degraded pass: meets minimum thresholds but not ideal
+  const meetsMinimum = validQs.length >= 10 && validMcqs.length >= 6;
+  const degraded = meetsMinimum && !fullPass;
 
-  return { valid: valid || degraded, degraded: degraded && !valid, errors, questionCount: validQs.length, mcqCount: validMcqs.length };
+  return { valid: fullPass || meetsMinimum, degraded, errors, questionCount: validQs.length, mcqCount: validMcqs.length };
 }
 
 // ─── C4 Main: Phased Pipeline ───
 
 export async function generateInterviewPrepV2(prepId: string, resumeId: string, userLevelOverride?: string): Promise<void> {
-  await ensureV2Schema();
+  await v2MigrationPromise;
   const startTime = Date.now();
 
   try {

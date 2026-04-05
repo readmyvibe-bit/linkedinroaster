@@ -60,6 +60,7 @@ router.use('/send-email', adminAuth);
 router.use('/approve-order', adminAuth);
 router.use('/reprocess-order', adminAuth);
 router.use('/reprocess-build-order', adminAuth);
+router.use('/interview-preps', adminAuth);
 
 // POST /api/admin/nuke-all — delete ALL data (use with extreme caution)
 router.use('/nuke-all', adminAuth);
@@ -179,6 +180,20 @@ router.get('/overview', async (_req: Request, res: Response) => {
       WHERE processing_error='timeout_auto_cancelled' AND processing_done_at >= CURRENT_DATE
     `);
 
+    // Interview prep stats
+    const prepStats = await query(`
+      SELECT
+        COUNT(*)::int AS total,
+        COUNT(*) FILTER (WHERE status='ready')::int AS ready,
+        COUNT(*) FILTER (WHERE status='failed')::int AS failed,
+        COUNT(*) FILTER (WHERE status='processing' OR status='queued')::int AS pending,
+        COUNT(*) FILTER (WHERE generation_meta->>'degraded' = 'true')::int AS degraded,
+        COUNT(*) FILTER (WHERE pipeline_version='v2')::int AS v2_count,
+        COUNT(*) FILTER (WHERE created_at >= CURRENT_DATE)::int AS today,
+        COALESCE(AVG((generation_meta->>'duration_ms')::int) FILTER (WHERE status='ready' AND generation_meta->>'duration_ms' IS NOT NULL), 0)::int AS avg_duration_ms
+      FROM interview_preps
+    `);
+
     res.json({
       today: {
         orders: today.rows[0].orders,
@@ -196,6 +211,7 @@ router.get('/overview', async (_req: Request, res: Response) => {
       avg_processing_seconds: avgTime.rows[0].avg_seconds,
       pipeline_stages: stages.rows,
       funnel: funnel.rows[0],
+      interview_preps: prepStats.rows[0],
     });
   } catch (err) {
     console.error('Admin overview error:', err);
@@ -976,6 +992,80 @@ router.get('/influencers/:slug/referrals', async (req: Request, res: Response) =
     });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch influencer referrals' });
+  }
+});
+
+// GET /api/admin/interview-preps — list interview preps with stats
+router.get('/interview-preps', async (req: Request, res: Response) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
+    const offset = (page - 1) * limit;
+
+    let where = 'WHERE 1=1';
+    const params: any[] = [];
+    let paramIdx = 1;
+
+    if (req.query.status) {
+      where += ` AND ip.status=$${paramIdx++}`;
+      params.push(req.query.status);
+    }
+    if (req.query.level) {
+      where += ` AND ip.interview_level=$${paramIdx++}`;
+      params.push(req.query.level);
+    }
+    if (req.query.pipeline) {
+      where += ` AND ip.pipeline_version=$${paramIdx++}`;
+      params.push(req.query.pipeline);
+    }
+
+    const countResult = await query(
+      `SELECT COUNT(*)::int AS total FROM interview_preps ip ${where}`,
+      params,
+    );
+
+    const prepsResult = await query(
+      `SELECT ip.id, ip.resume_id, ip.status, ip.career_stage, ip.interview_level,
+              ip.pipeline_version, ip.target_role, ip.target_company, ip.error_message,
+              ip.generation_meta, ip.created_at, ip.completed_at,
+              r.order_id
+       FROM interview_preps ip
+       LEFT JOIN resumes r ON r.id = ip.resume_id
+       ${where}
+       ORDER BY ip.created_at DESC
+       LIMIT $${paramIdx++} OFFSET $${paramIdx++}`,
+      [...params, limit, offset],
+    );
+
+    // Summary stats
+    const stats = await query(`
+      SELECT
+        COUNT(*)::int AS total,
+        COUNT(*) FILTER (WHERE status='ready')::int AS ready,
+        COUNT(*) FILTER (WHERE status='failed')::int AS failed,
+        COUNT(*) FILTER (WHERE status='processing' OR status='queued')::int AS pending,
+        COUNT(*) FILTER (WHERE generation_meta->>'degraded' = 'true')::int AS degraded,
+        ROUND(AVG((generation_meta->>'duration_ms')::numeric) FILTER (WHERE status='ready' AND generation_meta->>'duration_ms' IS NOT NULL))::int AS avg_duration_ms,
+        ROUND(
+          COUNT(*) FILTER (WHERE status='ready')::numeric /
+          NULLIF(COUNT(*) FILTER (WHERE status IN ('ready','failed')), 0) * 100
+        )::int AS success_rate_pct
+      FROM interview_preps
+    `);
+
+    res.json({
+      preps: prepsResult.rows,
+      stats: stats.rows[0],
+      pagination: {
+        page,
+        limit,
+        total: countResult.rows[0].total,
+        totalPages: Math.ceil(countResult.rows[0].total / limit),
+      },
+    });
+  } catch (err: any) {
+    console.error('Admin interview-preps error:', err.message);
+    res.status(500).json({ error: 'Failed to fetch interview preps' });
   }
 });
 

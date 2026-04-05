@@ -159,13 +159,25 @@ export default function InterviewPrepPage() {
     }
   }, [prepId]);
 
-  // Poll while loading
+  // Poll while loading — with exponential backoff and max attempts
   useEffect(() => {
     fetchPrep();
-    const interval = setInterval(() => {
-      if (loading) fetchPrep();
-    }, 3000);
-    return () => clearInterval(interval);
+    let attempt = 0;
+    const maxAttempts = 60;
+    let timeout: ReturnType<typeof setTimeout>;
+
+    function poll() {
+      if (!loading || attempt >= maxAttempts) return;
+      attempt++;
+      // Backoff: 2s, 2s, 3s, 3s, 4s, 5s... capped at 8s
+      const delay = Math.min(2000 + Math.floor(attempt / 3) * 1000, 8000);
+      timeout = setTimeout(() => {
+        fetchPrep().then(() => poll());
+      }, delay);
+    }
+    poll();
+
+    return () => clearTimeout(timeout);
   }, [fetchPrep, loading]);
 
   // Cycle loading stages
@@ -317,8 +329,12 @@ export default function InterviewPrepPage() {
             <button
               onClick={async () => {
                 try {
-                  const r = await fetch(`${API_URL}/api/interview-prep`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ resume_id: prep.resume_id }) });
+                  const body: any = { resume_id: prep.resume_id };
+                  // Preserve interview_level from original request
+                  if (prep.interview_level) body.interview_level = prep.interview_level;
+                  const r = await fetch(`${API_URL}/api/interview-prep`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
                   const d = await r.json();
+                  if (d.error) { alert(d.error); return; }
                   if (d.id && d.id !== prep.id) window.location.href = `/interview-prep/${d.id}`;
                   else window.location.reload();
                 } catch { alert('Retry failed.'); }

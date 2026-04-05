@@ -278,12 +278,24 @@ RULES:
       mcq: (call1Result.mcq || []).filter((m: any) => m.question && m.question !== '...'),
     };
 
+    const durationMs = Date.now() - Date.now(); // approximate — v1 doesn't track start time inline
+    const meta = {
+      pipeline_version: 'v1',
+      interview_level: careerStage,
+      question_count: finalPrepData.questions.length,
+      mcq_count: finalPrepData.mcq.length,
+      degraded: finalPrepData.questions.length < 12 || finalPrepData.mcq.length < 7,
+      degraded_reason: finalPrepData.questions.length < 12 || finalPrepData.mcq.length < 7
+        ? `${finalPrepData.questions.length}/15 questions, ${finalPrepData.mcq.length}/10 MCQs`
+        : null,
+    };
+
     await query(
-      `UPDATE interview_preps SET status='ready', prep_data=$1, completed_at=NOW() WHERE id=$2`,
-      [JSON.stringify(finalPrepData), prepId],
+      `UPDATE interview_preps SET status='ready', prep_data=$1, generation_meta=$2, pipeline_version='v1', completed_at=NOW() WHERE id=$3`,
+      [JSON.stringify(finalPrepData), JSON.stringify(meta), prepId],
     );
 
-    console.log(`[interview-prep] ${prepId}: Complete — ${finalPrepData.questions.length} questions, ${finalPrepData.mcq.length} MCQs`);
+    console.log(`[interview-prep] ${prepId}: Complete — ${finalPrepData.questions.length} questions, ${finalPrepData.mcq.length} MCQs${meta.degraded ? ' (degraded)' : ''}`);
   } catch (err: any) {
     console.error(`[interview-prep] ${prepId}: Failed —`, err.message);
     await query(
