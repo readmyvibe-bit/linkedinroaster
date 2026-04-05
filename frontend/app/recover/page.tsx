@@ -7,8 +7,8 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 interface RecoveredOrder {
   orderId: string;
-  type: 'roast' | 'build' | 'rewrite';
-  roastTitle?: string;
+  type: 'rewrite' | 'build';
+  title?: string;
   beforeScore?: number;
   afterScore?: number;
   headline?: string;
@@ -135,7 +135,7 @@ export default function RecoverPage() {
 
   // ─── Results dashboard (full-width) ───
   if (step === 'results') {
-    const roastOrders = orders.filter(o => o.type === 'roast' || o.type === 'rewrite');
+    const roastOrders = orders.filter(o => o.type === 'rewrite');
     const buildOrders = orders.filter(o => o.type === 'build');
 
     return (
@@ -162,7 +162,7 @@ export default function RecoverPage() {
             {orders.length} result{orders.length > 1 ? 's' : ''} found for {email}
           </p>
 
-          {/* Roast Orders */}
+          {/* Rewrite Orders */}
           {roastOrders.length > 0 && (
             <div style={{ marginBottom: 28 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -179,7 +179,7 @@ export default function RecoverPage() {
                     onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}
                   >
                     <div style={{ fontSize: 14, fontWeight: 600, color: '#191919', marginBottom: 8, lineHeight: 1.4 }}>
-                      {o.roastTitle || 'Profile Rewrite'}
+                      {o.title || 'Profile Rewrite'}
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>

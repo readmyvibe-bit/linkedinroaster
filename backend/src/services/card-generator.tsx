@@ -33,10 +33,7 @@ export interface CardData {
   headlineScore: number;
   aboutScore: number;
   experienceScore: number;
-  topRoast: string;
-  secondRoast: string;
   hiddenStrength: { strength: string; evidence: string; how_to_show_it: string } | null;
-  closingCompliment: string;
   rewrittenHeadline: string;
   industry: string;
 }
@@ -49,18 +46,8 @@ function ScoreBar({ width, color }: { width: number; color: string }) {
   );
 }
 
-function CardDesign({ beforeScore, afterScore, topRoast, closingCompliment, rewrittenHeadline }: Omit<CardData, 'orderId'>) {
+function CardDesign({ beforeScore, afterScore, rewrittenHeadline }: Omit<CardData, 'orderId'>) {
   const improvement = afterScore - beforeScore;
-
-  // Extract punchiest roast sentence (40-120 chars ideal)
-  function extractRoastHook(roast: string): string {
-    if (!roast) return '';
-    const sentences = roast.split(/[.!?—]/).map(s => s.replace(/^["'\s]+/, '').trim()).filter(s => s.length > 30);
-    if (!sentences.length) return roast.slice(0, 120);
-    const sorted = [...sentences].sort((a, b) => a.length - b.length);
-    const best = sorted.find(s => s.length >= 40 && s.length <= 120) || sentences[0];
-    return best.length > 140 ? best.slice(0, 137) + '...' : best;
-  }
 
   // Format headline for display (max 18 words)
   function formatHeadline(headline: string): string {
@@ -69,8 +56,7 @@ function CardDesign({ beforeScore, afterScore, topRoast, closingCompliment, rewr
     return headline.split(' ').slice(0, 18).join(' ') + '...';
   }
 
-  const roastHook = extractRoastHook(topRoast);
-  const afterHeadline = formatHeadline(rewrittenHeadline || closingCompliment || '');
+  const afterHeadline = formatHeadline(rewrittenHeadline || 'AI-powered LinkedIn transformation');
 
   return (
     <div style={{ width: 1200, height: 630, display: 'flex', flexDirection: 'column', background: '#F3F2EF', fontFamily: 'Inter' }}>
@@ -131,8 +117,8 @@ function CardDesign({ beforeScore, afterScore, topRoast, closingCompliment, rewr
 
           {/* Compliment box */}
           <div style={{ background: 'white', borderLeft: '5px solid #057642', borderRadius: '0 12px 12px 0', padding: '18px 24px', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: '#057642', marginBottom: 10, display: 'flex' }}>WHAT AI LOVED ABOUT THIS PROFILE</div>
-            <div style={{ fontSize: 18, color: '#191919', lineHeight: 1.6, fontWeight: 600, display: 'flex' }}>{closingCompliment}</div>
+            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 2, color: '#057642', marginBottom: 10, display: 'flex' }}>REWRITTEN HEADLINE</div>
+            <div style={{ fontSize: 18, color: '#191919', lineHeight: 1.6, fontWeight: 600, display: 'flex' }}>{afterHeadline}</div>
           </div>
 
           {/* Social proof */}
@@ -156,7 +142,7 @@ function CardDesign({ beforeScore, afterScore, topRoast, closingCompliment, rewr
       <div style={{ height: 48, background: '#004182', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 44px' }}>
         <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', fontWeight: 700, display: 'flex' }}>AI-powered LinkedIn optimization</div>
         <div style={{ fontSize: 16, fontWeight: 700, color: 'white', display: 'flex' }}>profileroaster.in</div>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', display: 'flex' }}>#LinkedInRoast</div>
+        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', display: 'flex' }}>#ProfileTransformation</div>
       </div>
     </div>
   );
@@ -173,10 +159,7 @@ export async function generateAndUploadCard(data: CardData): Promise<string | nu
         headlineScore: data.headlineScore,
         aboutScore: data.aboutScore,
         experienceScore: data.experienceScore,
-        topRoast: data.topRoast,
-        secondRoast: data.secondRoast,
         hiddenStrength: data.hiddenStrength,
-        closingCompliment: data.closingCompliment,
         rewrittenHeadline: data.rewrittenHeadline,
         industry: data.industry,
       }),
@@ -213,216 +196,4 @@ export async function generateAndUploadCard(data: CardData): Promise<string | nu
     Sentry.captureException(err, { extra: { orderId: data.orderId } });
     return null;
   }
-}
-
-// ═══════════════════════════════════════════
-// Roast Sheet — Combined 6-point report PNG
-// ═══════════════════════════════════════════
-export interface RoastSheetData {
-  orderId: string;
-  beforeScore: number;
-  afterScore: number;
-  headlineScore: number;
-  aboutScore: number;
-  experienceScore: number;
-  roastPoints: Array<{
-    section_targeted: string;
-    roast: string;
-    underlying_issue: string;
-  }>;
-}
-
-// Build the roast sheet element tree using React.createElement directly
-// to avoid JSX runtime compatibility issues with Satori
-function buildRoastSheetElement(data: {
-  beforeScore: number; afterScore: number;
-  headlineScore: number; aboutScore: number; experienceScore: number;
-  roastPoints: Array<{ section_targeted: string; roast: string; underlying_issue: string }>;
-}): React.ReactElement {
-  const h = React.createElement;
-  const { beforeScore, afterScore, headlineScore, aboutScore, experienceScore, roastPoints } = data;
-  const points = roastPoints.slice(0, 6);
-
-  const truncateText = (text: string | undefined, maxChars: number): string => {
-    if (!text) return '';
-    if (text.length <= maxChars) return text;
-    const truncated = text.slice(0, maxChars);
-    const lastSpace = truncated.lastIndexOf(' ');
-    return truncated.slice(0, lastSpace > 0 ? lastSpace : maxChars) + '...';
-  };
-
-  const pill = (label: string, value: number, color: string) =>
-    h('div', { style: { background: '#F3F2EF', border: '1px solid #E0E0E0', borderRadius: 10, padding: '4px 10px', fontSize: 11, color: '#555', display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 4 } },
-      h('div', { style: { width: 6, height: 6, borderRadius: 3, background: color, flexShrink: 0 } }),
-      h('div', { style: { display: 'flex' } }, `${label} ${value}`)
-    );
-
-  const cards = points.map((point, index) =>
-    h('div', { key: index, style: { width: 373, height: 220, margin: '0 6px 12px 0', background: 'white', borderRadius: 10, border: '1px solid #E0E0E0', overflow: 'hidden', display: 'flex', flexDirection: 'column', flexShrink: 0 } },
-      // TOP — Header 30px
-      h('div', { style: { height: 30, background: '#0A66C2', padding: '0 12px', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 } },
-        h('div', { style: { color: 'white', fontSize: 9, fontWeight: 700, letterSpacing: 1 } }, 'ROAST'),
-        h('div', { style: { color: 'rgba(255,255,255,0.5)', fontSize: 9 } }, `Point ${index + 1} / ${points.length}`)
-      ),
-      // TOP — Section Tag 22px
-      h('div', { style: { height: 22, background: '#F3F2EF', padding: '4px 12px 0', flexShrink: 0, display: 'flex', flexDirection: 'row' } },
-        h('div', { style: { display: 'flex', flexDirection: 'row', background: 'white', border: '1px solid #E0E0E0', borderRadius: 6, padding: '1px 7px' } },
-          h('div', { style: { fontSize: 7, fontWeight: 700, color: '#666', letterSpacing: 0.5 } }, (point.section_targeted || 'PROFILE').toUpperCase().slice(0, 12))
-        )
-      ),
-      // MIDDLE — Roast text fills remaining space
-      h('div', { style: { flex: 1, display: 'flex', flexDirection: 'column', background: '#F3F2EF', padding: '0 12px', overflow: 'hidden' } },
-        h('div', { style: { marginTop: 8, fontSize: 10.5, lineHeight: 1.65, color: '#191919', overflow: 'hidden' } }, truncateText(point.roast, 320))
-      ),
-      // BOTTOM — Issue block attached below text
-      h('div', { style: { borderTop: '1px solid #E5E7EB', display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: 6, flexShrink: 0, padding: '8px 12px 10px' } },
-        h('div', { style: { fontSize: 10, fontWeight: 700, color: '#DC2626', background: '#FEE2E2', padding: '3px 6px', borderRadius: 4, flexShrink: 0 } }, 'ISSUE'),
-        h('div', { style: { fontSize: 11, color: '#444', lineHeight: 1.45, overflow: 'hidden' } }, truncateText(point.underlying_issue, 150))
-      )
-    )
-  );
-
-  return h('div', { style: { width: 1200, height: 694, display: 'flex', flexDirection: 'column', background: '#F3F2EF', overflow: 'hidden', fontFamily: 'Inter' } },
-    // HEADER 70px
-    h('div', { style: { width: 1200, height: 70, background: '#0A66C2', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: '0 48px', flexShrink: 0 } },
-      h('div', { style: { color: 'white', fontSize: 18, fontWeight: 700, letterSpacing: 2 } }, 'LINKEDIN PROFILE ROAST REPORT'),
-      h('div', { style: { color: 'rgba(255,255,255,0.65)', fontSize: 13 } }, 'profileroaster.in')
-    ),
-    // ORANGE ACCENT 4px
-    h('div', { style: { width: 1200, height: 4, background: '#E16B00', flexShrink: 0 } }),
-    // SCORE ROW 106px
-    h('div', { style: { width: 1200, height: 106, background: 'white', display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '0 48px', gap: 20, borderBottom: '1px solid #E0E0E0', flexShrink: 0 } },
-      h('div', { style: { width: 64, height: 64, borderRadius: 32, border: '5px solid #CC1016', background: '#FEE2E2', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } },
-        h('div', { style: { fontSize: 22, fontWeight: 700, color: '#CC1016', lineHeight: 1 } }, String(beforeScore)),
-        h('div', { style: { fontSize: 8, color: '#CC1016', fontWeight: 700, letterSpacing: 1, marginTop: 2 } }, 'BEFORE')
-      ),
-      h('div', { style: { fontSize: 18, color: '#aaa', flexShrink: 0 } }, '->'),
-      h('div', { style: { background: '#057642', color: 'white', fontSize: 14, fontWeight: 700, borderRadius: 12, padding: '6px 16px', flexShrink: 0 } }, `+${afterScore - beforeScore} pts`),
-      h('div', { style: { width: 76, height: 76, borderRadius: 38, border: '6px solid #057642', background: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } },
-        h('div', { style: { fontSize: 26, fontWeight: 700, color: '#057642', lineHeight: 1 } }, String(afterScore)),
-        h('div', { style: { fontSize: 8, color: '#057642', fontWeight: 700, letterSpacing: 1, marginTop: 2 } }, 'AFTER')
-      ),
-      h('div', { style: { marginLeft: 'auto', display: 'flex', flexDirection: 'row', gap: 8 } },
-        pill('Headline', headlineScore, '#0A66C2'),
-        pill('About', aboutScore, '#E16B00'),
-        pill('Experience', experienceScore, '#057642')
-      )
-    ),
-    // ROAST GRID 400px
-    h('div', { style: { width: 1200, height: 464, display: 'flex', flexDirection: 'row', flexWrap: 'wrap', padding: '12px 20px', gap: 0, background: '#F3F2EF', flexShrink: 0, overflow: 'hidden' } }, ...cards),
-    // FOOTER 50px
-    h('div', { style: { width: 1200, height: 50, background: '#004182', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: '0 48px', flexShrink: 0 } },
-      h('div', { style: { color: 'rgba(255,255,255,0.65)', fontSize: 12 } }, 'Get your profile roasted at'),
-      h('div', { style: { color: 'white', fontSize: 15, fontWeight: 700 } }, 'profileroaster.in'),
-      h('div', { style: { color: 'rgba(255,255,255,0.5)', fontSize: 12 } }, '#LinkedInRoast')
-    )
-  );
-}
-
-export async function generateAndUploadRoastSheet(data: RoastSheetData): Promise<string | null> {
-  try {
-    const fonts = await getFonts();
-
-    const element = buildRoastSheetElement({
-      beforeScore: data.beforeScore,
-      afterScore: data.afterScore,
-      headlineScore: data.headlineScore,
-      aboutScore: data.aboutScore,
-      experienceScore: data.experienceScore,
-      roastPoints: data.roastPoints,
-    });
-
-    const svg = await satori(element, {
-      width: 1200,
-      height: 694,
-      fonts: [
-        { name: 'Inter', data: fonts.regular, weight: 400, style: 'normal' as const },
-        { name: 'Inter', data: fonts.bold, weight: 700, style: 'normal' as const },
-      ],
-    });
-
-    const resvg = new Resvg(svg, { fitTo: { mode: 'zoom', value: 3 } });
-    const png = resvg.render().asPng();
-    const filePath = `sheets/${data.orderId}.png`;
-
-    const { error } = await supabase.storage
-      .from(BUCKET)
-      .upload(filePath, png, {
-        contentType: 'image/png',
-        cacheControl: '60',
-        upsert: true,
-      });
-
-    if (error) {
-      console.error('Supabase sheet upload error:', error.message);
-      return null;
-    }
-
-    return `${PUBLIC_BASE}/${filePath}`;
-  } catch (err) {
-    console.error('Roast sheet generation error:', (err as Error).message, (err as Error).stack);
-    Sentry.captureException(err, { extra: { orderId: data.orderId } });
-    return null;
-  }
-}
-
-// ═══════════════════════════════════════════
-// Roast Card — 3 roasts + closing compliment PNG
-// ═══════════════════════════════════════════
-export async function generateRoastCardPng(
-  beforeScore: number, afterScore: number,
-  roasts: Array<{ section: string; text: string }>,
-  closingCompliment: string,
-): Promise<Buffer> {
-  const fonts = await getFonts();
-  const h = React.createElement;
-  const improvement = afterScore - beforeScore;
-  const trunc = (t: string, max: number) => t.length > max ? t.slice(0, max - 3) + '...' : t;
-
-  const element = h('div', { style: { width: 1200, height: 630, display: 'flex', flexDirection: 'column', fontFamily: 'Inter' } },
-    h('div', { style: { height: 56, background: '#004182', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px' } },
-      h('div', { style: { fontSize: 16, fontWeight: 700, color: 'white', letterSpacing: 1, display: 'flex' } }, 'AI ROASTED THIS PROFILE'),
-      h('div', { style: { fontSize: 12, color: 'rgba(255,255,255,0.4)', display: 'flex' } }, 'profileroaster.in'),
-    ),
-    h('div', { style: { height: 4, background: '#E16B00', display: 'flex' } }),
-    h('div', { style: { flex: 1, display: 'flex' } },
-      h('div', { style: { width: '28%', background: 'white', borderRight: '1px solid #E0E0E0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '16px' } },
-        h('div', { style: { fontSize: 9, fontWeight: 700, letterSpacing: 3, color: '#9CA3AF', display: 'flex' } }, 'PROFILE SCORE'),
-        h('div', { style: { fontSize: 42, fontWeight: 700, color: '#CC1016', lineHeight: 1, display: 'flex' } }, String(beforeScore)),
-        h('div', { style: { fontSize: 9, fontWeight: 700, color: '#CC1016', letterSpacing: 2, display: 'flex' } }, 'BEFORE'),
-        h('div', { style: { fontSize: 18, color: '#DDD', display: 'flex' } }, '\u2193'),
-        h('div', { style: { fontSize: 70, fontWeight: 700, color: '#057642', lineHeight: 1, display: 'flex' } }, String(afterScore)),
-        h('div', { style: { fontSize: 9, fontWeight: 700, color: '#057642', letterSpacing: 2, display: 'flex' } }, 'AFTER'),
-        h('div', { style: { background: '#16A34A', color: 'white', fontSize: 18, fontWeight: 700, padding: '6px 20px', borderRadius: 50, marginTop: 4, display: 'flex' } }, `+${improvement} pts`),
-      ),
-      h('div', { style: { width: '72%', background: '#F3F2EF', padding: '14px 28px', display: 'flex', flexDirection: 'column', gap: 7, justifyContent: 'center' } },
-        ...roasts.slice(0, 3).map((r, i) =>
-          h('div', { key: String(i), style: { background: 'white', borderLeft: '4px solid #E16B00', borderRadius: '0 10px 10px 0', padding: '10px 16px', display: 'flex', flexDirection: 'column' } },
-            h('div', { style: { fontSize: 8, fontWeight: 700, letterSpacing: 2, color: '#E16B00', marginBottom: 4, display: 'flex' } }, `ROAST #${i + 1} \u2014 ${r.section.toUpperCase()}`),
-            h('div', { style: { fontSize: 13, fontStyle: 'italic', color: '#191919', lineHeight: 1.5, fontWeight: 500, display: 'flex' } }, `"${trunc(r.text, 130)}"`),
-          )
-        ),
-        h('div', { style: { background: 'white', borderLeft: '4px solid #057642', borderRadius: '0 10px 10px 0', padding: '10px 16px', display: 'flex', flexDirection: 'column' } },
-          h('div', { style: { fontSize: 8, fontWeight: 700, letterSpacing: 2, color: '#057642', marginBottom: 4, display: 'flex' } }, 'BUT HONESTLY...'),
-          h('div', { style: { fontSize: 13, color: '#057642', lineHeight: 1.5, fontWeight: 600, display: 'flex' } }, trunc(closingCompliment, 140)),
-        ),
-      ),
-    ),
-    h('div', { style: { height: 44, background: '#004182', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px' } },
-      h('div', { style: { fontSize: 12, color: 'rgba(255,255,255,0.7)', fontWeight: 700, display: 'flex' } }, 'Get YOUR LinkedIn roasted in 60 seconds'),
-      h('div', { style: { fontSize: 14, fontWeight: 700, color: 'white', display: 'flex' } }, 'profileroaster.in'),
-      h('div', { style: { fontSize: 10, color: 'rgba(255,255,255,0.35)', display: 'flex' } }, '#LinkedInRoast'),
-    ),
-  );
-
-  const svg = await satori(element, {
-    width: 1200, height: 630,
-    fonts: [
-      { name: 'Inter', data: fonts.regular, weight: 400, style: 'normal' },
-      { name: 'Inter', data: fonts.bold, weight: 700, style: 'normal' },
-    ],
-  });
-
-  const resvg = new Resvg(svg, { fitTo: { mode: 'zoom', value: 3 } });
-  return Buffer.from(resvg.render().asPng());
 }

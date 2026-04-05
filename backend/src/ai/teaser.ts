@@ -8,7 +8,7 @@ export interface TeaserResult {
   verdict: string;
   grade: string;
   issues: Array<{ issue: string; quick_tip: string }>;
-  teaser_roast: string;
+  teaser_insight: string;
   suggested_headline: string;
   sample_interview_question: string;
 }
@@ -30,8 +30,8 @@ VERDICT THRESHOLDS (must match score exactly):
 RULES:
   - Reference SPECIFIC text from the headline
   - quick_tip: actionable fix in 1 sentence
-  - teaser_roast: 1 punchy PG-rated sentence — same safety rules as main pipeline
-  - If score is 75+: start roast with a positive acknowledgment then give the one thing to improve. Keep it funny but frame as refinement not rejection.
+  - teaser_insight: 1 punchy PG-rated sentence — same safety rules as main pipeline
+  - If score is 75+: start with a positive acknowledgment then give the one thing to improve. Keep it direct but constructive.
   - NEVER use profanity, identity references, or cruelty
 OUTPUT (strict JSON):
 {
@@ -42,7 +42,7 @@ OUTPUT (strict JSON):
     {"issue": "specific problem", "quick_tip": "1-sentence fix"},
     {"issue": "second problem", "quick_tip": "1-sentence fix"}
   ],
-  "teaser_roast": "1 witty sentence referencing actual headline text",
+  "teaser_insight": "1 witty sentence referencing actual headline text",
   "suggested_headline": "A rewritten version of their headline that scores 85+. Specific, value-driven, uses their actual role/skills.",
   "sample_interview_question": "One behavioral interview question a recruiter would likely ask based on this specific headline. Format: 'Tell me about a time you [specific thing from their headline/role]...'. Must reference their actual role or domain."
 }`;

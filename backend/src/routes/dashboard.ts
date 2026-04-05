@@ -121,12 +121,11 @@ router.get('/data', dashAuth, async (req: Request, res: Response) => {
   try {
     const email = (req as any).userEmail;
 
-    // Roast orders
+    // Orders
     const roastOrders = await query(
       `SELECT id, plan, payment_status, processing_status,
               before_score->'overall' as before_score,
               after_score->'overall' as after_score,
-              roast->'roast_title' as roast_title,
               card_image_url, user_rating, created_at, processing_done_at
        FROM orders WHERE email=$1 AND payment_status='paid'
        ORDER BY created_at DESC`,
@@ -143,7 +142,7 @@ router.get('/data', dashAuth, async (req: Request, res: Response) => {
       [email],
     );
 
-    // Resumes — from both roast and build orders
+    // Resumes — from all orders
     const resumes = await query(
       `SELECT r.id, r.order_id, r.target_role, r.target_company, r.template_id,
               r.ats_score, r.job_description, r.cover_letter IS NOT NULL as has_cover_letter,
@@ -201,7 +200,7 @@ router.get('/data', dashAuth, async (req: Request, res: Response) => {
     }
 
     // Quota helper
-    const getMaxResumes = (plan: string, source: 'roast' | 'build') => {
+    const getMaxResumes = (plan: string, source: 'rewrite' | 'build') => {
       if (source === 'build') {
         return plan === 'pro' ? 10 : plan === 'standard' ? 5 : plan === 'plus' ? 5 : 0;
       }
@@ -212,11 +211,11 @@ router.get('/data', dashAuth, async (req: Request, res: Response) => {
       roastOrders: roastOrders.rows.map((o: any) => ({
         id: o.id, plan: o.plan, status: o.processing_status,
         beforeScore: o.before_score, afterScore: o.after_score,
-        roastTitle: o.roast_title, cardImageUrl: o.card_image_url,
+        cardImageUrl: o.card_image_url,
         rating: o.user_rating, createdAt: o.created_at, completedAt: o.processing_done_at,
         resumesUsed: resumeCountMap[o.id] || 0,
         interviewPrepsUsed: interviewPrepCountMap[o.id] || 0,
-        maxResumes: getMaxResumes(o.plan, 'roast'),
+        maxResumes: getMaxResumes(o.plan, 'rewrite'),
       })),
       buildOrders: buildOrders.rows.map((o: any) => ({
         id: o.id, plan: o.plan, status: o.processing_status,

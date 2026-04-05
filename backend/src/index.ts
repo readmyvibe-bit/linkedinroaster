@@ -16,7 +16,7 @@ import resumeRouter from './routes/resume';
 import buildRouter from './routes/build';
 import dashboardRouter from './routes/dashboard';
 import interviewPrepRouter from './routes/interview-prep';
-import { generateAndUploadRoastSheet } from './services/card-generator';
+
 dotenv.config();
 
 // --- Sentry ---
@@ -298,7 +298,7 @@ app.post('/api/redeem-code', async (req: Request, res: Response) => {
 
     const rc = codeResult.rows[0];
 
-    if (rc.product === 'roast') {
+    if (rc.product === 'rewrite') {
       // Accept headline from either field or profile_data
       const profileText = headline || profile_data?.raw_paste || '';
       if (!profileText || profileText.trim().length < 10)
@@ -588,32 +588,6 @@ app.post('/api/webhooks/razorpay', async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/roast-card/:orderId — generate roast card PNG on the fly
-app.get('/api/roast-card/:orderId', async (req: Request, res: Response) => {
-  try {
-    const { generateRoastCardPng } = require('./services/card-generator');
-    const result = await query('SELECT roast, before_score, after_score FROM orders WHERE id=$1', [req.params.orderId]);
-    if (!result.rows.length) return res.status(404).json({ error: 'Order not found' });
-    const order = result.rows[0];
-    if (!order.roast) return res.status(400).json({ error: 'No roast data' });
-
-    const points = (order.roast.roast_points || []).slice(0, 3);
-    const roasts = points.map((p: any) => ({ section: p.section_targeted, text: p.roast }));
-    const png = await generateRoastCardPng(
-      order.before_score?.overall || 0,
-      order.after_score?.overall || 0,
-      roasts,
-      order.roast.closing_compliment || '',
-    );
-
-    res.setHeader('Content-Type', 'image/png');
-    res.setHeader('Content-Disposition', `attachment; filename="roast-card-${req.params.orderId.slice(0, 8)}.png"`);
-    res.send(png);
-  } catch (err: any) {
-    console.error('Roast card error:', err.message);
-    res.status(500).json({ error: 'Failed to generate roast card' });
-  }
-});
 
 // GET /api/health
 app.get('/api/health', async (_req: Request, res: Response) => {
@@ -927,7 +901,6 @@ app.get('/api/orders/:id', rateLimiter('poll', 60, 60), async (req: Request, res
       input_source: o.input_source || 'linkedin',
       results: {
         scores: { before: o.before_score, after: o.after_score },
-        roast: o.roast,
         rewrite: o.rewrite,
         analysis: o.analysis,
         card_image_url: o.card_image_url,
@@ -983,38 +956,6 @@ app.get('/api/stats', async (_req: Request, res: Response) => {
   }
 });
 
-// POST /api/generate-roast-sheet — generate combined roast report PNG
-app.post('/api/generate-roast-sheet', async (req: Request, res: Response) => {
-  try {
-    const { orderId } = req.body;
-    if (!orderId) return res.status(400).json({ error: 'Missing orderId' });
-
-    const result = await query('SELECT * FROM orders WHERE id=$1', [orderId]);
-    const o = result.rows[0];
-    if (!o || o.processing_status !== 'done')
-      return res.status(404).json({ error: 'Order not found or not done' });
-
-    const url = await generateAndUploadRoastSheet({
-      orderId: o.id,
-      beforeScore: o.before_score?.overall || 0,
-      afterScore: o.after_score?.overall || 0,
-      headlineScore: o.before_score?.headline || 0,
-      aboutScore: o.before_score?.about || 0,
-      experienceScore: o.before_score?.experience || 0,
-      roastPoints: (o.roast?.roast_points || []).map((p: any) => ({
-        section_targeted: p.section_targeted || 'overall',
-        roast: p.roast || '',
-        underlying_issue: p.underlying_issue || '',
-      })),
-    });
-
-    if (!url) return res.status(500).json({ error: 'Sheet generation failed' });
-    res.json({ url });
-  } catch (err) {
-    console.error('POST /api/generate-roast-sheet error:', err);
-    res.status(500).json({ error: 'Failed to generate roast sheet' });
-  }
-});
 
 // ==================== RECOVERY ====================
 
@@ -1054,7 +995,7 @@ app.post('/api/recover/send-otp', rateLimiter('recover-otp', 5, 3600), async (re
       subject: 'Your Recovery Code — Profile Roaster',
       html: `<div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:24px">
         <h2 style="color:#004182;margin-bottom:16px">Your Recovery Code</h2>
-        <p style="color:#333;font-size:15px">Use this code to access your LinkedIn roast results:</p>
+        <p style="color:#333;font-size:15px">Use this code to access your LinkedIn profile results:</p>
         <div style="background:#F3F2EF;border-radius:8px;padding:20px;text-align:center;margin:20px 0">
           <span style="font-size:32px;font-weight:700;letter-spacing:6px;color:#004182">${otp}</span>
         </div>
@@ -1083,10 +1024,9 @@ app.post('/api/recover/verify-otp', async (req: Request, res: Response) => {
 
     await redis.del(`otp:${email}`);
 
-    // Find all completed roast orders for this email
+    // Find all completed orders for this email
     const orders = await query(
-      `SELECT id, roast->'roast_title' as roast_title,
-              before_score->'overall' as before_score,
+      `SELECT id, before_score->'overall' as before_score,
               after_score->'overall' as after_score,
               created_at
        FROM orders WHERE email=$1 AND processing_status='done'
@@ -1108,8 +1048,7 @@ app.post('/api/recover/verify-otp', async (req: Request, res: Response) => {
     res.json({
       orders: orders.rows.map((o: any) => ({
         orderId: o.id,
-        type: 'roast',
-        roastTitle: o.roast_title,
+        type: 'rewrite',
         beforeScore: o.before_score,
         afterScore: o.after_score,
         createdAt: o.created_at,

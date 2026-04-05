@@ -853,7 +853,6 @@ router.get('/email-sequences/preview/:emailKey/:orderId', async (req: Request, r
       SELECT o.id, o.email, o.plan,
              o.before_score->'overall' as before_score,
              o.after_score->'overall' as after_score,
-             o.roast->'roast_title' as roast_title,
              o.rewrite->'rewritten_headline' as rewritten_headline,
              EXISTS(SELECT 1 FROM resumes r WHERE r.order_id=o.id) as has_resume
       FROM orders o WHERE o.id=$1
@@ -885,7 +884,7 @@ router.post('/referral-codes/generate', async (req: Request, res: Response) => {
   try {
     const { product, plan, notes } = req.body;
     if (!product || !plan) return res.status(400).json({ error: 'product and plan required' });
-    if (!['roast', 'build', 'rewrite'].includes(product)) return res.status(400).json({ error: 'product must be roast, rewrite, or build' });
+    if (!['rewrite', 'build'].includes(product)) return res.status(400).json({ error: 'product must be rewrite or build' });
 
     const productPrefix = product === 'build' ? 'BUILD' : 'PR';
     const planPrefix = plan.slice(0, 3).toUpperCase();

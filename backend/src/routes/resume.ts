@@ -147,7 +147,7 @@ router.get('/:resumeId', async (req: Request, res: Response) => {
     let orderResult = await query('SELECT plan FROM orders WHERE id=$1', [resume.order_id]);
     if (orderResult.rows.length) {
       resume.order_plan = orderResult.rows[0].plan;
-      resume.order_source = 'roast';
+      resume.order_source = 'rewrite';
     } else {
       orderResult = await query('SELECT plan FROM build_orders WHERE id=$1', [resume.order_id]);
       resume.order_plan = orderResult.rows[0]?.plan || 'standard';

@@ -6,7 +6,6 @@ import * as React from 'react';
 interface ResultsEmailProps {
   beforeScore: { headline: number; about: number; experience: number; completeness: number; ats?: number; overall: number };
   afterScore: { headline: number; about: number; experience: number; completeness: number; ats?: number; overall: number };
-  roast: any; // kept for backward compat but not rendered
   rewrite: {
     rewritten_headline: string;
     rewritten_about: string;

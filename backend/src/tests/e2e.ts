@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { query } from '../db';
-import { stage1_parse, stage2_analyze, stage3_roast, stage4_rewrite, stage4b_proRewrite, stage5_qualityCheck } from '../ai/pipeline';
+import { stage1_parse, stage2_analyze, stage4_rewrite, stage4b_proRewrite, stage5_qualityCheck } from '../ai/pipeline';
 import { calculateScore, capAfterScore } from '../lib/scoring';
 import { runDataCleanup, runTeaserFollowUp } from '../cron';
 import { generateAndUploadCard } from '../services/card-generator';
@@ -51,18 +51,6 @@ async function testProfile(name: string, data: any, plan: 'standard' | 'pro') {
     const beforeScore = calculateScore(parsed, analysis);
     assert(beforeScore.overall >= 0 && beforeScore.overall <= 100, `before_score ${beforeScore.overall} between 0-100`);
 
-    // Stage 3
-    const roast = await stage3_roast(parsed, analysis, []);
-    assert(roast.roast_points?.length === 6, `Roast has exactly ${roast.roast_points?.length || 0} points`);
-
-    // Prohibited content check
-    const allRoastText = JSON.stringify(roast);
-    let hasProhibited = false;
-    for (const rx of PROHIBITED) {
-      if (rx.test(allRoastText)) { hasProhibited = true; break; }
-    }
-    assert(!hasProhibited, 'Zero prohibited content in roast');
-
     // Stage 4 / 4b
     if (plan === 'standard') {
       const rewrite = await stage4_rewrite(parsed, analysis);
@@ -78,7 +66,7 @@ async function testProfile(name: string, data: any, plan: 'standard' | 'pro') {
     const rewrite = plan === 'pro'
       ? await stage4b_proRewrite(parsed, analysis, null)
       : await stage4_rewrite(parsed, analysis);
-    const qc = await stage5_qualityCheck(parsed, roast, rewrite);
+    const qc = await stage5_qualityCheck(parsed, rewrite);
     assert(typeof qc.safety_passed === 'boolean', 'QC returns safety_passed');
 
     // After score
@@ -127,10 +115,7 @@ async function testInfrastructure() {
       headlineScore: 15,
       aboutScore: 20,
       experienceScore: 30,
-      topRoast: 'Your headline says Aspiring which is LinkedIn code for unemployed.',
-      secondRoast: 'Your about section reads like a cover letter from 2011.',
       hiddenStrength: { strength: 'Cross-functional versatility', evidence: 'Worked across engineering, product, and sales teams', how_to_show_it: 'Add a dedicated Skills section highlighting both technical and business capabilities.' },
-      closingCompliment: 'Your cross-functional experience is genuinely rare and worth showcasing.',
       rewrittenHeadline: 'Senior Engineer | Built 3 Products from 0→1 | 50K+ Users | React & Node.js',
       industry: 'Technology',
     });
@@ -143,7 +128,7 @@ async function testInfrastructure() {
   try {
     const result = await teaserAnalysis('Aspiring Data Scientist | Looking for opportunities');
     assert(typeof result.score === 'number', `Teaser analysis returns score: ${result.score}`);
-    assert(!!result.teaser_roast, 'Teaser has roast text');
+    assert(!!result.teaser_insight, 'Teaser has insight text');
   } catch (err) {
     assert(false, `Teaser analysis: ${(err as Error).message}`);
   }

@@ -20,12 +20,11 @@ interface OrderData {
   plan: string;
   before_score: number;
   after_score: number;
-  roast_title: string;
   rewritten_headline: string;
   has_resume: boolean;
 }
 
-const ROAST_SEQUENCE: SequenceEmail[] = [
+const EMAIL_SEQUENCE: SequenceEmail[] = [
   {
     day: 3,
     key: 'day3_update_nudge',
@@ -121,7 +120,7 @@ const ROAST_SEQUENCE: SequenceEmail[] = [
   {
     day: 25,
     key: 'day25_expiry_warning',
-    subject: (d) => `⚠️ Your roast results expire in 5 days`,
+    subject: (d) => `⚠️ Your results expire in 5 days`,
     body: (d) => `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#333">
         <div style="background:#CC1016;padding:20px 24px;border-radius:8px 8px 0 0">
@@ -130,14 +129,14 @@ const ROAST_SEQUENCE: SequenceEmail[] = [
         <div style="background:white;padding:24px;border:1px solid #E0E0E0;border-top:none;border-radius:0 0 8px 8px">
           <p style="font-size:16px;font-weight:700;color:#CC1016">Your results will be deleted in 5 days ⏰</p>
           <p style="font-size:14px;line-height:1.6;color:#555">
-            For privacy, we delete all profile data 30 days after your order. That means your roast, rewrite, and resume data will be permanently removed on day 30.
+            For privacy, we delete all profile data 30 days after your order. That means your rewrite, resume, and interview prep data will be permanently removed on day 30.
           </p>
           <p style="font-size:14px;line-height:1.6;color:#555"><strong>Before that happens, make sure you:</strong></p>
           <ul style="font-size:14px;line-height:1.8;color:#555;padding-left:20px">
             <li>Paste your rewrite into LinkedIn</li>
             <li>Download your resume (PDF + TXT)</li>
             <li>Download your cover letter</li>
-            <li>Save your roast card</li>
+            <li>Save your score card</li>
           </ul>
           <div style="text-align:center;margin:24px 0">
             <a href="${BASE_URL}/results/${d.id}" style="display:inline-block;padding:12px 32px;background:#CC1016;color:white;border-radius:50px;font-size:15px;font-weight:700;text-decoration:none">
@@ -161,7 +160,7 @@ const ROAST_SEQUENCE: SequenceEmail[] = [
         <div style="background:white;padding:24px;border:1px solid #E0E0E0;border-top:none;border-radius:0 0 8px 8px">
           <p style="font-size:16px;font-weight:700;color:#CC1016">Final reminder — data deletion today 🗑️</p>
           <p style="font-size:14px;line-height:1.6;color:#555">
-            Your roast results, rewritten profile, and resume data will be permanently deleted today as part of our 30-day privacy policy.
+            Your rewritten profile, resume, and interview prep data will be permanently deleted today as part of our 30-day privacy policy.
           </p>
           <p style="font-size:14px;line-height:1.6;color:#555">
             If you haven't saved everything yet, this is your last chance.
@@ -172,8 +171,8 @@ const ROAST_SEQUENCE: SequenceEmail[] = [
             </a>
           </div>
           <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:16px;margin-top:16px">
-            <p style="font-size:14px;font-weight:700;color:#057642;margin:0 0 4px">Want to get roasted again?</p>
-            <p style="font-size:13px;color:#555;margin:0">Your profile has changed since last time. Get a fresh roast to see how you've improved. <a href="${BASE_URL}" style="color:#0A66C2">Start over →</a></p>
+            <p style="font-size:14px;font-weight:700;color:#057642;margin:0 0 4px">Want a fresh analysis?</p>
+            <p style="font-size:13px;color:#555;margin:0">Your profile has changed since last time. Get a fresh score to see how you've improved. <a href="${BASE_URL}" style="color:#0A66C2">Start over →</a></p>
           </div>
         </div>
         <p style="font-size:11px;color:#999;text-align:center;margin-top:16px">Profile Roaster · <a href="${BASE_URL}" style="color:#999">profileroaster.in</a></p>
@@ -187,14 +186,14 @@ const ROAST_SEQUENCE: SequenceEmail[] = [
 export async function sendSingleSequenceEmail(orderId: string, emailKey: string): Promise<{ success: boolean; error?: string }> {
   if (!EMAIL_ENABLED) return { success: false, error: 'Email disabled' };
 
-  const seq = ROAST_SEQUENCE.find(s => s.key === emailKey);
+  const seq = EMAIL_SEQUENCE.find(s => s.key === emailKey);
   if (!seq) return { success: false, error: `Unknown email key: ${emailKey}` };
 
   const result = await query(`
     SELECT o.id, o.email, o.plan,
            o.before_score->'overall' as before_score,
            o.after_score->'overall' as after_score,
-           o.roast->'roast_title' as roast_title,
+
            o.rewrite->'rewritten_headline' as rewritten_headline,
            o.sequence_emails_sent,
            EXISTS(SELECT 1 FROM resumes r WHERE r.order_id=o.id) as has_resume
@@ -207,7 +206,7 @@ export async function sendSingleSequenceEmail(orderId: string, emailKey: string)
   const data: OrderData = {
     id: order.id, email: order.email, plan: order.plan,
     before_score: order.before_score || 0, after_score: order.after_score || 0,
-    roast_title: order.roast_title || '', rewritten_headline: order.rewritten_headline || '',
+    rewritten_headline: order.rewritten_headline || '',
     has_resume: order.has_resume || false,
   };
 
@@ -224,7 +223,7 @@ export async function sendSingleSequenceEmail(orderId: string, emailKey: string)
 
 // Get available sequence email keys
 export function getSequenceKeys(): { key: string; day: number }[] {
-  return ROAST_SEQUENCE.map(s => ({ key: s.key, day: s.day }));
+  return EMAIL_SEQUENCE.map(s => ({ key: s.key, day: s.day }));
 }
 
 export async function processEmailSequences(): Promise<{ sent: number; errors: number }> {
@@ -244,12 +243,12 @@ export async function processEmailSequences(): Promise<{ sent: number; errors: n
   let sent = 0;
   let errors = 0;
 
-  // Get all completed roast orders from last 30 days
+  // Get all completed orders from last 30 days
   const orders = await query(`
     SELECT o.id, o.email, o.plan,
            o.before_score->'overall' as before_score,
            o.after_score->'overall' as after_score,
-           o.roast->'roast_title' as roast_title,
+
            o.rewrite->'rewritten_headline' as rewritten_headline,
            o.processing_done_at, o.sequence_emails_sent,
            EXISTS(SELECT 1 FROM resumes r WHERE r.order_id=o.id) as has_resume
@@ -270,7 +269,7 @@ export async function processEmailSequences(): Promise<{ sent: number; errors: n
     const daysSinceDone = Math.floor((Date.now() - doneAt.getTime()) / (1000 * 60 * 60 * 24));
     const alreadySent: Record<string, boolean> = order.sequence_emails_sent || {};
 
-    for (const seq of ROAST_SEQUENCE) {
+    for (const seq of EMAIL_SEQUENCE) {
       // Check if it's time for this email and it hasn't been sent
       if (daysSinceDone >= seq.day && !alreadySent[seq.key]) {
         // Don't send if we're too late (more than 2 days past the target day)
@@ -285,7 +284,6 @@ export async function processEmailSequences(): Promise<{ sent: number; errors: n
           plan: order.plan,
           before_score: order.before_score || 0,
           after_score: order.after_score || 0,
-          roast_title: order.roast_title || '',
           rewritten_headline: order.rewritten_headline || '',
           has_resume: order.has_resume || false,
         };

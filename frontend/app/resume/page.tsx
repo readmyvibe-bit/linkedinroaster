@@ -143,13 +143,13 @@ function ResumeFormContent() {
     }
     (async () => {
       try {
-        // Try roast orders first, then build orders
+        // Try rewrite orders first, then build orders
         let data: any = null;
-        let source: 'roast' | 'build' = 'roast';
+        let source: 'rewrite' | 'build' = 'rewrite';
         const res = await fetch(`${API_URL}/api/orders/${orderId}`);
         if (res.ok) {
           data = await res.json();
-          source = 'roast';
+          source = 'rewrite';
         } else {
           const buildRes = await fetch(`${API_URL}/api/build/results/${orderId}`);
           if (buildRes.ok) {
@@ -164,7 +164,7 @@ function ResumeFormContent() {
 
         // Pre-fill from order data
         if (data.email) setEmail(data.email);
-        if (source === 'roast') {
+        if (source === 'rewrite') {
           const pp = data.parsed_profile || {};
           if (pp.name) setFullName(pp.name);
           if (pp.location) setLocation(pp.location);

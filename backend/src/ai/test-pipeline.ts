@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { stage1_parse, stage2_analyze, stage3_roast } from './pipeline';
+import { stage1_parse, stage2_analyze } from './pipeline';
 
 const SAMPLE_PROFILE = `
 Aspiring Data Scientist | Looking for opportunities | Passionate about AI
@@ -71,43 +71,6 @@ async function runTests() {
     console.log('STAGE 2 PASSED\n');
   } catch (err) {
     console.error('STAGE 2 FAILED:', (err as Error).message);
-    process.exit(1);
-  }
-
-  console.log('═══ STAGE 3 — Roast ═══');
-  try {
-    const roast = await stage3_roast(parsed, analysis, []);
-    console.log('✓ roast_title:', roast.roast_title);
-    console.log('✓ roast_points count:', roast.roast_points?.length);
-    if (roast.roast_points?.length !== 6) throw new Error(`Expected 6 roast points, got ${roast.roast_points?.length}`);
-
-    for (const point of roast.roast_points) {
-      console.log(`  Point ${point.point_number}: [${point.humor_mechanism}] ${point.section_targeted}`);
-      if (!point.roast) throw new Error(`Point ${point.point_number} missing roast text`);
-      if (!point.underlying_issue) throw new Error(`Point ${point.point_number} missing underlying_issue`);
-    }
-
-    console.log('✓ closing_compliment:', roast.closing_compliment?.substring(0, 80) + '...');
-    console.log('✓ overall_verdict:', roast.overall_verdict?.substring(0, 80) + '...');
-
-    // Check for prohibited content
-    const allText = JSON.stringify(roast);
-    for (const regex of PROHIBITED_TERMS) {
-      const match = allText.match(regex);
-      if (match) {
-        throw new Error(`PROHIBITED CONTENT found: "${match[0]}"`);
-      }
-    }
-    console.log('✓ No prohibited content found');
-
-    // Check unique humor mechanisms
-    const mechanisms = roast.roast_points.map(p => p.humor_mechanism);
-    const unique = new Set(mechanisms);
-    console.log(`✓ Unique humor mechanisms: ${unique.size}/6 (${[...unique].join(', ')})`);
-
-    console.log('STAGE 3 PASSED\n');
-  } catch (err) {
-    console.error('STAGE 3 FAILED:', (err as Error).message);
     process.exit(1);
   }
 

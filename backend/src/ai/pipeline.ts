@@ -104,30 +104,6 @@ export interface Analysis {
   ats_intelligence: ATSIntelligence;
 }
 
-export interface RoastPoint {
-  point_number: number;
-  section_targeted: 'headline' | 'about' | 'experience' | 'skills' | 'overall';
-  roast: string;
-  underlying_issue: string;
-  humor_mechanism: 'analogy' | 'exaggeration' | 'rhetorical_question' | 'sarcasm' | 'unexpected_observation' | 'irony';
-}
-
-export interface HiddenStrength {
-  strength: string;
-  evidence: string;
-  why_valuable: string;
-  how_to_show_it: string;
-}
-
-export interface Roast {
-  roast_title: string;
-  roast_points: RoastPoint[];
-  closing_compliment: string;
-  overall_verdict: string;
-  linkedin_caption: string;
-  hidden_strengths?: HiddenStrength[];
-}
-
 export interface RewrittenExperience {
   title: string;
   company: string;
@@ -256,29 +232,6 @@ async function updateProcessingStatus(orderId: string, status: string): Promise<
   );
 }
 
-// --- Anti-repetition ---
-export async function getRecentPatterns(): Promise<string[]> {
-  try {
-    const result = await query(
-      `SELECT roast->>'roast_points' FROM orders WHERE roast IS NOT NULL
-       ORDER BY created_at DESC LIMIT 50`,
-    );
-    const patterns: string[] = [];
-    for (const row of result.rows) {
-      const pointsJson = row['?column?'];
-      if (!pointsJson) continue;
-      try {
-        const points = JSON.parse(pointsJson);
-        for (const p of points) {
-          if (p.roast) patterns.push(p.roast);
-        }
-      } catch { /* skip malformed */ }
-    }
-    return patterns.slice(0, 20);
-  } catch {
-    return [];
-  }
-}
 
 // ═══════════════════════════════════════════════════════
 // STAGE 1 — PROFILE PARSER (3-Layer Architecture)
@@ -566,173 +519,6 @@ export async function stage2_analyze(parsed: ParsedProfile, orderId?: string): P
   } catch (err) {
     console.error('Stage 2 analyze error:', err);
     throw new Error(`Stage 2 failed: ${(err as Error).message}`);
-  }
-}
-
-// ═══════════════════════════════════════════════════════
-// STAGE 3 — ROAST GENERATOR
-// ═══════════════════════════════════════════════════════
-const STAGE3_SYSTEM = `You are The LinkedIn Roastmaster — a witty, sharp, satirical career
-expert who tells professionals the honest truth about their profiles.
-
-PERSONA:
-Think: stand-up comedian who is also a Fortune 500 recruiter.
-Clever wordplay, sharp analogies, unexpected comparisons.
-Roasting the PROFILE — never the PERSON.
-Goal: user laughs AND thinks that is actually true, I need to fix this.
-
-10 ABSOLUTE LAWS — ZERO EXCEPTIONS:
-1. Never reference: gender, age, race, caste, religion, disability,
-   appearance, salary level, institution tier, or language ability
-2. Never use: profanity, slurs, or adult language in any form
-3. Never imply: unemployable, hopeless, should give up, no chance
-4. Never attack: the person — only the profile text itself
-5. Every point MUST quote specific text from THIS profile — no generic points
-6. Never fabricate: only reference what is in the actual profile
-7. Must be safe to screenshot and post on LinkedIn publicly
-8. Always end with one genuine, warm, specific compliment
-9. Match intensity to seniority (student/fresher = gentle 30%, mid-level = full 75%)
-10. Every issue must feel FIXABLE — not permanent or hopeless
-
-SPECIFICITY RULES:
-Before generating each roast point, identify one specific phrase from the actual profile this targets.
-That specific quote MUST appear in the roast text.
-Ask before finalizing each point: "Could this apply to any other LinkedIn profile?"
-If yes — it is not specific enough. Rewrite it.
-
-DEPTH AND SPECIFICITY RULES:
-BEFORE writing each roast point:
-1. Find the most specific detail in that section
-2. Find any number or metric in that section
-3. Find any contradiction or gap in that section
-4. Write the roast around that specific finding
-
-USE THEIR ACTUAL NUMBERS:
-If profile mentions specific metrics — use them. Do not say 'no results mentioned' when numbers exist.
-Roast the GAP between the activity and the outcome.
-Example: 'You mention 50-70 calls per day but nowhere do you tell us what happened after those calls — did they convert? Did they hang up? Did they order pizza? Activity without outcome is just very expensive noise.'
-
-BANNED PHRASES — never use these:
-LinkedIn bingo card / Elevator music / Motivational poster / Magic trick / Houdini / Resume in a single line / any generic phrase that could appear in any roast.
-
-INDUSTRY-SPECIFIC HUMOR:
-Sales profiles — use sales language and analogies. Tech profiles — use software analogies. Finance — numbers and ROI. The roast should feel written by an expert in their field.
-
-INDIAN HUMOR STYLE (IMPORTANT):
-Write roasts in a friendly Indian style — like how friends roast each other in India. Mix English with light Hinglish where it fits naturally.
-Examples of the tone:
-- "Bhai, 'Passionate about everything' likha hai — matlab kisi cheez mein expert nahi?"
-- "This headline has more buzzwords than a Sharma ji ka beta's wedding invitation."
-- "Your about section reads like a JD from Naukri.com — nobody reads those either."
-- Use references Indians relate to: chai breaks, Sharma ji ka beta, naukri.com, Monday morning meetings, HR calls, appraisal season, notice period.
-The roast should make the user smile and share with friends. Not mean — friendly brutal, like a best friend who tells you the truth.
-
-OUCH MOMENT RULE:
-Each point needs one line that makes them think: 'That is painfully accurate and I need to fix it.' Not just funny — accurate AND funny.
-
-HUMOR QUALITY STANDARD:
-Each roast point must pass this test: Would someone screenshot this and send to a friend?
-If the answer is maybe — rewrite it. Every point needs ONE killer line.
-
-CLOSING COMPLIMENT RULES:
-Must reference a SPECIFIC achievement from the profile.
-Must reframe it in a way they have never considered.
-Must make them feel genuinely seen, not just flattered.
-Maximum 2 sentences.
-Bad: "Your experience is impressive."
-Good: "Seven consecutive Hall of Fame awards means seven years of being the person your company could not afford to lose — that is not luck, that is a system worth showing the world."
-
-ANTI-REPETITION RULES (critical at scale):
-NEVER use these overused analogies:
-  - restaurant menu analogy
-  - Hello World analogy
-  - bingo card analogy
-  - grocery receipt analogy
-  - filed under generic
-  - close the tab / back button
-Create a FRESH analogy specific to their detected industry.
-Generate exactly 3 roast points (not 6). Each must use a DIFFERENT humor mechanism.
-Available mechanisms (pick 3):
-  analogy / exaggeration / rhetorical_question / sarcasm /
-  unexpected_observation / irony
-
-HIDDEN STRENGTHS — MANDATORY — find 2-3 things the person is underselling:
-You MUST include the hidden_strengths array with at least 2 items. This is NOT optional.
-RULES:
-1. Minimum 2 strengths. Maximum 3.
-2. Every strength must have evidence pointing to actual text from the profile.
-3. If you cannot find evidence — do not include it.
-4. Never invent achievements not in the profile.
-5. Never say "likely" or "probably" or "seems like" — only state what is clearly present.
-6. Focus on strengths the person may not realize they are underselling.
-Use the detected_strengths from analysis as starting context but go deeper.
-
-OUTPUT FORMAT (strict JSON — EXACTLY 3 roast points):
-{
-  "roast_title": "witty 5-8 word title for this specific profile",
-  "roast_points": [
-    {
-      "point_number": 1,
-      "section_targeted": "headline | about | experience | skills | overall",
-      "roast": "1-3 sentences. Witty. Quotes actual text from their profile.",
-      "underlying_issue": "the real professional problem, 1 sentence",
-      "humor_mechanism": "analogy | exaggeration | rhetorical_question | sarcasm | unexpected_observation | irony"
-    }
-  ],
-  "closing_compliment": "1-2 sentences, genuine, warm, specific to their real experience",
-  "overall_verdict": "1 sentence summary in roast style",
-  "linkedin_caption": "ready-to-post caption when they share the card on LinkedIn",
-  "hidden_strengths": [
-    {
-      "strength": "specific strength found in profile",
-      "evidence": "exact quote or detail from their profile that proves this",
-      "why_valuable": "why employers or clients care about this in 1 sentence",
-      "how_to_show_it": "specific actionable way to present this better on LinkedIn"
-    }
-  ]
-}`;
-
-export async function stage3_roast(
-  parsed: ParsedProfile,
-  analysis: Analysis,
-  recentPatterns: string[],
-  orderId?: string,
-): Promise<Roast> {
-  if (orderId) await updateProcessingStatus(orderId, 'roasting');
-
-  const patternsBlock = recentPatterns.length > 0
-    ? `RECENT PATTERNS TO AVOID:\n${recentPatterns.map(p => `- ${p.substring(0, 100)}`).join('\n')}`
-    : 'RECENT PATTERNS TO AVOID: None yet — you are the first.';
-
-  const userPrompt = `PROFILE: ${JSON.stringify(parsed, null, 2)}
-ANALYSIS: ${JSON.stringify(analysis, null, 2)}
-SENIORITY: ${parsed.detected_seniority}
-INDUSTRY: ${parsed.detected_industry}
-DETECTED_STRENGTHS: ${JSON.stringify(analysis.detected_strengths || [])}
-Return ONLY valid JSON.`;
-
-  try {
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 3000,
-      temperature: 0.75,
-      system: `${STAGE3_SYSTEM}\n\n${patternsBlock}`,
-      messages: [{ role: 'user', content: userPrompt }],
-    });
-
-    const text = response.content[0].type === 'text' ? response.content[0].text : '';
-    const roast = safeJsonParse<Roast>(text);
-
-    // Ensure hidden_strengths is always present
-    if (!roast.hidden_strengths || !Array.isArray(roast.hidden_strengths)) {
-      console.warn(`[Stage 3] hidden_strengths missing from AI response, stop_reason: ${response.stop_reason}`);
-      roast.hidden_strengths = [];
-    }
-
-    return roast;
-  } catch (err) {
-    console.error('Stage 3 roast error:', err);
-    throw new Error(`Stage 3 failed: ${(err as Error).message}`);
   }
 }
 
@@ -1144,7 +930,6 @@ OUTPUT FORMAT (strict JSON):
 
 export async function stage5_qualityCheck(
   parsed: ParsedProfile,
-  roast: any,
   rewrite: StandardRewrite | ProRewrite,
   orderId?: string,
 ): Promise<QualityCheck> {
@@ -1201,7 +986,6 @@ Return ONLY valid JSON.`;
 const TIMEOUTS = {
   parse: 30000,
   analyze: 60000,
-  roast: 45000,
   rewrite: 45000,
   rewrite_pro: 60000,
   check: 30000,
@@ -1288,7 +1072,6 @@ async function postProcess(orderId: string): Promise<void> {
     if (!order) return;
 
     // Generate card image
-    const firstStrength = order.roast?.hidden_strengths?.[0] || null;
     const cardUrl = await generateAndUploadCard({
       orderId,
       beforeScore: order.before_score?.overall || 0,
@@ -1296,10 +1079,7 @@ async function postProcess(orderId: string): Promise<void> {
       headlineScore: order.before_score?.headline || 0,
       aboutScore: order.before_score?.about || 0,
       experienceScore: order.before_score?.experience || 0,
-      topRoast: order.roast?.roast_points?.[0]?.roast || 'Your profile got roasted!',
-      secondRoast: order.roast?.roast_points?.[1]?.roast || '',
-      hiddenStrength: firstStrength ? { strength: firstStrength.strength, evidence: firstStrength.evidence || '', how_to_show_it: firstStrength.how_to_show_it } : null,
-      closingCompliment: order.roast?.closing_compliment || '',
+      hiddenStrength: null,
       rewrittenHeadline: order.rewrite?.rewritten_headline || '',
       industry: order.parsed_profile?.detected_industry || 'Technology',
     });
@@ -1384,11 +1164,11 @@ export async function runPipeline(orderId: string): Promise<void> {
     const src = existing.rows[0];
     console.log(`[FINGERPRINT] Duplicate detected for ${orderId}, copying results from ${src.id}`);
     await query(
-      `UPDATE orders SET parsed_profile=$1, analysis=$2, roast=$3, rewrite=$4,
-       quality_check=$5, before_score=$6, after_score=$7, card_image_url=$8,
-       processing_status='done', processing_done_at=NOW() WHERE id=$9`,
+      `UPDATE orders SET parsed_profile=$1, analysis=$2, rewrite=$3,
+       quality_check=$4, before_score=$5, after_score=$6, card_image_url=$7,
+       processing_status='done', processing_done_at=NOW() WHERE id=$8`,
       [JSON.stringify(src.parsed_profile), JSON.stringify(src.analysis),
-       JSON.stringify(src.roast), JSON.stringify(src.rewrite),
+       JSON.stringify(src.rewrite),
        JSON.stringify(src.quality_check), JSON.stringify(src.before_score),
        JSON.stringify(src.after_score), src.card_image_url, orderId],
     );
@@ -1457,9 +1237,6 @@ export async function runPipeline(orderId: string): Promise<void> {
         [JSON.stringify(analysis), 'rewriting', orderId],
       );
 
-      // Stage 3 — Roast (SKIPPED — product pivot to professional career tool)
-      const roast = null;
-
       // Stage 4 / 4b — Rewrite (plan-gated)
       const rewrite = plan === 'pro'
         ? await withTimeout(
@@ -1479,7 +1256,7 @@ export async function runPipeline(orderId: string): Promise<void> {
 
       // Stage 5 — Quality Check
       const qc = await withTimeout(
-        () => stage5_qualityCheck(parsed, roast, rewrite),
+        () => stage5_qualityCheck(parsed, rewrite),
         TIMEOUTS.check,
         'check',
       );

@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════
 // BUILD PIPELINE — Generate LinkedIn profile from scratch
-// Completely separate from the roast pipeline (pipeline.ts)
+// Completely separate from the main pipeline (pipeline.ts)
 // ═══════════════════════════════════════════════════════════════
 
 import { GoogleGenerativeAI } from '@google/generative-ai';

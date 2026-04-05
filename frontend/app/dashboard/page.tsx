@@ -135,16 +135,16 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
 
   if (!data) return null;
 
-  const roasts = data.roastOrders || [];
+  const rewrites = data.roastOrders || []; // API field name is legacy
   const builds = data.buildOrders || [];
   const resumes = data.resumes || [];
   const preps = data.interviewPreps || [];
-  const totalOrders = roasts.length + builds.length;
+  const totalOrders = rewrites.length + builds.length;
   const firstName = email.split('@')[0].split('.')[0];
 
   // Unified activity list
   const activity = [
-    ...roasts.map((o: any) => ({ type: 'rewrite', id: o.id, title: o.roastTitle || 'LinkedIn Rewrite', status: o.status, date: o.createdAt, plan: o.plan, url: `/results/${o.id}`, score: o.beforeScore != null ? `${o.beforeScore}→${o.afterScore}` : null, usage: o.maxResumes > 0 ? `${o.resumesUsed || 0}/${o.maxResumes}` : null })),
+    ...rewrites.map((o: any) => ({ type: 'rewrite', id: o.id, title: o.title || 'LinkedIn Rewrite', status: o.status, date: o.createdAt, plan: o.plan, url: `/results/${o.id}`, score: o.beforeScore != null ? `${o.beforeScore}→${o.afterScore}` : null, usage: o.maxResumes > 0 ? `${o.resumesUsed || 0}/${o.maxResumes}` : null })),
     ...builds.map((o: any) => ({ type: 'build', id: o.id, title: o.headline || 'LinkedIn Build', status: o.status, date: o.createdAt, plan: o.plan, url: `/build/results/${o.id}`, score: null, usage: o.maxResumes > 0 ? `${o.resumesUsed || 0}/${o.maxResumes}` : null })),
     ...resumes.map((r: any) => ({ type: 'resume', id: r.id, title: r.targetRole || 'Resume', status: 'generated', date: r.createdAt, plan: null, url: `/resume/${r.id}`, score: r.atsScore ? `ATS ${r.atsScore}%` : null, usage: null })),
     ...preps.map((p: any) => ({ type: 'prep', id: p.id, title: p.targetRole || 'Interview Prep', status: p.status, date: p.createdAt, plan: null, url: `/interview-prep/${p.id}`, score: null, usage: null })),
@@ -153,7 +153,7 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
   const sections = [
     { key: 'overview', label: 'Overview' },
     { key: 'activity', label: 'Activity' },
-    { key: 'rewrites', label: `Rewrites (${roasts.length})` },
+    { key: 'rewrites', label: `Rewrites (${rewrites.length})` },
     { key: 'builds', label: `Builds (${builds.length})` },
     { key: 'resumes', label: `Resumes (${resumes.length})` },
     { key: 'preps', label: `Preps (${preps.length})` },
@@ -178,7 +178,7 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
   };
 
   // Filtered items for section views
-  const sectionItems = section === 'rewrites' ? roasts : section === 'builds' ? builds : section === 'resumes' ? resumes : section === 'preps' ? preps : [];
+  const sectionItems = section === 'rewrites' ? rewrites : section === 'builds' ? builds : section === 'resumes' ? resumes : section === 'preps' ? preps : [];
 
   return (
     <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: 'var(--bg-canvas)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -258,7 +258,7 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
                 <div style={{ display: 'flex', gap: 10, marginBottom: 24, flexWrap: 'wrap' }}>
                   {[
                     { v: totalOrders, l: 'Orders', c: 'var(--accent)', bg: 'var(--accent-subtle)' },
-                    { v: roasts.length, l: 'Rewrites', c: '#7C3AED', bg: '#F5F3FF' },
+                    { v: rewrites.length, l: 'Rewrites', c: '#7C3AED', bg: '#F5F3FF' },
                     { v: builds.length, l: 'Builds', c: 'var(--success)', bg: 'var(--success-subtle)' },
                     { v: resumes.length, l: 'Resumes', c: '#EA580C', bg: '#FFF7ED' },
                     { v: preps.length, l: 'Preps', c: '#0891B2', bg: '#ECFEFF' },
@@ -352,7 +352,7 @@ function DashboardContent({ email, onLogout }: { email: string; onLogout: () => 
               <>
                 <h1 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 16 }}>{sections.find(s => s.key === section)?.label}</h1>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 }}>
-                  {section === 'rewrites' && roasts.map((o: any) => (
+                  {section === 'rewrites' && rewrites.map((o: any) => (
                     <a key={o.id} href={`/results/${o.id}`} target="_blank" rel="noreferrer" className="saas-card" style={{ padding: '18px 20px', textDecoration: 'none', display: 'block' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                         <span style={{ fontSize: 11, fontWeight: 600, color: '#7C3AED', background: '#F5F3FF', padding: '2px 10px', borderRadius: 6 }}>{o.plan}</span>

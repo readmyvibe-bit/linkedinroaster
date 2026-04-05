@@ -26,12 +26,12 @@ export interface ResumeInput {
 export async function generateResume(input: ResumeInput): Promise<{ resumeId: string; ats_score: number }> {
   // 1. Fetch order data — check both orders and build_orders tables
   let order: any = null;
-  let orderSource: 'roast' | 'build' = 'roast';
+  let orderSource: 'rewrite' | 'build' = 'rewrite';
 
   const orderResult = await query('SELECT * FROM orders WHERE id=$1', [input.orderId]);
   if (orderResult.rows.length) {
     order = orderResult.rows[0];
-    orderSource = 'roast';
+    orderSource = 'rewrite';
   } else {
     const buildResult = await query('SELECT * FROM build_orders WHERE id=$1', [input.orderId]);
     if (buildResult.rows.length) {

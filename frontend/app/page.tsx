@@ -9,7 +9,6 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 interface TeaserResult {
   score: number;
   issues: string[];
-  teaser_roast: string;
   teaser_id: string | null;
   suggested_headline?: string;
   sample_interview_question?: string;
@@ -35,7 +34,7 @@ function LiveCounter() {
 }
 
 // ─── Referral Code Redeemer ───
-function ReferralCodeRedeemer({ product }: { product: 'roast' | 'build' }) {
+function ReferralCodeRedeemer() {
   const [showForm, setShowForm] = useState(false);
   const [code, setCode] = useState('');
   const [redeemEmail, setRedeemEmail] = useState('');
@@ -73,7 +72,7 @@ function ReferralCodeRedeemer({ product }: { product: 'roast' | 'build' }) {
       setError('Please enter your email and referral code.');
       return;
     }
-    if (product === 'roast' && !profileData.trim()) {
+    if (!profileData.trim()) {
       setError('Please upload a file or paste your profile data.');
       return;
     }
@@ -86,8 +85,7 @@ function ReferralCodeRedeemer({ product }: { product: 'roast' | 'build' }) {
         body: JSON.stringify({
           code: code.trim(),
           email: redeemEmail.trim(),
-          product,
-          profile_data: product === 'roast' ? { raw_paste: profileData.trim() } : undefined,
+          profile_data: profileData.trim() ? { raw_paste: profileData.trim() } : undefined,
         }),
       });
       const data = await res.json();
@@ -96,9 +94,7 @@ function ReferralCodeRedeemer({ product }: { product: 'roast' | 'build' }) {
         return;
       }
       if (data.order_id) {
-        window.location.href = product === 'roast'
-          ? `/results/${data.order_id}`
-          : `/build/results/${data.order_id}`;
+        window.location.href = `/results/${data.order_id}`;
       }
     } catch {
       setError('Could not reach the server.');
@@ -138,52 +134,48 @@ function ReferralCodeRedeemer({ product }: { product: 'roast' | 'build' }) {
         placeholder="Enter code (e.g. PR-STD-XXXXX)"
         style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #E0E0E0', fontSize: 13, marginBottom: 8, fontFamily: 'monospace', boxSizing: 'border-box' }}
       />
-      {product === 'roast' && (
-        <>
-          {/* Input mode tabs */}
-          <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
-            {[
-              { key: 'resume' as const, label: 'Resume' },
-              { key: 'linkedin' as const, label: 'LinkedIn PDF' },
-              { key: 'paste' as const, label: 'Paste' },
-            ].map(t => (
-              <button key={t.key} onClick={() => { setRefInputMode(t.key); setProfileData(''); setFileName(''); }}
-                style={{ flex: 1, padding: '6px 8px', fontSize: 11, fontWeight: refInputMode === t.key ? 700 : 500, borderRadius: 6, border: 'none', cursor: 'pointer', background: refInputMode === t.key ? '#E8F0FE' : '#F3F4F6', color: refInputMode === t.key ? '#0A66C2' : '#666' }}>
-                {t.label}
-              </button>
-            ))}
-          </div>
+      {/* Input mode tabs */}
+      <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
+        {[
+          { key: 'resume' as const, label: 'Resume' },
+          { key: 'linkedin' as const, label: 'LinkedIn PDF' },
+          { key: 'paste' as const, label: 'Paste' },
+        ].map(t => (
+          <button key={t.key} onClick={() => { setRefInputMode(t.key); setProfileData(''); setFileName(''); }}
+            style={{ flex: 1, padding: '6px 8px', fontSize: 11, fontWeight: refInputMode === t.key ? 700 : 500, borderRadius: 6, border: 'none', cursor: 'pointer', background: refInputMode === t.key ? '#E8F0FE' : '#F3F4F6', color: refInputMode === t.key ? '#0A66C2' : '#666' }}>
+            {t.label}
+          </button>
+        ))}
+      </div>
 
-          {/* File upload (resume or linkedin) */}
-          {(refInputMode === 'resume' || refInputMode === 'linkedin') && (
-            <div
-              onClick={() => refFileInputRef.current?.click()}
-              style={{ border: '2px dashed #94B8DB', borderRadius: 8, padding: '12px 16px', textAlign: 'center', marginBottom: 8, background: profileData ? '#F0FDF4' : '#F0F7FF', cursor: fileUploading ? 'wait' : 'pointer', fontSize: 12 }}
-            >
-              <input ref={refFileInputRef} type="file" accept={refInputMode === 'resume' ? '.pdf,.docx' : '.pdf'} onChange={e => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }} style={{ display: 'none' }} />
-              {fileUploading ? (
-                <span style={{ color: '#0A66C2', fontWeight: 600 }}>Parsing...</span>
-              ) : profileData ? (
-                <span style={{ color: '#057642', fontWeight: 600 }}>{'\u2705'} {fileName} loaded</span>
-              ) : (
-                <span style={{ color: '#0A66C2', fontWeight: 600 }}>
-                  {refInputMode === 'resume' ? '\uD83D\uDCC4 Upload Resume (PDF/DOCX)' : '\uD83D\uDCBC Upload LinkedIn PDF'}
-                </span>
-              )}
-            </div>
+      {/* File upload (resume or linkedin) */}
+      {(refInputMode === 'resume' || refInputMode === 'linkedin') && (
+        <div
+          onClick={() => refFileInputRef.current?.click()}
+          style={{ border: '2px dashed #94B8DB', borderRadius: 8, padding: '12px 16px', textAlign: 'center', marginBottom: 8, background: profileData ? '#F0FDF4' : '#F0F7FF', cursor: fileUploading ? 'wait' : 'pointer', fontSize: 12 }}
+        >
+          <input ref={refFileInputRef} type="file" accept={refInputMode === 'resume' ? '.pdf,.docx' : '.pdf'} onChange={e => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }} style={{ display: 'none' }} />
+          {fileUploading ? (
+            <span style={{ color: '#0A66C2', fontWeight: 600 }}>Parsing...</span>
+          ) : profileData ? (
+            <span style={{ color: '#057642', fontWeight: 600 }}>{'\u2705'} {fileName} loaded</span>
+          ) : (
+            <span style={{ color: '#0A66C2', fontWeight: 600 }}>
+              {refInputMode === 'resume' ? '\uD83D\uDCC4 Upload Resume (PDF/DOCX)' : '\uD83D\uDCBC Upload LinkedIn PDF'}
+            </span>
           )}
+        </div>
+      )}
 
-          {/* Paste input */}
-          {refInputMode === 'paste' && (
-            <textarea
-              value={profileData}
-              onChange={(e) => setProfileData(e.target.value)}
-              placeholder="Paste your headline, experience, or profile text *"
-              rows={3}
-              style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #E0E0E0', fontSize: 13, marginBottom: 8, resize: 'none', boxSizing: 'border-box' }}
-            />
-          )}
-        </>
+      {/* Paste input */}
+      {refInputMode === 'paste' && (
+        <textarea
+          value={profileData}
+          onChange={(e) => setProfileData(e.target.value)}
+          placeholder="Paste your headline, experience, or profile text *"
+          rows={3}
+          style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #E0E0E0', fontSize: 13, marginBottom: 8, resize: 'none', boxSizing: 'border-box' }}
+        />
       )}
       <div style={{ display: 'flex', gap: 8 }}>
         <button
@@ -272,7 +264,7 @@ function ProfileInputForm({
       key: orderData.razorpay_key,
       amount: orderData.amount,
       currency: orderData.currency,
-      name: 'Profile Roaster',
+      name: 'ProfileRoaster',
       description: `${plan === 'pro' ? 'Pro' : 'Standard'} Career Transformation`,
       order_id: orderData.razorpay_order_id,
       prefill: { email: userEmail },
@@ -851,7 +843,7 @@ export default function Home() {
           </div>
         </div>
 
-        <ReferralCodeRedeemer product="roast" />
+        <ReferralCodeRedeemer />
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', marginTop: 20, padding: '10px 16px', background: 'var(--success-subtle)', borderRadius: 'var(--radius-sm)' }}>
           <span>&#128274;</span>
@@ -1267,7 +1259,7 @@ export default function Home() {
 
                   {/* Referral code link */}
                   <div style={{ textAlign: 'center', marginTop: 8 }}>
-                    <ReferralCodeRedeemer product="roast" />
+                    <ReferralCodeRedeemer />
                   </div>
                 </div>
               </div>

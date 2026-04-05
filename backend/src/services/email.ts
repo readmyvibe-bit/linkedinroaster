@@ -25,7 +25,6 @@ export async function sendResultsEmail(order: any): Promise<void> {
     react: ResultsEmail({
       beforeScore,
       afterScore,
-      roast: order.roast,
       rewrite: order.rewrite,
       cardImageUrl: order.card_image_url,
       orderId: order.id,

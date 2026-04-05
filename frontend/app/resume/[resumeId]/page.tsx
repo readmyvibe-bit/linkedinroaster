@@ -45,7 +45,7 @@ export default function ResumePreviewPage() {
   }
 
   const orderPlan = (resume as any)?.order_plan || 'standard';
-  const orderSource = (resume as any)?.order_source || 'roast';
+  const orderSource = (resume as any)?.order_source || 'rewrite';
   const resultsUrl = orderSource === 'build' ? `/build/results/${resume?.order_id}` : `/results/${resume?.order_id}`;
   const currentTemplate = TEMPLATES.find(t => t.id === templateId);
   const isTemplateLocked = orderPlan !== 'pro' && (currentTemplate as any)?.proOnly;

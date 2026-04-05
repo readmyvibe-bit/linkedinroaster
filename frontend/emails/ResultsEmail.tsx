@@ -6,12 +6,6 @@ import * as React from 'react';
 interface ResultsEmailProps {
   beforeScore: { headline: number; about: number; experience: number; completeness: number; overall: number };
   afterScore: { headline: number; about: number; experience: number; completeness: number; overall: number };
-  roast: {
-    roast_title?: string;
-    roast_points?: Array<{ point_number: number; roast: string; underlying_issue: string }>;
-    closing_compliment?: string;
-    overall_verdict?: string;
-  } | null;
   rewrite: {
     rewritten_headline: string;
     rewritten_about: string;
@@ -26,7 +20,6 @@ interface ResultsEmailProps {
 export default function ResultsEmail({
   beforeScore,
   afterScore,
-  roast,
   rewrite,
   cardImageUrl,
   orderId,

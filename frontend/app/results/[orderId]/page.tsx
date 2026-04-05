@@ -36,14 +36,6 @@ interface ScoreBreakdown {
   overall: number;
 }
 
-interface RoastPoint {
-  point_number: number;
-  section_targeted: string;
-  roast: string;
-  underlying_issue: string;
-  humor_mechanism: string;
-}
-
 interface RewrittenExperience {
   title: string;
   company: string;
@@ -80,14 +72,6 @@ interface OrderResults {
       };
       weak_verbs_found?: Array<{ verb: string; location: string; suggested_replacement: string }>;
       quantification_breakdown?: { total_bullets: number; quantified_bullets: number; percentage: number; grade: string };
-    };
-    roast: {
-      roast_title: string;
-      roast_points: RoastPoint[];
-      closing_compliment: string;
-      overall_verdict: string;
-      linkedin_caption: string;
-      hidden_strengths?: HiddenStrength[];
     };
     rewrite: {
       rewritten_headline: string;
@@ -197,20 +181,18 @@ const STAGE_LABELS: Record<string, { label: string; emoji: string }> = {
   queued: { label: 'Getting ready...', emoji: '👋' },
   parsing: { label: 'Reading your profile...', emoji: '👀' },
   analyzing: { label: 'Finding the weak spots...', emoji: '🔬' },
-  roasting: { label: 'Analyzing deeper...', emoji: '🔍' },
   rewriting: { label: 'Rewriting your profile...', emoji: '✍️' },
   checking: { label: 'Final quality check...', emoji: '✅' },
 };
-const STAGES = ['queued', 'parsing', 'analyzing', 'roasting', 'rewriting', 'checking'];
+const STAGES = ['queued', 'parsing', 'analyzing', 'rewriting', 'checking'];
 
 // Stage → percentage mapping (always forward)
 const STAGE_PCT: Record<string, number> = {
   queued: 5,
   parsing: 20,
   analyzing: 40,
-  roasting: 60,
-  rewriting: 80,
-  checking: 90,
+  rewriting: 60,
+  checking: 80,
 };
 
 // ═══════════════════════════════════════════
@@ -378,517 +360,6 @@ function ScoreReveal({ before, after }: { before: ScoreBreakdown; after: ScoreBr
         rewrite achieves when you add your real numbers. The bigger the gap — the more
         opportunity your profile was hiding.
       </p>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════
-// Legacy components (not rendered — kept for backward compat)
-// ═══════════════════════════════════════════
-function RoastCard({ point, pointNumber, totalPoints }: { point: RoastPoint; pointNumber: number; totalPoints: number }) {
-  const [expanded, setExpanded] = useState(false);
-  const [copied, setCopied] = useState(false);
-
-  return (
-    <div style={{
-      borderRadius: 14,
-      overflow: 'hidden',
-      border: '1px solid #E0E0E0',
-      background: 'white',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-      marginBottom: 16,
-    }}>
-      {/* Header bar */}
-      <div style={{
-        background: 'linear-gradient(135deg, #004182, #0A66C2)',
-        padding: '12px 18px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      }}>
-        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-          <span role="img" aria-label="fire" style={{ fontSize: 16 }}>🔥</span>
-          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, color: 'white' }}>
-            LINKEDIN ROAST
-          </span>
-        </div>
-        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>
-          Point {pointNumber} / {totalPoints}
-        </span>
-      </div>
-
-      {/* Section tag */}
-      <div style={{ background: '#F3F2EF', padding: '10px 18px 0' }}>
-        <span style={{
-          display: 'inline-block',
-          background: 'white',
-          border: '1px solid #E0E0E0',
-          borderRadius: 10,
-          padding: '3px 12px',
-          fontSize: 10,
-          fontWeight: 700,
-          color: '#666',
-          letterSpacing: 1,
-        }}>
-          {point.section_targeted.toUpperCase()}
-        </span>
-      </div>
-
-      {/* Quote body */}
-      <div style={{ background: '#F3F2EF', padding: '16px 20px 12px', position: 'relative' }}>
-        <span style={{
-          position: 'absolute',
-          top: -8,
-          left: 10,
-          fontSize: 72,
-          fontFamily: 'Georgia, serif',
-          color: 'rgba(10,102,194,0.10)',
-          lineHeight: 1,
-          pointerEvents: 'none',
-          zIndex: 0,
-        }}>
-          {'\u201C'}
-        </span>
-        <p style={{
-          fontSize: 14,
-          color: '#191919',
-          fontStyle: 'italic',
-          lineHeight: 1.75,
-          paddingLeft: 18,
-          position: 'relative',
-          zIndex: 1,
-          margin: 0,
-        }}>
-          {point.roast}
-        </p>
-      </div>
-
-      {/* Expandable panel */}
-      {expanded && (
-        <div style={{
-          background: '#F3F2EF',
-          padding: '12px 18px',
-          borderTop: '1px solid #E0E0E0',
-          fontSize: 13,
-          color: '#444',
-          lineHeight: 1.6,
-        }}>
-          {point.underlying_issue}
-        </div>
-      )}
-
-      {/* Footer */}
-      <div style={{
-        background: 'white',
-        padding: '10px 18px 14px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        borderTop: '1px solid #F3F2EF',
-      }}>
-        <button
-          onClick={() => setExpanded(!expanded)}
-          style={{
-            fontSize: 11,
-            color: '#0A66C2',
-            fontWeight: 700,
-            cursor: 'pointer',
-            background: 'none',
-            border: 'none',
-            padding: 0,
-          }}
-        >
-          {expanded ? '▲ Hide' : '▼ Why it matters'}
-        </button>
-        <button
-          onClick={() => {
-            copyToClipboard(`${point.roast}\n\n— AI roasted my LinkedIn profile 🔥\nGet yours: profileroaster.in`);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-          }}
-          style={{
-            fontSize: 11,
-            color: '#0A66C2',
-            fontWeight: 700,
-            border: '1px solid #0A66C2',
-            borderRadius: 8,
-            padding: '4px 12px',
-            background: 'white',
-            cursor: 'pointer',
-          }}
-        >
-          {copied ? 'Copied!' : 'Copy Insight'}
-        </button>
-        <span style={{ fontSize: 10, color: '#aaa' }}>profileroaster.in</span>
-      </div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════
-// RoastSheetPreview (HTML inline preview)
-// ═══════════════════════════════════════════
-function RoastSheetPreview({
-  roastPoints,
-  scores,
-  roastTitle,
-}: {
-  roastPoints: RoastPoint[];
-  scores: { before: ScoreBreakdown; after: ScoreBreakdown };
-  roastTitle: string;
-}) {
-  const improvement = scores.after.overall - scores.before.overall;
-  const subScorePills = [
-    { label: 'Headline', value: scores.before.headline, color: '#0A66C2' },
-    { label: 'About', value: scores.before.about, color: '#E16B00' },
-    { label: 'Experience', value: scores.before.experience, color: '#057642' },
-  ];
-
-  return (
-    <div style={{
-      width: '100%', maxWidth: 720, borderRadius: 16, overflow: 'hidden',
-      boxShadow: '0 4px 16px rgba(0,0,0,0.12)', background: '#F3F2EF', margin: '0 auto',
-    }}>
-      {/* Header */}
-      <div style={{
-        background: '#0A66C2', padding: '16px 32px',
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-      }}>
-        <span style={{ fontSize: 16, fontWeight: 900, color: 'white', letterSpacing: 2 }}>
-          LINKEDIN PROFILE ROAST REPORT
-        </span>
-        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>profileroaster.in</span>
-      </div>
-      <div style={{ height: 3, background: '#E16B00' }} />
-
-      {/* Score row */}
-      <div style={{
-        background: 'white', padding: '14px 32px',
-        display: 'flex', alignItems: 'center', gap: 16,
-        borderBottom: '1px solid #E0E0E0', flexWrap: 'wrap',
-      }}>
-        {/* Before circle */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div style={{
-            width: 56, height: 56, border: '5px solid #CC1016', background: '#FEE2E2',
-            borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <span style={{ fontSize: 20, fontWeight: 900, color: '#CC1016' }}>{scores.before.overall}</span>
-          </div>
-          <span style={{ fontSize: 8, color: '#CC1016', marginTop: 2, fontWeight: 700 }}>BEFORE</span>
-        </div>
-
-        <span style={{ fontSize: 16, color: '#aaa' }}>{'\u2192'}</span>
-
-        {/* +pts badge */}
-        <span style={{
-          background: '#057642', color: 'white', fontSize: 12, fontWeight: 800,
-          borderRadius: 12, padding: '4px 12px',
-        }}>+{improvement} pts</span>
-
-        {/* After circle */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div style={{
-            width: 68, height: 68, border: '6px solid #057642', background: 'white',
-            borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <span style={{ fontSize: 24, fontWeight: 900, color: '#057642' }}>{scores.after.overall}</span>
-          </div>
-          <span style={{ fontSize: 8, color: '#057642', marginTop: 2, fontWeight: 700 }}>AFTER</span>
-        </div>
-
-        {/* Sub-score pills */}
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {subScorePills.map((p) => (
-            <span key={p.label} style={{
-              background: '#F3F2EF', border: '1px solid #E0E0E0', borderRadius: 10,
-              padding: '3px 8px', fontSize: 10, color: '#555', display: 'flex', alignItems: 'center', gap: 3,
-            }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: p.color, display: 'inline-block' }} />
-              {p.label} {p.value}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* Roast grid */}
-      <div style={{
-        padding: '12px 16px',
-        display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10,
-      }}>
-        {roastPoints.map((point, i) => (
-          <div key={i} style={{
-            background: 'white', borderRadius: 10,
-            border: '1px solid #E0E0E0', overflow: 'hidden',
-          }}>
-            {/* Mini header */}
-            <div style={{
-              background: 'linear-gradient(135deg, #004182, #0A66C2)',
-              padding: '7px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            }}>
-              <span style={{ fontSize: 8, fontWeight: 700, color: 'white', letterSpacing: 1 }}>ROAST</span>
-              <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.45)' }}>Point {i + 1} / {roastPoints.length}</span>
-            </div>
-
-            {/* Section tag */}
-            <div style={{ background: '#F3F2EF', padding: '5px 10px 0' }}>
-              <span style={{
-                display: 'inline-block', background: 'white', border: '1px solid #E0E0E0',
-                borderRadius: 6, padding: '2px 6px', fontSize: 7, fontWeight: 700, color: '#666',
-              }}>
-                {point.section_targeted.toUpperCase()}
-              </span>
-            </div>
-
-            {/* Quote */}
-            <div style={{ background: '#F3F2EF', padding: '7px 10px' }}>
-              <p style={{
-                fontSize: 9.5, color: '#191919', fontStyle: 'italic', lineHeight: 1.55,
-                margin: 0, overflow: 'hidden', display: '-webkit-box',
-                WebkitLineClamp: 4, WebkitBoxOrient: 'vertical',
-              }}>
-                {point.roast}
-              </p>
-            </div>
-
-            {/* Real issue */}
-            {point.underlying_issue && (
-              <div style={{
-                background: 'white', borderTop: '1px solid #E0E0E0',
-                padding: '5px 10px', display: 'flex', gap: 5, alignItems: 'flex-start',
-              }}>
-                <span style={{
-                  background: '#FEE2E2', border: '1px solid #CC1016', color: '#CC1016',
-                  fontSize: 6.5, fontWeight: 700, padding: '2px 5px', borderRadius: 4, flexShrink: 0,
-                }}>REAL ISSUE</span>
-                <span style={{
-                  fontSize: 8.5, color: '#555', lineHeight: 1.4,
-                  overflow: 'hidden', display: '-webkit-box',
-                  WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
-                }}>
-                  {point.underlying_issue}
-                </span>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Footer */}
-      <div style={{
-        background: '#004182', padding: '12px 32px',
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-      }}>
-        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)' }}>Get your profile rewritten at</span>
-        <span style={{ fontSize: 14, fontWeight: 800, color: 'white' }}>profileroaster.in</span>
-        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>#ProfileRewrite</span>
-      </div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════
-// RoastReportSection (preview + download + caption)
-// ═══════════════════════════════════════════
-function RoastReportSection({
-  orderId,
-  roast,
-  scores,
-  rewrite,
-  plan,
-}: {
-  orderId: string;
-  roast: OrderResults['results']['roast'];
-  scores: { before: ScoreBreakdown; after: ScoreBreakdown };
-  rewrite: OrderResults['results']['rewrite'];
-  plan: string;
-}) {
-  const [downloading, setDownloading] = useState(false);
-  const [downloadToast, setDownloadToast] = useState(false);
-  const [captionCopied, setCaptionCopied] = useState(false);
-
-  const improvement = scores.after.overall - scores.before.overall;
-  const firstRoast = roast.roast_points[0]?.roast || '';
-  const caption = `AI rewrote my LinkedIn profile and resume \u{1F680}
-
-Score went from ${scores.before.overall} to ${scores.after.overall} (+${improvement} points)
-
-Key insight: "${firstRoast.length > 250 ? firstRoast.slice(0, firstRoast.slice(0, 250).lastIndexOf(' ')) + '...' : firstRoast}"
-
-Best investment I made for my career.
-
-Try it: profileroaster.in
-
-#ProfileRewrite #CareerGrowth #LinkedInTips #ResumeBuilder`;
-
-  async function handleDownload() {
-    setDownloading(true);
-    try {
-      const res = await fetch(`${API_URL}/api/generate-roast-sheet`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId }),
-      });
-      const { url } = await res.json();
-      if (url) {
-        const img = await fetch(`${url}?t=${Date.now()}`);
-        const blob = await img.blob();
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'linkedin-roast-report.png';
-        a.click();
-        URL.revokeObjectURL(a.href);
-        setDownloadToast(true);
-        setTimeout(() => setDownloadToast(false), 3000);
-      }
-    } catch { /* ignore */ } finally {
-      setDownloading(false);
-    }
-  }
-
-  return (
-    <div style={{ marginBottom: 24 }}>
-      <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--li-text-primary)' }}>
-        Your Complete Roast Report
-      </h3>
-      <p className="text-sm mb-4" style={{ color: 'var(--li-text-secondary)' }}>
-        Preview your full roast card before downloading and sharing
-      </p>
-
-      {/* HTML Preview */}
-      <RoastSheetPreview
-        roastPoints={roast.roast_points}
-        scores={scores}
-        roastTitle={roast.roast_title}
-      />
-
-      {/* Download PNG Button */}
-      <button
-        onClick={handleDownload}
-        disabled={downloading}
-        style={{
-          width: '100%', marginTop: 16, padding: 12,
-          background: '#0A66C2', color: 'white',
-          fontSize: 15, fontWeight: 700,
-          border: 'none', borderRadius: 8, cursor: 'pointer',
-          opacity: downloading ? 0.6 : 1,
-        }}
-      >
-        {downloading ? 'Generating...' : 'Download Roast Report PNG'}
-      </button>
-
-      {/* Download PDF Report */}
-      <button
-        onClick={() => {
-          const w = window.open('', '_blank');
-          if (!w) return;
-          w.document.write(`<!DOCTYPE html><html><head><title>LinkedIn Roast Report</title>
-            <style>
-              body { font-family: 'Inter', Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px 24px; color: #191919; }
-              h1 { color: #004182; font-size: 24px; border-bottom: 3px solid #0A66C2; padding-bottom: 12px; }
-              h2 { color: #0A66C2; font-size: 18px; margin-top: 32px; }
-              .score-box { display: flex; gap: 24px; align-items: center; margin: 16px 0; padding: 20px; background: #F3F2EF; border-radius: 8px; }
-              .score { font-size: 36px; font-weight: 800; }
-              .score-before { color: #CC1016; }
-              .score-after { color: #057642; }
-              .roast-point { margin: 16px 0; padding: 16px; border-left: 4px solid #E16B00; background: #FFF8F5; border-radius: 0 8px 8px 0; }
-              .roast-point .section { font-size: 11px; color: #666; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-              .roast-point .text { font-style: italic; line-height: 1.6; }
-              .roast-point .issue { margin-top: 8px; font-size: 13px; color: #CC1016; }
-              .rewrite-box { padding: 16px; background: #F0F9FF; border-left: 4px solid #0A66C2; border-radius: 0 8px 8px 0; margin: 12px 0; }
-              .compliment { padding: 16px; background: #F0FDF4; border-left: 4px solid #057642; border-radius: 0 8px 8px 0; margin: 16px 0; }
-              .exp { margin: 16px 0; }
-              .exp-title { font-weight: 700; margin-bottom: 4px; }
-              .exp ul { margin: 4px 0; padding-left: 20px; }
-              .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #E0E0E0; text-align: center; color: #999; font-size: 12px; }
-              @media print { body { padding: 0; } }
-            </style>
-          </head><body>
-            <h1>LinkedIn Profile Roast Report</h1>
-            <div class="score-box">
-              <div><div style="font-size:12px;color:#666;font-weight:700">BEFORE</div><div class="score score-before">${scores.before.overall}</div></div>
-              <div style="font-size:24px;color:#aaa">&rarr;</div>
-              <div><div style="font-size:12px;color:#666;font-weight:700">AFTER</div><div class="score score-after">${scores.after.overall}</div></div>
-              <div style="background:#057642;color:white;padding:6px 16px;border-radius:20px;font-weight:700;font-size:14px">+${scores.after.overall - scores.before.overall} pts</div>
-            </div>
-            <p style="color:#666;font-size:13px">Headline: ${scores.before.headline} &rarr; ${scores.after.headline} | About: ${scores.before.about} &rarr; ${scores.after.about} | Experience: ${scores.before.experience} &rarr; ${scores.after.experience}</p>
-
-            <h2>Your Roast</h2>
-            <p style="font-weight:700;font-size:16px;color:#E16B00">${roast.roast_title || ''}</p>
-            ${roast.roast_points.map((p: any, i: number) => `
-              <div class="roast-point">
-                <div class="section">${p.section_targeted || 'Profile'} &mdash; Point ${i + 1}</div>
-                <div class="text">${p.roast}</div>
-                ${p.underlying_issue ? `<div class="issue">Real issue: ${p.underlying_issue}</div>` : ''}
-              </div>
-            `).join('')}
-
-            ${roast.closing_compliment ? `<div class="compliment"><strong>Your Strength:</strong> ${roast.closing_compliment}</div>` : ''}
-
-            <h2>Your Rewrite</h2>
-            <h3 style="font-size:14px;color:#666;margin-bottom:4px">New Headline</h3>
-            <div class="rewrite-box" style="font-weight:600">${rewrite.rewritten_headline}</div>
-
-            <h3 style="font-size:14px;color:#666;margin-bottom:4px;margin-top:20px">New About</h3>
-            <div class="rewrite-box" style="white-space:pre-wrap;font-size:13px;line-height:1.6">${rewrite.rewritten_about}</div>
-
-            <h3 style="font-size:14px;color:#666;margin-bottom:4px;margin-top:20px">Rewritten Experience</h3>
-            ${(rewrite.rewritten_experience || []).map((exp: any) => `
-              <div class="exp">
-                <div class="exp-title">${exp.title} at ${exp.company}</div>
-                <ul>${(exp.bullets || []).map((b: string) => `<li style="margin:4px 0;font-size:13px;line-height:1.5">${b}</li>`).join('')}</ul>
-              </div>
-            `).join('')}
-
-            <div class="footer">
-              <p>Generated by <strong>profileroaster.in</strong></p>
-              <p>Results valid for 30 days from generation date</p>
-            </div>
-          </body></html>`);
-          w.document.close();
-          setTimeout(() => { w.print(); }, 500);
-        }}
-        style={{
-          width: '100%', marginTop: 8, padding: 12,
-          background: 'white', color: '#0A66C2',
-          fontSize: 14, fontWeight: 600,
-          border: '2px solid #0A66C2', borderRadius: 8, cursor: 'pointer',
-        }}
-      >
-        Download Full Report as PDF
-      </button>
-
-      {downloadToast && (
-        <p className="text-sm text-center mt-2" style={{ color: 'var(--li-green)' }}>
-          Roast Report downloaded!
-        </p>
-      )}
-
-      {/* Caption */}
-      <h4 className="text-sm font-bold mt-6 mb-2" style={{ color: 'var(--li-text-primary)' }}>
-        Caption for LinkedIn Post
-      </h4>
-      <div style={{
-        background: 'white', border: '1px solid var(--li-border)', borderRadius: 8,
-        padding: 16, fontSize: 13, color: 'var(--li-text-primary)', lineHeight: 1.7,
-        whiteSpace: 'pre-line', marginBottom: 8,
-      }}>
-        {caption}
-      </div>
-      <button
-        onClick={() => {
-          copyToClipboard(caption);
-          setCaptionCopied(true);
-          setTimeout(() => setCaptionCopied(false), 2000);
-        }}
-        style={{
-          fontSize: 13, fontWeight: 700, color: '#0A66C2',
-          border: '1px solid #0A66C2', borderRadius: 8,
-          padding: '8px 20px', background: 'white', cursor: 'pointer',
-        }}
-      >
-        {captionCopied ? 'Copied!' : 'Copy Caption'}
-      </button>
     </div>
   );
 }
@@ -1540,7 +1011,7 @@ function ReferralWidget({ code, url, cardUrl }: { code: string; url: string; car
         }
       } catch { /* fall through */ }
     }
-    const fallbackText = cardUrl ? `${text}\n\nSee my roast card: ${cardUrl}` : text;
+    const fallbackText = cardUrl ? `${text}\n\nSee my score card: ${cardUrl}` : text;
     window.open(`https://wa.me/?text=${encodeURIComponent(fallbackText)}`, '_blank');
   }
 
@@ -1625,7 +1096,7 @@ function ShareButtons({ caption, cardUrl, orderId, beforeScore, afterScore, refe
           const file = new File([blob], 'profile-rewrite-card.png', { type: 'image/png' });
           if (navigator.canShare({ files: [file] })) {
             await navigator.share({
-              title: 'My LinkedIn Profile Roast',
+              title: 'My LinkedIn Profile Transformation',
               text: whatsAppText,
               files: [file],
             });
@@ -1647,7 +1118,7 @@ function ShareButtons({ caption, cardUrl, orderId, beforeScore, afterScore, refe
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'linkedin-roast-card.png';
+        a.download = 'linkedin-score-card.png';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -1671,7 +1142,7 @@ function ShareButtons({ caption, cardUrl, orderId, beforeScore, afterScore, refe
       {/* Card image */}
       {cardUrl && (
         <div className="mb-4">
-          <img src={cardUrl} alt="Roast card" className="w-full rounded-lg" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }} />
+          <img src={cardUrl} alt="Score card" className="w-full rounded-lg" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }} />
         </div>
       )}
 
@@ -1773,13 +1244,13 @@ function ShareButtons({ caption, cardUrl, orderId, beforeScore, afterScore, refe
       <div style={{ textAlign: 'center' }}>
         <button
           onClick={async () => {
-            const text = `I just got my LinkedIn roasted by AI\n\nMy score: ${beforeScore} \u2192 ${afterScore}\n\nThink you can beat this?\nTry: ${referralUrl || 'profileroaster.in'}`;
+            const text = `AI analyzed my LinkedIn and improved my score\n\nMy score: ${beforeScore} \u2192 ${afterScore}\n\nThink you can beat this?\nTry: ${referralUrl || 'profileroaster.in'}`;
             if (typeof navigator !== 'undefined' && navigator.share && navigator.canShare && cardUrl) {
               try {
                 const r = await fetch(`${cardUrl}?t=${Date.now()}`);
                 const blob = await r.blob();
-                const file = new File([blob], 'linkedin-roast.png', { type: 'image/png' });
-                if (navigator.canShare({ files: [file] })) { await navigator.share({ title: 'LinkedIn Roast Challenge', text, files: [file] }); return; }
+                const file = new File([blob], 'linkedin-score.png', { type: 'image/png' });
+                if (navigator.canShare({ files: [file] })) { await navigator.share({ title: 'LinkedIn Score Challenge', text, files: [file] }); return; }
               } catch {}
             }
             const fallback = cardUrl ? `${text}\n\nSee my card: ${cardUrl}` : text;
@@ -1880,7 +1351,7 @@ function ErrorState({ type, onRetry }: { type: string; onRetry?: () => void }) {
     },
     timeout: {
       title: 'Almost There',
-      desc: 'Your roast is being perfected. We will email your results shortly. You can safely close this page or keep waiting.',
+      desc: 'Your results are being perfected. We will email your results shortly. You can safely close this page or keep waiting.',
     },
     card_failed: {
       title: 'Card Generation Failed',
@@ -1922,27 +1393,16 @@ function ResultsNavColumn() {
 
   const allCards = [
     { type: 'tip', title: 'PRO TIP', text: 'Copy your new headline first — it makes the biggest difference in recruiter views.', color: '#0A66C2' },
-    { type: 'roast', text: 'HR be like: "Culture fit nahi hai." Translation: Profile boring tha.', persona: 'HR Department' },
     { type: 'tip', title: 'DID YOU KNOW', text: 'Recruiters spend 7.4 seconds on your profile. A strong headline buys you 3 more seconds.', color: '#057642' },
-    { type: 'roast', text: 'Manager: "Yeh banda 5 saal se same headline use kar raha hai."', persona: 'Hiring Manager' },
     { type: 'tip', title: 'LINKEDIN HACK', text: 'Profiles with numbers in the headline get 40% more clicks. Your rewrite has numbers.', color: '#E16B00' },
-    { type: 'roast', text: '"Dynamic professional" padh ke recruiter ne chai break le liya.', persona: 'The Recruiter' },
     { type: 'tip', title: 'CAREER TIP', text: '85% of jobs are filled through networking. Your LinkedIn IS your first impression.', color: '#0A66C2' },
-    { type: 'roast', text: 'Jab tak headline mein number nahi, recruiter ko interest nahi.', persona: 'Career Coach' },
     { type: 'tip', title: 'ATS INSIGHT', text: 'ATS systems scan for exact keyword matches. Your rewrite includes industry-specific keywords.', color: '#057642' },
-    { type: 'roast', text: 'LinkedIn pe 500+ connections but 0 profile views. Sochne wali baat hai.', persona: 'Reality Check' },
     { type: 'tip', title: 'RESUME TIP', text: 'An ATS resume with JD-matched keywords gets 3x more interview calls.', color: '#0A66C2' },
-    { type: 'roast', text: '"Looking for new opportunities" — bhai, opportunity bhi tujhe dhundh nahi pa rahi.', persona: 'AI Roaster' },
     { type: 'tip', title: 'HEADLINE HACK', text: 'Adding your key achievement in the headline gets 5x more clicks.', color: '#E16B00' },
-    { type: 'roast', text: 'About section padh ke laga Wikipedia article hai. Summary chahiye, thesis nahi.', persona: 'The Recruiter' },
     { type: 'tip', title: 'ABOUT SECTION', text: 'Start your About with a hook, not "I am a..." — recruiters decide in 2 seconds.', color: '#057642' },
-    { type: 'roast', text: '"Passionate about everything" — matlab kisi cheez mein expert nahi.', persona: 'Career Coach' },
     { type: 'tip', title: 'EXPERIENCE TIP', text: 'Bullets starting with "Managed" or "Led" are 60% more likely to catch a recruiter\'s eye.', color: '#0A66C2' },
-    { type: 'roast', text: 'Skills mein "Microsoft Word" add kiya hai. Bhai 2026 hai.', persona: 'Reality Check' },
     { type: 'tip', title: 'NETWORK HACK', text: 'Commenting on 5 posts/day gets more profile views than 100 connection requests.', color: '#E16B00' },
-    { type: 'roast', text: 'Experience mein "Responsible for" likha hai. Kya achieve kiya batao.', persona: 'Hiring Manager' },
     { type: 'tip', title: 'PHOTO TIP', text: 'Professional headshots get 14x more profile views. No selfies, no group crops.', color: '#057642' },
-    { type: 'roast', text: 'Profile photo mein sunglasses laga ke aaye ho? Beach party nahi hai yeh.', persona: 'AI Roaster' },
   ];
 
   return (
@@ -1969,19 +1429,12 @@ function ResultsNavColumn() {
         ))}
       </div>
 
-      {/* Interleaved tips + roasts — spread evenly */}
+      {/* Tips — spread evenly */}
       {allCards.map((card, i) => (
-        card.type === 'tip' ? (
           <div key={i} style={{ background: 'white', borderRadius: 12, padding: '13px 15px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', marginBottom: 0 }}>
             <div style={{ fontSize: 9, fontWeight: 700, color: (card as any).color || '#0A66C2', letterSpacing: 1, marginBottom: 4 }}>{(card as any).title}</div>
             <div style={{ fontSize: 11, color: '#555', lineHeight: 1.5 }}>{card.text}</div>
           </div>
-        ) : (
-          <div key={i} style={{ background: 'white', borderLeft: '3px solid #E16B00', borderRadius: '0 10px 10px 0', padding: '12px 14px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', marginBottom: 0 }}>
-            <div style={{ fontSize: 9, fontWeight: 700, color: '#E16B00', letterSpacing: 1, marginBottom: 3 }}>{((card as any).persona || '').toUpperCase()}</div>
-            <div style={{ fontSize: 11, color: '#374151', lineHeight: 1.5, fontStyle: 'italic' }}>{card.text}</div>
-          </div>
-        )
       ))}
 
       {/* Final CTA */}
@@ -2171,9 +1624,7 @@ export default function ResultsPage() {
 
   // Hooks for results view (must be before any early returns)
   const [copiedField, setCopiedField] = useState('');
-  const [showAllRoasts, setShowAllRoasts] = useState(false);
   const [headlineTab, setHeadlineTab] = useState(0);
-  const [showAllRoastsExpand, setShowAllRoastsExpand] = useState(false);
 
   const fetchOrder = useCallback(async () => {
     try {
@@ -2293,8 +1744,7 @@ export default function ResultsPage() {
 
   // ── Results ──
   const { results, plan, referral_code, referral_url } = data;
-  const { scores, roast: rawRoast, rewrite, analysis } = results;
-  const roast = rawRoast || { roast_title: '', roast_points: [], closing_compliment: '', overall_verdict: '', linkedin_caption: '', hidden_strengths: [] };
+  const { scores, rewrite, analysis } = results;
   const isPro = plan === 'pro';
   const inputSource = (data as any).input_source || 'linkedin';
   const isResumeMode = inputSource === 'resume';
