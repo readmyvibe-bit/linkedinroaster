@@ -754,17 +754,33 @@ export default function ResumeEditorPage() {
                       >
                         <div
                           draggable
+                          tabIndex={0}
+                          role="button"
+                          aria-label={`Reorder ${exp.title || exp.role || 'experience'}. Use arrow keys.`}
                           onDragStart={(e) => {
                             setDragExp(i);
                             e.dataTransfer.effectAllowed = 'move';
                           }}
                           onDragEnd={() => { setDragExp(null); setDragOverExp(null); }}
                           onClick={(e) => e.stopPropagation()}
+                          onKeyDown={(e) => {
+                            if (e.key === 'ArrowUp' && i > 0) {
+                              e.preventDefault();
+                              const items = [...(resumeData?.experience || [])];
+                              [items[i - 1], items[i]] = [items[i], items[i - 1]];
+                              setResumeData(prev => prev ? { ...prev, experience: items } : prev);
+                            } else if (e.key === 'ArrowDown' && i < (resumeData?.experience?.length || 0) - 1) {
+                              e.preventDefault();
+                              const items = [...(resumeData?.experience || [])];
+                              [items[i + 1], items[i]] = [items[i], items[i + 1]];
+                              setResumeData(prev => prev ? { ...prev, experience: items } : prev);
+                            }
+                          }}
                           style={{
                             cursor: 'grab', padding: '0 6px', color: '#bbb', fontSize: 14,
                             userSelect: 'none', display: 'flex', alignItems: 'center', marginRight: 8,
                           }}
-                          title="Drag to reorder"
+                          title="Drag to reorder (or use arrow keys)"
                         >
                           ⠿
                         </div>

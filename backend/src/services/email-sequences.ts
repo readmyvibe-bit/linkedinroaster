@@ -298,6 +298,8 @@ export async function processEmailSequences(): Promise<{ sent: number; errors: n
             html: seq.body(data),
           });
           alreadySent[seq.key] = true;
+          // Update immediately after each send to prevent race conditions
+          await query('UPDATE orders SET sequence_emails_sent=$1 WHERE id=$2', [JSON.stringify(alreadySent), order.id]);
           sent++;
           console.log(`[SEQUENCES] Sent ${seq.key} to ${data.email} (order ${data.id})`);
         } catch (err: any) {
@@ -307,7 +309,7 @@ export async function processEmailSequences(): Promise<{ sent: number; errors: n
       }
     }
 
-    // Update tracking
+    // Final update (for skipped entries)
     await query(
       'UPDATE orders SET sequence_emails_sent=$1 WHERE id=$2',
       [JSON.stringify(alreadySent), order.id]

@@ -10,7 +10,7 @@ const router = Router();
 // ═══════════════════════════════════════════
 // Secure Admin Auth with session tokens
 // ═══════════════════════════════════════════
-const ADMIN_EMAIL = 'support@profileroaster.in';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'support@profileroaster.in';
 const activeSessions = new Map<string, { email: string; createdAt: number }>();
 const SESSION_TTL = 24 * 60 * 60 * 1000; // 24 hours
 
@@ -45,8 +45,11 @@ function adminAuth(req: Request, res: Response, next: NextFunction) {
   const session = activeSessions.get(token);
   if (session && Date.now() - session.createdAt < SESSION_TTL) return next();
 
-  // Fallback: legacy password
-  if (token === process.env.ADMIN_PASSWORD) return next();
+  // Fallback: legacy password (logged for audit)
+  if (token === process.env.ADMIN_PASSWORD) {
+    console.log(`[admin] Legacy password auth used from ${req.ip} for ${req.path}`);
+    return next();
+  }
 
   return res.status(401).json({ error: 'Unauthorized' });
 }

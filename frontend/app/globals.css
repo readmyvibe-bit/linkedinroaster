@@ -224,3 +224,6 @@ p, span, div, a, h1, h2, h3, h4 {
   overflow-wrap: break-word;
   word-break: break-word;
 }
+
+/* Decorative emojis — hidden from screen readers */
+[role="presentation"] { speak: none; }

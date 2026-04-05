@@ -370,19 +370,42 @@ export default function ResumePreviewPage() {
       </div>
 
       {/* ═══ MOBILE STICKY ═══ */}
-      <div className="flex sm:!hidden" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'var(--bg-surface)', borderTop: '1px solid var(--border-default)', padding: '10px 16px', zIndex: 50, gap: 8, boxShadow: 'var(--shadow-md)', flexWrap: 'wrap' }}>
-        <button onClick={handleDownloadPDF} className="saas-btn saas-btn-primary" style={{ flex: 1, justifyContent: 'center' }}>Download PDF</button>
-        <a href={`/resume/${resume.id}/edit`} className="saas-btn saas-btn-ghost">Edit</a>
-        <div data-level-picker-root style={{ position: 'relative' }}>
-          <button type="button" disabled={prepLoading} onClick={() => !prepLoading && setShowLevelPicker(!showLevelPicker)} className="saas-btn saas-btn-ghost" style={{ color: '#7C3AED', opacity: prepLoading ? 0.6 : 1 }}>{prepLoading ? '…' : 'Prep'} &#9662;</button>
-          {showLevelPicker && (
-            <div style={{ position: 'absolute', bottom: '100%', right: 0, background: '#fff', border: '1px solid #E0E0E0', borderRadius: 8, boxShadow: '0 -4px 12px rgba(0,0,0,0.1)', zIndex: 60, minWidth: 180, padding: '6px 0', marginBottom: 4 }}>
-              <button type="button" disabled={prepLoading} onClick={() => handleInterview()} style={{ display: 'block', width: '100%', padding: '10px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: prepLoading ? 'wait' : 'pointer', fontSize: 14, color: '#333' }}>Auto-detect</button>
-              {[{ v: 'entry', l: 'Entry' }, { v: 'mid', l: 'Mid' }, { v: 'senior', l: 'Senior' }, { v: 'lead', l: 'Lead' }].map(o => (
-                <button type="button" key={o.v} disabled={prepLoading} onClick={() => handleInterview(o.v)} style={{ display: 'block', width: '100%', padding: '10px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: prepLoading ? 'wait' : 'pointer', fontSize: 14, color: '#333' }}>{o.l}</button>
-              ))}
-            </div>
-          )}
+      <div className="flex sm:!hidden" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'var(--bg-surface)', borderTop: '1px solid var(--border-default)', padding: '8px 12px', zIndex: 50, boxShadow: '0 -4px 12px rgba(0,0,0,0.06)', flexDirection: 'column', gap: 8 }}>
+        {/* Row 1: Primary actions */}
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <button onClick={handleDownloadPDF} style={{ flex: 1, fontSize: 13, fontWeight: 600, padding: '10px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer', background: 'var(--accent)', color: 'white' }}>Download PDF</button>
+          <a href={`/resume/${resume.id}/edit`} style={{ fontSize: 12, fontWeight: 500, padding: '10px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', background: 'transparent', color: 'var(--text-secondary)', textDecoration: 'none' }}>Edit</a>
+          <a href={`${API_URL}/api/resume/${resume.id}/download/txt`} style={{ fontSize: 12, fontWeight: 500, padding: '10px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', background: 'transparent', color: 'var(--text-secondary)', textDecoration: 'none' }}>TXT</a>
+        </div>
+        {/* Row 2: Template + Settings + Prep */}
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <button onClick={() => setShowTemplateModal(true)} style={{ flex: 1, fontSize: 11, fontWeight: 500, padding: '7px 10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', background: 'transparent', cursor: 'pointer', color: 'var(--text-secondary)', textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {currentTemplate?.name || 'Template'} &#9662;
+          </button>
+          {/* Density */}
+          <div style={{ display: 'inline-flex', background: 'var(--bg-subtle)', borderRadius: 6, padding: 2 }}>
+            {(['compact', 'standard', 'spacious'] as const).map(s => (
+              <button key={s} onClick={() => { setPrintSize(s); savePrintSettings(s, fitOnePage); }} style={{ fontSize: 10, fontWeight: printSize === s ? 600 : 400, padding: '5px 6px', borderRadius: 4, border: 'none', cursor: 'pointer', background: printSize === s ? 'var(--bg-surface)' : 'transparent', color: printSize === s ? 'var(--text-primary)' : 'var(--text-muted)', boxShadow: printSize === s ? 'var(--shadow-xs)' : 'none' }}>{s.charAt(0).toUpperCase()}</button>
+            ))}
+          </div>
+          {/* Pages */}
+          <div style={{ display: 'inline-flex', background: 'var(--bg-subtle)', borderRadius: 6, padding: 2 }}>
+            {[{ v: true, l: '1P' }, { v: false, l: '2P' }].map(p => (
+              <button key={String(p.v)} onClick={() => { setFitOnePage(p.v); savePrintSettings(printSize, p.v); }} style={{ fontSize: 10, fontWeight: fitOnePage === p.v ? 600 : 400, padding: '5px 6px', borderRadius: 4, border: 'none', cursor: 'pointer', background: fitOnePage === p.v ? 'var(--bg-surface)' : 'transparent', color: fitOnePage === p.v ? 'var(--text-primary)' : 'var(--text-muted)', boxShadow: fitOnePage === p.v ? 'var(--shadow-xs)' : 'none' }}>{p.l}</button>
+            ))}
+          </div>
+          {/* Prep */}
+          <div data-level-picker-root style={{ position: 'relative' }}>
+            <button type="button" disabled={prepLoading} onClick={() => !prepLoading && setShowLevelPicker(!showLevelPicker)} style={{ fontSize: 11, fontWeight: 500, padding: '7px 10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', background: 'transparent', cursor: 'pointer', color: '#7C3AED', opacity: prepLoading ? 0.6 : 1 }}>Prep &#9662;</button>
+            {showLevelPicker && (
+              <div style={{ position: 'absolute', bottom: '100%', right: 0, background: '#fff', border: '1px solid var(--border-default)', borderRadius: 8, boxShadow: '0 -4px 12px rgba(0,0,0,0.1)', zIndex: 60, minWidth: 160, padding: '4px 0', marginBottom: 4 }}>
+                <button type="button" disabled={prepLoading} onClick={() => handleInterview()} style={{ display: 'block', width: '100%', padding: '10px 14px', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', fontSize: 13, color: '#333' }}>Auto-detect</button>
+                {[{ v: 'entry', l: 'Entry' }, { v: 'mid', l: 'Mid' }, { v: 'senior', l: 'Senior' }, { v: 'lead', l: 'Lead' }].map(o => (
+                  <button type="button" key={o.v} disabled={prepLoading} onClick={() => handleInterview(o.v)} style={{ display: 'block', width: '100%', padding: '10px 14px', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', fontSize: 13, color: '#333' }}>{o.l}</button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
