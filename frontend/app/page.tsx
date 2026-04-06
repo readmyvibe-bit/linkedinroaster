@@ -1932,15 +1932,15 @@ export default function Home() {
             <div className="landing-section">
               <div style={{ textAlign: 'center', marginBottom: 48 }}>
                 <div className="saas-eyebrow" style={{ marginBottom: 8 }}>Complete career toolkit</div>
-                <h2 style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 8, letterSpacing: '-0.02em' }}>Everything you need to land interviews</h2>
-                <p style={{ fontSize: 'var(--fs-md)', color: 'var(--text-secondary)', maxWidth: 480, margin: '0 auto' }}>One payment. Four powerful tools. Zero subscriptions.</p>
+                <h2 style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 8, letterSpacing: '-0.02em' }}>Everything you need to crack campus placements</h2>
+                <p style={{ fontSize: 'var(--fs-md)', color: 'var(--text-secondary)', maxWidth: 480, margin: '0 auto' }}>One-time payment. Complete placement toolkit. No subscriptions.</p>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 24 }}>
                 {[
-                  { bg: 'var(--accent-subtle)', color: 'var(--accent)', icon: '✍️', title: 'Profile Rewrite', desc: 'AI scores your resume & profile, identifies issues, and rewrites everything.', free: true },
-                  { bg: '#F5F3FF', color: '#7C3AED', icon: '🎯', title: 'Interview Prep', desc: '15 personalized questions + STAR answers + cheat sheet + MCQ quiz.', free: false },
-                  { bg: '#FFF7ED', color: '#EA580C', icon: '📄', title: 'ATS Resume', desc: 'Professional resume matched to your JD. 11 ATS-optimized templates.', free: false },
-                  { bg: 'var(--success-subtle)', color: 'var(--success)', icon: '📋', title: 'Cover Letter', desc: 'Personalized cover letter for every application. Ready to use.', free: false },
+                  { bg: 'var(--accent-subtle)', color: 'var(--accent)', icon: '📄', title: 'ATS Resume', desc: '11 professional templates. Education-first for freshers. PDF + TXT download. Edit for each company.', free: false },
+                  { bg: '#F5F3FF', color: '#7C3AED', icon: '🎯', title: 'Interview Prep', desc: 'Select any company. Get 15 tailored questions — technical, project-based, HR. STAR answers included.', free: false },
+                  { bg: '#FFF7ED', color: '#EA580C', icon: '🎤', title: 'HR + TMAY Prep', desc: '"Tell me about yourself" in 3 versions. 10 HR questions with personalized answers. Project pitches.', free: false },
+                  { bg: 'var(--success-subtle)', color: 'var(--success)', icon: '🔗', title: 'LinkedIn Profile', desc: 'Complete LinkedIn content + 10-step setup guide + connection templates. Start from zero.', free: false },
                 ].map((f, i) => (
                   <div key={i} className="saas-card" style={{ padding: '28px 24px' }}>
                     <div className="icon-tile" style={{ background: f.bg, color: f.color, marginBottom: 16 }}>{f.icon}</div>
@@ -1958,13 +1958,13 @@ export default function Home() {
             <div className="landing-section">
               <div style={{ textAlign: 'center', marginBottom: 48 }}>
                 <div className="saas-eyebrow" style={{ marginBottom: 8 }}>Simple process</div>
-                <h2 style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>Three steps. That{"'"}s it.</h2>
+                <h2 style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>How it works — 5 minutes to placement-ready</h2>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 32, maxWidth: 900, margin: '0 auto' }}>
                 {[
-                  { num: '1', title: 'Upload your file', desc: 'Resume (PDF/DOCX), LinkedIn PDF, or fill a quick form.' },
-                  { num: '2', title: 'AI analyzes & builds', desc: 'Scores your profile, rewrites it, generates resume + interview prep.' },
-                  { num: '3', title: 'Download & apply', desc: 'Everything ready. Start applying with confidence today.' },
+                  { num: '1', title: 'Fill your details', desc: 'College, degree, skills, projects. No resume needed. Takes 2 minutes.' },
+                  { num: '2', title: 'AI builds everything', desc: 'Resume, LinkedIn profile, interview prep, HR answers — all personalized to YOU.' },
+                  { num: '3', title: 'Prepare for each company', desc: 'Select the company. Get 15 tailored questions. Walk in confident.' },
                 ].map((s, i) => (
                   <div key={i} style={{ textAlign: 'center', position: 'relative' }}>
                     <div style={{ width: 48, height: 48, borderRadius: 14, background: 'var(--accent)', color: 'white', fontSize: 20, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>{s.num}</div>
@@ -1981,77 +1981,64 @@ export default function Home() {
             <div className="landing-section" style={{ maxWidth: 1000 }}>
               <div style={{ textAlign: 'center', marginBottom: 40 }}>
                 <div className="saas-eyebrow" style={{ marginBottom: 8 }}>Real output</div>
-                <h2 style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>See what ProfileRoaster generates</h2>
+                <h2 style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>What students get in their Campus Placement Kit</h2>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
 
-                {/* Rewrite Before/After */}
+                {/* ATS Resume Preview */}
                 <div className="saas-card" style={{ overflow: 'hidden' }}>
-                  <div style={{ padding: '12px 16px', fontSize: 12, fontWeight: 700, color: 'white', background: 'var(--accent)' }}>&#9997;&#65039; AI Profile Rewrite</div>
-                  <div style={{ padding: 16 }}>
-                    <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 'var(--radius-sm)', padding: '10px 14px', marginBottom: 10 }}>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: '#DC2626', marginBottom: 4 }}>&#10007; BEFORE</div>
-                      <div style={{ fontSize: 12, color: 'var(--text-secondary)', fontStyle: 'italic', lineHeight: 1.5 }}>&ldquo;Software Engineer | Python | Java | AWS | Docker | Seeking opportunities&rdquo;</div>
-                    </div>
-                    <div style={{ background: 'var(--success-subtle)', border: '1px solid #BBF7D0', borderRadius: 'var(--radius-sm)', padding: '10px 14px', marginBottom: 10 }}>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--success)', marginBottom: 4 }}>&#10003; AFTER</div>
-                      <div style={{ fontSize: 12, color: 'var(--success)', fontWeight: 600, lineHeight: 1.5 }}>&ldquo;Full-Stack Engineer | Built 5 Apps Serving 50K+ Users | React + AWS&rdquo;</div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 20, fontWeight: 800, color: '#DC2626' }}>28</span>
-                      <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>&rarr;</span>
-                      <span style={{ fontSize: 22, fontWeight: 800, color: 'var(--success)' }}>76</span>
-                      <span style={{ background: 'var(--success-subtle)', color: 'var(--success)', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 'var(--radius-pill)' }}>+48 pts</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Resume Preview */}
-                <div className="saas-card" style={{ overflow: 'hidden' }}>
-                  <div style={{ padding: '12px 16px', fontSize: 12, fontWeight: 700, color: 'white', background: 'var(--accent)' }}>&#128196; ATS Resume</div>
+                  <div style={{ padding: '12px 16px', fontSize: 12, fontWeight: 700, color: 'white', background: 'var(--accent)' }}>&#128196; ATS Resume (11 templates)</div>
                   <div style={{ padding: 0 }}>
                     <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', margin: 12, borderRadius: 4, padding: 14, fontSize: 11 }}>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 2 }}>Priya Mehta</div>
-                      <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 8 }}>Full-Stack Engineer &bull; Bangalore</div>
-                      <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase' as const, letterSpacing: 1, margin: '8px 0 4px' }}>Experience</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 2 }}>Rahul Sharma</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 8 }}>B.Tech CSE &bull; VIT Vellore &bull; 2026</div>
+                      <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase' as const, letterSpacing: 1, margin: '8px 0 4px' }}>Education</div>
+                      <div style={{ height: 6, background: 'var(--bg-subtle)', borderRadius: 3, marginBottom: 4 }} />
+                      <div style={{ height: 6, background: 'var(--bg-subtle)', borderRadius: 3, marginBottom: 4, width: '80%' }} />
+                      <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase' as const, letterSpacing: 1, margin: '8px 0 4px' }}>Projects (as Experience)</div>
                       <div style={{ height: 6, background: 'var(--bg-subtle)', borderRadius: 3, marginBottom: 4 }} />
                       <div style={{ height: 6, background: 'var(--bg-subtle)', borderRadius: 3, marginBottom: 4, width: '80%' }} />
                       <div style={{ height: 6, background: 'var(--bg-subtle)', borderRadius: 3, marginBottom: 4, width: '60%' }} />
-                      <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase' as const, letterSpacing: 1, margin: '8px 0 4px' }}>Education</div>
-                      <div style={{ height: 6, background: 'var(--bg-subtle)', borderRadius: 3, marginBottom: 4, width: '80%' }} />
                       <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase' as const, letterSpacing: 1, margin: '8px 0 4px' }}>Skills</div>
                       <div style={{ height: 6, background: 'var(--bg-subtle)', borderRadius: 3, width: '100%' }} />
                     </div>
-                    <div style={{ margin: '0 12px 12px' }}>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, display: 'flex', justifyContent: 'space-between' }}>
-                        <span>ATS Score</span><span style={{ color: 'var(--success)', fontWeight: 700 }}>87%</span>
-                      </div>
-                      <div style={{ height: 6, background: 'var(--border-default)', borderRadius: 3 }}>
-                        <div style={{ height: 6, background: 'var(--success)', borderRadius: 3, width: '87%' }} />
-                      </div>
+                    <div style={{ margin: '0 12px 12px', fontSize: 12, color: 'var(--success)', fontWeight: 600, textAlign: 'center' }}>
+                      Generated from your details in 60 seconds
                     </div>
                   </div>
                 </div>
 
-                {/* Interview Prep Preview */}
+                {/* Company Interview Prep Preview */}
                 <div className="saas-card" style={{ overflow: 'hidden' }}>
-                  <div style={{ padding: '12px 16px', fontSize: 12, fontWeight: 700, color: 'white', background: 'linear-gradient(135deg, var(--success), #034A2A)' }}>&#127919; Interview Prep</div>
+                  <div style={{ padding: '12px 16px', fontSize: 12, fontWeight: 700, color: 'white', background: 'var(--accent)' }}>&#127919; Interview Prep — per company</div>
                   <div style={{ padding: '14px 16px' }}>
-                    <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
-                      {['Questions', 'Cheat Sheet', 'Quiz'].map((t, i) => (
-                        <span key={i} style={{ fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 4, background: i === 0 ? 'var(--accent)' : 'var(--accent-subtle)', color: i === 0 ? 'white' : 'var(--accent)' }}>{t}</span>
-                      ))}
-                    </div>
                     {[
-                      { type: 'Behavioral', q: 'Tell me about a time you handled a tight deadline on a project.' },
-                      { type: 'Role Specific', q: 'How would you optimize a slow database query in production?' },
-                      { type: 'Situational', q: 'Your team disagrees on the tech stack. How do you resolve it?' },
+                      { type: 'Technical', q: 'Explain polymorphism (TCS asks this)' },
+                      { type: 'Project', q: 'Walk me through your e-commerce app architecture' },
+                      { type: 'HR', q: 'Why do you want to join TCS?' },
                     ].map((item, i) => (
                       <div key={i} style={{ background: 'var(--bg-canvas)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-sm)', padding: '10px 12px', marginBottom: 8, fontSize: 12, color: '#333', lineHeight: 1.5 }}>
                         <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase' as const, letterSpacing: 0.5, marginBottom: 3 }}>{item.type}</div>
                         {item.q}
                       </div>
                     ))}
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent)', textAlign: 'center', marginTop: 8 }}>
+                      15 questions per company &times; 5 companies = 75 questions
+                    </div>
+                  </div>
+                </div>
+
+                {/* HR + TMAY Preview */}
+                <div className="saas-card" style={{ overflow: 'hidden' }}>
+                  <div style={{ padding: '12px 16px', fontSize: 12, fontWeight: 700, color: 'white', background: 'linear-gradient(135deg, var(--success), #034A2A)' }}>&#127908; HR Cheat Sheet + Tell Me About Yourself</div>
+                  <div style={{ padding: '14px 16px' }}>
+                    <div style={{ background: 'var(--bg-canvas)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-sm)', padding: '10px 12px', marginBottom: 10, fontSize: 12, color: '#333', lineHeight: 1.6 }}>
+                      <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--success)', textTransform: 'uppercase' as const, letterSpacing: 0.5, marginBottom: 4 }}>Tell Me About Yourself</div>
+                      &ldquo;I&rsquo;m Rahul, a final-year B.Tech CSE student at VIT. I&rsquo;ve built 3 full-stack projects including an e-commerce platform that handles 500+ concurrent users. I&rsquo;m passionate about backend systems and excited to bring my skills to your team.&rdquo;
+                    </div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent)', textAlign: 'center' }}>
+                      10 HR questions with YOUR answers
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2069,14 +2056,14 @@ export default function Home() {
                 <h2 style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>Frequently asked questions</h2>
               </div>
               {[
-                { q: 'Is the profile score really free?', a: 'Yes! Upload your resume or LinkedIn PDF and get an instant AI score with a suggested headline \u2014 completely free, no signup required.' },
-                { q: 'What do I get with the paid plan?', a: 'A complete profile rewrite (headline, about, experience), ATS-optimized resume in multiple templates, personalized cover letter, and interview prep with questions, STAR-format answers, cheat sheet, and quiz.' },
-                { q: 'Can I upload my resume instead of LinkedIn PDF?', a: 'Yes! You can upload your resume (PDF or DOCX) and we will analyze it, improve it, AND generate LinkedIn content from it. This is the easiest option for mobile users.' },
-                { q: 'How is this different from ChatGPT?', a: 'ProfileRoaster is purpose-built for LinkedIn optimization. It understands ATS algorithms, recruiter behavior, and Indian job market nuances. You get structured, ready-to-use output \u2014 not generic paragraphs.' },
-                { q: 'How long does it take?', a: 'The free score is instant. The full rewrite + resume + interview prep is generated in about 90 seconds after payment.' },
-                { q: 'Is my data safe?', a: 'Your data is encrypted in transit and at rest. Only AI processes your profile \u2014 no humans read it. You can delete your data anytime from your dashboard.' },
-                { q: 'What payment methods do you accept?', a: 'We accept UPI, credit/debit cards, net banking, and wallets via Razorpay \u2014 India\'s most trusted payment gateway.' },
-                { q: 'Can I get a refund?', a: 'Since the AI output is generated instantly and delivered immediately, we do not offer refunds. However, if there is a technical issue, contact us and we will make it right.' },
+                { q: "I don't have any work experience. Can I still use this?", a: "Absolutely! Most students don't. AI builds your resume from your degree, projects, skills, and certifications. Projects are treated as experience entries." },
+                { q: 'How is the interview prep customized per company?', a: 'You select a company (TCS, Infosys, Amazon, etc.) and optionally paste the JD. AI generates 15 questions that company actually asks — 5 technical, 3 project-based, 5 HR — plus "Tell me about yourself" and "Why should we hire you?" customized for that company.' },
+                { q: "I'm not from engineering. Can I use this?", a: 'Yes! We support all degrees — B.Tech, MBA, BCA, B.Com, BSc, BA, BBA, Pharmacy, and more. Role suggestions and interview questions are tailored to your specific branch.' },
+                { q: 'My college is buying in bulk. How does that work?', a: 'Your TPO contacts us. We generate unique codes for each student at \u20B999/student. Each student redeems their code, fills their details, and gets their complete placement kit.' },
+                { q: 'Can I prepare for multiple companies?', a: 'Yes! Student plan includes 5 company prep slots. Use one before each campus interview. Student Pro gives you 10 slots.' },
+                { q: 'How long does it take?', a: 'Fill your details in 2 minutes. AI generates everything in 90 seconds. Company-specific prep takes another 30 seconds per company.' },
+                { q: 'Is this a subscription?', a: 'No. One-time payment. Use forever. Your results are saved for 30 days.' },
+                { q: 'Can I edit my resume for different companies?', a: 'Yes! Your resume has a built-in editor. Customize bullets, skills, and summary for each company JD before downloading.' },
               ].map((item, i) => (
                 <div key={i} style={{ borderBottom: '1px solid var(--border-default)' }}>
                   <button
@@ -2102,17 +2089,16 @@ export default function Home() {
           {/* ── Final CTA ── */}
           <section style={{ background: 'var(--accent)', padding: '64px 0', textAlign: 'center' }}>
             <div className="landing-section" style={{ maxWidth: 600 }}>
-              <div style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'white', marginBottom: 12, letterSpacing: '-0.02em' }}>Stop losing interviews.</div>
-              <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.85)', marginBottom: 12, lineHeight: 1.7 }}>Every day with a weak profile is another recruiter who scrolled past you.</div>
+              <div style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'white', marginBottom: 12, letterSpacing: '-0.02em' }}>Campus placements won{"'"}t wait.</div>
+              <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.85)', marginBottom: 12, lineHeight: 1.7 }}>Every day without preparation is another company that moved on.</div>
               <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)', marginBottom: 28, lineHeight: 1.6 }}>
-                Resume writers charge &#8377;3,000&ndash;15,000 and take days.<br />
-                We do everything in under 3 minutes for &#8377;499. One time. No subscription.
+                Resume + LinkedIn + Interview Prep for 5 companies + HR prep + project prep. Everything for &#8377;199. One time.
               </div>
               <button
                 onClick={() => { heroRef.current?.scrollIntoView({ behavior: 'smooth' }); }}
                 style={{ background: 'white', color: 'var(--accent)', fontSize: 16, fontWeight: 700, padding: '16px 40px', borderRadius: 'var(--radius-pill)', border: 'none', cursor: 'pointer', boxShadow: 'var(--shadow-md)' }}
               >
-                Upload Your Resume &mdash; Free Score &rarr;
+                Get My Campus Placement Kit &rarr;
               </button>
             </div>
           </section>
@@ -2126,7 +2112,7 @@ export default function Home() {
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
           <div>
             <div style={{ fontSize: 16, fontWeight: 800 }}><span style={{ color: '#60A5FA' }}>Profile</span>Roaster</div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>AI-powered career tools for Indian job seekers</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>AI-powered campus placement toolkit</div>
           </div>
           <div style={{ display: 'flex', gap: 20 }}>
             {[
