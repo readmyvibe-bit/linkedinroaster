@@ -4,8 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 
 // ─── Types ───
-type Tab = 'rewrite' | 'build';
-
 interface PlanFeature {
   text: string;
   included: boolean;
@@ -21,16 +19,16 @@ interface Plan {
 }
 
 // ─── Plan Data ───
-const rewritePlans: Plan[] = [
+const plans: Plan[] = [
   {
     name: 'Standard',
     price: '\u20B9499',
     features: [
-      { text: 'AI Profile Score + Analysis (free preview)', included: true },
-      { text: 'Complete LinkedIn Rewrite', included: true },
+      { text: 'AI Profile Score + Analysis', included: true },
+      { text: 'Complete LinkedIn Rewrite (headline, about, experience)', included: true },
       { text: 'ATS Resume Builder (11 templates)', included: true },
       { text: 'Cover Letter Generator', included: true },
-      { text: 'Interview Prep (15 questions + quiz)', included: true },
+      { text: 'Interview Prep (15 questions + STAR answers + quiz)', included: true },
       { text: 'AI Enhance Editor', included: true },
       { text: 'PDF + TXT Export', included: true },
     ],
@@ -43,50 +41,22 @@ const rewritePlans: Plan[] = [
     highlighted: true,
     features: [
       { text: 'Everything in Standard', included: true },
+      { text: '5 headline variations', included: true },
       { text: 'All 11 premium templates', included: true },
+      { text: 'Job-tailored cover letter', included: true },
+      { text: 'ATS keyword optimization', included: true },
       { text: 'Priority processing', included: true },
-      { text: 'Upgrade anytime for \u20B9500', included: true },
     ],
     ctaLabel: 'Get Pro \u2192',
     ctaHref: '/?plan=pro',
   },
 ];
 
-const buildPlans: Plan[] = [
-  {
-    name: 'Standard',
-    price: '\u20B9499',
-    features: [
-      { text: 'AI-generated LinkedIn profile (headline, about, experience, skills)', included: true },
-      { text: '10-step LinkedIn setup guide', included: true },
-      { text: 'ATS Resume Builder (11 templates)', included: true },
-      { text: 'Cover Letter Generator', included: true },
-      { text: 'Interview Prep', included: true },
-      { text: 'AI Enhance + Connection Templates', included: true },
-    ],
-    ctaLabel: 'Get Standard \u2192',
-    ctaHref: '/build/form?plan=standard',
-  },
-  {
-    name: 'Pro',
-    price: '\u20B9999',
-    highlighted: true,
-    features: [
-      { text: 'Everything in Standard', included: true },
-      { text: 'All 11 premium templates', included: true },
-      { text: 'Priority processing', included: true },
-      { text: 'Upgrade anytime for \u20B9500', included: true },
-    ],
-    ctaLabel: 'Get Pro \u2192',
-    ctaHref: '/build/form?plan=pro',
-  },
-];
-
 // ─── FAQ Data ───
 const faqs = [
   {
-    q: "What's the difference between Rewrite and Build?",
-    a: 'Rewrite is for people who already have a LinkedIn profile. Build is for creating a profile from scratch.',
+    q: 'What do I need to get started?',
+    a: 'Upload your resume (PDF/DOCX) or LinkedIn PDF. You can also enter details manually if you don\u2019t have a file.',
   },
   {
     q: 'Can I upgrade from Standard to Pro later?',
@@ -99,6 +69,10 @@ const faqs = [
   {
     q: "What if I'm not satisfied?",
     a: 'We offer refunds within 7 days. See our refund policy.',
+  },
+  {
+    q: 'How long does it take?',
+    a: 'Results are delivered in 60\u201390 seconds after payment. Resume generation takes another 30\u201360 seconds.',
   },
 ];
 
@@ -306,9 +280,6 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 
 // ─── Main Page ───
 export default function PricingPage() {
-  const [activeTab, setActiveTab] = useState<Tab>('rewrite');
-
-  const plans = activeTab === 'rewrite' ? rewritePlans : buildPlans;
 
   return (
     <div style={{ minHeight: '100vh', background: '#F3F2EF' }}>
@@ -378,46 +349,18 @@ export default function PricingPage() {
           Choose the plan that fits your career stage
         </p>
 
-        {/* Tabs */}
-        <div
+        {/* What you get */}
+        <p
           style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: 8,
-            marginBottom: 40,
+            fontSize: 14,
+            color: '#666666',
+            textAlign: 'center',
+            margin: '0 0 40px',
+            lineHeight: '1.6',
           }}
         >
-          <button
-            onClick={() => setActiveTab('rewrite')}
-            style={{
-              padding: '10px 24px',
-              borderRadius: 24,
-              border: activeTab === 'rewrite' ? 'none' : '1px solid #E0E0E0',
-              background: activeTab === 'rewrite' ? '#0B69C7' : '#FFFFFF',
-              color: activeTab === 'rewrite' ? '#FFFFFF' : '#191919',
-              fontSize: 14,
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
-          >
-            Profile Rewrite
-          </button>
-          <button
-            onClick={() => setActiveTab('build')}
-            style={{
-              padding: '10px 24px',
-              borderRadius: 24,
-              border: activeTab === 'build' ? 'none' : '1px solid #E0E0E0',
-              background: activeTab === 'build' ? '#0B69C7' : '#FFFFFF',
-              color: activeTab === 'build' ? '#FFFFFF' : '#191919',
-              fontSize: 14,
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
-          >
-            Build from Scratch
-          </button>
-        </div>
+          Upload resume or LinkedIn PDF &rarr; AI scores, rewrites, builds resume &amp; interview prep
+        </p>
 
         {/* Plan Cards Grid */}
         <div
