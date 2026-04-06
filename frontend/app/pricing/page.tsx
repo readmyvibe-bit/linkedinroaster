@@ -21,6 +21,20 @@ interface Plan {
 // ─── Plan Data ───
 const plans: Plan[] = [
   {
+    name: 'Student',
+    price: '\u20B999',
+    features: [
+      { text: 'ATS Resume (11 templates)', included: true },
+      { text: 'LinkedIn Profile Content (headline, about, experience)', included: true },
+      { text: '10-Step LinkedIn Setup Guide', included: true },
+      { text: '5 Interview Questions + STAR Answers', included: true },
+      { text: 'PDF + TXT Download', included: true },
+      { text: 'WhatsApp-ready connection templates', included: true },
+    ],
+    ctaLabel: 'Get Student Plan \u2192',
+    ctaHref: '/?tab=student',
+  },
+  {
     name: 'Standard',
     price: '\u20B9499',
     features: [
@@ -55,8 +69,12 @@ const plans: Plan[] = [
 // ─── FAQ Data ───
 const faqs = [
   {
+    q: 'I\u2019m a student with no resume. Which plan?',
+    a: 'The Student Plan (\u20B999) is built for you. Enter your college, projects, and skills \u2014 AI builds your first resume and LinkedIn profile from scratch.',
+  },
+  {
     q: 'What do I need to get started?',
-    a: 'Upload your resume (PDF/DOCX) or LinkedIn PDF. You can also enter details manually if you don\u2019t have a file.',
+    a: 'Upload your resume (PDF/DOCX) or LinkedIn PDF. Students can just enter their details manually \u2014 no file needed.',
   },
   {
     q: 'Can I upgrade from Standard to Pro later?',

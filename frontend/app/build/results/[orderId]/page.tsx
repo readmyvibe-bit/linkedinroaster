@@ -247,6 +247,7 @@ export default function BuildResultsPage() {
 
   const userName = data.form_input?.full_name || 'User';
   const userInitial = userName.charAt(0).toUpperCase();
+  const isStudent = plan === 'student' || data.form_input?.career_stage === 'student' || data.form_input?.career_stage === 'fresher';
   const cardStyle: React.CSSProperties = { background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px', marginBottom: 16 };
 
   return (
@@ -290,6 +291,26 @@ export default function BuildResultsPage() {
             )}
           </div>
         </div>
+
+        {/* STUDENT SUCCESS BANNER */}
+        {isStudent && (
+          <div style={{ maxWidth: 1100, margin: '0 auto 16px' }}>
+            <div style={{ background: 'linear-gradient(135deg, #057642, #16A34A)', borderRadius: 12, padding: '24px 28px', color: 'white' }}>
+              <div style={{ fontSize: 20, fontWeight: 800, marginBottom: 6 }}>Your First Resume &amp; LinkedIn Profile is Ready!</div>
+              <div style={{ fontSize: 14, opacity: 0.9, lineHeight: 1.6, marginBottom: 16 }}>
+                Everything you need to start applying — resume, LinkedIn content, setup guide, and interview prep. Follow the steps below.
+              </div>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                <a href={`/resume?orderId=${orderId}&source=build`} style={{ padding: '10px 24px', background: 'white', color: '#057642', border: 'none', borderRadius: 50, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+                  Build &amp; Download Resume
+                </a>
+                <button onClick={() => { const text = `I just built my first professional resume and LinkedIn profile in 60 seconds! Try it: profileroaster.in`; window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank'); }} style={{ padding: '10px 24px', background: 'rgba(255,255,255,0.2)', color: 'white', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 50, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                  Share with Batchmates
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* TWO-COLUMN LAYOUT */}
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
@@ -471,8 +492,8 @@ export default function BuildResultsPage() {
           {/* RIGHT COLUMN */}
           <div className="w-full lg:w-auto lg:max-w-[340px]" style={{ flex: '0 0 320px' }}>
             {/* ATS Resume Builder */}
-            {(plan === 'standard' || plan === 'plus' || plan === 'pro') && (() => {
-              const maxResumes = plan === 'pro' ? 10 : 5;
+            {(plan === 'student' || plan === 'standard' || plan === 'plus' || plan === 'pro') && (() => {
+              const maxResumes = plan === 'pro' ? 10 : plan === 'student' ? 1 : 5;
               const usedCount = existingResumes.length;
               const remaining = Math.max(0, maxResumes - usedCount);
               return (
@@ -525,7 +546,7 @@ export default function BuildResultsPage() {
                   )}
 
                   <p style={{ fontSize: 12, color: '#888', marginTop: 8, marginBottom: 0 }}>
-                    {plan === 'pro' ? '10 resumes + 10 cover letters + all 11 templates' : '5 resumes + 5 cover letters + 11 templates'} included in your plan
+                    {plan === 'pro' ? '10 resumes + 10 cover letters + all 11 templates' : plan === 'student' ? '1 resume + 1 cover letter + 11 templates' : '5 resumes + 5 cover letters + 11 templates'} included in your plan
                   </p>
                 </div>
               );
@@ -567,6 +588,33 @@ export default function BuildResultsPage() {
                 </div>
               ))}
             </div>
+
+            {/* WhatsApp Share for Students */}
+            {isStudent && (
+              <div style={{ ...cardStyle, background: '#F0FDF4', borderLeft: '4px solid #25D366' }}>
+                <h3 style={{ fontSize: 16, fontWeight: 800, color: '#191919', margin: '0 0 8px' }}>Share with Batchmates</h3>
+                <p style={{ fontSize: 13, color: '#444', lineHeight: 1.5, margin: '0 0 12px' }}>
+                  Your friends need this too. Share and help them build their first resume.
+                </p>
+                <button onClick={() => { const text = `Bro I just made my resume and LinkedIn profile in 60 seconds for just Rs 99. My resume looks professional af. Try it: profileroaster.in`; window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank'); }} style={{ width: '100%', padding: '10px', background: '#25D366', color: 'white', border: 'none', borderRadius: 50, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+                  Share on WhatsApp
+                </button>
+              </div>
+            )}
+
+            {/* Upgrade CTA for student */}
+            {plan === 'student' && (
+              <div style={{ background: 'linear-gradient(135deg, #004182, #0B69C7)', borderRadius: 12, padding: '20px 24px', marginBottom: 16, textAlign: 'center' }}>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: '0 0 6px' }}>Need More Resumes?</h3>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', margin: '0 0 4px' }}>
+                  5 resumes for 5 different companies + 15 interview questions + cover letters
+                </p>
+                <p style={{ fontSize: 20, fontWeight: 800, color: 'white', margin: '8px 0 14px' }}>Upgrade — ₹400</p>
+                <a href="/?plan=standard" style={{ display: 'inline-block', background: 'white', color: '#0B69C7', padding: '10px 24px', borderRadius: 50, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+                  Upgrade to Standard
+                </a>
+              </div>
+            )}
 
             {/* Upgrade CTA for starter */}
             {plan === 'starter' && (

@@ -94,8 +94,11 @@ export async function generateInterviewPrep(prepId: string, resumeId: string): P
     const targetRole = resume.target_role || '';
     const targetCompany = resume.target_company || '';
 
-    // 4. Career stage
-    const careerStage = determineCareerStage(experience.length);
+    // 4. Career stage — use form input career_stage if available (build orders), else infer
+    const formCareerStage = order?.form_input?.career_stage;
+    const careerStage = (formCareerStage === 'student' || formCareerStage === 'fresher')
+      ? formCareerStage
+      : determineCareerStage(experience.length);
     await query(`UPDATE interview_preps SET career_stage=$1, target_role=$2, target_company=$3, order_id=$4 WHERE id=$5`,
       [careerStage, targetRole, targetCompany, resume.order_id, prepId]);
 
@@ -232,6 +235,14 @@ RULES:
 - ask_them questions must be SHORT (max 15 words).
 - ask_them are questions the CANDIDATE asks the INTERVIEWER. Simple, confident, shows interest.
 - For ${careerStage} candidates: adjust question difficulty and answer depth accordingly.
+${careerStage === 'student' || careerStage === 'fresher' ? `- STUDENT/FRESHER INTERVIEW RULES (CRITICAL):
+  - Question 1 MUST be "Tell me about yourself" — this is mandatory for freshers
+  - Include at least 3 project-based questions ("Walk me through your [project name]", "What challenges did you face in [project]?")
+  - Include "Why should we hire you?" as a behavioral question
+  - Focus role_specific questions on technical fundamentals (data structures, OOP, basic system design) rather than advanced topics
+  - Behavioral questions should focus on: teamwork, meeting deadlines, handling feedback, learning new technologies
+  - MCQs should test foundational concepts, not advanced/niche topics
+  - Suggested answers should reference academic projects, internships, and coursework — not corporate experience` : ''}
 - WRITE OUT every single question, answer, MCQ fully. Do NOT leave any field as "...".
 - Each question MUST be unique and specific to this candidate's background.`;
 

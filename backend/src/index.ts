@@ -447,6 +447,7 @@ app.post('/api/webhooks/razorpay', async (req: Request, res: Response) => {
           const slug = buildOrder.rows[0].influencer_slug;
           const bPlan = buildOrder.rows[0].plan || 'starter';
           const commFieldMap: Record<string, string> = {
+            student: 'commission_build_starter',
             starter: 'commission_build_starter',
             plus: 'commission_build_plus',
             standard: 'commission_build_plus',

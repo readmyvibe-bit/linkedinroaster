@@ -214,6 +214,18 @@ Steps must cover:
 9. Set "Open to Work" preferences
 10. Make first 50 connections
 
+STUDENT/FRESHER SPECIAL RULES (when career_stage is 'student' or 'fresher'):
+- Education section MUST come before Experience in the resume
+- Projects ARE experience — treat each project as a job entry with: Project Name as "role", Tech Stack as "company", duration, and 2-3 achievement bullets
+- If CGPA/GPA is 7.0+ (on 10 scale) or 3.0+ (on 4 scale), include it prominently
+- Add "Relevant Coursework" as a bullet under education if courses match the target role
+- For internships: quantify everything — "Worked on dashboard" → "Built analytics dashboard serving 200+ users, reducing report generation time by 40%"
+- Never fabricate metrics — if no numbers exist, use qualitative impact ("improved user experience", "streamlined process")
+- Headline format for students: "[Degree] [Branch] '[GradYear] | [Target Role] | [Top Skill] + [Top Skill] | [Achievement]"
+  Example: "B.Tech CSE '25 | Full-Stack Developer | React + Node.js | SIH 2024 Finalist"
+- About section: Start with career aspiration, NOT "I am a student". Example: "Building scalable web applications..." NOT "I am a final year student..."
+- Skills section: List technical skills first, then tools, then soft skills. Minimum 8 skills.
+
 PROJECTS (important for students/freshers):
 If the user provided projects, incorporate them into the profile:
 - Mention key projects in the About section (1-2 sentences about most impressive ones)

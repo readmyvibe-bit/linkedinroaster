@@ -687,8 +687,11 @@ export async function generateInterviewPrepV2(prepId: string, resumeId: string, 
     const profile = normalizeCandidateProfile(resume.resume_data || {}, resume, order);
     const level = inferInterviewLevel(profile, userLevelOverride);
 
-    // career_stage uses legacy v1 semantics for analytics consistency
-    const careerStage = profile.roles.length === 0 ? 'fresher'
+    // career_stage — prefer form input for build orders (student/fresher), else infer from experience
+    const formCareerStage = order?.form_input?.career_stage;
+    const careerStage = (formCareerStage === 'student' || formCareerStage === 'fresher')
+      ? formCareerStage
+      : profile.roles.length === 0 ? 'fresher'
       : profile.roles.length <= 2 ? 'early'
       : profile.roles.length <= 5 ? 'mid' : 'senior';
 
