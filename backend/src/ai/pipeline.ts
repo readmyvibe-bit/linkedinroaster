@@ -274,6 +274,11 @@ If the input is clearly not a professional profile or resume (e.g. random text, 
 OUTPUT (strict JSON):
 {
   "full_name": "string | null",
+  "phone": "string | null — extract phone number if present",
+  "email": "string | null — extract email if present",
+  "location": "string | null — city, state or country if present",
+  "linkedin_url": "string | null — LinkedIn profile URL if present",
+  "website": "string | null — personal website URL if present",
   "headline": "string | null",
   "about": "string | null",
   "current_role": {

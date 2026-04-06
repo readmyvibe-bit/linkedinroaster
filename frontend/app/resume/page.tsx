@@ -6,6 +6,30 @@ import { TEMPLATES } from '../../components/resume/ResumeTemplates';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
+// ─── Calculate total experience from job durations ───
+function calcExperienceFromDurations(experience: Array<{ duration?: string | null }>): number {
+  let totalMonths = 0;
+  for (const exp of experience) {
+    if (!exp.duration) continue;
+    const d = exp.duration.toLowerCase();
+    // Try "X years Y months" pattern
+    const yearMatch = d.match(/(\d+)\s*(?:year|yr)/);
+    const monthMatch = d.match(/(\d+)\s*(?:month|mo)/);
+    if (yearMatch) totalMonths += parseInt(yearMatch[1]) * 12;
+    if (monthMatch) totalMonths += parseInt(monthMatch[1]);
+    // Try "Jan 2020 - Present" or "2020 - 2023" patterns
+    if (!yearMatch && !monthMatch) {
+      const years = d.match(/(\d{4})/g);
+      if (years && years.length >= 2) {
+        totalMonths += (parseInt(years[years.length - 1]) - parseInt(years[0])) * 12;
+      } else if (years && years.length === 1 && d.includes('present')) {
+        totalMonths += (new Date().getFullYear() - parseInt(years[0])) * 12;
+      }
+    }
+  }
+  return totalMonths / 12;
+}
+
 // ─── Tag Input Component ───
 function TagInput({ tags, setTags, placeholder }: { tags: string[]; setTags: (t: string[]) => void; placeholder: string }) {
   const [input, setInput] = useState('');
@@ -109,7 +133,8 @@ function ResumeFormContent() {
   const [keyAchievements, setKeyAchievements] = useState('');
   const [certifications, setCertifications] = useState<string[]>([]);
   const [languages, setLanguages] = useState<string[]>([]);
-  const [totalExperience, setTotalExperience] = useState('');
+  const [expYears, setExpYears] = useState(0);
+  const [expMonths, setExpMonths] = useState(0);
   const [template, setTemplate] = useState('classic');
   const [templateFilter, setTemplateFilter] = useState('All');
   const [noJd, setNoJd] = useState(false);
@@ -166,25 +191,60 @@ function ResumeFormContent() {
         if (data.email) setEmail(data.email);
         if (source === 'rewrite') {
           const pp = data.parsed_profile || {};
-          if (pp.name) setFullName(pp.name);
+          // Also try to extract contact info from raw profile_input
+          const rawInput = typeof data.profile_input === 'string' ? data.profile_input : data.profile_input?.raw_paste || '';
+
+          if (pp.name || pp.full_name) setFullName(pp.name || pp.full_name);
           if (pp.location) setLocation(pp.location);
+          if (pp.phone) setPhone(pp.phone);
+          if (pp.linkedin_url || data.linkedin_url) setLinkedinUrl(pp.linkedin_url || data.linkedin_url);
+          if (pp.website) setWebsite(pp.website);
           if (pp.headline) setTargetRole(pp.headline.split('|')[0]?.trim() || '');
-          if (data.linkedin_url) setLinkedinUrl(data.linkedin_url);
-          // Auto-fill achievements from experience
+
+          // Extract contact info from raw text if parser missed it
+          if (!pp.phone && rawInput) {
+            const phoneMatch = rawInput.match(/(?:\+91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}/);
+            if (phoneMatch) setPhone(phoneMatch[0].replace(/[\s-]/g, ''));
+          }
+          if (!pp.linkedin_url && !data.linkedin_url && rawInput) {
+            const liMatch = rawInput.match(/linkedin\.com\/in\/[\w-]+/i);
+            if (liMatch) setLinkedinUrl('https://www.' + liMatch[0]);
+          }
+          if (!pp.location && rawInput) {
+            // Common Indian cities
+            const cityMatch = rawInput.match(/\b(Mumbai|Delhi|Bangalore|Bengaluru|Hyderabad|Chennai|Kolkata|Pune|Ahmedabad|Jaipur|Lucknow|Noida|Gurgaon|Gurugram|Chandigarh|Indore|Bhopal|Visakhapatnam|Kochi|Coimbatore|Nagpur|Patna|Ranchi|Bhubaneswar|Trivandrum|Thiruvananthapuram)[,\s]?\s*(?:India|Maharashtra|Karnataka|Telangana|Tamil Nadu|West Bengal|Rajasthan|UP|Uttar Pradesh|MP|Madhya Pradesh|Gujarat|Kerala|AP|Andhra Pradesh|Odisha|Bihar|Jharkhand|Haryana|Punjab)?/i);
+            if (cityMatch) setLocation(cityMatch[0].trim());
+          }
+
+          // Auto-fill achievements from experience (detailed bullets, not just titles)
           if (pp.experience?.length) {
             const achievementLines = pp.experience
               .slice(0, 3)
-              .map((e: any) => `${e.title || ''} at ${e.company || ''}`)
+              .map((e: any) => {
+                const header = `${e.title || ''} at ${e.company || ''}`;
+                const desc = e.description ? `\n${e.description.slice(0, 200)}` : '';
+                return header + desc;
+              })
               .filter(Boolean)
-              .join('\n');
+              .join('\n\n');
             if (achievementLines) setKeyAchievements(achievementLines);
           }
-          // Auto-fill skills as certifications
+          // Auto-fill certifications
           if (pp.certifications?.length) setCertifications(pp.certifications.slice(0, 5));
-          // Calculate experience years
+          // Auto-fill languages if available
+          if (pp.languages?.length) setLanguages(pp.languages);
+          // Calculate experience years from durations
           if (pp.experience?.length) {
-            const years = pp.experience.length <= 2 ? '1-3' : pp.experience.length <= 4 ? '3-7' : '7+';
-            setTotalExperience(years);
+            const totalYears = calcExperienceFromDurations(pp.experience);
+            if (totalYears > 0) {
+              setExpYears(Math.floor(totalYears));
+              setExpMonths(Math.round((totalYears % 1) * 12));
+            } else {
+              // Fallback: estimate from number of jobs
+              const est = pp.experience.length <= 1 ? 1 : pp.experience.length <= 2 ? 3 : pp.experience.length <= 4 ? 6 : 10;
+              setExpYears(est);
+              setExpMonths(0);
+            }
           }
         } else {
           // Build order — pre-fill ALL available data
@@ -269,7 +329,7 @@ function ResumeFormContent() {
         additionalAchievements: keyAchievements,
         certifications,
         languages,
-        experienceYears: totalExperience,
+        experienceYears: expYears > 0 || expMonths > 0 ? `${expYears} years ${expMonths} months` : '',
         templateId: template,
         pageCount: parseInt(resumeLength) || 2,
         uploadedResumeText: uploadedText || undefined,
@@ -319,6 +379,14 @@ function ResumeFormContent() {
       if (parsed.certifications) setCertifications(parsed.certifications);
       if (parsed.languages) setLanguages(parsed.languages);
       if (parsed.summary) setKeyAchievements(parsed.summary);
+      // Calculate experience from parsed jobs
+      if (parsed.experience?.length) {
+        const totalYears = calcExperienceFromDurations(parsed.experience);
+        if (totalYears > 0) {
+          setExpYears(Math.floor(totalYears));
+          setExpMonths(Math.round((totalYears % 1) * 12));
+        }
+      }
       // Store full parsed text for resume generation
       if (data.rawText) setUploadedText(data.rawText);
       setUploadSuccess(true);
@@ -601,19 +669,26 @@ function ResumeFormContent() {
                 </div>
                 <div>
                   <label style={labelStyle}>Total Experience</label>
-                  <select
-                    value={totalExperience}
-                    onChange={(e) => setTotalExperience(e.target.value)}
-                    style={{ ...inputStyle, cursor: 'pointer' }}
-                  >
-                    <option value="">Select...</option>
-                    <option value="0-1yr">0-1 year</option>
-                    <option value="1-3yr">1-3 years</option>
-                    <option value="3-5yr">3-5 years</option>
-                    <option value="5-8yr">5-8 years</option>
-                    <option value="8-12yr">8-12 years</option>
-                    <option value="12+yr">12+ years</option>
-                  </select>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <input
+                      type="number"
+                      min={0}
+                      max={50}
+                      value={expYears}
+                      onChange={(e) => setExpYears(Math.max(0, Math.min(50, parseInt(e.target.value) || 0)))}
+                      style={{ ...inputStyle, width: 70, textAlign: 'center' }}
+                    />
+                    <span style={{ fontSize: 13, color: '#666' }}>years</span>
+                    <input
+                      type="number"
+                      min={0}
+                      max={11}
+                      value={expMonths}
+                      onChange={(e) => setExpMonths(Math.max(0, Math.min(11, parseInt(e.target.value) || 0)))}
+                      style={{ ...inputStyle, width: 70, textAlign: 'center' }}
+                    />
+                    <span style={{ fontSize: 13, color: '#666' }}>months</span>
+                  </div>
                 </div>
               </div>
             )}
