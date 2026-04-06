@@ -2,7 +2,7 @@
 CREATE TABLE build_orders (
   id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email                 VARCHAR(255) NOT NULL,
-  plan                  VARCHAR(20) NOT NULL CHECK (plan IN ('starter','plus','pro')),
+  plan                  VARCHAR(20) NOT NULL CHECK (plan IN ('student','starter','standard','plus','pro')),
   amount_paise          INTEGER NOT NULL,
   razorpay_order_id     VARCHAR(50) UNIQUE,
   razorpay_payment_id   VARCHAR(50),
