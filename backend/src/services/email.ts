@@ -187,8 +187,8 @@ export async function sendStudentWelcomeEmails(
                 <div style="display:flex;gap:12px;margin:0 0 14px;align-items:flex-start">
                   <div style="width:28px;height:28px;border-radius:50%;background:#0B69C7;color:white;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</div>
                   <div>
-                    <div style="font-size:14px;font-weight:600;color:#191919">Click "Have a referral code?" and enter your code</div>
-                    <div style="font-size:13px;color:#666">Enter code <strong>${student.code}</strong> and your email <strong>${student.email}</strong></div>
+                    <div style="font-size:14px;font-weight:600;color:#191919">Click "Have a referral code?" below the Pay button</div>
+                    <div style="font-size:13px;color:#666">Enter your code <strong>${student.code}</strong> and click Redeem. Use email: <strong>${student.email}</strong></div>
                   </div>
                 </div>
                 <div style="display:flex;gap:12px;align-items:flex-start">

@@ -222,6 +222,9 @@ function ProfileInputForm({
   const [jobDescription, setJobDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [sparseWarning, setSparseWarning] = useState(false);
+  const [showReferral, setShowReferral] = useState(false);
+  const [referralCode, setReferralCode] = useState('');
+  const [redeeming, setRedeeming] = useState(false);
 
   const sourceLabel = inputSource === 'resume' ? 'Your Resume Data' : inputSource === 'linkedin' ? 'Your LinkedIn Profile (from PDF)' : 'Your Profile Data';
 
@@ -297,6 +300,28 @@ function ProfileInputForm({
     rzp.open();
   }
 
+  async function handleRedeem() {
+    if (!referralCode.trim() || !email.trim()) return;
+    setRedeeming(true);
+    try {
+      const res = await fetch(`${API_URL}/api/redeem-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: referralCode.trim(),
+          email: email.trim(),
+          profile_data: { raw_paste: rawPaste.trim() },
+          input_source: inputSource,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || 'Invalid code'); return; }
+      if (data.order_id) {
+        window.location.href = data.redirect_url || `/results/${data.order_id}`;
+      }
+    } catch { alert('Could not reach the server.'); } finally { setRedeeming(false); }
+  }
+
   return (
     <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', padding: 28 }}>
       <h3 style={{ fontSize: 18, fontWeight: 800, color: '#191919', marginBottom: 4 }}>
@@ -370,6 +395,30 @@ function ProfileInputForm({
         >
           {submitting ? 'Creating order...' : sparseWarning && isSparseQuestionnaire ? `Proceed Anyway \u2014 \u20b9${plan === 'pro' ? '999' : '499'}` : `Pay \u20b9${plan === 'pro' ? '999' : '499'} & Get Full Rewrite`}
         </button>
+        {/* Referral code option */}
+        <div style={{ textAlign: 'center', marginTop: 12 }}>
+          {!showReferral ? (
+            <button onClick={() => setShowReferral(true)} style={{ background: 'none', border: 'none', color: '#0A66C2', fontSize: 13, cursor: 'pointer', fontWeight: 500 }}>
+              Have a referral code?
+            </button>
+          ) : (
+            <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+              <input
+                value={referralCode}
+                onChange={e => setReferralCode(e.target.value.toUpperCase())}
+                placeholder="Enter code (e.g., PR-STD-XXXXX)"
+                style={{ flex: 1, padding: '10px 14px', border: '1px solid #D1D5DB', borderRadius: 8, fontSize: 13, fontFamily: 'monospace' }}
+              />
+              <button
+                onClick={handleRedeem}
+                disabled={redeeming || !referralCode.trim()}
+                style={{ padding: '10px 18px', background: '#057642', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', opacity: redeeming ? 0.6 : 1 }}
+              >
+                {redeeming ? 'Redeeming...' : 'Redeem'}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -447,6 +496,9 @@ function pdfToResumeData(parsed: any): any {
 // ─── Student Pay Button ───
 function StudentPayButton({ formData, email }: { formData: any; email: string }) {
   const [paying, setPaying] = useState(false);
+  const [showReferral, setShowReferral] = useState(false);
+  const [referralCode, setReferralCode] = useState('');
+  const [redeeming, setRedeeming] = useState(false);
 
   async function handlePay() {
     setPaying(true);
@@ -478,10 +530,57 @@ function StudentPayButton({ formData, email }: { formData: any; email: string })
     }
   }
 
+  async function handleRedeem() {
+    if (!referralCode.trim() || !email.trim()) return;
+    setRedeeming(true);
+    try {
+      const res = await fetch(`${API_URL}/api/redeem-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: referralCode.trim(),
+          email: email.trim(),
+          form_input: formData,
+          input_source: 'student',
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || 'Invalid code'); return; }
+      if (data.order_id) {
+        window.location.href = data.redirect_url || `/build/results/${data.order_id}`;
+      }
+    } catch { alert('Could not reach the server.'); } finally { setRedeeming(false); }
+  }
+
   return (
-    <button onClick={handlePay} disabled={paying} style={{ width: '100%', padding: '14px', background: 'white', color: '#057642', border: 'none', borderRadius: 50, fontSize: 16, fontWeight: 700, cursor: 'pointer', opacity: paying ? 0.6 : 1 }}>
-      {paying ? 'Processing...' : 'Pay \u20b999 & Build My Resume'}
-    </button>
+    <div>
+      <button onClick={handlePay} disabled={paying} style={{ width: '100%', padding: '14px', background: 'white', color: '#057642', border: 'none', borderRadius: 50, fontSize: 16, fontWeight: 700, cursor: 'pointer', opacity: paying ? 0.6 : 1 }}>
+        {paying ? 'Processing...' : 'Pay \u20b999 & Build My Resume'}
+      </button>
+      <div style={{ textAlign: 'center', marginTop: 12 }}>
+        {!showReferral ? (
+          <button onClick={() => setShowReferral(true)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.85)', fontSize: 13, cursor: 'pointer', fontWeight: 500, textDecoration: 'underline' }}>
+            Have a referral code?
+          </button>
+        ) : (
+          <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+            <input
+              value={referralCode}
+              onChange={e => setReferralCode(e.target.value.toUpperCase())}
+              placeholder="Enter code"
+              style={{ flex: 1, padding: '10px 14px', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8, fontSize: 13, fontFamily: 'monospace', background: 'rgba(255,255,255,0.15)', color: 'white' }}
+            />
+            <button
+              onClick={handleRedeem}
+              disabled={redeeming || !referralCode.trim()}
+              style={{ padding: '10px 16px', background: 'white', color: '#057642', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', opacity: redeeming ? 0.6 : 1 }}
+            >
+              {redeeming ? '...' : 'Redeem'}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 

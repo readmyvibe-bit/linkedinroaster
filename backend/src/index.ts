@@ -334,14 +334,16 @@ app.post('/api/redeem-code', async (req: Request, res: Response) => {
     }
 
     if (rc.product === 'build') {
-      // Create a build order — form_input defaults to empty object (NOT NULL constraint)
-      const amounts: Record<string, number> = { standard: 49900, pro: 99900, starter: 19900, plus: 39900 };
+      const amounts: Record<string, number> = { student: 9900, standard: 49900, pro: 99900, starter: 19900, plus: 39900 };
       const formData = form_input ? JSON.stringify(form_input) : JSON.stringify({});
+      const hasFormData = form_input && (form_input.full_name || form_input.target_role);
+
       const result = await query(
         `INSERT INTO build_orders (email, plan, amount_paise, payment_status, payment_type,
          form_input, ip_address, processing_status)
-         VALUES ($1, $2, $3, 'paid', 'referral_code', $4, $5, 'pending') RETURNING id`,
-        [email, rc.plan, amounts[rc.plan] || 19900, formData, req.ip],
+         VALUES ($1, $2, $3, 'paid', 'referral_code', $4, $5, $6) RETURNING id`,
+        [email, rc.plan, amounts[rc.plan] || 9900, formData, req.ip,
+         hasFormData ? 'queued' : 'pending'],
       );
       const orderId = result.rows[0].id;
 
@@ -351,7 +353,13 @@ app.post('/api/redeem-code', async (req: Request, res: Response) => {
         [email, orderId, rc.code],
       );
 
-      // Redirect to form — user fills details, then processing starts
+      // If form data provided, enqueue for immediate processing
+      if (hasFormData) {
+        await buildQueue.add('job', { order_id: orderId });
+        return res.json({ order_id: orderId, redirect_url: `/build/results/${orderId}` });
+      }
+
+      // Otherwise redirect to form — user fills details, then processing starts
       return res.json({ order_id: orderId, redirect_url: `/build/form?plan=${rc.plan}&orderId=${orderId}` });
     }
 
