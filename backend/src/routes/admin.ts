@@ -684,7 +684,12 @@ router.get('/build-orders', async (req: Request, res: Response) => {
     const countResult = await query('SELECT COUNT(*)::int AS total FROM build_orders');
     const result = await query(
       `SELECT id, email, plan, amount_paise, payment_status, processing_status,
-              processing_error, created_at, paid_at, processing_done_at,
+              processing_error,
+              form_input->>'full_name' as full_name,
+              form_input->>'target_role' as target_role,
+              form_input->>'career_stage' as career_stage,
+              payment_type,
+              created_at, paid_at, processing_done_at,
               email_sent, user_rating, user_feedback
        FROM build_orders ORDER BY created_at DESC LIMIT $1 OFFSET $2`,
       [limit, offset],
@@ -1018,7 +1023,7 @@ router.post('/colleges/:batchId/resend-emails', adminAuth, async (req: Request, 
   try {
     const result = await query(
       `SELECT code, student_email, notes as student_name, college_name
-       FROM referral_codes WHERE batch_id = $1 AND status = 'active'`,
+       FROM referral_codes WHERE batch_id = $1 AND student_email IS NOT NULL`,
       [req.params.batchId],
     );
     if (!result.rows.length) return res.json({ sent: 0 });

@@ -62,9 +62,9 @@ function CopyButton({ text }: { text: string }) {
 const PROCESSING_MESSAGES: Record<string, string> = {
   pending: 'Preparing your order...',
   queued: 'Your order is in the queue...',
-  generating: 'AI is building your LinkedIn profile...',
+  generating: 'AI is building your resume & LinkedIn profile...',
   checking: 'Running quality checks...',
-  done: 'Your profile is ready!',
+  done: 'Your results are ready!',
   failed: 'Something went wrong.',
 };
 
@@ -189,7 +189,7 @@ export default function BuildResultsPage() {
           ) : (
             <>
               <div style={{ width: 48, height: 48, border: '4px solid #E0E0E0', borderTopColor: '#0A66C2', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 20px' }} />
-              <h2 style={{ fontSize: 18, fontWeight: 700, color: '#191919', margin: '0 0 8px' }}>Building Your LinkedIn Profile</h2>
+              <h2 style={{ fontSize: 18, fontWeight: 700, color: '#191919', margin: '0 0 8px' }}>Building Your Resume & LinkedIn Profile</h2>
               <p style={{ fontSize: 14, color: '#666', marginBottom: 16 }}>{PROCESSING_MESSAGES[status]}</p>
               <div style={{ display: 'flex', gap: 4, justifyContent: 'center' }}>
                 {['queued', 'generating', 'checking', 'done'].map((s, i) => (

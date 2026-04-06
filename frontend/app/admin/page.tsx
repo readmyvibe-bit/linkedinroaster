@@ -563,6 +563,7 @@ function OrderDetailModal({
 
 // ─── Orders Screen ───
 function OrdersScreen() {
+  const [orderType, setOrderType] = useState<'rewrite' | 'build'>('rewrite');
   const [orders, setOrders] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -571,7 +572,10 @@ function OrdersScreen() {
 
   const load = useCallback(async () => {
     try {
-      const data = await apiFetchJson(`/api/admin/orders?page=${page}&limit=20`);
+      const endpoint = orderType === 'rewrite'
+        ? `/api/admin/orders?page=${page}&limit=20`
+        : `/api/admin/build-orders?page=${page}&limit=20`;
+      const data = await apiFetchJson(endpoint);
       if (data?.orders) {
         setOrders(data.orders);
         setTotal(data.total || 0);
@@ -579,13 +583,25 @@ function OrdersScreen() {
     } catch {
       setToast({ message: 'Failed to load orders', type: 'error' });
     }
-  }, [page]);
+  }, [page, orderType]);
 
   useEffect(() => { load(); }, [load]);
 
+  // Reset page when switching tabs
+  function switchTab(tab: 'rewrite' | 'build') {
+    if (tab !== orderType) {
+      setOrderType(tab);
+      setPage(1);
+      setOrders([]);
+    }
+  }
+
   async function openDetail(orderId: string) {
     try {
-      const data = await apiFetchJson(`/api/admin/orders/${orderId}`);
+      const endpoint = orderType === 'rewrite'
+        ? `/api/admin/orders/${orderId}`
+        : `/api/admin/build-orders/${orderId}`;
+      const data = await apiFetchJson(endpoint);
       if (!data || data.error) {
         setToast({ message: data?.error || 'Failed to load order', type: 'error' });
         return;
@@ -596,10 +612,30 @@ function OrdersScreen() {
     }
   }
 
+  const tabStyle = (active: boolean) => ({
+    padding: '8px 16px',
+    borderRadius: '6px',
+    fontSize: '13px',
+    fontWeight: active ? 700 : 500,
+    cursor: 'pointer' as const,
+    border: 'none',
+    background: active ? 'var(--li-blue)' : 'var(--li-gray)',
+    color: active ? 'white' : 'var(--li-text-secondary)',
+  });
+
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-bold">Orders ({total})</h2>
+      </div>
+      {/* Sub-tab toggle */}
+      <div className="flex gap-2 mb-4">
+        <button style={tabStyle(orderType === 'rewrite')} onClick={() => switchTab('rewrite')}>
+          Rewrite Orders
+        </button>
+        <button style={tabStyle(orderType === 'build')} onClick={() => switchTab('build')}>
+          Build / Student Orders
+        </button>
       </div>
       <div className="li-card overflow-x-auto">
         <table className="w-full text-sm">
@@ -608,10 +644,14 @@ function OrdersScreen() {
               <th className="text-left p-3">Created</th>
               <th className="text-left p-3">Paid At</th>
               <th className="text-left p-3">Completed</th>
+              {orderType === 'build' && <th className="text-left p-3">Name</th>}
               <th className="text-left p-3">Email</th>
               <th className="text-left p-3">Plan</th>
               <th className="text-left p-3">Status</th>
-              <th className="text-left p-3">Score</th>
+              {orderType === 'rewrite' && <th className="text-left p-3">Score</th>}
+              {orderType === 'build' && <th className="text-left p-3">Career Stage</th>}
+              {orderType === 'build' && <th className="text-left p-3">Target Role</th>}
+              {orderType === 'build' && <th className="text-left p-3">Payment Type</th>}
               <th className="text-left p-3">Rating</th>
             </tr>
           </thead>
@@ -631,20 +671,38 @@ function OrdersScreen() {
                 <td className="p-3 text-xs whitespace-nowrap">{formatIST(o.created_at)}</td>
                 <td className="p-3 text-xs whitespace-nowrap">{formatIST(o.paid_at)}</td>
                 <td className="p-3 text-xs whitespace-nowrap">{formatIST(o.processing_done_at)}</td>
+                {orderType === 'build' && <td className="p-3">{o.full_name || '-'}</td>}
                 <td className="p-3">{o.email}</td>
                 <td className="p-3">
                   <span
                     className="px-2 py-0.5 rounded text-xs font-semibold"
                     style={{
-                      background: o.plan === 'pro' ? '#E8F4FD' : 'var(--li-gray)',
-                      color: o.plan === 'pro' ? 'var(--li-blue)' : 'var(--li-text-secondary)',
+                      background: o.plan === 'pro' ? '#E8F4FD' : o.plan === 'student' ? '#FEF3C7' : 'var(--li-gray)',
+                      color: o.plan === 'pro' ? 'var(--li-blue)' : o.plan === 'student' ? '#92400E' : 'var(--li-text-secondary)',
                     }}
                   >
                     {o.plan}
                   </span>
                 </td>
                 <td className="p-3">{o.payment_status}</td>
-                <td className="p-3 whitespace-nowrap">{o.before_score ?? '-'} → {o.after_score ?? '-'}</td>
+                {orderType === 'rewrite' && (
+                  <td className="p-3 whitespace-nowrap">{o.before_score ?? '-'} → {o.after_score ?? '-'}</td>
+                )}
+                {orderType === 'build' && <td className="p-3 text-xs">{o.career_stage || '-'}</td>}
+                {orderType === 'build' && <td className="p-3 text-xs">{o.target_role || '-'}</td>}
+                {orderType === 'build' && (
+                  <td className="p-3">
+                    <span
+                      className="px-2 py-0.5 rounded text-xs font-semibold"
+                      style={{
+                        background: o.payment_type === 'referral_code' ? '#DBEAFE' : 'var(--li-gray)',
+                        color: o.payment_type === 'referral_code' ? '#1E40AF' : 'var(--li-text-secondary)',
+                      }}
+                    >
+                      {o.payment_type || 'paid'}
+                    </span>
+                  </td>
+                )}
                 <td className="p-3">
                   {o.user_rating ? (
                     <div>
