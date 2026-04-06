@@ -73,6 +73,28 @@ export interface BuildResult {
     common_mistake: string;
     time: string;
   }>;
+
+  // Campus Placement Prep (generated for student/fresher)
+  tell_me_about_yourself?: {
+    short_30s: string;
+    medium_60s: string;
+    detailed_2min: string;
+  };
+  hr_cheat_sheet?: Array<{
+    question: string;
+    answer: string;
+    tip: string;
+  }>;
+  project_prep?: Array<{
+    project_name: string;
+    tech_stack: string;
+    elevator_pitch_30s: string;
+    architecture_explanation: string;
+    follow_up_questions: Array<{
+      question: string;
+      answer: string;
+    }>;
+  }>;
 }
 
 export interface BuildQCResult {
@@ -350,6 +372,128 @@ Return ONLY valid JSON:
 }
 
 // ═══════════════════════════════════════════
+// STAGE 3: Placement Prep (Gemini Flash)
+// ═══════════════════════════════════════════
+async function generatePlacementPrep(
+  formInput: BuildFormInput,
+  profile: BuildResult,
+): Promise<{
+  tell_me_about_yourself: BuildResult['tell_me_about_yourself'];
+  hr_cheat_sheet: BuildResult['hr_cheat_sheet'];
+  project_prep: BuildResult['project_prep'];
+}> {
+  const model = genAI.getGenerativeModel({
+    model: 'gemini-2.5-flash',
+    generationConfig: { temperature: 0.3, maxOutputTokens: 8000 },
+  });
+
+  const studentContext = `
+STUDENT: ${formInput.full_name}
+COLLEGE: ${formInput.education?.[0]?.institution || 'Unknown'}
+DEGREE: ${formInput.education?.[0]?.degree || ''} ${formInput.education?.[0]?.field || ''}
+GRAD YEAR: ${formInput.education?.[0]?.year || ''}
+TARGET ROLE: ${formInput.target_role}
+SKILLS: ${formInput.skills?.join(', ') || ''}
+INTERNSHIPS: ${formInput.experience?.map(e => e.role + ' at ' + e.company).join(', ') || 'None'}
+PROJECTS: ${formInput.projects || 'None listed'}
+ACHIEVEMENTS: ${formInput.achievements || 'None listed'}
+CERTIFICATIONS: ${formInput.certifications?.join(', ') || 'None'}
+GENERATED HEADLINE: ${profile.headline_variations?.[0]?.text || ''}
+`;
+
+  const prompt = `You are an expert campus placement coach in India. Generate comprehensive placement preparation content for this student.
+
+${studentContext}
+
+Generate ALL THREE sections below in one JSON response:
+
+SECTION 1 — TELL ME ABOUT YOURSELF (3 versions)
+Rules:
+- NEVER start with "I am a student" or "My name is"
+- Start with an achievement hook or career aspiration
+- Follow structure: Hook → Education → Skills/Projects → Target Role → Closing
+- 30s version: 3-4 sentences, punchy, for group discussions
+- 60s version: 5-7 sentences, standard interview opener
+- 2min version: Full walkthrough with project details and career vision
+- Reference ACTUAL projects, skills, and achievements from their data
+- If no internship: emphasize projects and self-learning
+- End each version with enthusiasm about the target role
+
+SECTION 2 — HR CHEAT SHEET (10 questions)
+Rules:
+- Every answer MUST reference the student's actual data (projects, skills, college, achievements)
+- Never give generic answers like "I am a hardworking person"
+- Answers should be 3-5 sentences each, using STAR format where applicable
+- Include a practical TIP for each (what NOT to say, body language, etc.)
+- Questions MUST include these 10:
+  1. Tell me about yourself (reference the 60s version)
+  2. Why do you want this job? (reference target_role and skills match)
+  3. What are your strengths? (reference specific technical + soft skills with evidence)
+  4. What are your weaknesses? (genuine but non-critical, with improvement plan)
+  5. Where do you see yourself in 5 years? (realistic career path for this role)
+  6. Tell me about a challenge you faced (from project or academic experience)
+  7. How do you handle pressure/deadlines? (use project deadline as example)
+  8. What are your salary expectations? (research-based range for fresher in this role)
+  9. Why should we hire you? (unique value proposition from their specific background)
+  10. Do you have any questions for us? (3 smart questions to ask)
+
+SECTION 3 — PROJECT PREP (top 2 projects)
+Rules:
+- Extract projects from the PROJECTS field and INTERNSHIPS
+- If only 1 project available, create prep for 1
+- If no projects mentioned, create prep based on skills (assume a common project for their tech stack)
+- For each project:
+  - elevator_pitch_30s: What it does, tech used, key achievement — in 30 seconds
+  - architecture_explanation: How the system works, components, data flow — interviewer-friendly, 60-90 seconds
+  - 5 follow_up_questions an interviewer WILL ask about THIS specific project:
+    - "Why did you choose [tech X] over [tech Y]?"
+    - "How would you scale this?"
+    - "What testing did you do?"
+    - "What was the hardest bug?"
+    - "What would you improve?"
+  - Each follow-up has a detailed answer using their actual tech stack
+
+OUTPUT FORMAT (strict JSON):
+{
+  "tell_me_about_yourself": {
+    "short_30s": "string",
+    "medium_60s": "string",
+    "detailed_2min": "string"
+  },
+  "hr_cheat_sheet": [
+    { "question": "string", "answer": "string", "tip": "string" }
+  ],
+  "project_prep": [
+    {
+      "project_name": "string",
+      "tech_stack": "string",
+      "elevator_pitch_30s": "string",
+      "architecture_explanation": "string",
+      "follow_up_questions": [
+        { "question": "string", "answer": "string" }
+      ]
+    }
+  ]
+}
+
+Return ONLY valid JSON. No markdown. No explanation.`;
+
+  try {
+    const result = await model.generateContent({ contents: [{ role: 'user', parts: [{ text: prompt }] }] });
+    const text = result.response.text();
+    return safeJsonParse(text);
+  } catch (err) {
+    console.error('[BUILD] Placement prep generation error:', (err as Error).message);
+    // Return empty defaults so pipeline doesn't fail
+    return {
+      tell_me_about_yourself: { short_30s: '', medium_60s: '', detailed_2min: '' },
+      hr_cheat_sheet: [],
+      project_prep: [],
+    };
+  }
+}
+
+// ═══════════════════════════════════════════
 // MAIN: Run Build Pipeline
 // ═══════════════════════════════════════════
 export async function runBuildPipeline(orderId: string): Promise<void> {
@@ -394,6 +538,26 @@ export async function runBuildPipeline(orderId: string): Promise<void> {
       // REVISE: pass revision instructions to next attempt
       revisionInstructions = qc.revision_instructions || qc.issues.join('. ');
       console.log(`[BUILD] Revision needed: ${revisionInstructions}`);
+    }
+
+    // Generate placement prep for student/fresher orders
+    if (formInput.career_stage === 'student' || formInput.career_stage === 'fresher') {
+      try {
+        console.log(`[BUILD] Generating placement prep for ${orderId}`);
+        const prep = await generatePlacementPrep(formInput, profile);
+        profile.tell_me_about_yourself = prep.tell_me_about_yourself;
+        profile.hr_cheat_sheet = prep.hr_cheat_sheet;
+        profile.project_prep = prep.project_prep;
+        // Update the stored profile with prep data
+        await query(
+          'UPDATE build_orders SET generated_profile=$1, updated_at=NOW() WHERE id=$2',
+          [JSON.stringify(profile), orderId],
+        );
+        console.log(`[BUILD] Placement prep saved for ${orderId}`);
+      } catch (prepErr: any) {
+        console.error(`[BUILD] Placement prep failed for ${orderId}:`, prepErr.message);
+        // Non-fatal — student still gets resume + LinkedIn
+      }
     }
 
     // Send results email

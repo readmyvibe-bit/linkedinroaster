@@ -555,7 +555,7 @@ function StudentPayButton({ formData, email }: { formData: any; email: string })
   return (
     <div>
       <button onClick={handlePay} disabled={paying} style={{ width: '100%', padding: '14px', background: 'white', color: '#057642', border: 'none', borderRadius: 50, fontSize: 16, fontWeight: 700, cursor: 'pointer', opacity: paying ? 0.6 : 1 }}>
-        {paying ? 'Processing...' : 'Pay \u20b999 & Build My Resume'}
+        {paying ? 'Processing...' : 'Pay \u20b9199 & Build My Resume'}
       </button>
       <div style={{ textAlign: 'center', marginTop: 12 }}>
         {!showReferral ? (
@@ -586,8 +586,8 @@ function StudentPayButton({ formData, email }: { formData: any; email: string })
 
 export default function Home() {
   // Input source tracking
-  const [inputSource, setInputSource] = useState<'resume' | 'linkedin' | 'questionnaire' | 'student'>('resume');
-  const [activeInputTab, setActiveInputTab] = useState<'resume' | 'linkedin' | 'questionnaire' | 'student'>('resume');
+  const [inputSource, setInputSource] = useState<'resume' | 'linkedin' | 'questionnaire' | 'student'>('student');
+  const [activeInputTab, setActiveInputTab] = useState<'resume' | 'linkedin' | 'questionnaire' | 'student'>('student');
 
   // Core state
   const [headline, setHeadline] = useState('');
@@ -963,7 +963,7 @@ export default function Home() {
     <section ref={pricingRef} style={{ padding: '56px 24px', background: 'var(--bg-canvas)', borderBottom: '1px solid var(--border-default)' }}>
       <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
         <h2 style={{ fontSize: 32, fontWeight: 900, color: 'var(--text-primary)', marginBottom: 4 }}>Simple Pricing</h2>
-        <p style={{ fontSize: 15, color: 'var(--text-secondary)', marginBottom: 8 }}>One interview can change your career.</p>
+        <p style={{ fontSize: 15, color: 'var(--text-secondary)', marginBottom: 8 }}>For working professionals — full profile rewrite + resume + interview prep.</p>
         <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 36 }}>Profile score is free. Pay only when you{"'"}re ready.</p>
 
         <div style={{ display: 'flex', gap: 20, justifyContent: 'center', flexWrap: 'wrap', alignItems: 'stretch' }}>
@@ -1102,22 +1102,22 @@ export default function Home() {
 
             {/* LEFT — Value Proposition */}
             <div style={{ flex: '1.2 1 420px', minWidth: 0 }}>
-              <div className="saas-eyebrow" style={{ marginBottom: 12 }}>Free profile score</div>
+              <div className="saas-eyebrow" style={{ marginBottom: 12 }}>Campus placement kit</div>
               <h1 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 12, lineHeight: 1.15, letterSpacing: '-0.02em' }}>
-                Not getting calls from HR?<br />
-                <span style={{ color: 'var(--accent)' }}>Your resume might be the problem.</span>
+                Campus placements starting?<br />
+                <span style={{ color: 'var(--accent)' }}>Get your resume, LinkedIn, and interview prep ready in 5 minutes.</span>
               </h1>
               <p style={{ fontSize: 16, color: 'var(--text-secondary)', marginBottom: 32, lineHeight: 1.7, maxWidth: 520 }}>
-                Upload your resume or LinkedIn PDF. AI scores it, rewrites your profile, builds an ATS resume, and preps you for interviews — in minutes.
+                Fill a quick form or upload your resume. AI builds an ATS resume, LinkedIn profile, and interview prep — all in one place.
               </p>
 
               {/* Value bullets with icon tiles */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 32 }}>
                 {[
-                  { bg: 'var(--accent-subtle)', color: 'var(--accent)', icon: '📄', title: 'Instant ATS analysis', desc: 'Upload resume or LinkedIn PDF' },
-                  { bg: 'var(--success-subtle)', color: 'var(--success)', icon: '✍️', title: 'AI-powered rewrite', desc: 'Headline, about, experience bullets' },
-                  { bg: '#F5F3FF', color: '#7C3AED', icon: '🎯', title: 'Interview prep kit', desc: '15 STAR-format questions + cheat sheet' },
-                  { bg: '#FFF7ED', color: '#EA580C', icon: '📋', title: 'ATS resume builder', desc: '11 templates, instant PDF download' },
+                  { bg: '#FFF7ED', color: '#EA580C', icon: '📋', title: 'ATS Resume', desc: '11 templates, PDF download' },
+                  { bg: 'var(--accent-subtle)', color: 'var(--accent)', icon: '📄', title: 'LinkedIn Profile', desc: 'Headline, about, experience, setup guide' },
+                  { bg: '#F5F3FF', color: '#7C3AED', icon: '🎯', title: 'Interview Prep', desc: '5 companies, 15 questions each' },
+                  { bg: 'var(--success-subtle)', color: 'var(--success)', icon: '✍️', title: 'HR + Project Prep', desc: 'Cheat sheet, TMAY, project explanations' },
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                     <div className="icon-tile" style={{ background: item.bg, color: item.color, fontSize: 18 }}>{item.icon}</div>
@@ -1131,18 +1131,10 @@ export default function Home() {
 
               {/* Before / After comparison strip */}
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-md)', padding: '10px 20px', boxShadow: 'var(--shadow-xs)' }}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--danger)', letterSpacing: 1, textTransform: 'uppercase' }}>Before</div>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--danger)' }}>42</div>
-                </div>
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12m0 0l-4-4m4 4l-4 4" stroke="#CBD5E1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--success)', letterSpacing: 1, textTransform: 'uppercase' }}>After</div>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--success)' }}>87</div>
-                </div>
-                <div style={{ borderLeft: '1px solid var(--border-default)', paddingLeft: 12, marginLeft: 4 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>+45 pts</div>
-                  <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>avg improvement</div>
+                <div style={{ fontSize: 20 }}>🎓</div>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>Used by 500+ students for campus placements</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>B.Tech, MBA, BCA, B.Com, B.Sc &amp; more</div>
                 </div>
               </div>
             </div>
@@ -1154,6 +1146,10 @@ export default function Home() {
                 {/* Tab navigation — clean pills */}
                 <div style={{ padding: '16px 20px 0', background: 'var(--bg-surface)' }}>
                   <div style={{ display: 'inline-flex', gap: 4, padding: 4, background: 'var(--bg-canvas)', borderRadius: 10, width: '100%' }}>
+                    <button onClick={() => { setActiveInputTab('student'); setInputSource('student'); }}
+                      style={{ flex: 1, padding: '9px 12px', fontSize: 13, fontWeight: activeInputTab === 'student' ? 700 : 500, borderRadius: 8, border: 'none', cursor: 'pointer', background: activeInputTab === 'student' ? 'var(--bg-surface)' : 'transparent', color: activeInputTab === 'student' ? 'var(--accent)' : 'var(--text-secondary)', boxShadow: activeInputTab === 'student' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none', transition: 'all 0.15s' }}>
+                      Student
+                    </button>
                     <button onClick={() => { setActiveInputTab('resume'); setInputSource('resume'); }}
                       style={{ flex: 1, padding: '9px 12px', fontSize: 13, fontWeight: activeInputTab === 'resume' ? 700 : 500, borderRadius: 8, border: 'none', cursor: 'pointer', background: activeInputTab === 'resume' ? 'var(--bg-surface)' : 'transparent', color: activeInputTab === 'resume' ? 'var(--accent)' : 'var(--text-secondary)', boxShadow: activeInputTab === 'resume' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none', transition: 'all 0.15s' }}>
                       Resume
@@ -1165,10 +1161,6 @@ export default function Home() {
                     <button onClick={() => { setActiveInputTab('questionnaire'); setInputSource('questionnaire'); }}
                       style={{ flex: 1, padding: '9px 12px', fontSize: 13, fontWeight: activeInputTab === 'questionnaire' ? 700 : 500, borderRadius: 8, border: 'none', cursor: 'pointer', background: activeInputTab === 'questionnaire' ? 'var(--bg-surface)' : 'transparent', color: activeInputTab === 'questionnaire' ? 'var(--accent)' : 'var(--text-secondary)', boxShadow: activeInputTab === 'questionnaire' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none', transition: 'all 0.15s' }}>
                       No File
-                    </button>
-                    <button onClick={() => { setActiveInputTab('student'); setInputSource('student'); }}
-                      style={{ flex: 1, padding: '9px 12px', fontSize: 13, fontWeight: activeInputTab === 'student' ? 700 : 500, borderRadius: 8, border: 'none', cursor: 'pointer', background: activeInputTab === 'student' ? 'var(--bg-surface)' : 'transparent', color: activeInputTab === 'student' ? 'var(--accent)' : 'var(--text-secondary)', boxShadow: activeInputTab === 'student' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none', transition: 'all 0.15s' }}>
-                      Student
                     </button>
                   </div>
                 </div>
@@ -1444,7 +1436,26 @@ export default function Home() {
                               <input placeholder="Full Name *" value={studentName} onChange={e => setStudentName(e.target.value)} style={{ padding: '10px 14px', border: '1px solid #D1D5DB', borderRadius: 8, fontSize: 14 }} />
                               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                                 <input placeholder="College / University *" value={studentCollege} onChange={e => setStudentCollege(e.target.value)} style={{ padding: '10px 14px', border: '1px solid #D1D5DB', borderRadius: 8, fontSize: 14 }} />
-                                <input placeholder="Degree (B.Tech, BCA, MBA...)" value={studentDegree} onChange={e => setStudentDegree(e.target.value)} style={{ padding: '10px 14px', border: '1px solid #D1D5DB', borderRadius: 8, fontSize: 14 }} />
+                                <select value={studentDegree} onChange={e => setStudentDegree(e.target.value)} style={{ padding: '10px 14px', border: '1px solid #D1D5DB', borderRadius: 8, fontSize: 14, background: 'white' }}>
+                                  <option value="">Select Degree</option>
+                                  <option value="B.Tech">B.Tech</option>
+                                  <option value="B.E.">B.E.</option>
+                                  <option value="BCA">BCA</option>
+                                  <option value="MCA">MCA</option>
+                                  <option value="M.Tech">M.Tech</option>
+                                  <option value="BSc">B.Sc</option>
+                                  <option value="MSc">M.Sc</option>
+                                  <option value="MBA">MBA</option>
+                                  <option value="BBA">BBA</option>
+                                  <option value="B.Com">B.Com</option>
+                                  <option value="M.Com">M.Com</option>
+                                  <option value="BA">B.A.</option>
+                                  <option value="MA">M.A.</option>
+                                  <option value="B.Pharm">B.Pharm</option>
+                                  <option value="LLB">LLB</option>
+                                  <option value="Diploma">Diploma</option>
+                                  <option value="Other">Other</option>
+                                </select>
                               </div>
                               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                                 <input placeholder="Branch / Major (CSE, ECE...)" value={studentBranch} onChange={e => setStudentBranch(e.target.value)} style={{ padding: '10px 14px', border: '1px solid #D1D5DB', borderRadius: 8, fontSize: 14 }} />
@@ -1463,13 +1474,36 @@ export default function Home() {
                               <input placeholder="Target Role * (e.g., Software Developer)" value={studentTargetRole} onChange={e => setStudentTargetRole(e.target.value)} style={{ padding: '10px 14px', border: '1px solid #D1D5DB', borderRadius: 8, fontSize: 14 }} />
                               <div style={{ fontSize: 12, color: '#666', marginTop: -4 }}>Not sure? Common roles for {studentBranch || 'your branch'}:</div>
                               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                                {(studentBranch.toLowerCase().includes('cs') || studentBranch.toLowerCase().includes('it') || studentBranch.toLowerCase().includes('computer')
-                                  ? ['Software Developer', 'Data Analyst', 'Web Developer', 'QA Engineer', 'DevOps']
-                                  : studentBranch.toLowerCase().includes('ec') || studentBranch.toLowerCase().includes('electronics')
-                                  ? ['Embedded Engineer', 'VLSI Designer', 'Network Engineer', 'IoT Developer']
-                                  : studentBranch.toLowerCase().includes('mba') || studentBranch.toLowerCase().includes('business')
-                                  ? ['Business Analyst', 'Marketing Manager', 'HR Executive', 'Product Manager']
-                                  : ['Software Developer', 'Data Analyst', 'Business Analyst', 'Consultant', 'Marketing']
+                                {(
+                                  // CSE/IT
+                                  studentBranch.toLowerCase().match(/cs|it|computer|software|information tech/)
+                                    ? ['Software Developer', 'Data Analyst', 'Web Developer', 'QA Engineer', 'DevOps Engineer', 'Cloud Engineer']
+                                  // ECE/EEE/Electrical
+                                  : studentBranch.toLowerCase().match(/ec|electronics|electrical|eee/)
+                                    ? ['Embedded Engineer', 'VLSI Designer', 'Network Engineer', 'IoT Developer', 'Test Engineer']
+                                  // Mechanical/Civil/Core
+                                  : studentBranch.toLowerCase().match(/mech|civil|auto|aero|chemical|production/)
+                                    ? ['Design Engineer', 'Production Engineer', 'Quality Engineer', 'Project Engineer', 'Site Engineer']
+                                  // MBA/BBA/Management
+                                  : studentBranch.toLowerCase().match(/mba|bba|management|business/)
+                                    ? ['Business Analyst', 'Marketing Manager', 'HR Executive', 'Product Manager', 'Operations Manager']
+                                  // Commerce/Finance
+                                  : studentBranch.toLowerCase().match(/com|finance|accounting|ca|cma/)
+                                    ? ['Financial Analyst', 'Accountant', 'Auditor', 'Tax Consultant', 'Investment Analyst']
+                                  // Arts/Humanities
+                                  : studentBranch.toLowerCase().match(/arts|english|history|sociology|psychology|journalism/)
+                                    ? ['Content Writer', 'HR Executive', 'Research Analyst', 'Public Relations', 'Social Media Manager']
+                                  // Science/BSc
+                                  : studentBranch.toLowerCase().match(/physics|chemistry|math|bio|science|bsc/)
+                                    ? ['Data Analyst', 'Lab Technician', 'Research Associate', 'Quality Analyst', 'Science Teacher']
+                                  // BCA/MCA
+                                  : studentBranch.toLowerCase().match(/bca|mca/)
+                                    ? ['Software Developer', 'Web Developer', 'Data Analyst', 'System Administrator', 'App Developer']
+                                  // Pharmacy
+                                  : studentBranch.toLowerCase().match(/pharm/)
+                                    ? ['Medical Representative', 'Quality Control', 'Drug Inspector', 'Clinical Research', 'Pharmacist']
+                                  // Default
+                                  : ['Software Developer', 'Data Analyst', 'Business Analyst', 'Marketing Executive', 'HR Executive']
                                 ).map(r => (
                                   <button key={r} onClick={() => setStudentTargetRole(r)} style={{ padding: '4px 12px', borderRadius: 16, border: studentTargetRole === r ? '2px solid #0B69C7' : '1px solid #D1D5DB', background: studentTargetRole === r ? '#EFF6FF' : 'white', fontSize: 12, cursor: 'pointer', color: '#191919' }}>{r}</button>
                                 ))}
@@ -1542,7 +1576,7 @@ export default function Home() {
                                   }}
                                   style={{ flex: 2, padding: '12px', background: !studentSkills.trim() || !studentEmail.trim() ? '#D1D5DB' : '#057642', color: 'white', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
                                 >
-                                  Build My Resume — &#8377;99 &rarr;
+                                  Build My Resume — &#8377;199 &rarr;
                                 </button>
                               </div>
                             </div>
@@ -1799,17 +1833,22 @@ export default function Home() {
       {inputSource === 'student' && studentFormData && (
         <div id="student-pricing" style={{ maxWidth: 440, margin: '24px auto 0', background: 'linear-gradient(135deg, #057642, #16A34A)', borderRadius: 14, padding: '28px', color: 'white', textAlign: 'center' }}>
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, opacity: 0.8, marginBottom: 8 }}>STUDENT PLAN</div>
-          <div style={{ fontSize: 40, fontWeight: 800, marginBottom: 4 }}>&#8377;99</div>
+          <div style={{ fontSize: 40, fontWeight: 800, marginBottom: 4 }}>&#8377;199</div>
           <div style={{ fontSize: 13, opacity: 0.85, marginBottom: 20 }}>One-time payment &middot; Results in 90 seconds</div>
           <div style={{ textAlign: 'left', fontSize: 13, lineHeight: 2, marginBottom: 20 }}>
             &#10003; ATS resume (11 professional templates)<br/>
             &#10003; LinkedIn profile content (headline + about + experience)<br/>
             &#10003; 10-step LinkedIn account setup guide<br/>
-            &#10003; 5 interview questions with STAR answers<br/>
+            &#10003; 5 company interview preps (15 questions each)<br/>
+            &#10003; HR cheat sheet + TMAY + project explanations<br/>
             &#10003; PDF + TXT download
           </div>
           <StudentPayButton formData={studentFormData} email={studentEmail} />
-          <div style={{ fontSize: 11, opacity: 0.7, marginTop: 12 }}>Need more? Upgrade to Standard (&#8377;400 more) anytime</div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 16, padding: '12px', background: 'rgba(255,255,255,0.1)', borderRadius: 8 }}>
+            <strong>Student Pro — &#8377;349</strong><br/>
+            10 company preps + 3 resume variants + cover letters
+          </div>
+          <div style={{ fontSize: 11, opacity: 0.7, marginTop: 12 }}>Need more? Upgrade to Standard (&#8377;300 more) anytime</div>
         </div>
       )}
 

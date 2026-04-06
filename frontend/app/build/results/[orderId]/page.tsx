@@ -34,6 +34,9 @@ interface BuildProfile {
   experience: ExperienceEntry[];
   skills: { technical: string[]; soft: string[]; tools: string[] };
   setup_guide: SetupStep[];
+  tell_me_about_yourself?: { short_30s: string; medium_60s: string; detailed_2min: string };
+  hr_cheat_sheet?: { question: string; answer: string; tip?: string }[];
+  project_prep?: { project_name: string; tech_stack: string; elevator_pitch_30s: string; architecture_explanation: string; follow_up_questions?: { question: string; answer: string }[] }[];
 }
 
 interface BuildOrder {
@@ -81,6 +84,9 @@ export default function BuildResultsPage() {
   const [feedbackSent, setFeedbackSent] = useState(false);
   const [existingResumes, setExistingResumes] = useState<any[]>([]);
   const [resumeCountLoaded, setResumeCountLoaded] = useState(false);
+  const [tmayTab, setTmayTab] = useState<'30s' | '60s' | '2min'>('60s');
+  const [expandedHR, setExpandedHR] = useState<number | null>(null);
+  const [expandedProject, setExpandedProject] = useState<number | null>(null);
 
   const fetchResults = useCallback(async () => {
     try {
@@ -396,6 +402,113 @@ export default function BuildResultsPage() {
               )}
             </div>
 
+            {/* Tell Me About Yourself */}
+            {isStudent && profile.tell_me_about_yourself && (
+              <div style={cardStyle}>
+                <h2 style={{ fontSize: 18, fontWeight: 800, color: '#191919', margin: '0 0 12px' }}>Tell Me About Yourself</h2>
+                <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
+                  {(['30s', '60s', '2min'] as const).map(v => (
+                    <button key={v} onClick={() => setTmayTab(v)} style={{ padding: '6px 16px', borderRadius: 20, border: tmayTab === v ? '2px solid #0B69C7' : '1px solid #D1D5DB', background: tmayTab === v ? '#EFF6FF' : 'white', fontSize: 13, fontWeight: 600, cursor: 'pointer', color: tmayTab === v ? '#0B69C7' : '#666' }}>
+                      {v === '30s' ? '30 Seconds' : v === '60s' ? '1 Minute' : '2 Minutes'}
+                    </button>
+                  ))}
+                </div>
+                <div style={{ background: '#F0F7FF', borderRadius: 10, padding: '18px 20px', lineHeight: 1.7, fontSize: 14, color: '#333', whiteSpace: 'pre-wrap', position: 'relative' }}>
+                  {tmayTab === '30s' && (profile.tell_me_about_yourself.short_30s || 'Not generated')}
+                  {tmayTab === '60s' && (profile.tell_me_about_yourself.medium_60s || 'Not generated')}
+                  {tmayTab === '2min' && (profile.tell_me_about_yourself.detailed_2min || 'Not generated')}
+                  <div style={{ position: 'absolute', top: 12, right: 12 }}>
+                    <CopyButton text={tmayTab === '30s' ? profile.tell_me_about_yourself.short_30s : tmayTab === '60s' ? profile.tell_me_about_yourself.medium_60s : profile.tell_me_about_yourself.detailed_2min} />
+                  </div>
+                </div>
+                <div style={{ fontSize: 12, color: '#888', marginTop: 8 }}>
+                  {tmayTab === '30s' ? 'For group discussions and quick introductions' : tmayTab === '60s' ? 'Standard interview opener — memorize this one' : 'For detailed technical round introductions'}
+                </div>
+              </div>
+            )}
+
+            {/* HR Round Cheat Sheet */}
+            {isStudent && profile.hr_cheat_sheet && profile.hr_cheat_sheet.length > 0 && (
+              <div style={cardStyle}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <h2 style={{ fontSize: 18, fontWeight: 800, color: '#191919', margin: 0 }}>HR Round Cheat Sheet</h2>
+                  <CopyButton text={profile.hr_cheat_sheet.map((q: any) => `Q: ${q.question}\nA: ${q.answer}`).join('\n\n')} />
+                </div>
+                <div style={{ fontSize: 13, color: '#666', marginBottom: 16 }}>10 most common HR questions with YOUR personalized answers</div>
+                {profile.hr_cheat_sheet.map((q: any, i: number) => (
+                  <div key={i} style={{ border: '1px solid #E5E7EB', borderRadius: 10, marginBottom: 8, overflow: 'hidden' }}>
+                    <div onClick={() => setExpandedHR(expandedHR === i ? null : i)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: expandedHR === i ? '#F9FAFB' : 'white' }}>
+                      <span style={{ width: 24, height: 24, borderRadius: '50%', background: '#0B69C7', color: 'white', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{i + 1}</span>
+                      <span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#191919' }}>{q.question}</span>
+                      <span style={{ fontSize: 14, color: '#888' }}>{expandedHR === i ? '\u25B2' : '\u25BC'}</span>
+                    </div>
+                    {expandedHR === i && (
+                      <div style={{ padding: '0 16px 16px', borderTop: '1px solid #F3F4F6' }}>
+                        <div style={{ background: '#F0FDF4', borderRadius: 8, padding: '12px 14px', marginTop: 12, fontSize: 14, color: '#333', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{q.answer}</div>
+                        {q.tip && (
+                          <div style={{ background: '#FFFBEB', borderRadius: 8, padding: '8px 12px', marginTop: 8, fontSize: 12, color: '#92400E' }}>
+                            <strong>Tip:</strong> {q.tip}
+                          </div>
+                        )}
+                        <div style={{ marginTop: 8, textAlign: 'right' }}>
+                          <CopyButton text={`Q: ${q.question}\nA: ${q.answer}`} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Project Explanation Prep */}
+            {isStudent && profile.project_prep && profile.project_prep.length > 0 && (
+              <div style={cardStyle}>
+                <h2 style={{ fontSize: 18, fontWeight: 800, color: '#191919', margin: '0 0 16px' }}>Project Explanation Prep</h2>
+                {profile.project_prep.map((proj: any, i: number) => (
+                  <div key={i} style={{ border: '1px solid #E5E7EB', borderRadius: 10, marginBottom: 12, overflow: 'hidden' }}>
+                    <div onClick={() => setExpandedProject(expandedProject === i ? null : i)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', background: expandedProject === i ? '#F9FAFB' : 'white' }}>
+                      <span style={{ fontSize: 20 }}>{'\uD83D\uDCBB'}</span>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: '#191919' }}>{proj.project_name}</div>
+                        <div style={{ fontSize: 12, color: '#666' }}>{proj.tech_stack}</div>
+                      </div>
+                      <span style={{ fontSize: 14, color: '#888' }}>{expandedProject === i ? '\u25B2' : '\u25BC'}</span>
+                    </div>
+                    {expandedProject === i && (
+                      <div style={{ padding: '0 16px 16px', borderTop: '1px solid #F3F4F6' }}>
+                        {/* 30-Second Pitch */}
+                        <div style={{ marginTop: 12 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: '#0B69C7', letterSpacing: 1 }}>30-SECOND PITCH</span>
+                            <CopyButton text={proj.elevator_pitch_30s} />
+                          </div>
+                          <div style={{ background: '#F0F7FF', borderRadius: 8, padding: '12px 14px', fontSize: 14, color: '#333', lineHeight: 1.6 }}>{proj.elevator_pitch_30s}</div>
+                        </div>
+                        {/* Architecture */}
+                        <div style={{ marginTop: 12 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: '#057642', letterSpacing: 1 }}>ARCHITECTURE EXPLANATION</span>
+                            <CopyButton text={proj.architecture_explanation} />
+                          </div>
+                          <div style={{ background: '#F0FDF4', borderRadius: 8, padding: '12px 14px', fontSize: 14, color: '#333', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{proj.architecture_explanation}</div>
+                        </div>
+                        {/* Follow-up Questions */}
+                        <div style={{ marginTop: 12 }}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: '#CC1016', letterSpacing: 1 }}>FOLLOW-UP QUESTIONS THEY WILL ASK</span>
+                          {(proj.follow_up_questions || []).map((fq: any, j: number) => (
+                            <div key={j} style={{ background: '#F9FAFB', borderRadius: 8, padding: '10px 14px', marginTop: 8 }}>
+                              <div style={{ fontSize: 13, fontWeight: 600, color: '#191919', marginBottom: 4 }}>Q{j + 1}: {fq.question}</div>
+                              <div style={{ fontSize: 13, color: '#555', lineHeight: 1.5 }}>{fq.answer}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Headline Variations */}
             <div style={cardStyle}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -417,6 +530,22 @@ export default function BuildResultsPage() {
                 </div>
               ))}
             </div>
+
+            {/* Company Interview Prep — On-Demand */}
+            {isStudent && (
+              <div style={{ background: 'linear-gradient(135deg, #004182, #0B69C7)', borderRadius: 12, padding: '24px 28px', color: 'white', marginBottom: 16 }}>
+                <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 6 }}>Prepare for a Specific Company</div>
+                <div style={{ fontSize: 14, opacity: 0.9, lineHeight: 1.6, marginBottom: 16 }}>
+                  Select a company visiting your campus. AI generates 15 tailored interview questions + company tips + customized &quot;Tell me about yourself&quot; for that company.
+                </div>
+                <a href={`/build/interview-prep/${orderId}`} style={{ display: 'inline-block', padding: '12px 28px', background: 'white', color: '#0B69C7', borderRadius: 50, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+                  Prepare for Interview &rarr;
+                </a>
+                <div style={{ fontSize: 12, opacity: 0.7, marginTop: 10 }}>
+                  {plan === 'student_pro' ? '10' : '5'} company prep slots included in your plan
+                </div>
+              </div>
+            )}
 
             {/* Setup Guide */}
             <div style={cardStyle}>
@@ -599,6 +728,28 @@ export default function BuildResultsPage() {
                 <button onClick={() => { const text = `Bro I just made my resume and LinkedIn profile in 60 seconds for just Rs 99. My resume looks professional af. Try it: profileroaster.in`; window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank'); }} style={{ width: '100%', padding: '10px', background: '#25D366', color: 'white', border: 'none', borderRadius: 50, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
                   Share on WhatsApp
                 </button>
+              </div>
+            )}
+
+            {/* Placement Checklist */}
+            {isStudent && (
+              <div style={cardStyle}>
+                <h3 style={{ fontSize: 16, fontWeight: 800, color: '#191919', margin: '0 0 12px' }}>Placement Checklist</h3>
+                {[
+                  { label: 'Resume built', done: true },
+                  { label: 'LinkedIn content ready', done: true },
+                  { label: '"Tell me about yourself" memorized', done: !!profile.tell_me_about_yourself },
+                  { label: 'HR answers prepared', done: !!profile.hr_cheat_sheet?.length },
+                  { label: 'Project explanation practiced', done: !!profile.project_prep?.length },
+                  { label: 'LinkedIn profile set up', done: false },
+                  { label: 'Company interview prep done', done: false },
+                  { label: 'Applied to companies', done: false },
+                ].map((item, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: item.done ? '#057642' : '#191919', padding: '6px 0' }}>
+                    <span style={{ fontSize: 14 }}>{item.done ? '\u2705' : '\u2B1C'}</span>
+                    <span style={{ fontWeight: item.done ? 600 : 400 }}>{item.label}</span>
+                  </div>
+                ))}
               </div>
             )}
 

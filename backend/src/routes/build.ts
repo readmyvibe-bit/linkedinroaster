@@ -5,6 +5,7 @@ import { jsonrepair } from 'jsonrepair';
 import { query } from '../db';
 import { validateEmail } from '../lib/validation';
 import { buildQueue } from '../queue/build-queue';
+import { generateCompanyPrep, CAMPUS_COMPANIES, CompanyPrepResult } from '../services/company-prep';
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
@@ -15,7 +16,8 @@ const razorpay = new Razorpay({
 });
 
 const PLAN_AMOUNTS: Record<string, number> = {
-  student: 9900,
+  student: 19900,       // ₹199
+  student_pro: 34900,   // ₹349
   standard: 49900,
   pro: 99900,
   // Legacy plans mapped to standard pricing
@@ -31,8 +33,8 @@ router.post('/create-order', async (req: Request, res: Response) => {
     if (!validateEmail(email))
       return res.status(400).json({ error: 'Invalid email address' });
 
-    if (!['student', 'standard', 'pro', 'starter', 'plus'].includes(plan))
-      return res.status(400).json({ error: 'Invalid plan. Choose student, standard, or pro.' });
+    if (!['student', 'student_pro', 'standard', 'pro', 'starter', 'plus'].includes(plan))
+      return res.status(400).json({ error: 'Invalid plan. Choose student, student_pro, standard, or pro.' });
 
     if (!form_input || !form_input.full_name || !form_input.target_role)
       return res.status(400).json({ error: 'Name and target role are required.' });
@@ -200,6 +202,110 @@ router.post('/:orderId/feedback', async (req: Request, res: Response) => {
     res.json({ saved: true });
   } catch (err) {
     res.status(500).json({ error: 'Failed to save feedback' });
+  }
+});
+
+// GET /api/build/campus-companies — List of popular campus recruiters
+router.get('/campus-companies', (_req: Request, res: Response) => {
+  res.json({ companies: CAMPUS_COMPANIES });
+});
+
+// POST /api/build/:orderId/company-prep — Generate company-specific prep
+router.post('/:orderId/company-prep', async (req: Request, res: Response) => {
+  try {
+    const { company_name, job_description } = req.body;
+    if (!company_name?.trim()) return res.status(400).json({ error: 'Company name required' });
+
+    const order = await query('SELECT * FROM build_orders WHERE id=$1', [req.params.orderId]);
+    if (!order.rows.length) return res.status(404).json({ error: 'Order not found' });
+    const o = order.rows[0];
+    if (o.processing_status !== 'done') return res.status(400).json({ error: 'Order not processed yet' });
+
+    // Check prep slot quota
+    const plan = o.plan;
+    const maxSlots = plan === 'student_pro' ? 10 : plan === 'pro' ? 10 : 5;
+
+    // Check existing preps for this order
+    const existing = await query(
+      'SELECT id, company_name FROM company_preps WHERE order_id=$1',
+      [req.params.orderId],
+    );
+
+    // Check if already prepped for this company
+    const alreadyDone = existing.rows.find((r: any) => r.company_name?.toLowerCase() === company_name.trim().toLowerCase());
+    if (alreadyDone) {
+      const prepResult = await query('SELECT * FROM company_preps WHERE id=$1', [alreadyDone.id]);
+      return res.json({ prep: prepResult.rows[0]?.prep_data, slots_used: existing.rows.length, max_slots: maxSlots });
+    }
+
+    if (existing.rows.length >= maxSlots) {
+      return res.status(400).json({ error: `All ${maxSlots} interview prep slots used. Upgrade for more.`, slots_used: existing.rows.length, max_slots: maxSlots });
+    }
+
+    // Extract student data from form_input
+    const fi = o.form_input || {};
+    const studentData = {
+      name: fi.full_name || '',
+      college: fi.education?.[0]?.institution || '',
+      degree: fi.education?.[0]?.degree || '',
+      branch: fi.education?.[0]?.field || '',
+      target_role: fi.target_role || '',
+      skills: fi.skills || [],
+      projects: fi.projects || '',
+      internships: fi.experience?.map((e: any) => `${e.role} at ${e.company}`).join(', ') || (fi as any).internships || '',
+      achievements: fi.achievements || '',
+      experience: fi.experience || [],
+    };
+
+    // Generate prep
+    const prep = await generateCompanyPrep(
+      req.params.orderId,
+      company_name.trim(),
+      job_description || null,
+      studentData,
+    );
+
+    // Save to DB
+    await query(
+      `INSERT INTO company_preps (order_id, company_name, prep_data, created_at)
+       VALUES ($1, $2, $3, NOW())`,
+      [req.params.orderId, company_name.trim(), JSON.stringify(prep)],
+    );
+
+    res.json({ prep, slots_used: existing.rows.length + 1, max_slots: maxSlots });
+  } catch (err: any) {
+    console.error('Company prep error:', err.message);
+    res.status(500).json({ error: 'Failed to generate interview prep. Please try again.' });
+  }
+});
+
+// GET /api/build/:orderId/company-preps — List all preps for an order
+router.get('/:orderId/company-preps', async (req: Request, res: Response) => {
+  try {
+    const order = await query('SELECT plan FROM build_orders WHERE id=$1', [req.params.orderId]);
+    if (!order.rows.length) return res.status(404).json({ error: 'Order not found' });
+
+    const plan = order.rows[0].plan;
+    const maxSlots = plan === 'student_pro' ? 10 : plan === 'pro' ? 10 : 5;
+
+    const result = await query(
+      'SELECT id, company_name, created_at FROM company_preps WHERE order_id=$1 ORDER BY created_at',
+      [req.params.orderId],
+    );
+    res.json({ preps: result.rows, slots_used: result.rows.length, max_slots: maxSlots });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to fetch preps' });
+  }
+});
+
+// GET /api/build/company-prep/:prepId — Get a specific prep
+router.get('/company-prep/:prepId', async (req: Request, res: Response) => {
+  try {
+    const result = await query('SELECT * FROM company_preps WHERE id=$1', [req.params.prepId]);
+    if (!result.rows.length) return res.status(404).json({ error: 'Prep not found' });
+    res.json(result.rows[0]);
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to fetch prep' });
   }
 });
 

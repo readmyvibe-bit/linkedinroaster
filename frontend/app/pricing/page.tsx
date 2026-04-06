@@ -22,17 +22,31 @@ interface Plan {
 const plans: Plan[] = [
   {
     name: 'Student',
-    price: '\u20B999',
+    price: '\u20B9199',
     features: [
-      { text: 'ATS Resume (11 templates)', included: true },
-      { text: 'LinkedIn Profile Content (headline, about, experience)', included: true },
-      { text: '10-Step LinkedIn Setup Guide', included: true },
-      { text: '5 Interview Questions + STAR Answers', included: true },
-      { text: 'PDF + TXT Download', included: true },
-      { text: 'WhatsApp-ready connection templates', included: true },
+      { text: 'ATS Resume (11 templates, PDF + TXT)', included: true },
+      { text: 'LinkedIn Profile + 10-Step Setup Guide', included: true },
+      { text: 'Interview Prep — 5 companies, 15 Q&A each', included: true },
+      { text: '"Tell Me About Yourself" — 3 versions', included: true },
+      { text: 'HR Round Cheat Sheet — 10 Q&A', included: true },
+      { text: 'Project Explanation Prep', included: true },
+      { text: 'Connection Templates', included: true },
     ],
-    ctaLabel: 'Get Student Plan \u2192',
+    ctaLabel: 'Get Campus Kit \u2192',
     ctaHref: '/?tab=student',
+  },
+  {
+    name: 'Student Pro',
+    price: '\u20B9349',
+    features: [
+      { text: 'Everything in Student Plan', included: true },
+      { text: '10 company interview preps (vs 5)', included: true },
+      { text: '3 resume variants for different companies', included: true },
+      { text: 'Cover letters per company', included: true },
+      { text: 'Priority AI processing', included: true },
+    ],
+    ctaLabel: 'Get Student Pro \u2192',
+    ctaHref: '/?tab=student&plan=student_pro',
   },
   {
     name: 'Standard',
@@ -70,7 +84,7 @@ const plans: Plan[] = [
 const faqs = [
   {
     q: 'I\u2019m a student with no resume. Which plan?',
-    a: 'The Student Plan (\u20B999) is built for you. Enter your college, projects, and skills \u2014 AI builds your first resume and LinkedIn profile from scratch.',
+    a: 'The Student Plan (\u20B9199) is built for you. Enter your college, projects, and skills \u2014 AI builds your resume, LinkedIn profile, interview prep for 5 companies, HR cheat sheet, and project explanation prep.',
   },
   {
     q: 'What do I need to get started?',
