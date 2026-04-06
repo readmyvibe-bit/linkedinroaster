@@ -259,7 +259,7 @@ router.post('/:orderId/company-prep', async (req: Request, res: Response) => {
 
     // Generate prep
     const prep = await generateCompanyPrep(
-      req.params.orderId,
+      req.params.orderId as string,
       company_name.trim(),
       job_description || null,
       studentData,
