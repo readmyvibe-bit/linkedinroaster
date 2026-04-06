@@ -725,7 +725,7 @@ export default function BuildResultsPage() {
                 <p style={{ fontSize: 13, color: '#444', lineHeight: 1.5, margin: '0 0 12px' }}>
                   Your friends need this too. Share and help them build their first resume.
                 </p>
-                <button onClick={() => { const text = `Bro I just made my resume and LinkedIn profile in 60 seconds for just Rs 99. My resume looks professional af. Try it: profileroaster.in`; window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank'); }} style={{ width: '100%', padding: '10px', background: '#25D366', color: 'white', border: 'none', borderRadius: 50, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+                <button onClick={() => { const text = `Bro I just got my campus placement kit — resume, LinkedIn profile, interview prep for 5 companies, everything in 60 seconds. Try it: profileroaster.in`; window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank'); }} style={{ width: '100%', padding: '10px', background: '#25D366', color: 'white', border: 'none', borderRadius: 50, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
                   Share on WhatsApp
                 </button>
               </div>
@@ -756,13 +756,13 @@ export default function BuildResultsPage() {
             {/* Upgrade CTA for student */}
             {plan === 'student' && (
               <div style={{ background: 'linear-gradient(135deg, #004182, #0B69C7)', borderRadius: 12, padding: '20px 24px', marginBottom: 16, textAlign: 'center' }}>
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: '0 0 6px' }}>Need More Resumes?</h3>
-                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', margin: '0 0 4px' }}>
-                  5 resumes for 5 different companies + 15 interview questions + cover letters
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: '0 0 6px' }}>Upgrade to Student Pro</h3>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', margin: '0 0 4px', lineHeight: 1.6 }}>
+                  10 company interview preps (vs 5) + 3 resume variants + cover letters
                 </p>
-                <p style={{ fontSize: 20, fontWeight: 800, color: 'white', margin: '8px 0 14px' }}>Upgrade — ₹400</p>
-                <a href="/?plan=standard" style={{ display: 'inline-block', background: 'white', color: '#0B69C7', padding: '10px 24px', borderRadius: 50, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
-                  Upgrade to Standard
+                <p style={{ fontSize: 20, fontWeight: 800, color: 'white', margin: '8px 0 14px' }}>₹349</p>
+                <a href="/?tab=student&plan=student_pro" style={{ display: 'inline-block', background: 'white', color: '#0B69C7', padding: '10px 24px', borderRadius: 50, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+                  Upgrade to Pro
                 </a>
               </div>
             )}
