@@ -283,7 +283,7 @@ CRITICAL RULES:
 app.post('/api/redeem-code', async (req: Request, res: Response) => {
   try {
     const { code, email, headline, form_input, profile_data, input_source } = req.body;
-    const validInputSources = ['resume', 'linkedin', 'questionnaire'];
+    const validInputSources = ['resume', 'linkedin', 'questionnaire', 'student'];
     const safeInputSource = validInputSources.includes(input_source) ? input_source : 'linkedin';
     if (!code || !email)
       return res.status(400).json({ error: 'code and email are required' });
@@ -623,7 +623,7 @@ app.get('/api/cors-test', (_req: Request, res: Response) => {
 app.post('/api/orders', async (req: Request, res: Response) => {
   try {
     const { email, plan, profile_data, job_description, teaser_id, input_source, target_role } = req.body;
-    const validInputSources = ['resume', 'linkedin', 'questionnaire'];
+    const validInputSources = ['resume', 'linkedin', 'questionnaire', 'student'];
     const safeInputSource = validInputSources.includes(input_source) ? input_source : 'linkedin';
 
     if (!validateEmail(email))
