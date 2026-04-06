@@ -1517,7 +1517,202 @@ function CodesScreen() {
   );
 }
 
-type Screen = 'overview' | 'orders' | 'teasers' | 'quality' | 'revenue' | 'referrals' | 'emails' | 'influencers' | 'codes';
+// ─── Colleges (Bulk Student Codes) ───
+function CollegesScreen() {
+  const [colleges, setColleges] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedBatch, setSelectedBatch] = useState<string | null>(null);
+  const [batchCodes, setBatchCodes] = useState<any[]>([]);
+  const [batchLoading, setBatchLoading] = useState(false);
+
+  // Bulk generation form
+  const [showForm, setShowForm] = useState(false);
+  const [collegeName, setCollegeName] = useState('');
+  const [emailsText, setEmailsText] = useState('');
+  const [excelFile, setExcelFile] = useState<File | null>(null);
+  const [sendEmails, setSendEmails] = useState(true);
+  const [generating, setGenerating] = useState(false);
+  const [result, setResult] = useState<any>(null);
+
+  useEffect(() => { fetchColleges(); }, []);
+
+  async function fetchColleges() {
+    setLoading(true);
+    try {
+      const res = await apiFetch('/api/admin/colleges');
+      if (res.ok) { const data = await res.json(); setColleges(data.colleges || []); }
+    } catch {} finally { setLoading(false); }
+  }
+
+  async function fetchBatchCodes(batchId: string) {
+    setBatchLoading(true);
+    setSelectedBatch(batchId);
+    try {
+      const res = await apiFetch(`/api/admin/colleges/${batchId}/codes`);
+      if (res.ok) { const data = await res.json(); setBatchCodes(data.codes || []); }
+    } catch {} finally { setBatchLoading(false); }
+  }
+
+  async function handleGenerate() {
+    if (!collegeName.trim()) return alert('College name required');
+    setGenerating(true);
+    setResult(null);
+    try {
+      let students: Array<{ email: string; name?: string }> = [];
+
+      if (excelFile) {
+        // Parse Excel/CSV client-side
+        const text = await excelFile.text();
+        const lines = text.split('\n').filter(l => l.trim());
+        // Skip header if it looks like one
+        const startIdx = lines[0]?.toLowerCase().includes('email') ? 1 : 0;
+        students = lines.slice(startIdx).map(line => {
+          const parts = line.split(/[,\t]/).map(p => p.trim().replace(/"/g, ''));
+          return { email: parts[0] || '', name: parts[1] || '' };
+        }).filter(s => s.email && s.email.includes('@'));
+      } else if (emailsText.trim()) {
+        students = emailsText.split('\n').filter(l => l.trim()).map(line => {
+          const parts = line.split(/[,\t]/).map(p => p.trim());
+          return { email: parts[0], name: parts[1] || '' };
+        }).filter(s => s.email && s.email.includes('@'));
+      }
+
+      if (!students.length) return alert('No valid emails found');
+
+      const res = await apiFetch('/api/admin/bulk-student-codes', {
+        method: 'POST',
+        body: JSON.stringify({ college_name: collegeName.trim(), students, send_emails: sendEmails }),
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || 'Failed'); return; }
+      setResult(data);
+      fetchColleges(); // refresh list
+    } catch { alert('Failed to generate codes'); } finally { setGenerating(false); }
+  }
+
+  function downloadCSV(codes: Array<{ email: string; code: string; name: string }>, filename: string) {
+    const csv = 'Email,Code,Name\n' + codes.map(c => `${c.email},${c.code},${c.name || ''}`).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function resendEmails(batchId: string) {
+    if (!confirm('Resend welcome emails to all unredeemed students?')) return;
+    try {
+      const res = await apiFetch(`/api/admin/colleges/${batchId}/resend-emails`, { method: 'POST' });
+      const data = await res.json();
+      alert(`Sending emails to ${data.sent} students`);
+    } catch { alert('Failed to resend'); }
+  }
+
+  // Batch detail view
+  if (selectedBatch) {
+    const batch = colleges.find(c => c.batch_id === selectedBatch);
+    return (
+      <div>
+        <button onClick={() => { setSelectedBatch(null); setBatchCodes([]); }} style={{ marginBottom: 16, padding: '6px 14px', background: '#F3F4F6', border: '1px solid #D1D5DB', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>&larr; Back to Colleges</button>
+        <h2 className="text-lg font-bold mb-2">{batch?.college_name || 'College'}</h2>
+        <div className="flex gap-2 mb-4">
+          <button onClick={() => downloadCSV(batchCodes.map((c: any) => ({ email: c.student_email, code: c.code, name: c.student_name })), `${batch?.college_name || 'codes'}.csv`)} className="text-sm px-3 py-1 bg-blue-50 text-blue-700 rounded border border-blue-200">Download CSV</button>
+          <button onClick={() => resendEmails(selectedBatch)} className="text-sm px-3 py-1 bg-green-50 text-green-700 rounded border border-green-200">Resend Emails</button>
+        </div>
+        {batchLoading ? <p>Loading...</p> : (
+          <table className="w-full text-sm">
+            <thead><tr className="text-left text-xs text-gray-500 border-b">
+              <th className="pb-2">Email</th><th className="pb-2">Code</th><th className="pb-2">Name</th><th className="pb-2">Status</th><th className="pb-2">Redeemed</th>
+            </tr></thead>
+            <tbody>
+              {batchCodes.map((c: any, i: number) => (
+                <tr key={i} className="border-b border-gray-100">
+                  <td className="py-2">{c.student_email}</td>
+                  <td className="py-2 font-mono font-bold">{c.code}</td>
+                  <td className="py-2">{c.student_name || '-'}</td>
+                  <td className="py-2"><span style={{ color: c.status === 'redeemed' ? '#057642' : '#666', fontWeight: 600 }}>{c.status}</span></td>
+                  <td className="py-2 text-xs text-gray-400">{c.redeemed_at ? new Date(c.redeemed_at).toLocaleDateString() : '-'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-bold">College Student Codes</h2>
+        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold">
+          {showForm ? 'Cancel' : '+ Generate Bulk Codes'}
+        </button>
+      </div>
+
+      {/* Bulk Generation Form */}
+      {showForm && (
+        <div className="bg-white rounded-lg border p-5 mb-6">
+          <h3 className="font-bold text-sm mb-3">Generate Student Codes</h3>
+          <div className="grid grid-cols-1 gap-3">
+            <div>
+              <label className="text-xs font-semibold text-gray-600 mb-1 block">College Name *</label>
+              <input value={collegeName} onChange={e => setCollegeName(e.target.value)} placeholder="e.g., JNTU Hyderabad" className="w-full px-3 py-2 border rounded-lg text-sm" />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-600 mb-1 block">Upload Excel/CSV (email, name columns)</label>
+              <input type="file" accept=".csv,.xlsx,.xls,.txt" onChange={e => setExcelFile(e.target.files?.[0] || null)} className="text-sm" />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-600 mb-1 block">Or paste emails (one per line, optionally: email, name)</label>
+              <textarea value={emailsText} onChange={e => setEmailsText(e.target.value)} rows={5} placeholder={"student1@college.edu\nstudent2@gmail.com, Ravi Kumar\nstudent3@college.edu, Priya Sharma"} className="w-full px-3 py-2 border rounded-lg text-sm font-mono" />
+            </div>
+            <div className="flex items-center gap-2">
+              <input type="checkbox" checked={sendEmails} onChange={e => setSendEmails(e.target.checked)} id="sendEmails" />
+              <label htmlFor="sendEmails" className="text-sm">Send welcome email with code + steps to each student</label>
+            </div>
+            <button onClick={handleGenerate} disabled={generating} className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold disabled:opacity-50">
+              {generating ? 'Generating...' : 'Generate Codes'}
+            </button>
+          </div>
+
+          {result && (
+            <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="font-bold text-green-700 text-sm mb-2">{result.codes_generated} codes generated for {result.college_name}</div>
+              <button onClick={() => downloadCSV(result.codes, `${result.college_name}-codes.csv`)} className="px-3 py-1 bg-green-600 text-white rounded text-sm font-semibold">
+                Download CSV
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* College List */}
+      {loading ? <p>Loading...</p> : colleges.length === 0 ? (
+        <div className="text-center py-12 text-gray-400">No college codes generated yet</div>
+      ) : (
+        <div className="space-y-3">
+          {colleges.map((c: any, i: number) => (
+            <div key={i} className="bg-white rounded-lg border p-4 cursor-pointer hover:border-blue-300" onClick={() => fetchBatchCodes(c.batch_id)}>
+              <div className="flex justify-between items-center">
+                <div>
+                  <div className="font-bold text-sm">{c.college_name}</div>
+                  <div className="text-xs text-gray-400 mt-1">Batch: {c.batch_id} &bull; Created: {new Date(c.created_at).toLocaleDateString()}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-bold" style={{ color: '#057642' }}>{c.redeemed_codes}/{c.total_codes} redeemed</div>
+                  <div className="text-xs text-gray-400">{Math.round((c.redeemed_codes / c.total_codes) * 100)}% conversion</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+type Screen = 'overview' | 'orders' | 'teasers' | 'quality' | 'revenue' | 'referrals' | 'emails' | 'influencers' | 'codes' | 'colleges';
 
 const NAV: { key: Screen; label: string }[] = [
   { key: 'overview', label: 'Overview' },
@@ -1528,6 +1723,7 @@ const NAV: { key: Screen; label: string }[] = [
   { key: 'referrals', label: 'Referrals' },
   { key: 'influencers', label: 'Influencers' },
   { key: 'codes', label: 'Codes' },
+  { key: 'colleges', label: 'Colleges' },
   { key: 'emails', label: 'Emails' },
 ];
 
@@ -1598,6 +1794,7 @@ export default function AdminPage() {
         {screen === 'referrals' && <ReferralsScreen />}
         {screen === 'influencers' && <InfluencersScreen />}
         {screen === 'codes' && <CodesScreen />}
+        {screen === 'colleges' && <CollegesScreen />}
         {screen === 'emails' && <EmailsScreen />}
       </div>
     </main>

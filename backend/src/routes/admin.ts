@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 import { query } from '../db';
-import { sendResultsEmail } from '../services/email';
+import { sendResultsEmail, sendStudentWelcomeEmails } from '../services/email';
 import { profileQueue } from '../queue';
 import { buildQueue } from '../queue/build-queue';
 
@@ -930,6 +930,109 @@ router.post('/referral-codes/deactivate', async (req: Request, res: Response) =>
     res.json({ deactivated: true, code });
   } catch (err) {
     res.status(500).json({ error: 'Failed to deactivate code' });
+  }
+});
+
+// ═══════════════════════════════════════════
+// BULK STUDENT CODES & COLLEGES
+// ═══════════════════════════════════════════
+
+// POST /api/admin/bulk-student-codes
+router.post('/bulk-student-codes', adminAuth, async (req: Request, res: Response) => {
+  try {
+    const { college_name, students, plan = 'student', send_emails = false } = req.body;
+    if (!college_name?.trim()) return res.status(400).json({ error: 'college_name required' });
+    if (!students?.length) return res.status(400).json({ error: 'students array required (at least 1)' });
+    if (students.length > 500) return res.status(400).json({ error: 'Maximum 500 students per batch' });
+
+    const batchId = `BATCH-${college_name.trim().replace(/[^a-zA-Z0-9]/g, '').slice(0, 8).toUpperCase()}-${Date.now()}`;
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const results: Array<{ email: string; code: string; name: string }> = [];
+
+    for (const student of students) {
+      if (!student.email?.trim()) continue;
+      let random = '';
+      for (let i = 0; i < 5; i++) random += chars[Math.floor(Math.random() * chars.length)];
+      const code = `STU-${random}`;
+
+      await query(
+        `INSERT INTO referral_codes (code, product, plan, notes, college_name, student_email, batch_id)
+         VALUES ($1, 'build', $2, $3, $4, $5, $6)`,
+        [code, plan || 'student', student.name || '', college_name.trim(), student.email.trim().toLowerCase(), batchId],
+      );
+
+      results.push({ email: student.email.trim(), code, name: student.name || '' });
+    }
+
+    // Send welcome emails if requested (async, don't block response)
+    if (send_emails && results.length > 0) {
+      sendStudentWelcomeEmails(results, college_name.trim()).catch(err => {
+        console.error('Bulk email send error:', err.message);
+      });
+    }
+
+    res.json({ batch_id: batchId, college_name: college_name.trim(), codes_generated: results.length, codes: results });
+  } catch (err: any) {
+    console.error('Bulk student codes error:', err.message);
+    res.status(500).json({ error: 'Failed to generate codes' });
+  }
+});
+
+// GET /api/admin/colleges
+router.get('/colleges', adminAuth, async (_req: Request, res: Response) => {
+  try {
+    const result = await query(`
+      SELECT
+        college_name,
+        batch_id,
+        COUNT(*) as total_codes,
+        COUNT(CASE WHEN status = 'redeemed' THEN 1 END) as redeemed_codes,
+        MIN(created_at) as created_at
+      FROM referral_codes
+      WHERE college_name IS NOT NULL
+      GROUP BY college_name, batch_id
+      ORDER BY MIN(created_at) DESC
+    `);
+    res.json({ colleges: result.rows });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to fetch colleges' });
+  }
+});
+
+// GET /api/admin/colleges/:batchId/codes
+router.get('/colleges/:batchId/codes', adminAuth, async (req: Request, res: Response) => {
+  try {
+    const result = await query(
+      `SELECT code, student_email, notes as student_name, status, redeemed_at, order_id
+       FROM referral_codes WHERE batch_id = $1 ORDER BY created_at`,
+      [req.params.batchId],
+    );
+    res.json({ codes: result.rows });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to fetch codes' });
+  }
+});
+
+// POST /api/admin/colleges/:batchId/resend-emails
+router.post('/colleges/:batchId/resend-emails', adminAuth, async (req: Request, res: Response) => {
+  try {
+    const result = await query(
+      `SELECT code, student_email, notes as student_name, college_name
+       FROM referral_codes WHERE batch_id = $1 AND status = 'active'`,
+      [req.params.batchId],
+    );
+    if (!result.rows.length) return res.json({ sent: 0 });
+
+    const collegeName = result.rows[0].college_name;
+    const studentsList = result.rows.map((r: any) => ({ email: r.student_email, code: r.code, name: r.student_name }));
+
+    sendStudentWelcomeEmails(studentsList, collegeName).catch(err => {
+      console.error('Resend emails error:', err.message);
+    });
+
+    res.json({ sent: studentsList.length });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to resend emails' });
   }
 });
 
