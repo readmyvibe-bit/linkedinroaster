@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Refund Policy — Profile Roaster',
+  title: 'Refund Policy — ProfileRoaster',
   description: 'Refund policy for Profile Roaster — AI profile rewrite, resume, and interview prep services.',
 };
 
@@ -25,12 +25,12 @@ export default function RefundPage() {
           <section>
             <h2 className="text-lg font-bold mb-3">1. Overview</h2>
             <p>
-              At Profile Roaster, we want you to be completely satisfied with your results. This Refund Policy outlines the
+              At ProfileRoaster, we want you to be completely satisfied with your results. This Refund Policy outlines the
               conditions under which we offer refunds for all our paid services:
             </p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
-              <li><strong>LinkedIn Profile Rewrite:</strong> Standard (&#8377;499) and Pro (&#8377;999)</li>
-              <li><strong>Build My LinkedIn:</strong> Standard (&#8377;499) and Pro (&#8377;999)</li>
+              <li><strong>Profile Analysis &amp; Rewrite:</strong> Standard (&#8377;499) and Pro (&#8377;999)</li>
+              <li><strong>Includes:</strong> ATS resume builder (11 templates), cover letter generator, interview prep</li>
               <li><strong>Upgrades:</strong> Standard to Pro (&#8377;500)</li>
             </ul>
             <p className="mt-2">
@@ -65,7 +65,7 @@ export default function RefundPage() {
               You may request a refund if you believe the results are <strong>significantly below acceptable quality</strong>. This includes:
             </p>
 
-            <h3 className="font-semibold mt-4 mb-2">3.1 For Rewrite &amp; Analysis Orders</h3>
+            <h3 className="font-semibold mt-4 mb-2">3.1 For Profile Analysis &amp; Rewrite Orders</h3>
             <ul className="list-disc pl-6 space-y-1">
               <li>The rewrite contains fabricated information not present in your original profile (invented company names, fake metrics, false credentials)</li>
               <li>The output contains offensive, discriminatory, or personally attacking content</li>
@@ -74,15 +74,7 @@ export default function RefundPage() {
               <li>The scores or analysis are clearly nonsensical</li>
             </ul>
 
-            <h3 className="font-semibold mt-4 mb-2">3.2 For Build My LinkedIn Orders</h3>
-            <ul className="list-disc pl-6 space-y-1">
-              <li>The generated profile contains fabricated education, companies, or certifications not provided in your form input</li>
-              <li>The generated profile is substantially incomplete (missing headline, about section, or experience bullets)</li>
-              <li>The setup guide is missing or contains clearly incorrect instructions</li>
-              <li>The generated content is in the wrong language or for a completely different profession than requested</li>
-            </ul>
-
-            <h3 className="font-semibold mt-4 mb-2">3.3 For ATS Resume Orders</h3>
+            <h3 className="font-semibold mt-4 mb-2">3.2 For ATS Resume Orders</h3>
             <ul className="list-disc pl-6 space-y-1">
               <li>The resume contains fabricated education, certifications, or work history</li>
               <li>The resume is substantially incomplete or clearly broken in formatting</li>
@@ -167,7 +159,7 @@ export default function RefundPage() {
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li><strong>Partial delivery:</strong> If some sections were delivered correctly but others had issues, we may offer a 50% refund or free reprocessing</li>
               <li><strong>Pro upgrade issues:</strong> If the Standard results were satisfactory but additional Pro features had issues, we may refund only the upgrade amount</li>
-              <li><strong>Resume-only issues:</strong> If the profile rewrite was satisfactory but the resume had issues, we may offer free resume reprocessing</li>
+              <li><strong>Resume-only issues:</strong> If the analysis was satisfactory but the resume had issues, we may offer free resume reprocessing</li>
               <li><strong>Reprocessing:</strong> In lieu of a refund, we may offer to reprocess your order through the pipeline at no additional cost</li>
             </ul>
           </section>
@@ -232,7 +224,7 @@ export default function RefundPage() {
               For refund requests, questions, or concerns:
             </p>
             <p className="mt-2 font-medium">
-              Profile Roaster<br />
+              ProfileRoaster<br />
               Email: support@profileroaster.in<br />
               Website: profileroaster.in
             </p>

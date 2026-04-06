@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy — Profile Roaster',
+  title: 'Privacy Policy — ProfileRoaster',
   description: 'Privacy policy for Profile Roaster — AI profile rewrite, resume, and interview prep services.',
 };
 
@@ -27,7 +27,7 @@ export default function PrivacyPage() {
             <p>
               Profile Roaster (&ldquo;profileroaster.in&rdquo;, &ldquo;the Service&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;)
               is committed to protecting your privacy. This Privacy Policy explains how we collect, use, store, share, and protect your personal
-              information when you use our Service, including the LinkedIn Profile Rewrite, Build My LinkedIn, ATS Resume Builder, and User Dashboard features.
+              information when you use our Service, including the LinkedIn Profile Rewrite, ATS Resume Builder, and User Dashboard features.
             </p>
             <p className="mt-2">
               By using the Service, you consent to the data practices described in this policy. If you do not agree with any part of this
@@ -43,9 +43,9 @@ export default function PrivacyPage() {
               <li><strong>Email address:</strong> Required for order creation, delivery of results, dashboard login, and OTP verification</li>
               <li><strong>LinkedIn headline:</strong> Submitted for free teaser analysis</li>
               <li><strong>LinkedIn profile data:</strong> Raw text pasted from your LinkedIn profile including headline, about section, experience, education, skills, and certifications (Profile Rewrite)</li>
-              <li><strong>Personal details:</strong> Full name, phone number, location, career stage, target role, target industry (Build My LinkedIn)</li>
-              <li><strong>Education data:</strong> Institution, degree, field of study, year, GPA (Build My LinkedIn)</li>
-              <li><strong>Experience data:</strong> Company names, roles, dates, descriptions (Build My LinkedIn)</li>
+              <li><strong>Personal details:</strong> Full name, phone number, location, career stage, target role, target industry</li>
+              <li><strong>Education data:</strong> Institution, degree, field of study, year, GPA</li>
+              <li><strong>Experience data:</strong> Company names, roles, dates, descriptions</li>
               <li><strong>Skills and certifications:</strong> Technical skills, soft skills, professional certifications</li>
               <li><strong>Resume uploads:</strong> PDF or DOCX files uploaded for auto-fill or reference (ATS Resume Builder)</li>
               <li><strong>Job description:</strong> Target job descriptions submitted for resume targeting and JD matching</li>
@@ -77,7 +77,7 @@ export default function PrivacyPage() {
             <h2 className="text-lg font-bold mb-3">3. How We Use Your Information</h2>
             <p>We use the information we collect for the following purposes:</p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
-              <li><strong>Service delivery:</strong> To parse, analyse, rewrite, and score your LinkedIn profile; to generate LinkedIn profiles from scratch; to build ATS-optimized resumes and cover letters</li>
+              <li><strong>Service delivery:</strong> To parse, analyse, rewrite, and score your LinkedIn profile; to build ATS-optimized resumes and cover letters</li>
               <li><strong>Result delivery:</strong> To send you unique results URLs, email notifications, and downloadable documents</li>
               <li><strong>Dashboard access:</strong> To authenticate you via OTP and display your order history, results, and resumes</li>
               <li><strong>Card generation:</strong> To create shareable score card images from your profile scores</li>
@@ -96,7 +96,7 @@ export default function PrivacyPage() {
             </p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li><strong>Google Gemini:</strong> Used for profile parsing (extracting structured data from raw text), analysis scoring, and quality checking</li>
-              <li><strong>Anthropic Claude:</strong> Used for profile analysis, profile rewriting, LinkedIn profile building from scratch, resume generation, and cover letter creation</li>
+              <li><strong>Anthropic Claude:</strong> Used for profile analysis, profile rewriting, resume generation, and cover letter creation</li>
             </ul>
             <p className="mt-2">
               Your data is sent to these AI providers via their APIs for processing. Both Anthropic and Google have data
@@ -104,8 +104,7 @@ export default function PrivacyPage() {
               as per the API terms of both providers.
             </p>
             <p className="mt-2">
-              For the Build My LinkedIn service, personal details such as name, education, and experience are sent to the AI
-              as they are necessary for generating the LinkedIn profile. For Profile Rewrite, only profile text content is transmitted.
+              For Profile Rewrite, profile text content is transmitted. For Resume Builder, your profile data is sent to generate the resume.
             </p>
           </section>
 

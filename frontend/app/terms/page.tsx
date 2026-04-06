@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Terms & Conditions — Profile Roaster',
+  title: 'Terms & Conditions — ProfileRoaster',
   description: 'Terms and conditions for using Profile Roaster — AI profile rewrite, resume, and interview prep services.',
 };
 
@@ -37,10 +37,10 @@ export default function TermsPage() {
           <section>
             <h2 className="text-lg font-bold mb-3">2. Description of Service</h2>
             <p>
-              Profile Roaster is an AI-powered platform offering three categories of services:
+              Profile Roaster is an AI-powered platform offering the following services:
             </p>
 
-            <h3 className="font-semibold mt-4 mb-2">2.1 LinkedIn Profile Profile Rewrite</h3>
+            <h3 className="font-semibold mt-4 mb-2">2.1 LinkedIn Profile Rewrite</h3>
             <p>For users who already have a LinkedIn profile:</p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li>Headline analysis and scoring (free teaser)</li>
@@ -52,21 +52,10 @@ export default function TermsPage() {
               <li>Pro plan: 5 headline variations, ATS keyword optimization, job description matching</li>
             </ul>
 
-            <h3 className="font-semibold mt-4 mb-2">2.2 Build My LinkedIn</h3>
-            <p>For users who do not yet have a LinkedIn profile:</p>
-            <ul className="list-disc pl-6 mt-2 space-y-1">
-              <li>AI-generated complete LinkedIn profile from user-provided information (education, experience, skills)</li>
-              <li>3 headline variations with different styles</li>
-              <li>Professional About section (250&ndash;400 words)</li>
-              <li>Experience bullets with action verbs and metrics</li>
-              <li>Categorised skills list (technical, soft, tools)</li>
-              <li>10-step LinkedIn setup guide with menu paths and common mistakes</li>
-            </ul>
-
-            <h3 className="font-semibold mt-4 mb-2">2.3 ATS Resume Builder</h3>
+            <h3 className="font-semibold mt-4 mb-2">2.2 ATS Resume Builder</h3>
             <p>Available as part of paid plans:</p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
-              <li>AI-generated ATS-optimized resume from LinkedIn profile data or build data</li>
+              <li>AI-generated ATS-optimized resume from your profile data</li>
               <li>11 professional ATS-optimized resume templates</li>
               <li>Cover letter generation</li>
               <li>PDF and TXT download</li>
@@ -74,7 +63,7 @@ export default function TermsPage() {
               <li>ATS score and keyword analysis</li>
             </ul>
 
-            <h3 className="font-semibold mt-4 mb-2">2.4 User Dashboard</h3>
+            <h3 className="font-semibold mt-4 mb-2">2.3 User Dashboard</h3>
             <p>
               Registered users can access a dashboard at profileroaster.in/dashboard via OTP email verification to view all past orders,
               results, and resumes. Dashboard access is available to any user who has completed a paid order.
@@ -94,7 +83,7 @@ export default function TermsPage() {
             </p>
             <p className="mt-2">
               You must provide accurate and complete information when using the Service, including a valid email address,
-              and truthful education, experience, and skills data for the Build My LinkedIn and Resume Builder services.
+              and truthful data for the Resume Builder.
               You are responsible for maintaining the confidentiality of your account and order information.
             </p>
           </section>
@@ -107,7 +96,6 @@ export default function TermsPage() {
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li>You own the data or have the right to submit it for processing</li>
               <li>For Rewrite orders: the LinkedIn profile data is your own or you have the profile owner&rsquo;s explicit consent</li>
-              <li>For Build orders: the education, experience, and skills information you provide is truthful and accurate</li>
               <li>For Resume uploads: you own the resume or have the right to submit it</li>
               <li>The data does not contain any malicious code, scripts, or content designed to exploit the Service</li>
             </ul>
@@ -148,13 +136,6 @@ export default function TermsPage() {
               <li><strong>Upgrade (Standard to Pro):</strong> &#8377;500 (INR) &mdash; difference payment</li>
             </ul>
 
-            <h3 className="font-semibold mt-4 mb-2">6.2 Build My LinkedIn</h3>
-            <ul className="list-disc pl-6 space-y-1">
-              <li><strong>Standard:</strong> &#8377;499 (INR) &mdash; AI-generated profile, setup guide, connection templates, ATS resume builder (11 templates), cover letter, interview prep</li>
-              <li><strong>Pro:</strong> &#8377;999 (INR) &mdash; everything in Standard + all 11 premium templates, priority processing</li>
-              <li><strong>Upgrade (Standard to Pro):</strong> &#8377;500 (INR) &mdash; difference payment</li>
-            </ul>
-
             <p className="mt-4">
               All prices are in Indian Rupees (INR) and include applicable taxes. Prices are subject to change without prior notice.
               Any price change will not affect orders that have already been placed and paid for.
@@ -171,10 +152,6 @@ export default function TermsPage() {
             <p>
               <strong>Profile Rewrite:</strong> Results are typically delivered within 60&ndash;120 seconds after successful payment.
               Processing involves multiple AI stages: parsing, analysis, rewriting, quality checking, and scoring.
-            </p>
-            <p className="mt-2">
-              <strong>Build My LinkedIn:</strong> Results are typically delivered within 60&ndash;90 seconds after payment.
-              Processing involves AI profile generation followed by a quality check. Revision retries may add 30&ndash;60 seconds.
             </p>
             <p className="mt-2">
               <strong>ATS Resume:</strong> Resume generation typically takes 30&ndash;45 seconds after form submission.
@@ -211,7 +188,6 @@ export default function TermsPage() {
               <li>We do not guarantee any specific outcome such as increased profile views, recruiter contacts, interview calls, or job offers</li>
               <li>The analysis is intended as constructive guidance and should not be taken as professional career advice</li>
               <li>ATS keyword suggestions are based on general industry patterns and may not match specific company ATS systems</li>
-              <li>The Build My LinkedIn setup guide provides general instructions based on LinkedIn&rsquo;s interface at the time of writing; LinkedIn may change its interface at any time</li>
             </ul>
             <p className="mt-2">
               THE SERVICE IS PROVIDED &ldquo;AS IS&rdquo; AND &ldquo;AS AVAILABLE&rdquo; WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR
