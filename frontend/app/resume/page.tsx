@@ -753,6 +753,10 @@ function ResumeFormContent() {
                       }}>{t.category}</span>
                     </div>
                     <span style={{ fontSize: 12, color: '#666', lineHeight: 1.4 }}>{t.description}</span>
+                    <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
+                      {t.ats === 'high' && <span style={{ fontSize: 9, fontWeight: 700, color: '#057642', background: '#F0FDF4', padding: '2px 6px', borderRadius: 4 }}>ATS High</span>}
+                      {t.ats === 'medium' && <span style={{ fontSize: 9, fontWeight: 700, color: '#92400E', background: '#FFFBEB', padding: '2px 6px', borderRadius: 4 }}>ATS Medium</span>}
+                    </div>
                   </label>
                 );
               })}

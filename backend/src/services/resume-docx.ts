@@ -237,40 +237,40 @@ async function buildSidebarDocx(data: ResumeData, t: Theme): Promise<Buffer> {
   const c = data.contact || {};
   const isDark = t.sidebarBg === '1E293B' || t.sidebarBg === '312E81';
 
-  // Left: contact + skills + education
+  // Left (main): name + summary + experience + achievements — ATS reads left-to-right
   const leftChildren: Paragraph[] = [];
-  leftChildren.push(sideHdr('Contact', t.sidebarMuted || '999999', t.font));
-  leftChildren.push(...contactParas(c, t.font, t.sidebarMuted || '999999'));
-  leftChildren.push(sideHdr('Skills', t.sidebarMuted || '999999', t.font));
-  leftChildren.push(...buildSkillParas(data, { ...t, bodySize: 20, bodyColor: isDark ? 'D1D5DB' : t.sidebarText || t.bodyColor }));
-  leftChildren.push(sideHdr('Education', t.sidebarMuted || '999999', t.font));
-  for (const edu of (data.education || [])) {
-    const deg = edu.degree || ''; const school = edu.institution || edu.school || '';
-    leftChildren.push(new Paragraph({ children: [new TextRun({ text: deg, bold: true, size: 20, font: t.font, color: t.sidebarText || '111827' })], spacing: { after: 20 } }));
-    leftChildren.push(new Paragraph({ children: [new TextRun({ text: school, size: 18, font: t.font, color: t.sidebarMuted || '666666' })], spacing: { after: 20 } }));
-    const details = [edu.year || edu.dates, edu.gpa ? `GPA: ${edu.gpa}` : ''].filter(Boolean).join(' — ');
-    if (details) leftChildren.push(new Paragraph({ children: [new TextRun({ text: details, size: 16, font: t.font, color: t.sidebarMuted || '999999' })], spacing: { after: 40 } }));
-  }
-
-  // Right: name + summary + experience + achievements
-  const rightChildren: Paragraph[] = [];
-  rightChildren.push(new Paragraph({ children: [new TextRun({ text: c.name || '', bold: true, size: t.nameSize, font: t.font, color: isDark ? t.headerColor : t.nameColor })], spacing: { after: 100 } }));
+  leftChildren.push(new Paragraph({ children: [new TextRun({ text: c.name || '', bold: true, size: t.nameSize, font: t.font, color: isDark ? t.headerColor : t.nameColor })], spacing: { after: 100 } }));
   if (data.summary) {
-    rightChildren.push(new Paragraph({ children: [new TextRun({ text: 'SUMMARY', bold: true, size: t.headerSize, font: t.font, color: t.headerColor })], border: { bottom: { style: BorderStyle.SINGLE, size: 2, color: t.accentColor } }, spacing: { before: 200, after: 80 } }));
-    rightChildren.push(new Paragraph({ children: [new TextRun({ text: data.summary, size: t.bodySize, font: t.font, color: t.bodyColor })], spacing: { after: 100, line: 360 } }));
+    leftChildren.push(new Paragraph({ children: [new TextRun({ text: 'SUMMARY', bold: true, size: t.headerSize, font: t.font, color: t.headerColor })], border: { bottom: { style: BorderStyle.SINGLE, size: 2, color: t.accentColor } }, spacing: { before: 200, after: 80 } }));
+    leftChildren.push(new Paragraph({ children: [new TextRun({ text: data.summary, size: t.bodySize, font: t.font, color: t.bodyColor })], spacing: { after: 100, line: 360 } }));
   }
   if (data.experience?.length) {
-    rightChildren.push(new Paragraph({ children: [new TextRun({ text: 'EXPERIENCE', bold: true, size: t.headerSize, font: t.font, color: t.headerColor })], border: { bottom: { style: BorderStyle.SINGLE, size: 2, color: t.accentColor } }, spacing: { before: 200, after: 80 } }));
-    rightChildren.push(...buildExpParas(data, t));
+    leftChildren.push(new Paragraph({ children: [new TextRun({ text: 'EXPERIENCE', bold: true, size: t.headerSize, font: t.font, color: t.headerColor })], border: { bottom: { style: BorderStyle.SINGLE, size: 2, color: t.accentColor } }, spacing: { before: 200, after: 80 } }));
+    leftChildren.push(...buildExpParas(data, t));
   }
   const ach = buildAchParas(data, t);
   if (ach.length) {
-    rightChildren.push(new Paragraph({ children: [new TextRun({ text: 'ACHIEVEMENTS', bold: true, size: t.headerSize, font: t.font, color: t.headerColor })], border: { bottom: { style: BorderStyle.SINGLE, size: 2, color: t.accentColor } }, spacing: { before: 200, after: 80 } }));
-    rightChildren.push(...ach);
+    leftChildren.push(new Paragraph({ children: [new TextRun({ text: 'ACHIEVEMENTS', bold: true, size: t.headerSize, font: t.font, color: t.headerColor })], border: { bottom: { style: BorderStyle.SINGLE, size: 2, color: t.accentColor } }, spacing: { before: 200, after: 80 } }));
+    leftChildren.push(...ach);
   }
 
-  const leftOpts: ITableCellOptions = { children: leftChildren, width: { size: t.sidebarWidth || 30, type: WidthType.PERCENTAGE }, shading: { type: ShadingType.SOLID, color: t.sidebarBg!, fill: t.sidebarBg! }, margins: { top: 200, bottom: 200, left: 200, right: 200 } };
-  const rightOpts: ITableCellOptions = { children: rightChildren, width: { size: 100 - (t.sidebarWidth || 30), type: WidthType.PERCENTAGE }, margins: { top: 200, bottom: 200, left: 300, right: 200 } };
+  // Right (sidebar): contact + skills + education
+  const rightChildren: Paragraph[] = [];
+  rightChildren.push(sideHdr('Contact', t.sidebarMuted || '999999', t.font));
+  rightChildren.push(...contactParas(c, t.font, t.sidebarMuted || '999999'));
+  rightChildren.push(sideHdr('Skills', t.sidebarMuted || '999999', t.font));
+  rightChildren.push(...buildSkillParas(data, { ...t, bodySize: 20, bodyColor: isDark ? 'D1D5DB' : t.sidebarText || t.bodyColor }));
+  rightChildren.push(sideHdr('Education', t.sidebarMuted || '999999', t.font));
+  for (const edu of (data.education || [])) {
+    const deg = edu.degree || ''; const school = edu.institution || edu.school || '';
+    rightChildren.push(new Paragraph({ children: [new TextRun({ text: deg, bold: true, size: 20, font: t.font, color: t.sidebarText || '111827' })], spacing: { after: 20 } }));
+    rightChildren.push(new Paragraph({ children: [new TextRun({ text: school, size: 18, font: t.font, color: t.sidebarMuted || '666666' })], spacing: { after: 20 } }));
+    const details = [edu.year || edu.dates, edu.gpa ? `GPA: ${edu.gpa}` : ''].filter(Boolean).join(' — ');
+    if (details) rightChildren.push(new Paragraph({ children: [new TextRun({ text: details, size: 16, font: t.font, color: t.sidebarMuted || '999999' })], spacing: { after: 40 } }));
+  }
+
+  const leftOpts: ITableCellOptions = { children: leftChildren, width: { size: 100 - (t.sidebarWidth || 30), type: WidthType.PERCENTAGE }, margins: { top: 200, bottom: 200, left: 300, right: 200 } };
+  const rightOpts: ITableCellOptions = { children: rightChildren, width: { size: t.sidebarWidth || 30, type: WidthType.PERCENTAGE }, shading: { type: ShadingType.SOLID, color: t.sidebarBg!, fill: t.sidebarBg! }, margins: { top: 200, bottom: 200, left: 200, right: 200 } };
 
   const table = new Table({ rows: [new TableRow({ children: [new TableCell(leftOpts), new TableCell(rightOpts)] })], width: { size: 100, type: WidthType.PERCENTAGE }, borders: noBorders });
   const doc = new Document({ sections: [{ properties: { page: { margin: { top: convertInchesToTwip(0.5), bottom: convertInchesToTwip(0.5), left: convertInchesToTwip(0.4), right: convertInchesToTwip(0.4) } } }, children: [table] }] });

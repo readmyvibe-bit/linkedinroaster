@@ -50,9 +50,10 @@ export default function ResumePreviewPage() {
   const currentTemplate = TEMPLATES.find(t => t.id === templateId);
   const isTemplateLocked = orderPlan !== 'pro' && (currentTemplate as any)?.proOnly;
 
-  function handleDownloadPDF() {
-    if (!resume) return;
-    if (isTemplateLocked) { alert(`"${currentTemplate?.name}" is a Pro template. Upgrade for \u20B9500.`); return; }
+  const [pdfGenerating, setPdfGenerating] = useState(false);
+
+  function buildResumeHTML() {
+    if (!resume) return '';
     let html = buildPrintHTML(resume.resume_data, templateId);
     const density = getContentDensity(resume.resume_data);
     const adaptive = getAdaptiveSpacingCSS(density, printSize);
@@ -63,9 +64,44 @@ export default function ResumePreviewPage() {
       html = html.replace(/@page\s*\{[^}]*\}/, '@page{size:A4;margin:8mm 10mm 8mm 10mm}');
       html = html.replace('</style>', 'body{font-size:90%!important;line-height:1.3!important}body div,body p{margin-bottom:1px!important}</style>');
     } else {
-      // Multi-page: natural flow; reset forced full-page min-heights so content does not balloon spacing
       html = html.replace('</style>', '@media print{html,body{width:210mm!important;min-height:auto!important}body{overflow:visible!important}.print-content-root{width:100%!important;transform:none!important}.print-content-root,.print-content-root>div,.resume-body,.two-col,.two-col-left,.two-col-right{min-height:auto!important}}</style>');
     }
+    return html;
+  }
+
+  async function handleDownloadPDF() {
+    if (!resume) return;
+    if (isTemplateLocked) { alert(`"${currentTemplate?.name}" is a Pro template. Upgrade for \u20B9500.`); return; }
+    const html = buildResumeHTML();
+    const name = resume.resume_data?.contact?.name || 'resume';
+    const filename = `${name.replace(/[^a-zA-Z0-9]/g, '-')}-resume.pdf`;
+
+    // Try server-side PDF first (ATS-optimized, embedded fonts)
+    setPdfGenerating(true);
+    try {
+      const res = await fetch(`${API_URL}/api/resume/generate-pdf`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ html, filename }),
+      });
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = filename; a.click();
+        URL.revokeObjectURL(url);
+        setPdfGenerating(false);
+        return;
+      }
+    } catch {}
+    setPdfGenerating(false);
+    // Fallback: browser print dialog
+    handleQuickPrint();
+  }
+
+  function handleQuickPrint() {
+    if (!resume) return;
+    if (isTemplateLocked) { alert(`"${currentTemplate?.name}" is a Pro template. Upgrade for \u20B9500.`); return; }
+    const html = buildResumeHTML();
     const w = window.open('', '_blank'); if (!w) { alert('Allow popups.'); return; }
     w.document.write(html); w.document.close(); w.document.title = ' '; setTimeout(() => w.print(), 600);
   }
@@ -161,7 +197,8 @@ export default function ResumePreviewPage() {
             </div>
             {/* Desktop actions */}
             <div className="hidden sm:flex" style={{ gap: 8, alignItems: 'center', flexShrink: 0 }}>
-              <button onClick={handleDownloadPDF} style={{ fontSize: 13, fontWeight: 600, padding: '7px 20px', borderRadius: 'var(--radius-pill)', border: 'none', cursor: 'pointer', background: 'var(--accent)', color: 'white', transition: 'all var(--transition)' }}>Download PDF</button>
+              <button onClick={handleDownloadPDF} disabled={pdfGenerating} style={{ fontSize: 13, fontWeight: 600, padding: '7px 20px', borderRadius: 'var(--radius-pill)', border: 'none', cursor: 'pointer', background: 'var(--accent)', color: 'white', transition: 'all var(--transition)', opacity: pdfGenerating ? 0.6 : 1 }}>{pdfGenerating ? 'Generating...' : 'Download PDF'}</button>
+              <button onClick={handleQuickPrint} style={{ fontSize: 12, fontWeight: 500, padding: '7px 14px', borderRadius: 'var(--radius-pill)', border: '1px solid var(--border-default)', cursor: 'pointer', background: 'transparent', color: 'var(--text-secondary)', transition: 'all var(--transition)' }}>Quick Print</button>
               <a href={`/resume/${resume.id}/edit`} style={{ fontSize: 13, fontWeight: 500, color: 'var(--success)', textDecoration: 'none', padding: '7px 12px', borderRadius: 'var(--radius-sm)', transition: 'all var(--transition)' }}>Edit</a>
               <a href={`${API_URL}/api/resume/${resume.id}/download/txt`} style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-muted)', textDecoration: 'none', padding: '7px 12px' }}>TXT</a>
               <div data-level-picker-root style={{ position: 'relative', display: 'inline-block' }}>
@@ -264,7 +301,8 @@ export default function ResumePreviewPage() {
                     <button key={rid} onClick={() => { setTemplateId(rid); setShowTemplateModal(false); }} className="saas-card" style={{ padding: 14, textAlign: 'left', cursor: 'pointer', border: templateId === rid ? '2px solid var(--accent)' : undefined }}>
                       <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 2 }}>{t.name} &#9733;</div>
                       <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.4 }}>{t.description}</div>
-                      {t.atsLevel === 'high' && <span style={{ display: 'inline-block', marginTop: 6, fontSize: 10, fontWeight: 700, color: 'var(--success)', background: 'var(--success-subtle)', padding: '2px 8px', borderRadius: 4 }}>ATS Safe</span>}
+                      {t.ats === 'high' && <span style={{ display: 'inline-block', marginTop: 6, fontSize: 9, fontWeight: 700, color: '#057642', background: '#F0FDF4', padding: '2px 6px', borderRadius: 4 }}>ATS High</span>}
+                      {t.ats === 'medium' && <span style={{ display: 'inline-block', marginTop: 6, fontSize: 9, fontWeight: 700, color: '#92400E', background: '#FFFBEB', padding: '2px 6px', borderRadius: 4 }}>ATS Medium</span>}
                     </button>
                   ) : null; })}
                 </div>
@@ -278,7 +316,8 @@ export default function ResumePreviewPage() {
                     <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 2 }}>{t.name}{locked ? ' \uD83D\uDD12' : ''}</div>
                     <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.4 }}>{t.description}</div>
                     <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
-                      {t.atsLevel === 'high' && <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--success)', background: 'var(--success-subtle)', padding: '2px 6px', borderRadius: 4 }}>ATS Safe</span>}
+                      {t.ats === 'high' && <span style={{ fontSize: 9, fontWeight: 700, color: '#057642', background: '#F0FDF4', padding: '2px 6px', borderRadius: 4 }}>ATS High</span>}
+                      {t.ats === 'medium' && <span style={{ fontSize: 9, fontWeight: 700, color: '#92400E', background: '#FFFBEB', padding: '2px 6px', borderRadius: 4 }}>ATS Medium</span>}
                       <span style={{ fontSize: 9, color: 'var(--text-muted)', background: 'var(--bg-subtle)', padding: '2px 6px', borderRadius: 4 }}>{t.category}</span>
                     </div>
                   </button>
@@ -407,7 +446,7 @@ export default function ResumePreviewPage() {
 
       {/* ═══ MOBILE BOTTOM BAR — Actions only ═══ */}
       <div className="flex sm:!hidden" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'var(--bg-surface)', borderTop: '1px solid var(--border-default)', padding: '10px 12px', zIndex: 50, boxShadow: '0 -4px 12px rgba(0,0,0,0.06)', gap: 8, alignItems: 'center' }}>
-        <button onClick={handleDownloadPDF} style={{ flex: 1, fontSize: 13, fontWeight: 600, padding: '11px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer', background: 'var(--accent)', color: 'white' }}>Download PDF</button>
+        <button onClick={handleDownloadPDF} disabled={pdfGenerating} style={{ flex: 1, fontSize: 13, fontWeight: 600, padding: '11px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer', background: 'var(--accent)', color: 'white', opacity: pdfGenerating ? 0.6 : 1 }}>{pdfGenerating ? 'Generating...' : 'Download PDF'}</button>
         <a href={`/resume/${resume.id}/edit`} style={{ fontSize: 12, fontWeight: 500, padding: '11px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', background: 'transparent', color: 'var(--text-secondary)', textDecoration: 'none' }}>Edit</a>
         <a href={`${API_URL}/api/resume/${resume.id}/download/txt`} style={{ fontSize: 12, fontWeight: 500, padding: '11px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)', background: 'transparent', color: 'var(--text-secondary)', textDecoration: 'none' }}>TXT</a>
       </div>

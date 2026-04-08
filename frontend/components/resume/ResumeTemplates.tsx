@@ -81,6 +81,7 @@ interface TemplateDefinition {
   description: string;
   category: string;
   atsLevel?: 'high' | 'medium' | 'low';
+  ats: 'high' | 'medium';
   bestFor?: string[];
 }
 
@@ -88,17 +89,17 @@ interface TemplateDefinition {
 
 export const TEMPLATES: (TemplateDefinition & { proOnly?: boolean })[] = [
   // 11 templates — all single-column, ATS-optimized
-  { id: 'classic', name: 'Classic Professional', description: 'Traditional clean layout. Maximum ATS compatibility.', category: 'ATS-Friendly', atsLevel: 'high', bestFor: ['any', 'general', 'corporate'] },
-  { id: 'modern', name: 'Modern Accent', description: 'Blue accent styling with skill tags. ATS safe.', category: 'ATS-Friendly', atsLevel: 'high', bestFor: ['tech', 'analyst', 'engineer'] },
-  { id: 'minimal', name: 'Minimalist', description: 'Ultra clean with maximum whitespace.', category: 'ATS-Friendly', atsLevel: 'high', bestFor: ['consulting', 'finance', 'any'] },
-  { id: 'compact', name: 'Compact Dense', description: 'Maximum content in minimum space.', category: 'ATS-Friendly', atsLevel: 'high', bestFor: ['experienced', 'senior', 'any'] },
-  { id: 'technical', name: 'Technical Developer', description: 'Code-inspired design for engineering roles.', category: 'ATS-Friendly', atsLevel: 'high', bestFor: ['engineer', 'developer', 'tech', 'devops'] },
-  { id: 'bold', name: 'Bold Statement', description: 'High impact with strong visual hierarchy.', category: 'Professional', atsLevel: 'high', bestFor: ['sales', 'marketing', 'leadership'] },
-  { id: 'monochrome', name: 'Monochrome Prestige', description: 'Pure black and white luxury typography.', category: 'Professional', atsLevel: 'high', bestFor: ['corporate', 'finance', 'law'] },
-  { id: 'headline', name: 'Headline Impact', description: 'Large summary section. Perfect for sales and CS roles.', category: 'Professional', atsLevel: 'high', bestFor: ['sales', 'customer success', 'account manager'] },
-  { id: 'campus', name: 'Campus Placement', description: 'Indian campus format. Photo, personal details, education-first.', category: 'India', atsLevel: 'high', bestFor: ['fresher', 'student', 'campus'] },
-  { id: 'salesbd', name: 'Sales & BD', description: 'Metrics-forward layout for sales and business development.', category: 'India', atsLevel: 'high', bestFor: ['sales', 'business development', 'account manager', 'customer success'] },
-  { id: 'skylight', name: 'Aviation & Hospitality', description: 'Photo layout for cabin crew, aviation, and hospitality roles.', category: 'India', atsLevel: 'high', bestFor: ['cabin crew', 'aviation', 'hospitality'] },
+  { id: 'classic', name: 'Classic Professional', description: 'Traditional clean layout. Maximum ATS compatibility.', category: 'ATS-Friendly', atsLevel: 'high', ats: 'high', bestFor: ['any', 'general', 'corporate'] },
+  { id: 'modern', name: 'Modern Accent', description: 'Blue accent styling with skill tags. ATS safe.', category: 'ATS-Friendly', atsLevel: 'high', ats: 'high', bestFor: ['tech', 'analyst', 'engineer'] },
+  { id: 'minimal', name: 'Minimalist', description: 'Ultra clean with maximum whitespace.', category: 'ATS-Friendly', atsLevel: 'high', ats: 'high', bestFor: ['consulting', 'finance', 'any'] },
+  { id: 'compact', name: 'Compact Dense', description: 'Maximum content in minimum space.', category: 'ATS-Friendly', atsLevel: 'high', ats: 'high', bestFor: ['experienced', 'senior', 'any'] },
+  { id: 'technical', name: 'Technical Developer', description: 'Code-inspired design for engineering roles.', category: 'ATS-Friendly', atsLevel: 'high', ats: 'high', bestFor: ['engineer', 'developer', 'tech', 'devops'] },
+  { id: 'bold', name: 'Bold Statement', description: 'High impact with strong visual hierarchy.', category: 'Professional', atsLevel: 'high', ats: 'medium', bestFor: ['sales', 'marketing', 'leadership'] },
+  { id: 'monochrome', name: 'Monochrome Prestige', description: 'Pure black and white luxury typography.', category: 'Professional', atsLevel: 'high', ats: 'high', bestFor: ['corporate', 'finance', 'law'] },
+  { id: 'headline', name: 'Headline Impact', description: 'Large summary section. Perfect for sales and CS roles.', category: 'Professional', atsLevel: 'high', ats: 'high', bestFor: ['sales', 'customer success', 'account manager'] },
+  { id: 'campus', name: 'Campus Placement', description: 'Indian campus format. Photo, personal details, education-first.', category: 'India', atsLevel: 'high', ats: 'medium', bestFor: ['fresher', 'student', 'campus'] },
+  { id: 'salesbd', name: 'Sales & BD', description: 'Metrics-forward layout for sales and business development.', category: 'India', atsLevel: 'high', ats: 'high', bestFor: ['sales', 'business development', 'account manager', 'customer success'] },
+  { id: 'skylight', name: 'Aviation & Hospitality', description: 'Photo layout for cabin crew, aviation, and hospitality roles.', category: 'India', atsLevel: 'high', ats: 'medium', bestFor: ['cabin crew', 'aviation', 'hospitality'] },
 ];
 
 // ─── Template Recommendation ─────────────────────────────────────────────────
@@ -2344,7 +2345,6 @@ function printModern(data: ResumeData): string {
   const dateS = 'font-size:10px;color:#666;font-style:italic';
   const titleS = 'font-weight:700;color:#111';
   const hdr = (t: string) => `<div style="font-size:12px;font-weight:700;color:#0A66C2;margin-bottom:6px">${t}</div>`;
-  const allSkills = flattenSkills(data.skills);
   let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#374151;padding:40px 40px 40px 44px;max-width:100%;border-left:4px solid #0A66C2">`;
   h += `<div style="margin-bottom:16px"><div style="font-size:28px;font-weight:700;color:#0A66C2">${esc(c.name) || 'Your Name'}</div>`;
   if (cp) h += `<div style="font-size:10px;color:#555;margin-top:4px">${cp}</div>`;
@@ -2352,10 +2352,8 @@ function printModern(data: ResumeData): string {
   if (data.summary) h += `<div style="margin-bottom:24px">${hdr('SUMMARY')}<div>${esc(data.summary)}</div></div>`;
   if (data.experience?.length) h += `<div style="margin-bottom:24px">${hdr('EXPERIENCE')}${buildExpHTML(data, '&bull;', dateS, 'color:#555;font-style:italic', titleS)}</div>`;
   if (data.education?.length) h += `<div style="margin-bottom:24px">${hdr('EDUCATION')}${buildEduHTML(data, dateS)}</div>`;
-  if (allSkills.length) {
-    const tags = allSkills.map(s => `<span style="background:#EFF6FF;color:#1D4ED8;border-radius:4px;padding:2px 8px;font-size:10px;display:inline-block;margin:2px">${esc(s)}</span>`).join('');
-    h += `<div style="margin-bottom:24px">${hdr('SKILLS')}<div style="display:flex;flex-wrap:wrap;gap:6px">${tags}</div></div>`;
-  }
+  const skModern = buildSkillsGroupedHTML(data);
+  if (skModern) h += `<div style="margin-bottom:24px">${hdr('SKILLS')}${skModern}</div>`;
   const ach = buildAchievementsHTML(data, '&bull;');
   if (ach) h += `<div style="margin-bottom:24px">${hdr('ACHIEVEMENTS')}${ach}</div>`;
   h += `</div>`;
@@ -2616,11 +2614,8 @@ function printSplitModern(data: ResumeData): string {
   if (skillGroups.length) {
     h += `<div style="margin-bottom:20px">${sideHdr('Skills')}`;
     skillGroups.forEach(g => {
-      h += `<div style="margin-bottom:8px">`;
-      if (skillGroups.length > 1) h += `<div style="font-size:9px;color:#94A3B8;font-weight:700;margin-bottom:4px">${esc(g.label)}</div>`;
-      h += `<div style="display:flex;flex-wrap:wrap;gap:4px">`;
-      g.items.forEach(s => { h += `<span style="background:#E2E8F0;color:#334155;border-radius:3px;padding:2px 6px;font-size:9px">${esc(s)}</span>`; });
-      h += `</div></div>`;
+      const label = skillGroups.length > 1 ? `<div style="font-size:9px;color:#94A3B8;font-weight:700;margin-bottom:4px">${esc(g.label)}</div>` : '';
+      h += `<div style="margin-bottom:8px">${label}<div style="font-size:9px;color:#334155">${g.items.map(esc).join(', ')}</div></div>`;
     });
     h += `</div>`;
   }
@@ -2884,7 +2879,6 @@ function printCrimson(data: ResumeData): string {
   const dateS = 'font-size:10px;color:#666;font-style:italic';
   const titleS = 'font-weight:700;color:#111';
   const hdr = (t: string) => `<div style="font-size:12px;font-weight:700;color:#991B1B;text-transform:uppercase;border-bottom:2px solid #991B1B;padding-bottom:3px;margin-bottom:8px">${t}</div>`;
-  const allSkills = flattenSkills(data.skills);
   let h = `<div class="resume-wrapper" style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#374151;padding:40px;max-width:100%">`;
   h += `<div style="margin-bottom:14px"><div style="font-size:28px;font-weight:700;color:#991B1B">${esc(c.name) || 'Your Name'}</div>`;
   if (cp) h += `<div style="font-size:10px;color:#666;margin-top:4px">${cp}</div>`;
@@ -2902,10 +2896,8 @@ function printCrimson(data: ResumeData): string {
     h += `</div>`;
   }
   if (data.education?.length) h += `<div style="margin-bottom:16px">${hdr('Education')}${buildEduHTML(data, dateS)}</div>`;
-  if (allSkills.length) {
-    const tags = allSkills.map(s => `<span style="background:#FEE2E2;color:#991B1B;border-radius:4px;padding:2px 8px;font-size:10px;display:inline-block;margin:2px">${esc(s)}</span>`).join('');
-    h += `<div style="margin-bottom:16px">${hdr('Skills')}<div style="display:flex;flex-wrap:wrap;gap:6px">${tags}</div></div>`;
-  }
+  const skCrimson = buildSkillsGroupedHTML(data);
+  if (skCrimson) h += `<div style="margin-bottom:16px">${hdr('Skills')}${skCrimson}</div>`;
   const ach = buildAchievementsHTML(data, '&bull;');
   if (ach) h += `<div style="margin-bottom:16px">${hdr('Achievements')}${ach}</div>`;
   h += `</div>`;
@@ -2921,7 +2913,6 @@ function printOcean(data: ResumeData): string {
   const dateS = 'font-size:10px;color:#666;font-style:italic';
   const titleS = 'font-weight:700;color:#111';
   const hdr = (t: string) => `<div style="font-size:11px;font-weight:700;color:#0D9488;text-transform:uppercase;border-bottom:1px solid #0D9488;padding-bottom:2px;margin-bottom:6px">${t}</div>`;
-  const allSkills = flattenSkills(data.skills);
   let h = `<div class="resume-wrapper" style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#374151;padding:40px;max-width:100%">`;
   h += `<div style="margin-bottom:14px"><div style="font-size:26px;font-weight:700;color:#0D9488">${esc(c.name) || 'Your Name'}</div>`;
   if (cp) h += `<div style="font-size:10px;color:#555;margin-top:4px">${cp}</div>`;
@@ -2939,10 +2930,8 @@ function printOcean(data: ResumeData): string {
     h += `</div>`;
   }
   if (data.education?.length) h += `<div style="margin-bottom:14px">${hdr('Education')}${buildEduHTML(data, dateS)}</div>`;
-  if (allSkills.length) {
-    const tags = allSkills.map(s => `<span style="background:#F0FDFA;color:#0D9488;border-radius:4px;padding:2px 8px;font-size:10px;display:inline-block;margin:2px">${esc(s)}</span>`).join('');
-    h += `<div style="margin-bottom:14px">${hdr('Skills')}<div style="display:flex;flex-wrap:wrap;gap:6px">${tags}</div></div>`;
-  }
+  const skOcean = buildSkillsGroupedHTML(data);
+  if (skOcean) h += `<div style="margin-bottom:14px">${hdr('Skills')}${skOcean}</div>`;
   const ach = buildAchievementsHTML(data, '<span style="color:#0D9488">&#9679;</span>');
   if (ach) h += `<div style="margin-bottom:14px">${hdr('Achievements')}${ach}</div>`;
   h += `</div>`;
@@ -2992,7 +2981,6 @@ function printIndigo(data: ResumeData): string {
   const dateS = 'font-size:10px;color:#666;font-style:italic';
   const titleS = 'font-weight:700;color:#111';
   const hdr = (t: string) => `<div style="font-size:11px;font-weight:700;color:#4F46E5;text-transform:uppercase;margin-bottom:6px">${t}</div>`;
-  const allSkills = flattenSkills(data.skills);
   let h = `<div class="resume-wrapper" style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#374151;padding:40px;max-width:100%">`;
   h += `<div style="margin-bottom:14px"><div style="font-size:26px;font-weight:700;color:#4F46E5">${esc(c.name) || 'Your Name'}</div>`;
   if (cp) h += `<div style="font-size:10px;color:#666;margin-top:4px">${cp}</div>`;
@@ -3010,10 +2998,8 @@ function printIndigo(data: ResumeData): string {
     h += `</div>`;
   }
   if (data.education?.length) h += `<div style="margin-bottom:14px">${hdr('Education')}${buildEduHTML(data, dateS)}</div>`;
-  if (allSkills.length) {
-    const tags = allSkills.map(s => `<span style="background:#EEF2FF;color:#4F46E5;border-radius:4px;padding:2px 8px;font-size:10px;display:inline-block;margin:2px">${esc(s)}</span>`).join('');
-    h += `<div style="margin-bottom:14px">${hdr('Skills')}<div style="display:flex;flex-wrap:wrap;gap:6px">${tags}</div></div>`;
-  }
+  const skIndigo = buildSkillsGroupedHTML(data);
+  if (skIndigo) h += `<div style="margin-bottom:14px">${hdr('Skills')}${skIndigo}</div>`;
   const ach = buildAchievementsHTML(data, '&bull;');
   if (ach) h += `<div style="margin-bottom:14px">${hdr('Achievements')}${ach}</div>`;
   h += `</div>`;
@@ -3030,14 +3016,10 @@ function printCampus(data: ResumeData): string {
   const titleS = 'font-weight:700;color:#1e3a5f';
 
   let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.55;color:#333;padding:24px 28px;max-width:100%">`;
-  // Header with photo
-  h += `<div style="display:flex;gap:16px;margin-bottom:16px;align-items:flex-start">`;
-  if (data.photo) {
-    h += `<img src="${esc(resolvePhotoUrl(data.photo))}" alt="Photo" style="width:90px;height:110px;object-fit:cover;border-radius:4px;border:1px solid #ccc;flex-shrink:0"/>`;
-  } else {
-    h += `<div style="width:90px;height:110px;border:1px solid #ccc;border-radius:4px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;color:#999;text-align:center">Photo</div>`;
-  }
-  h += `<div style="flex:1">`;
+  // Header (photo removed for ATS compatibility)
+  h += `<!-- Photo removed for ATS compatibility -->`;
+  h += `<div style="margin-bottom:16px">`;
+  h += `<div>`;
   h += `<div style="font-size:24px;font-weight:700;color:#1e3a5f">${esc(c.name) || 'Your Name'}</div>`;
   if (cp) h += `<div style="font-size:11px;color:#555;margin-top:4px">${cp}</div>`;
   const personalParts = [];
@@ -3114,11 +3096,8 @@ function printFresher(data: ResumeData): string {
   if (skillGroups.length) {
     h += `<div style="margin-bottom:20px">${sideHdr('Skills')}`;
     skillGroups.forEach(g => {
-      h += `<div style="margin-bottom:10px">`;
-      if (skillGroups.length > 1) h += `<div style="font-size:9px;color:#9CA3AF;font-weight:700;margin-bottom:4px">${esc(g.label)}</div>`;
-      h += `<div style="display:flex;flex-wrap:wrap;gap:4px">`;
-      g.items.forEach(s => { h += `<span style="background:#E0E7FF;color:#3730A3;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:500">${esc(s)}</span>`; });
-      h += `</div></div>`;
+      const label = skillGroups.length > 1 ? `<div style="font-size:9px;color:#9CA3AF;font-weight:700;margin-bottom:4px">${esc(g.label)}</div>` : '';
+      h += `<div style="margin-bottom:10px">${label}<div style="font-size:10px;color:#3730A3">${g.items.map(esc).join(', ')}</div></div>`;
     });
     h += `</div>`;
   }
@@ -3173,13 +3152,14 @@ function printSalesBD(data: ResumeData): string {
     });
     h += `</div>`;
   }
-  // Skills as orange tags
+  // Skills as comma-separated text (ATS-friendly)
   if (skillGroups.length) {
-    h += `<div style="margin-bottom:16px">${hdr('Skills & Tools')}<div style="display:flex;flex-wrap:wrap;gap:6px">`;
-    skillGroups.flatMap(g => g.items).forEach(s => {
-      h += `<span style="background:#FFF7ED;color:#C2410C;border:1px solid #FDBA74;border-radius:4px;padding:4px 12px;font-size:13px;font-weight:600">${esc(s)}</span>`;
+    h += `<div style="margin-bottom:16px">${hdr('Skills & Tools')}`;
+    skillGroups.forEach(g => {
+      const label = skillGroups.length > 1 ? `<strong>${esc(g.label)}:</strong> ` : '';
+      h += `<div style="margin-bottom:4px;font-size:13px;color:#334155">${label}${g.items.map(esc).join(', ')}</div>`;
     });
-    h += `</div></div>`;
+    h += `</div>`;
   }
   // Achievements
   const ach = buildAchievementsHTML(data, '&#9733;');
@@ -3208,13 +3188,12 @@ function printOperator(data: ResumeData): string {
     h += `</div>`;
   }
   if (skillGroups.length) {
-    h += `<div style="margin-bottom:18px">${hdr('Skills')}<div style="display:flex;flex-wrap:wrap;gap:8px">`;
+    h += `<div style="margin-bottom:18px">${hdr('Skills')}`;
     skillGroups.forEach(g => {
-      h += `<div style="background:#F1F5F9;border:1px solid #E2E8F0;border-radius:6px;padding:8px 10px;flex:1;min-width:140px">`;
-      if (skillGroups.length > 1) h += `<div style="font-size:10px;font-weight:700;color:#06B6D4;margin-bottom:3px">${esc(g.label)}</div>`;
-      h += `<div style="font-size:11px;color:#334155">${g.items.map(esc).join(', ')}</div></div>`;
+      const label = skillGroups.length > 1 ? `<strong style="color:#06B6D4">${esc(g.label)}:</strong> ` : '';
+      h += `<div style="margin-bottom:4px;font-size:11px;color:#334155">${label}${g.items.map(esc).join(', ')}</div>`;
     });
-    h += `</div></div>`;
+    h += `</div>`;
   }
   if (data.education?.length) { h += `<div style="margin-bottom:18px">${hdr('Education')}${buildEduHTML(data, dateS)}</div>`; }
   const ach = buildAchievementsHTML(data, '&#9658;');
@@ -3255,11 +3234,12 @@ function printEditorial(data: ResumeData): string {
     h += `</div>`;
   }
   if (skillGroups.length) {
-    h += `<div style="margin-bottom:20px">${hdr('Skills')}<div style="display:flex;flex-wrap:wrap;gap:6px">`;
-    skillGroups.flatMap(g => g.items).forEach(s => {
-      h += `<span style="border:1px solid #FDBA74;color:#9A3412;border-radius:4px;padding:3px 10px;font-size:12px;font-family:Segoe UI,Arial,sans-serif">${esc(s)}</span>`;
+    h += `<div style="margin-bottom:20px">${hdr('Skills')}`;
+    skillGroups.forEach(g => {
+      const label = skillGroups.length > 1 ? `<strong>${esc(g.label)}:</strong> ` : '';
+      h += `<div style="margin-bottom:4px;font-size:12px;color:#9A3412;font-family:Segoe UI,Arial,sans-serif">${label}${g.items.map(esc).join(', ')}</div>`;
     });
-    h += `</div></div>`;
+    h += `</div>`;
   }
   if (data.education?.length) {
     h += `<div style="margin-bottom:20px">${hdr('Education')}`;
@@ -3291,8 +3271,8 @@ function printSkylight(data: ResumeData): string {
   h += `<div style="background:#1E3A5F;padding:18px 24px;margin:-24px -28px 0"><div style="font-family:Georgia,serif;font-size:24px;font-weight:700;color:white">${esc(c.name) || 'Your Name'}</div>`;
   if (cp) h += `<div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:4px">${cp}</div>`;
   h += `</div><div style="height:2px;background:#C5A572;margin:0 -28px"></div>`;
-  // Photo
-  if (data.photo) h += `<div style="display:flex;justify-content:flex-end;padding:12px 0 0"><img src="${esc(resolvePhotoUrl(data.photo))}" alt="Photo" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid #C5A572"/></div>`;
+  // Photo removed for ATS compatibility
+  h += `<!-- Photo removed for ATS compatibility -->`;
   // Languages & Certifications
   h += `<div style="display:flex;gap:24px;margin-top:12px;margin-bottom:14px">`;
   if (languages && languages.items.length) {
@@ -3309,11 +3289,12 @@ function printSkylight(data: ResumeData): string {
   if (data.summary) h += `<div style="margin-bottom:14px">${hdr('Professional Summary')}<div>${esc(data.summary)}</div></div>`;
   // Core Competencies
   if (otherGroups.length) {
-    h += `<div style="margin-bottom:14px">${hdr('Core Competencies')}<div style="display:flex;flex-wrap:wrap;gap:6px">`;
-    otherGroups.flatMap(g => g.items).forEach(s => {
-      h += `<span style="border:1px solid #C5A572;border-radius:4px;padding:3px 10px;font-size:12px;color:#1E3A5F">${esc(s)}</span>`;
+    h += `<div style="margin-bottom:14px">${hdr('Core Competencies')}`;
+    otherGroups.forEach(g => {
+      const label = otherGroups.length > 1 ? `<strong>${esc(g.label)}:</strong> ` : '';
+      h += `<div style="margin-bottom:4px;font-size:12px;color:#1E3A5F">${label}${g.items.map(esc).join(', ')}</div>`;
     });
-    h += `</div></div>`;
+    h += `</div>`;
   }
   if (data.experience?.length) {
     h += `<div style="margin-bottom:14px">${hdr('Experience')}`;
@@ -3411,13 +3392,9 @@ function printClinical(data: ResumeData): string {
   h += `</div>`;
   h += `<div style="border-bottom:1px solid #D1D5DB;margin-bottom:14px"></div>`;
   if (data.summary) h += `<div style="margin-bottom:14px">${hdr('Professional Summary')}<div>${esc(data.summary)}</div></div>`;
-  // Certifications box
+  // Certifications (ATS-friendly comma-separated)
   if (certifications && certifications.items.length) {
-    h += `<div style="border:2px solid #0F766E;background:#F0FDFA;border-radius:6px;padding:12px 16px;margin-bottom:14px">${hdr('Certifications &amp; Registrations')}<div style="display:flex;flex-wrap:wrap;gap:8px">`;
-    certifications.items.forEach(cert => {
-      h += `<span style="background:white;border:1px solid #0F766E;border-radius:4px;padding:3px 10px;font-size:12px;color:#0F766E;font-weight:600">${esc(cert)}</span>`;
-    });
-    h += `</div></div>`;
+    h += `<div style="margin-bottom:14px">${hdr('Certifications &amp; Registrations')}<div style="font-size:12px;color:#0F766E;font-weight:600">${certifications.items.map(esc).join(', ')}</div></div>`;
   }
   if (data.experience?.length) h += `<div style="margin-bottom:14px">${hdr('Experience')}${buildExpHTML(data, '&bull;', dateS, 'color:#555;font-style:italic;font-size:11px', titleS)}</div>`;
   if (data.education?.length) h += `<div style="margin-bottom:14px">${hdr('Education')}${buildEduHTML(data, dateS)}</div>`;

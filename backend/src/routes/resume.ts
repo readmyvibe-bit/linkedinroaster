@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import multer from 'multer';
+import puppeteer from 'puppeteer';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { query } from '../db';
 import { generateResume, parseUploadedResume } from '../services/resume-generator';
@@ -294,6 +295,69 @@ router.get('/:resumeId/download/docx', async (req: Request, res: Response) => {
   } catch (err: any) {
     console.error('DOCX download error:', err.message);
     res.status(500).json({ error: 'Failed to generate DOCX' });
+  }
+});
+
+// POST /api/resume/generate-pdf — Server-side PDF generation via Puppeteer
+router.post('/generate-pdf', async (req: Request, res: Response) => {
+  let browser;
+  try {
+    const { html, filename } = req.body;
+    if (!html) return res.status(400).json({ error: 'HTML content required' });
+
+    // Validate HTML has basic structure
+    if (!html.includes('<!DOCTYPE') && !html.includes('<html')) {
+      return res.status(400).json({ error: 'Invalid HTML structure' });
+    }
+
+    // Check for unclosed tags (basic validation)
+    const openTags = (html.match(/<[a-z][^/]*>/gi) || []).length;
+    const closeTags = (html.match(/<\/[a-z]+>/gi) || []).length;
+    if (Math.abs(openTags - closeTags) > 10) {
+      console.warn(`[PDF] HTML tag mismatch: ${openTags} open vs ${closeTags} close`);
+    }
+
+    browser = await puppeteer.launch({
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--font-render-hinting=none',
+      ],
+    });
+
+    const page = await browser.newPage();
+
+    // Set content with UTF-8 encoding
+    await page.setContent(html, {
+      waitUntil: 'networkidle0',
+      timeout: 15000,
+    });
+
+    // Wait for fonts to load
+    await page.evaluateHandle('document.fonts.ready');
+
+    // Generate PDF
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+      margin: { top: '12mm', right: '14mm', bottom: '12mm', left: '14mm' },
+      printBackground: true,
+      displayHeaderFooter: false,
+      preferCSSPageSize: true,
+    });
+
+    await browser.close();
+    browser = null;
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename || 'resume.pdf'}"`);
+    res.send(Buffer.from(pdfBuffer));
+  } catch (err: any) {
+    console.error('[PDF] Generation error:', err.message);
+    if (browser) try { await browser.close(); } catch {}
+    res.status(500).json({ error: 'Failed to generate PDF. Try Quick Print instead.' });
   }
 });
 
