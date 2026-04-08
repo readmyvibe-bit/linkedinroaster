@@ -198,11 +198,11 @@ export default function ResumePreviewPage() {
         <a href="/dashboard" style={{ fontSize: 13, color: '#6B7280', textDecoration: 'none', fontWeight: 500 }}>Dashboard</a>
       </header>
 
-      {/* SPLIT PANEL */}
-      <div style={{ display: 'flex', height: 'calc(100vh - 52px)' }}>
+      {/* SPLIT PANEL — Desktop */}
+      <div className="hidden lg:flex" style={{ height: 'calc(100vh - 52px)' }}>
 
         {/* LEFT PANEL — Controls */}
-        <div className="hidden lg:block" style={{ width: 320, flexShrink: 0, background: '#FFFFFF', borderRight: '1px solid #E5E7EB', overflowY: 'auto', padding: '24px 20px' }}>
+        <div style={{ width: 320, flexShrink: 0, background: '#FFFFFF', borderRight: '1px solid #E5E7EB', overflowY: 'auto', padding: '24px 20px' }}>
 
           {/* ATS Score */}
           <div style={{ background: resume.ats_score >= 80 ? 'linear-gradient(135deg, #F0FDF4, #DCFCE7)' : resume.ats_score >= 60 ? 'linear-gradient(135deg, #EFF6FF, #DBEAFE)' : 'linear-gradient(135deg, #FFFBEB, #FEF3C7)', border: `1px solid ${resume.ats_score >= 80 ? '#BBF7D0' : resume.ats_score >= 60 ? '#BFDBFE' : '#FDE68A'}`, borderRadius: 12, padding: '20px', marginBottom: 20, textAlign: 'center' }}>
@@ -330,8 +330,8 @@ export default function ResumePreviewPage() {
         </div>
 
         {/* RIGHT PANEL — Resume Preview */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '32px', display: 'flex', justifyContent: 'center' }}>
-          <div style={{ width: '100%', maxWidth: 794, background: 'white', borderRadius: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '32px 32px 60px', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+          <div style={{ width: '100%', maxWidth: 794, background: 'white', borderRadius: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', overflow: 'visible' }}>
             {resume.resume_data && renderResumeHTML(resume.resume_data, templateId)}
           </div>
         </div>
@@ -354,7 +354,7 @@ export default function ResumePreviewPage() {
         </select>
 
         {/* Mobile Resume Preview */}
-        <div style={{ background: 'white', borderRadius: 8, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', overflow: 'hidden', marginBottom: 80 }}>
+        <div style={{ background: 'white', borderRadius: 8, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', overflow: 'visible', marginBottom: 100, paddingBottom: 16 }}>
           {resume.resume_data && renderResumeHTML(resume.resume_data, templateId)}
         </div>
       </div>

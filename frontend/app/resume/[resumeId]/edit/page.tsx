@@ -530,17 +530,17 @@ export default function ResumeEditorPage() {
 
   // ─── Render ───
   return (
-    <div style={{ height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', background: 'var(--bg-canvas)' }}>
+    <div style={{ height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', background: '#F1F3F5', fontFamily: "'Inter', system-ui, sans-serif" }}>
       {/* ═══ HEADER ═══ */}
-      <header style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)', boxShadow: 'var(--shadow-sm)', flexShrink: 0, zIndex: 50 }}>
-        <div style={{ padding: '0 16px' }}>
+      <header style={{ background: '#FFFFFF', borderBottom: '1px solid #E5E7EB', flexShrink: 0, zIndex: 50 }}>
+        <div style={{ padding: '0 20px' }}>
           {/* Row 1: Breadcrumb + status + actions */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 48, gap: 8, flexWrap: 'wrap', padding: '4px 0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
-              <a href={`/resume/${resumeId}`} style={{ fontSize: 13, color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 500, whiteSpace: 'nowrap' }}>&larr; Resume</a>
-              <span className="hidden sm:inline" style={{ color: 'var(--border-default)' }}>&rsaquo;</span>
-              <span className="hidden sm:inline" style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>Edit</span>
-              <span style={{ fontSize: 12, fontWeight: 600, color: savedStatusColor, whiteSpace: 'nowrap' }}>&bull; {savedStatusText}</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 52, gap: 8, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+              <a href={`/resume/${resumeId}`} style={{ fontSize: 13, color: '#6B7280', textDecoration: 'none', fontWeight: 500, whiteSpace: 'nowrap' }}>&larr; Resume</a>
+              <span style={{ color: '#D1D5DB' }}>|</span>
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#111827', whiteSpace: 'nowrap' }}>Editor</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: savedStatusColor, background: savedStatus === 'saved' ? '#F0FDF4' : savedStatus === 'saving' ? '#F3F4F6' : '#FFFBEB', padding: '2px 8px', borderRadius: 10, whiteSpace: 'nowrap' }}>{savedStatusText}</span>
             </div>
             {/* Mobile: Edit/Preview toggle */}
             {isMobile && (
@@ -566,23 +566,24 @@ export default function ResumeEditorPage() {
 
         {/* Section Nav (desktop only — vertical rail) */}
         {!isMobile && (
-          <div style={{ width: 160, flexShrink: 0, background: 'var(--bg-surface)', borderRight: '1px solid var(--border-default)', padding: '16px 0', overflowY: 'auto' }}>
+          <div style={{ width: 180, flexShrink: 0, background: '#FAFBFC', borderRight: '1px solid #E5E7EB', padding: '20px 0', overflowY: 'auto' }}>
+            <div style={{ padding: '0 12px 12px', fontSize: 10, fontWeight: 700, color: '#9CA3AF', letterSpacing: 2, textTransform: 'uppercase' }}>Sections</div>
             {tabs.map(tab => (
               <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{
-                display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '10px 16px', background: activeTab === tab.key ? 'var(--accent-subtle)' : 'transparent', border: 'none', borderLeft: activeTab === tab.key ? '3px solid var(--accent)' : '3px solid transparent', color: activeTab === tab.key ? 'var(--accent)' : 'var(--text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer', textAlign: 'left', transition: 'all var(--transition)',
+                display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '11px 16px', background: activeTab === tab.key ? '#FFFFFF' : 'transparent', border: 'none', borderLeft: activeTab === tab.key ? '3px solid #0B69C7' : '3px solid transparent', color: activeTab === tab.key ? '#0B69C7' : '#6B7280', fontSize: 13, fontWeight: activeTab === tab.key ? 700 : 500, cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s', boxShadow: activeTab === tab.key ? '0 1px 3px rgba(0,0,0,0.04)' : 'none',
               }}>
                 {tab.label}
               </button>
             ))}
-            <div style={{ borderTop: '1px solid var(--border-default)', margin: '12px 16px', paddingTop: 12 }}>
-              <a href="/dashboard" target="_blank" rel="noreferrer" style={{ display: 'block', padding: '8px 16px', fontSize: 12, color: 'var(--text-muted)', textDecoration: 'none', fontWeight: 500 }}>Dashboard</a>
-              <a href={`/resume/${resumeId}`} style={{ display: 'block', padding: '8px 16px', fontSize: 12, color: 'var(--text-muted)', textDecoration: 'none', fontWeight: 500 }}>Back to Preview</a>
+            <div style={{ borderTop: '1px solid #E5E7EB', margin: '16px 12px 0', paddingTop: 16 }}>
+              <a href={`/resume/${resumeId}`} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 12, color: '#6B7280', textDecoration: 'none', fontWeight: 500 }}>&larr; Preview</a>
+              <a href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 12, color: '#6B7280', textDecoration: 'none', fontWeight: 500 }}>Dashboard</a>
             </div>
           </div>
         )}
 
         {/* Form Panel */}
-        <div style={{ width: isMobile ? '100%' : 0, flex: isMobile ? undefined : '1 1 0', display: (!isMobile || mobileView === 'edit') ? 'block' : 'none', background: 'var(--bg-surface)', overflowY: 'auto', height: 'calc(100vh - 56px)', padding: '16px 20px', maxWidth: isMobile ? undefined : 560 }}>
+        <div style={{ width: isMobile ? '100%' : 0, flex: isMobile ? undefined : '1 1 0', display: (!isMobile || mobileView === 'edit') ? 'block' : 'none', background: '#FFFFFF', overflowY: 'auto', height: 'calc(100vh - 52px)', padding: '20px 24px', maxWidth: isMobile ? undefined : 560, borderRight: '1px solid #E5E7EB' }}>
           {/* Mobile tab bar (horizontal) */}
           {isMobile && (
             <div style={{ display: 'flex', borderBottom: '1px solid var(--border-default)', marginBottom: 0, overflowX: 'auto', WebkitOverflowScrolling: 'touch', gap: 0 }}>
