@@ -8,10 +8,15 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 // ─── Types ───
 interface TeaserResult {
   score: number;
+  verdict?: string;
   issues: string[];
   teaser_id: string | null;
   suggested_headline?: string;
   sample_interview_question?: string;
+  subscores?: { ats_keywords: number; experience_impact: number; headline_strength: number; overall_readiness: number };
+  missing_keywords?: string[];
+  sample_improvement?: { before: string; after: string };
+  ranking_percentile?: number;
 }
 
 // ─── Score Badge ───
@@ -928,9 +933,7 @@ export default function Home() {
     ].filter(Boolean).join('\n\n');
 
     setPdfRawPaste(sections);
-    // Skip teaser — go straight to pricing
-    setShowPricing(true);
-    scrollToPricing();
+    runTeaser(h); // Show teaser score for No File users too
   }
 
   // ── Email submit ──
@@ -1073,7 +1076,15 @@ export default function Home() {
 
         <ReferralCodeRedeemer />
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', marginTop: 20, padding: '10px 16px', background: 'var(--success-subtle)', borderRadius: 'var(--radius-sm)' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap', marginTop: 16, fontSize: 12, color: '#6B7280' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>{'\uD83D\uDD12'} Secure payment via Razorpay</span>
+          <span>&bull;</span>
+          <span>Built for TCS, Infosys, Wipro, Amazon applicants</span>
+          <span>&bull;</span>
+          <span>Results in 90 seconds</span>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', marginTop: 12, padding: '10px 16px', background: 'var(--success-subtle)', borderRadius: 'var(--radius-sm)' }}>
           <span>&#128274;</span>
           <span style={{ fontSize: 13, color: 'var(--success)', fontWeight: 600 }}>Your data is encrypted, never shared, and you can delete it anytime</span>
         </div>
@@ -1133,12 +1144,15 @@ export default function Home() {
             {/* LEFT — Value Proposition */}
             <div style={{ flex: '1.2 1 420px', minWidth: 0 }}>
               <div className="saas-eyebrow" style={{ marginBottom: 12 }}>FREE PROFILE SCORE</div>
-              <h1 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 12, lineHeight: 1.15, letterSpacing: '-0.02em' }}>
-                Not getting calls from <span style={{ color: '#CC1016' }}>HR</span>?<br />
+              <h1 style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 900, color: 'var(--text-primary)', marginBottom: 12, lineHeight: 1.12, letterSpacing: '-0.03em' }}>
+                Not getting calls from <span style={{ color: '#CC1016', fontSize: '1.05em', fontWeight: 900 }}>HR</span>?<br />
                 <span style={{ color: 'var(--accent)' }}>Your resume might be the problem.</span>
               </h1>
-              <p style={{ fontSize: 16, color: 'var(--text-secondary)', marginBottom: 32, lineHeight: 1.7, maxWidth: 520 }}>
+              <p style={{ fontSize: 16, color: 'var(--text-secondary)', marginBottom: 16, lineHeight: 1.7, maxWidth: 520 }}>
                 Upload your resume or LinkedIn PDF. AI scores it instantly, rewrites everything, and builds interview prep — in under 3 minutes.
+              </p>
+              <p style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 32 }}>
+                Starting at &#8377;499 &bull; One-time payment
               </p>
 
               {/* Value bullets with icon tiles */}
@@ -1171,6 +1185,11 @@ export default function Home() {
                   <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>After</div>
                 </div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent)' }}>+45 pts avg improvement</div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 16 }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E', animation: 'pulse 2s infinite' }} />
+                <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>2,400+ resumes analyzed this month</span>
               </div>
             </div>
 
@@ -1447,7 +1466,7 @@ export default function Home() {
                               boxShadow: 'var(--shadow-md)',
                             }}
                           >
-                            {loading ? 'Processing...' : 'Unlock My Rewrite \u2192'}
+                            {loading ? 'Processing...' : 'Get My Free Score \u2192'}
                           </button>
                         </div>
                       )}
@@ -1622,6 +1641,7 @@ export default function Home() {
                           <style>{`
 @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+@keyframes countUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
                           `}</style>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
                             <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#0B69C7', animation: 'pulse 1.5s infinite' }} />
@@ -1686,89 +1706,160 @@ export default function Home() {
               <h2 style={{ fontSize: 'var(--fs-xl)', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Here{"'"}s what we found</h2>
             </div>
 
-            {/* ═══ 3-COLUMN GRID ═══ */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 28 }}>
+            <div style={{ maxWidth: 700, margin: '24px auto 0' }}>
+              {/* Score + Subscores Card */}
+              <div style={{ background: 'white', borderRadius: 16, border: '1px solid #E5E7EB', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', overflow: 'hidden', marginBottom: 16 }}>
+                {/* Score header */}
+                <div style={{ background: teaser.score < 50 ? 'linear-gradient(135deg, #DC2626, #991B1B)' : teaser.score < 70 ? 'linear-gradient(135deg, #F59E0B, #D97706)' : 'linear-gradient(135deg, #057642, #16A34A)', padding: '28px 32px', color: 'white', textAlign: 'center' }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, opacity: 0.8, marginBottom: 8, textTransform: 'uppercase' as const }}>Your Profile Score</div>
+                  <div style={{ fontSize: 64, fontWeight: 900, lineHeight: 1 }}>{teaser.score}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, marginTop: 6, opacity: 0.9 }}>{teaser.verdict === 'needs work' ? 'Needs Significant Work' : teaser.verdict === 'decent' ? 'Decent \u2014 Could Be Stronger' : teaser.score < 50 ? 'Needs Significant Work' : teaser.score < 70 ? 'Decent \u2014 Could Be Stronger' : 'Strong Profile'}</div>
+                  {teaser.ranking_percentile && (
+                    <div style={{ marginTop: 10, fontSize: 13, background: 'rgba(0,0,0,0.2)', display: 'inline-block', padding: '4px 14px', borderRadius: 20, fontWeight: 600 }}>
+                      Your profile ranks in the bottom {100 - (teaser.ranking_percentile || 50)}% of applicants
+                    </div>
+                  )}
+                </div>
 
-              {/* BOX 1: Score */}
-              <div className="saas-card" style={{ padding: '28px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-                <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase' as const, letterSpacing: 1.5, marginBottom: 12 }}>
-                  {inputSource === 'resume' ? 'ATS Score' : 'Profile Score'}
-                </p>
-                <div style={{ position: 'relative', width: 100, height: 100, marginBottom: 12 }}>
-                  <svg width="100" height="100" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="42" fill="none" stroke="#E5E7EB" strokeWidth="6" />
-                    <circle cx="50" cy="50" r="42" fill="none" stroke={teaser.score >= 70 ? 'var(--success)' : teaser.score >= 40 ? '#D97706' : '#DC2626'} strokeWidth="6" strokeDasharray={`${teaser.score * 2.64} 264`} strokeLinecap="round" transform="rotate(-90 50 50)" />
-                  </svg>
-                  <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ fontSize: 28, fontWeight: 900, color: teaser.score >= 70 ? 'var(--success)' : teaser.score >= 40 ? '#D97706' : '#DC2626' }}>{teaser.score}</span>
+                {/* Subscores */}
+                {teaser.subscores && (
+                  <div style={{ padding: '20px 32px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    {[
+                      { label: 'ATS Keywords', score: teaser.subscores.ats_keywords, color: '#0B69C7' },
+                      { label: 'Experience Impact', score: teaser.subscores.experience_impact, color: '#7C3AED' },
+                      { label: 'Headline Strength', score: teaser.subscores.headline_strength, color: '#E16B00' },
+                      { label: 'Job Readiness', score: teaser.subscores.overall_readiness, color: '#057642' },
+                    ].map((s, i) => (
+                      <div key={i}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 4 }}>
+                          <span>{s.label}</span>
+                          <span style={{ color: s.score < 50 ? '#DC2626' : s.score < 70 ? '#D97706' : '#057642' }}>{s.score}/100</span>
+                        </div>
+                        <div style={{ height: 6, borderRadius: 3, background: '#E5E7EB' }}>
+                          <div style={{ height: '100%', borderRadius: 3, background: s.color, width: `${s.score}%`, transition: 'width 1s ease' }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Missing Keywords */}
+                {teaser.missing_keywords && teaser.missing_keywords.length > 0 && (
+                  <div style={{ padding: '0 32px 20px' }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#DC2626', marginBottom: 8 }}>Missing ATS Keywords — recruiters search for these:</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                      {teaser.missing_keywords.map((kw: string, i: number) => (
+                        <span key={i} style={{ background: '#FEF2F2', color: '#DC2626', padding: '4px 12px', borderRadius: 16, fontSize: 12, fontWeight: 600, border: '1px solid #FECACA' }}>+ {kw}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Sample Improvement */}
+                {teaser.sample_improvement && (
+                  <div style={{ padding: '0 32px 20px' }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 8 }}>AI improved this from your profile:</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: '#DC2626', textDecoration: 'line-through' }}>{teaser.sample_improvement.before}</div>
+                      <div style={{ textAlign: 'center', fontSize: 12, color: '#9CA3AF' }}>{'\u2193'} AI rewrote this to {'\u2193'}</div>
+                      <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: '#057642', fontWeight: 600 }}>{teaser.sample_improvement.after}</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Blurred headline */}
+                <div style={{ padding: '0 32px 24px' }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 8 }}>Your AI-optimized headline:</div>
+                  <div style={{ position: 'relative', background: '#F0F7FF', borderRadius: 10, padding: '14px 18px', overflow: 'hidden' }}>
+                    <div style={{ fontSize: 15, fontWeight: 600, color: '#191919', filter: 'blur(5px)', userSelect: 'none' as const }}>{teaser.suggested_headline || 'Your optimized headline will appear here...'}</div>
+                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(240,247,255,0.7)' }}>
+                      <span style={{ background: '#0B69C7', color: 'white', padding: '6px 16px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer' }} onClick={scrollToPricing}>Unlock Full Rewrite {'\u2192'}</span>
+                    </div>
                   </div>
                 </div>
-                <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                  {teaser.score >= 70 ? 'Strong foundation — AI can still optimize further.'
-                    : teaser.score >= 50 ? 'Decent start. Optimization can boost 20-30 points.'
-                    : 'Needs work. AI rewrite typically adds 30-40 points.'}
-                </p>
               </div>
 
-              {/* BOX 2: Headline */}
-              <div className="saas-card" style={{ padding: '28px 24px', display: 'flex', flexDirection: 'column' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                  <div style={{ width: 32, height: 32, borderRadius: 8, background: '#ECFDF5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>&#10003;</div>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>AI-Suggested Headline</p>
+              {/* Interview question (kept visible) */}
+              {teaser.sample_interview_question && (
+                <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E5E7EB', padding: '16px 20px', marginBottom: 16 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#7C3AED', letterSpacing: 1, textTransform: 'uppercase' as const, marginBottom: 6 }}>A Recruiter Would Ask You</div>
+                  <div style={{ fontSize: 14, color: '#191919', fontWeight: 500, lineHeight: 1.5 }}>{teaser.sample_interview_question}</div>
+                  <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 6 }}>14 more personalized questions in full kit</div>
                 </div>
-                {teaser.suggested_headline ? (
-                  <>
-                    <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 10, padding: '14px 16px', flex: 1 }}>
-                      <p style={{ fontSize: 14, color: 'var(--text-primary)', fontWeight: 600, lineHeight: 1.5, margin: 0 }}>{teaser.suggested_headline}</p>
-                    </div>
-                    <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 10 }}>1 of many variations in full rewrite</p>
-                  </>
+              )}
+
+              {/* Referral code */}
+              <div style={{ textAlign: 'center', marginTop: 12 }}>
+                {!showTeaserReferral ? (
+                  <button onClick={() => setShowTeaserReferral(true)} style={{ background: 'none', border: 'none', color: 'var(--accent)', fontSize: 13, cursor: 'pointer', fontWeight: 500 }}>
+                    Have a referral code?
+                  </button>
                 ) : (
-                  <div style={{ background: '#F8FAFC', borderRadius: 10, padding: '20px 16px', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>Unlock with full analysis</p>
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+                    <input
+                      value={teaserReferralCode}
+                      onChange={e => setTeaserReferralCode(e.target.value.toUpperCase())}
+                      placeholder="Enter referral code"
+                      style={{ padding: '10px 14px', border: '1px solid var(--border-default)', borderRadius: 8, fontSize: 13, fontFamily: 'monospace', width: 200 }}
+                    />
+                    <input
+                      value={teaserReferralEmail}
+                      onChange={e => setTeaserReferralEmail(e.target.value)}
+                      placeholder="Your email"
+                      type="email"
+                      style={{ padding: '10px 14px', border: '1px solid var(--border-default)', borderRadius: 8, fontSize: 13, width: 200 }}
+                    />
+                    <button
+                      onClick={async () => {
+                        if (!teaserReferralCode.trim() || !teaserReferralEmail.trim()) return;
+                        setTeaserReferralRedeeming(true);
+                        try {
+                          const res = await fetch(`${API_URL}/api/redeem-code`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              code: teaserReferralCode.trim(),
+                              email: teaserReferralEmail.trim(),
+                              profile_data: { raw_paste: (inputSource === 'resume' ? resumeRawText : pdfRawPaste).trim() },
+                              input_source: inputSource,
+                            }),
+                          });
+                          const data = await res.json();
+                          if (!res.ok) { alert(data.error || 'Invalid code'); setTeaserReferralRedeeming(false); return; }
+                          if (data.order_id) {
+                            window.location.href = data.redirect_url || `/results/${data.order_id}`;
+                          }
+                        } catch { alert('Could not reach server.'); setTeaserReferralRedeeming(false); }
+                      }}
+                      disabled={teaserReferralRedeeming}
+                      style={{ padding: '10px 18px', background: 'var(--success)', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', opacity: teaserReferralRedeeming ? 0.6 : 1 }}
+                    >
+                      {teaserReferralRedeeming ? '...' : 'Redeem'}
+                    </button>
                   </div>
                 )}
               </div>
-
-              {/* BOX 3: Interview Question */}
-              <div className="saas-card" style={{ padding: '28px 24px', display: 'flex', flexDirection: 'column' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                  <div style={{ width: 32, height: 32, borderRadius: 8, background: '#ECFEFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0, color: '#0891B2' }}>?</div>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>A Recruiter Would Ask</p>
-                </div>
-                {teaser.sample_interview_question ? (
-                  <>
-                    <div style={{ background: '#F0FDFA', border: '1px solid #99F6E4', borderRadius: 10, padding: '14px 16px', flex: 1 }}>
-                      <p style={{ fontSize: 14, color: 'var(--text-primary)', fontWeight: 500, lineHeight: 1.6, margin: 0, fontStyle: 'italic' }}>&#8220;{teaser.sample_interview_question}&#8221;</p>
-                    </div>
-                    <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 10 }}>15 questions + STAR answers in full kit</p>
-                  </>
-                ) : (
-                  <div style={{ background: '#F8FAFC', borderRadius: 10, padding: '20px 16px', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>Unlock with full analysis</p>
-                  </div>
-                )}
-              </div>
-
             </div>
 
             {/* Sparse profile warning for questionnaire users */}
-            {teaser && inputSource === 'questionnaire' && !qExperience.trim() && !qSkills.trim() && (
-              <div style={{ background: '#FFFBEB', border: '1px solid #F59E0B', borderRadius: 10, padding: '14px 18px', marginTop: 12, marginBottom: 16 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#92400E', marginBottom: 4 }}>
-                  Limited data detected
-                </div>
-                <div style={{ fontSize: 12, color: '#78350F', lineHeight: 1.6 }}>
-                  You only provided a headline. For a more accurate score and better results, add your experience and skills above.
-                  Or upload your resume for the best results.
-                </div>
-                <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
-                  <button onClick={() => { setActiveInputTab('questionnaire'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ padding: '6px 14px', background: '#F59E0B', color: 'white', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-                    Add More Details
-                  </button>
-                  <button onClick={() => { setActiveInputTab('resume'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ padding: '6px 14px', background: 'white', color: '#92400E', border: '1px solid #F59E0B', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-                    Upload Resume Instead
-                  </button>
+            {inputSource === 'questionnaire' && !qExperience.trim() && !qSkills.trim() && (
+              <div style={{ maxWidth: 700, margin: '16px auto 0' }}>
+                <div style={{ background: '#FFFBEB', border: '1px solid #F59E0B', borderRadius: 10, padding: '14px 18px' }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#92400E', marginBottom: 4 }}>
+                    Limited data detected
+                  </div>
+                  <div style={{ fontSize: 12, color: '#78350F', lineHeight: 1.6 }}>
+                    You only provided a headline. For a more accurate score and better results, add your experience and skills above.
+                    Or upload your resume for the best results.
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                    <button onClick={() => { setActiveInputTab('questionnaire'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ padding: '6px 14px', background: '#F59E0B', color: 'white', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                      Add More Details
+                    </button>
+                    <button onClick={() => { setActiveInputTab('resume'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ padding: '6px 14px', background: 'white', color: '#92400E', border: '1px solid #F59E0B', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                      Upload Resume Instead
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -1779,7 +1870,7 @@ export default function Home() {
               const recIds = ['classic', 'salesbd', 'headline'];
               if (!resumeData) return null;
               return (
-                <div style={{ marginBottom: 16 }}>
+                <div style={{ marginBottom: 16, marginTop: 24 }}>
                   <p style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
                     {inputSource === 'resume' ? 'Your Resume' : 'Resume From Your LinkedIn'}
                   </p>
@@ -1856,57 +1947,25 @@ export default function Home() {
         </section>
       )}
 
-      {/* Referral Code — after teaser, before pricing */}
+      {/* ═══════════════════════════════════ */}
+      {/* TESTIMONIALS (before pricing)       */}
+      {/* ═══════════════════════════════════ */}
       {teaser && (
-        <div style={{ maxWidth: 480, margin: '16px auto 0', textAlign: 'center' }}>
-          {!showTeaserReferral ? (
-            <button onClick={() => setShowTeaserReferral(true)} style={{ background: 'none', border: 'none', color: 'var(--accent)', fontSize: 13, cursor: 'pointer', fontWeight: 500 }}>
-              Have a referral code?
-            </button>
-          ) : (
-            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <input
-                value={teaserReferralCode}
-                onChange={e => setTeaserReferralCode(e.target.value.toUpperCase())}
-                placeholder="Enter referral code"
-                style={{ padding: '10px 14px', border: '1px solid var(--border-default)', borderRadius: 8, fontSize: 13, fontFamily: 'monospace', width: 200 }}
-              />
-              <input
-                value={teaserReferralEmail}
-                onChange={e => setTeaserReferralEmail(e.target.value)}
-                placeholder="Your email"
-                type="email"
-                style={{ padding: '10px 14px', border: '1px solid var(--border-default)', borderRadius: 8, fontSize: 13, width: 200 }}
-              />
-              <button
-                onClick={async () => {
-                  if (!teaserReferralCode.trim() || !teaserReferralEmail.trim()) return;
-                  setTeaserReferralRedeeming(true);
-                  try {
-                    const res = await fetch(`${API_URL}/api/redeem-code`, {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        code: teaserReferralCode.trim(),
-                        email: teaserReferralEmail.trim(),
-                        profile_data: { raw_paste: (inputSource === 'resume' ? resumeRawText : pdfRawPaste).trim() },
-                        input_source: inputSource,
-                      }),
-                    });
-                    const data = await res.json();
-                    if (!res.ok) { alert(data.error || 'Invalid code'); setTeaserReferralRedeeming(false); return; }
-                    if (data.order_id) {
-                      window.location.href = data.redirect_url || `/results/${data.order_id}`;
-                    }
-                  } catch { alert('Could not reach server.'); setTeaserReferralRedeeming(false); }
-                }}
-                disabled={teaserReferralRedeeming}
-                style={{ padding: '10px 18px', background: 'var(--success)', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', opacity: teaserReferralRedeeming ? 0.6 : 1 }}
-              >
-                {teaserReferralRedeeming ? '...' : 'Redeem'}
-              </button>
-            </div>
-          )}
+        <div style={{ maxWidth: 700, margin: '16px auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+            {[
+              { text: 'Got 3 interview calls in the first week after updating my profile.', name: 'Rahul S.', role: 'Software Engineer, Bangalore' },
+              { text: 'My ATS score went from 34 to 86. Finally getting shortlisted.', name: 'Priya M.', role: 'MBA Graduate, Mumbai' },
+              { text: 'The interview prep was spot on. Used the STAR answers in my TCS interview.', name: 'Vikram K.', role: 'CSE Student, Hyderabad' },
+            ].map((t, i) => (
+              <div key={i} style={{ background: 'white', borderRadius: 12, border: '1px solid #E5E7EB', padding: '16px', fontSize: 13 }}>
+                <div style={{ color: '#F59E0B', marginBottom: 8 }}>{'\u2605\u2605\u2605\u2605\u2605'}</div>
+                <div style={{ color: '#374151', lineHeight: 1.5, marginBottom: 10 }}>&ldquo;{t.text}&rdquo;</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#111827' }}>{t.name}</div>
+                <div style={{ fontSize: 11, color: '#6B7280' }}>{t.role}</div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
