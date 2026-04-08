@@ -2327,7 +2327,7 @@ export default function ResultsPage() {
                     const res = await fetch(`${API_URL}/api/interview-prep`, {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ resumeId: resumes[0].id }),
+                      body: JSON.stringify({ resume_id: resumes[0].id }),
                     });
                     const data = await res.json();
                     if (!res.ok) { alert(data.error || 'Failed to start interview prep'); return; }
