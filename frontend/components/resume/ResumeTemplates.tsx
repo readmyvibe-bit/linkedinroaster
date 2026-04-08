@@ -2318,20 +2318,20 @@ function buildCustomSectionsHTML(data: ResumeData, bullet: string, hdrFn: (t: st
 function printClassic(data: ResumeData): string {
   const c = data.contact || {};
   const cp = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean).map(esc).join('  |  ');
-  const dateS = 'font-size:10px;color:#666;font-style:italic';
-  const titleS = 'font-weight:700;color:#111';
-  const hdr = (t: string) => `<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#374151;border-bottom:1px solid #D1D5DB;padding-bottom:2px;margin-bottom:6px">${t}</div>`;
-  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#374151;padding:40px;max-width:100%">`;
-  h += `<div style="margin-bottom:12px"><div style="font-size:26px;font-weight:700;color:#111;text-align:left">${esc(c.name) || 'Your Name'}</div>`;
-  if (cp) h += `<div style="font-size:10px;color:#555;margin-top:4px">${cp}</div>`;
-  h += `</div><div style="border-bottom:1px solid #D1D5DB;margin-bottom:14px"></div>`;
-  if (data.summary) h += `<div style="margin-bottom:14px">${hdr('Summary')}<div>${esc(data.summary)}</div></div>`;
-  if (data.experience?.length) h += `<div style="margin-bottom:14px">${hdr('Experience')}${buildExpHTML(data, '&bull;', dateS, 'color:#555;font-style:italic', titleS)}</div>`;
-  if (data.education?.length) h += `<div style="margin-bottom:14px">${hdr('Education')}${buildEduHTML(data, dateS)}</div>`;
+  const dateS = 'font-size:12px;color:#666;font-style:italic';
+  const titleS = 'font-weight:700;color:#111;font-size:14px';
+  const hdr = (t: string) => `<div style="font-size:13px;font-weight:700;text-transform:uppercase;color:#374151;letter-spacing:1.5px;border-bottom:2px solid #0B69C7;padding-bottom:3px;margin-bottom:8px">${t}</div>`;
+  let h = `<div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.55;color:#374151;padding:20px 24px;max-width:100%">`;
+  h += `<div style="margin-bottom:14px"><div style="font-size:26px;font-weight:800;color:#111;text-align:left">${esc(c.name) || 'Your Name'}</div>`;
+  if (cp) h += `<div style="font-size:12px;color:#555;margin-top:4px">${cp}</div>`;
+  h += `</div><div style="border-bottom:2px solid #0B69C7;margin-bottom:16px"></div>`;
+  if (data.summary) h += `<div style="margin-bottom:16px">${hdr('Summary')}<div>${esc(data.summary)}</div></div>`;
+  if (data.experience?.length) h += `<div style="margin-bottom:16px">${hdr('Experience')}${buildExpHTML(data, '&bull;', dateS, 'color:#555;font-style:italic', titleS)}</div>`;
+  if (data.education?.length) h += `<div style="margin-bottom:16px">${hdr('Education')}${buildEduHTML(data, dateS)}</div>`;
   const sk = buildSkillsGroupedHTML(data);
-  if (sk) h += `<div style="margin-bottom:14px">${hdr('Skills')}${sk}</div>`;
+  if (sk) h += `<div style="margin-bottom:16px">${hdr('Skills')}${sk}</div>`;
   const ach = buildAchievementsHTML(data, '&bull;');
-  if (ach) h += `<div style="margin-bottom:14px">${hdr('Achievements')}${ach}</div>`;
+  if (ach) h += `<div style="margin-bottom:16px">${hdr('Achievements')}${ach}</div>`;
   h += `</div>`;
   return printPageWrapper(h);
 }
@@ -2342,20 +2342,20 @@ function printModern(data: ResumeData): string {
   const c = data.contact || {};
   const cpArr = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean);
   const cp = cpArr.map(esc).join(' <span style="color:#0A66C2;margin:0 6px">|</span> ');
-  const dateS = 'font-size:10px;color:#666;font-style:italic';
-  const titleS = 'font-weight:700;color:#111';
-  const hdr = (t: string) => `<div style="font-size:12px;font-weight:700;color:#0A66C2;margin-bottom:6px">${t}</div>`;
-  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#374151;padding:40px 40px 40px 44px;max-width:100%;border-left:4px solid #0A66C2">`;
-  h += `<div style="margin-bottom:16px"><div style="font-size:28px;font-weight:700;color:#0A66C2">${esc(c.name) || 'Your Name'}</div>`;
-  if (cp) h += `<div style="font-size:10px;color:#555;margin-top:4px">${cp}</div>`;
+  const dateS = 'font-size:12px;color:#666;font-style:italic';
+  const titleS = 'font-weight:700;color:#111;font-size:14px';
+  const hdr = (t: string) => `<div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#0A66C2;margin-bottom:8px">${t}</div>`;
+  let h = `<div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.55;color:#374151;padding:20px 24px 20px 28px;max-width:100%;border-left:3px solid #0A66C2">`;
+  h += `<div style="margin-bottom:16px"><div style="font-size:28px;font-weight:800;color:#0A66C2">${esc(c.name) || 'Your Name'}</div>`;
+  if (cp) h += `<div style="font-size:12px;color:#555;margin-top:4px">${cp}</div>`;
   h += `</div>`;
-  if (data.summary) h += `<div style="margin-bottom:24px">${hdr('SUMMARY')}<div>${esc(data.summary)}</div></div>`;
-  if (data.experience?.length) h += `<div style="margin-bottom:24px">${hdr('EXPERIENCE')}${buildExpHTML(data, '&bull;', dateS, 'color:#555;font-style:italic', titleS)}</div>`;
-  if (data.education?.length) h += `<div style="margin-bottom:24px">${hdr('EDUCATION')}${buildEduHTML(data, dateS)}</div>`;
+  if (data.summary) h += `<div style="margin-bottom:18px">${hdr('SUMMARY')}<div>${esc(data.summary)}</div></div>`;
+  if (data.experience?.length) h += `<div style="margin-bottom:18px">${hdr('EXPERIENCE')}${buildExpHTML(data, '&bull;', dateS, 'color:#555;font-style:italic', titleS)}</div>`;
+  if (data.education?.length) h += `<div style="margin-bottom:18px">${hdr('EDUCATION')}${buildEduHTML(data, dateS)}</div>`;
   const skModern = buildSkillsGroupedHTML(data);
-  if (skModern) h += `<div style="margin-bottom:24px">${hdr('SKILLS')}${skModern}</div>`;
+  if (skModern) h += `<div style="margin-bottom:18px">${hdr('SKILLS')}${skModern}</div>`;
   const ach = buildAchievementsHTML(data, '&bull;');
-  if (ach) h += `<div style="margin-bottom:24px">${hdr('ACHIEVEMENTS')}${ach}</div>`;
+  if (ach) h += `<div style="margin-bottom:18px">${hdr('ACHIEVEMENTS')}${ach}</div>`;
   h += `</div>`;
   return printPageWrapper(h);
 }
@@ -2365,20 +2365,20 @@ function printModern(data: ResumeData): string {
 function printMinimal(data: ResumeData): string {
   const c = data.contact || {};
   const cp = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean).map(esc).join('  |  ');
-  const dateS = 'font-size:10px;color:#999;font-style:italic';
-  const titleS = 'font-weight:700;color:#111';
-  const hdr = (t: string) => `<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#9CA3AF;letter-spacing:4px;margin-bottom:10px">${t}</div>`;
-  let h = `<div style="font-family:Georgia,'Times New Roman',serif;font-size:11px;line-height:1.6;color:#374151;padding:40px;max-width:100%">`;
-  h += `<div style="text-align:center;margin-bottom:24px"><div style="font-size:22px;font-weight:700;color:#111">${esc(c.name) || 'Your Name'}</div>`;
-  if (cp) h += `<div style="font-size:10px;color:#888;margin-top:6px">${cp}</div>`;
-  h += `</div><div style="border-bottom:0.5px solid #E5E7EB;margin-bottom:32px"></div>`;
-  if (data.summary) h += `<div style="margin-bottom:32px">${hdr('Summary')}<div>${esc(data.summary)}</div></div>`;
-  if (data.experience?.length) h += `<div style="margin-bottom:32px">${hdr('Experience')}${buildExpHTML(data, '&mdash;', dateS, 'color:#888', titleS)}</div>`;
-  if (data.education?.length) h += `<div style="margin-bottom:32px">${hdr('Education')}${buildEduHTML(data, dateS)}</div>`;
+  const dateS = 'font-size:12px;color:#999;font-style:italic';
+  const titleS = 'font-weight:700;color:#111;font-size:14px';
+  const hdr = (t: string) => `<div style="font-size:12px;font-weight:700;text-transform:uppercase;color:#9CA3AF;letter-spacing:2px;border-bottom:1px solid #E5E7EB;padding-bottom:3px;margin-bottom:10px">${t}</div>`;
+  let h = `<div style="font-family:Georgia,'Times New Roman',serif;font-size:13px;line-height:1.6;color:#374151;padding:20px 24px;max-width:100%">`;
+  h += `<div style="text-align:center;margin-bottom:20px"><div style="font-size:24px;font-weight:700;color:#111">${esc(c.name) || 'Your Name'}</div>`;
+  if (cp) h += `<div style="font-size:12px;color:#888;margin-top:6px">${cp}</div>`;
+  h += `</div><div style="border-bottom:1px solid #E5E7EB;margin-bottom:24px"></div>`;
+  if (data.summary) h += `<div style="margin-bottom:24px">${hdr('Summary')}<div>${esc(data.summary)}</div></div>`;
+  if (data.experience?.length) h += `<div style="margin-bottom:24px">${hdr('Experience')}${buildExpHTML(data, '&mdash;', dateS, 'color:#888', titleS)}</div>`;
+  if (data.education?.length) h += `<div style="margin-bottom:24px">${hdr('Education')}${buildEduHTML(data, dateS)}</div>`;
   const sk = buildSkillsGroupedHTML(data);
-  if (sk) h += `<div style="margin-bottom:32px">${hdr('Skills')}${sk}</div>`;
+  if (sk) h += `<div style="margin-bottom:24px">${hdr('Skills')}${sk}</div>`;
   const ach = buildAchievementsHTML(data, '&mdash;');
-  if (ach) h += `<div style="margin-bottom:32px">${hdr('Achievements')}${ach}</div>`;
+  if (ach) h += `<div style="margin-bottom:24px">${hdr('Achievements')}${ach}</div>`;
   h += `</div>`;
   return printPageWrapper(h);
 }
@@ -2544,13 +2544,13 @@ function printElegant(data: ResumeData): string {
 function printTechnical(data: ResumeData): string {
   const c = data.contact || {};
   const cp = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean).map(esc).join('  |  ');
-  const dateS = 'font-size:10px;color:#888;font-family:"Courier New",Courier,monospace';
-  const titleS = 'font-weight:700;color:#111';
-  const hdr = (t: string) => `<div style="font-size:12px;font-weight:700;color:#0A66C2;font-family:'Courier New',Courier,monospace;margin-bottom:8px">// ${t}</div>`;
+  const dateS = 'font-size:12px;color:#888;font-family:Consolas,"Courier New",monospace';
+  const titleS = 'font-weight:700;color:#111;font-size:14px';
+  const hdr = (t: string) => `<div style="font-size:13px;font-weight:700;color:#0A66C2;font-family:Consolas,'Courier New',monospace;margin-bottom:10px">// ${t}</div>`;
   const skillGroups = normalizeSkills(data.skills);
-  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#333;padding:40px;max-width:100%">`;
-  h += `<div style="margin-bottom:14px"><div style="font-size:24px;font-weight:700;color:#111">${esc(c.name) || 'Your Name'}</div>`;
-  if (cp) h += `<div style="font-size:10px;color:#666;font-family:'Courier New',Courier,monospace;margin-top:4px">${cp}</div>`;
+  let h = `<div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.5;color:#333;padding:20px 24px;max-width:100%">`;
+  h += `<div style="margin-bottom:14px"><div style="font-size:26px;font-weight:800;color:#111;font-family:Consolas,'Courier New',monospace">${esc(c.name) || 'Your Name'}</div>`;
+  if (cp) h += `<div style="font-size:12px;color:#666;font-family:Consolas,'Courier New',monospace;margin-top:4px">${cp}</div>`;
   h += `</div><div style="border-bottom:1px solid #E5E7EB;margin-bottom:16px"></div>`;
   if (data.summary) h += `<div style="margin-bottom:18px">${hdr('SUMMARY')}<div>${esc(data.summary)}</div></div>`;
   if (data.experience?.length) h += `<div style="margin-bottom:18px">${hdr('EXPERIENCE')}${buildExpHTML(data, '&gt;', dateS, 'color:#555', titleS)}</div>`;
@@ -2558,7 +2558,7 @@ function printTechnical(data: ResumeData): string {
   if (skillGroups.length) {
     h += `<div style="margin-bottom:18px">${hdr('SKILLS')}`;
     skillGroups.forEach(g => {
-      h += `<div style="margin-bottom:4px;font-family:'Courier New',Courier,monospace;font-size:10px"><span style="color:#666">${esc(g.label)}: </span><span style="color:#111">{ ${g.items.map(esc).join(', ')} }</span></div>`;
+      h += `<div style="margin-bottom:4px;font-family:Consolas,'Courier New',monospace;font-size:12px"><span style="color:#666">${esc(g.label)}: </span><span style="color:#111">{ ${g.items.map(esc).join(', ')} }</span></div>`;
     });
     h += `</div>`;
   }
@@ -2767,30 +2767,30 @@ function printCorporate(data: ResumeData): string {
 function printMonochrome(data: ResumeData): string {
   const c = data.contact || {};
   const cp = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean).map(esc).join('  |  ');
-  const dateS = 'font-size:10px;color:#666;font-style:italic';
-  const titleS = 'font-weight:700;color:#000';
-  const hdr = (t: string) => `<div style="font-size:12px;font-weight:700;color:#000;text-transform:uppercase;letter-spacing:3px;border-bottom:2px solid #000;padding-bottom:4px;margin-bottom:8px">${t}</div>`;
-  let h = `<div class="resume-wrapper" style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#333;padding:40px;max-width:100%">`;
-  h += `<div style="margin-bottom:16px"><div style="font-size:30px;font-weight:700;color:#000;letter-spacing:1px">${esc(c.name) || 'Your Name'}</div>`;
-  if (cp) h += `<div style="font-size:10px;color:#999;margin-top:6px;letter-spacing:0.5px">${cp}</div>`;
+  const dateS = 'font-size:12px;color:#666;font-style:italic';
+  const titleS = 'font-weight:700;color:#000;font-size:14px';
+  const hdr = (t: string) => `<div style="font-size:12px;font-weight:800;color:#000;text-transform:uppercase;letter-spacing:3px;border-bottom:3px solid #000;padding-bottom:4px;margin-bottom:10px">${t}</div>`;
+  let h = `<div class="resume-wrapper" style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.55;color:#000;padding:20px 24px;max-width:100%">`;
+  h += `<div style="margin-bottom:16px"><div style="font-size:28px;font-weight:900;color:#000;text-transform:uppercase;letter-spacing:1px">${esc(c.name) || 'Your Name'}</div>`;
+  if (cp) h += `<div style="font-size:12px;color:#666;margin-top:6px;letter-spacing:0.5px">${cp}</div>`;
   h += `</div>`;
-  if (data.summary) h += `<div style="margin-bottom:28px">${hdr('Summary')}<div>${esc(data.summary)}</div></div>`;
+  if (data.summary) h += `<div style="margin-bottom:20px">${hdr('Summary')}<div>${esc(data.summary)}</div></div>`;
   if (data.experience?.length) {
-    h += `<div style="margin-bottom:28px">${hdr('Experience')}`;
+    h += `<div style="margin-bottom:20px">${hdr('Experience')}`;
     data.experience.forEach(exp => {
       const title = esc(getExpTitle(exp));
       const dates = esc(getExpDates(exp));
       const company = [exp.company, exp.location].filter(Boolean).map(esc).join(' &mdash; ');
-      const bullets = (exp.bullets || []).map(b => `<div style="padding-left:12px;text-indent:-12px;margin-bottom:2px">&bull; ${esc(b)}</div>`).join('');
-      h += `<div class="entry" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;flex-wrap:wrap"><span style="${titleS}">${title}</span><span style="${dateS}">${dates}</span></div><div style="color:#666;font-style:italic">${company}</div>${bullets ? `<div style="margin-top:4px">${bullets}</div>` : ''}</div>`;
+      const bullets = (exp.bullets || []).map(b => `<div style="padding-left:14px;text-indent:-14px;margin-bottom:3px">&bull; ${esc(b)}</div>`).join('');
+      h += `<div class="entry" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;flex-wrap:wrap"><span style="${titleS}">${title}</span><span style="${dateS}">${dates}</span></div><div style="color:#666;font-style:italic">${company}</div>${bullets ? `<div style="margin-top:4px">${bullets}</div>` : ''}</div>`;
     });
     h += `</div>`;
   }
-  if (data.education?.length) h += `<div style="margin-bottom:28px">${hdr('Education')}${buildEduHTML(data, dateS)}</div>`;
+  if (data.education?.length) h += `<div style="margin-bottom:20px">${hdr('Education')}${buildEduHTML(data, dateS)}</div>`;
   const sk = buildSkillsGroupedHTML(data);
-  if (sk) h += `<div style="margin-bottom:28px">${hdr('Skills')}${sk}</div>`;
+  if (sk) h += `<div style="margin-bottom:20px">${hdr('Skills')}${sk}</div>`;
   const ach = buildAchievementsHTML(data, '&bull;');
-  if (ach) h += `<div style="margin-bottom:28px">${hdr('Achievements')}${ach}</div>`;
+  if (ach) h += `<div style="margin-bottom:20px">${hdr('Achievements')}${ach}</div>`;
   h += `</div>`;
   return printPageWrapper(h);
 }
@@ -2833,30 +2833,30 @@ function printSerif(data: ResumeData): string {
 function printHeadline(data: ResumeData): string {
   const c = data.contact || {};
   const cp = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean).map(esc).join('  |  ');
-  const dateS = 'font-size:10px;color:#666;font-style:italic';
-  const titleS = 'font-weight:700;color:#111';
-  const hdr = (t: string) => `<div style="font-size:11px;font-weight:700;color:#374151;border-bottom:1px solid #D1D5DB;padding-bottom:2px;margin-bottom:6px">${t}</div>`;
-  let h = `<div class="resume-wrapper" style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#374151;padding:40px;max-width:100%">`;
-  h += `<div style="margin-bottom:12px"><div style="font-size:24px;font-weight:700;color:#111">${esc(c.name) || 'Your Name'}</div>`;
-  if (cp) h += `<div style="font-size:10px;color:#555;margin-top:4px">${cp}</div>`;
+  const dateS = 'font-size:12px;color:#666;font-style:italic';
+  const titleS = 'font-weight:700;color:#111;font-size:14px';
+  const hdr = (t: string) => `<div style="font-size:14px;font-weight:700;text-transform:uppercase;color:#374151;border-bottom:1px solid #D1D5DB;padding-bottom:3px;margin-bottom:8px">${t}</div>`;
+  let h = `<div class="resume-wrapper" style="font-family:'Segoe UI',Arial,sans-serif;font-size:13.5px;line-height:1.6;color:#374151;padding:20px 24px;max-width:100%">`;
+  h += `<div style="margin-bottom:14px"><div style="font-size:32px;font-weight:900;color:#111">${esc(c.name) || 'Your Name'}</div>`;
+  if (cp) h += `<div style="font-size:12px;color:#555;margin-top:4px">${cp}</div>`;
   h += `</div>`;
-  if (data.summary) h += `<div style="margin-bottom:18px;background:#F8FAFC;border-left:4px solid #0A66C2;padding:16px"><div style="font-size:13px;line-height:1.6;color:#374151">${esc(data.summary)}</div></div>`;
+  if (data.summary) h += `<div style="margin-bottom:18px;background:#F8FAFC;border-left:4px solid #0A66C2;padding:16px"><div style="font-size:15px;line-height:1.6;color:#374151">${esc(data.summary)}</div></div>`;
   if (data.experience?.length) {
-    h += `<div style="margin-bottom:14px">${hdr('Experience')}`;
+    h += `<div style="margin-bottom:16px">${hdr('Experience')}`;
     data.experience.forEach(exp => {
       const title = esc(getExpTitle(exp));
       const dates = esc(getExpDates(exp));
       const company = [exp.company, exp.location].filter(Boolean).map(esc).join(' &mdash; ');
-      const bullets = (exp.bullets || []).map(b => `<div style="padding-left:12px;text-indent:-12px;margin-bottom:2px">&bull; ${esc(b)}</div>`).join('');
-      h += `<div class="entry" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;flex-wrap:wrap"><span style="${titleS}">${title}</span><span style="${dateS}">${dates}</span></div><div style="color:#555;font-style:italic">${company}</div>${bullets ? `<div style="margin-top:4px">${bullets}</div>` : ''}</div>`;
+      const bullets = (exp.bullets || []).map(b => `<div style="padding-left:14px;text-indent:-14px;margin-bottom:3px">&bull; ${esc(b)}</div>`).join('');
+      h += `<div class="entry" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;flex-wrap:wrap"><span style="${titleS}">${title}</span><span style="${dateS}">${dates}</span></div><div style="color:#555;font-style:italic">${company}</div>${bullets ? `<div style="margin-top:4px">${bullets}</div>` : ''}</div>`;
     });
     h += `</div>`;
   }
-  if (data.education?.length) h += `<div style="margin-bottom:14px">${hdr('Education')}${buildEduHTML(data, dateS)}</div>`;
+  if (data.education?.length) h += `<div style="margin-bottom:16px">${hdr('Education')}${buildEduHTML(data, dateS)}</div>`;
   const sk = buildSkillsGroupedHTML(data);
-  if (sk) h += `<div style="margin-bottom:14px">${hdr('Skills')}${sk}</div>`;
+  if (sk) h += `<div style="margin-bottom:16px">${hdr('Skills')}${sk}</div>`;
   const ach = buildAchievementsHTML(data, '&bull;');
-  if (ach) h += `<div style="margin-bottom:14px">${hdr('Achievements')}${ach}</div>`;
+  if (ach) h += `<div style="margin-bottom:16px">${hdr('Achievements')}${ach}</div>`;
   h += `</div>`;
   return printPageWrapper(h);
 }
