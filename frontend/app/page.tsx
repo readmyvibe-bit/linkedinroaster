@@ -1683,10 +1683,6 @@ export default function Home() {
                     </div>
                   )}
 
-                  {/* Referral code link */}
-                  <div style={{ textAlign: 'center', marginTop: 8 }}>
-                    <ReferralCodeRedeemer />
-                  </div>
                 </div>
               </div>
             </div>

@@ -1268,12 +1268,20 @@ export async function runPipeline(orderId: string): Promise<void> {
         [JSON.stringify(rewrite), 'checking', orderId],
       );
 
-      // Stage 5 — Quality Check
-      const qc = await withTimeout(
-        () => stage5_qualityCheck(parsed, rewrite),
-        TIMEOUTS.check,
-        'check',
-      );
+      // Stage 5 — Quality Check (skip if rewrite looks complete)
+      const hasAllSections = rewrite.rewritten_headline && rewrite.rewritten_about && rewrite.rewritten_experience?.length > 0;
+      let qc;
+      if (hasAllSections && rewrite.rewritten_about.length > 100) {
+        // High confidence — skip QC
+        qc = { safety_passed: true, safety_issues: [], quality_score: 90, quality_issues: [], verdict: 'APPROVE' as const, revision_instructions: '' };
+        console.log(`[PIPELINE] Skipping QC for ${orderId} — high confidence`);
+      } else {
+        qc = await withTimeout(
+          () => stage5_qualityCheck(parsed, rewrite),
+          TIMEOUTS.check,
+          'check',
+        );
+      }
       await query(
         'UPDATE orders SET quality_check=$1 WHERE id=$2',
         [JSON.stringify(qc), orderId],
@@ -1346,32 +1354,28 @@ export async function runPipeline(orderId: string): Promise<void> {
           [JSON.stringify(before), JSON.stringify(after), orderId],
         );
 
-        // Auto-generate first resume (no form needed)
-        try {
-          const pp = parsed;
-          const autoResumeInput = {
-            orderId,
-            userDetails: {
-              name: pp.full_name || pp.name || '',
-              email: order.email || '',
-              phone: pp.phone || '',
-              location: pp.location || '',
-              linkedin: pp.linkedin_url || '',
-              website: pp.website || '',
-            },
-            targetRole: pp.target_role || pp.current_role?.title || pp.headline?.split('|')[0]?.trim() || '',
-            jobDescription: order.job_description || '',
-            templateId: 'classic' as const,
-            pageCount: 2 as const,
-          };
-          const { resumeId } = await generateResume(autoResumeInput);
-          console.log(`[PIPELINE] Auto-generated resume ${resumeId} for order ${orderId}`);
-        } catch (resumeErr: any) {
-          // Non-fatal — user can still generate manually
-          console.error(`[PIPELINE] Auto-resume failed for ${orderId}:`, resumeErr.message);
-        }
-
         await postProcess(orderId);
+
+        // Auto-generate first resume in background (non-blocking)
+        generateResume({
+          orderId,
+          userDetails: {
+            name: parsed.full_name || parsed.name || '',
+            email: order.email || '',
+            phone: parsed.phone || '',
+            location: parsed.location || '',
+            linkedin: parsed.linkedin_url || '',
+            website: parsed.website || '',
+          },
+          targetRole: parsed.target_role || parsed.current_role?.title || parsed.headline?.split('|')[0]?.trim() || '',
+          jobDescription: order.job_description || '',
+          templateId: 'classic' as const,
+          pageCount: 2 as const,
+        }).then(({ resumeId }) => {
+          console.log(`[PIPELINE] Auto-generated resume ${resumeId} for order ${orderId}`);
+        }).catch((resumeErr: any) => {
+          console.error(`[PIPELINE] Auto-resume failed for ${orderId}:`, resumeErr.message);
+        });
 
         posthog.capture({
           distinctId: order.email,

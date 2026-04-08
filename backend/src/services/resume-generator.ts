@@ -362,12 +362,17 @@ Return ONLY the cover letter text. No JSON. No formatting markers.`,
 
 // ─── Parse uploaded resume text into structured data ───
 export async function parseUploadedResume(text: string): Promise<any> {
-  const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 3000,
-    messages: [{
+  const { GoogleGenerativeAI } = require('@google/generative-ai');
+  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!);
+  const model = genAI.getGenerativeModel({
+    model: 'gemini-2.5-flash',
+    generationConfig: { temperature: 0.0, maxOutputTokens: 4000 },
+  });
+
+  const result = await model.generateContent({
+    contents: [{
       role: 'user',
-      content: `Extract structured data from this resume text. Return ONLY valid JSON.
+      parts: [{ text: `Extract structured data from this resume text. Return ONLY valid JSON.
 
 RESUME TEXT:
 ${text.slice(0, 8000)}
@@ -391,12 +396,17 @@ Return this exact JSON structure:
   "certifications": [],
   "languages": [],
   "achievements": []
-}`,
+}
+
+RULES:
+- Extract EVERY experience entry with full bullets
+- Extract ALL skills, certifications, languages
+- Keep dates as-is
+- Return ONLY valid JSON` }],
     }],
-    system: 'You are a resume parser. Extract all information accurately. Return ONLY valid JSON.',
   });
 
-  let rText = ((response.content[0] as any).text || '').trim();
+  let rText = result.response.text().trim();
   if (rText.startsWith('```')) {
     rText = rText.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '');
   }
