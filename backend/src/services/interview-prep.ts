@@ -33,10 +33,31 @@ function parseJSON(text: string): any {
   if (cleaned.startsWith('```')) {
     cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '');
   }
+  // Strip any text before first { or [
+  const firstBrace = cleaned.indexOf('{');
+  const firstBracket = cleaned.indexOf('[');
+  const start = firstBrace >= 0 && (firstBracket < 0 || firstBrace < firstBracket) ? firstBrace : firstBracket;
+  if (start > 0) cleaned = cleaned.slice(start);
+  // Strip any text after last } or ]
+  const lastBrace = cleaned.lastIndexOf('}');
+  const lastBracket = cleaned.lastIndexOf(']');
+  const end = lastBrace > lastBracket ? lastBrace : lastBracket;
+  if (end > 0 && end < cleaned.length - 1) cleaned = cleaned.slice(0, end + 1);
   try {
     return JSON.parse(cleaned);
   } catch {
-    return JSON.parse(jsonrepair(cleaned));
+    try {
+      return JSON.parse(jsonrepair(cleaned));
+    } catch {
+      // Last resort: try fixing common AI output issues
+      cleaned = cleaned
+        .replace(/,\s*}/g, '}')     // trailing commas before }
+        .replace(/,\s*]/g, ']')     // trailing commas before ]
+        .replace(/'/g, '"')          // single quotes to double
+        .replace(/(\w+)\s*:/g, '"$1":') // unquoted keys
+        .replace(/:\s*'([^']*)'/g, ': "$1"'); // single-quoted values
+      return JSON.parse(jsonrepair(cleaned));
+    }
   }
 }
 

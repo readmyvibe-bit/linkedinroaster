@@ -29,7 +29,16 @@ const v2MigrationPromise = (async () => {
 function parseJSON(text: string): any {
   let cleaned = text.trim();
   if (cleaned.startsWith('```')) cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '');
-  try { return JSON.parse(cleaned); } catch { return JSON.parse(jsonrepair(cleaned)); }
+  const firstBrace = cleaned.indexOf('{');
+  if (firstBrace > 0) cleaned = cleaned.slice(firstBrace);
+  const lastBrace = cleaned.lastIndexOf('}');
+  if (lastBrace > 0 && lastBrace < cleaned.length - 1) cleaned = cleaned.slice(0, lastBrace + 1);
+  try { return JSON.parse(cleaned); } catch {
+    try { return JSON.parse(jsonrepair(cleaned)); } catch {
+      cleaned = cleaned.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
+      return JSON.parse(jsonrepair(cleaned));
+    }
+  }
 }
 
 async function geminiPhase(prompt: string, system: string, opts: { temperature?: number; maxTokens?: number; model?: string } = {}): Promise<any> {
