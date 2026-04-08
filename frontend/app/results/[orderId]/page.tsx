@@ -1632,6 +1632,7 @@ export default function ResultsPage() {
   const [activeSection, setActiveSection] = useState<'score' | 'rewrite' | 'resume' | 'prep' | 'share'>('score');
   const [resumes, setResumes] = useState<any[]>([]);
   const [resumesLoading, setResumesLoading] = useState(true);
+  const [prepLoading, setPrepLoading] = useState(false);
 
   const fetchOrder = useCallback(async () => {
     try {
@@ -2317,18 +2318,38 @@ export default function ResultsPage() {
           <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '24px' }}>
             <h2 style={{ fontSize: 20, fontWeight: 800, color: '#191919', margin: '0 0 8px' }}>Interview Prep</h2>
             <p style={{ fontSize: 14, color: '#666', margin: '0 0 16px' }}>15 personalized questions + STAR answers tailored to your profile</p>
-            <a
-              href={resumes.length > 0 ? `/interview-prep/${resumes[0].id}?resumeId=${resumes[0].id}` : `/resume?orderId=${orderId}`}
-              onClick={(e) => {
-                if (resumes.length === 0) {
-                  e.preventDefault();
-                  alert('Generate a resume first to access interview prep.');
-                }
-              }}
-              style={{ display: 'inline-block', padding: '12px 28px', background: '#0B69C7', color: 'white', borderRadius: 50, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}
-            >
-              Start Interview Prep
-            </a>
+            {resumes.length > 0 ? (
+              <button
+                disabled={prepLoading}
+                onClick={async () => {
+                  setPrepLoading(true);
+                  try {
+                    const res = await fetch(`${API_URL}/api/interview-prep`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ resumeId: resumes[0].id }),
+                    });
+                    const data = await res.json();
+                    if (!res.ok) { alert(data.error || 'Failed to start interview prep'); return; }
+                    const prepId = data.id || data.prep_id || data.prepId;
+                    if (prepId) window.location.href = `/interview-prep/${prepId}`;
+                    else alert('Could not create interview prep. Please try again.');
+                  } catch { alert('Could not reach the server.'); } finally { setPrepLoading(false); }
+                }}
+                style={{ padding: '12px 28px', background: prepLoading ? '#94A3B8' : '#0B69C7', color: 'white', border: 'none', borderRadius: 50, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+              >
+                {prepLoading ? 'Starting...' : 'Start Interview Prep'}
+              </button>
+            ) : (
+              <div>
+                <p style={{ fontSize: 13, color: '#92400E', background: '#FFFBEB', border: '1px solid #F59E0B', borderRadius: 8, padding: '10px 14px', marginBottom: 12 }}>
+                  A resume is needed first. Your resume is being auto-generated — refresh in a minute.
+                </p>
+                <a href={`/resume?orderId=${orderId}`} style={{ display: 'inline-block', padding: '10px 24px', background: '#057642', color: 'white', borderRadius: 50, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
+                  Build Resume Now
+                </a>
+              </div>
+            )}
             <p style={{ fontSize: 12, color: '#888', marginTop: 8 }}>{isPro ? '3 prep sessions per resume' : '1 prep session per resume'} included in your plan</p>
           </div>
         </div>
