@@ -1123,7 +1123,7 @@ export default function Home() {
             <div style={{ flex: '1.2 1 420px', minWidth: 0 }}>
               <div className="saas-eyebrow" style={{ marginBottom: 12 }}>FREE PROFILE SCORE</div>
               <h1 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 12, lineHeight: 1.15, letterSpacing: '-0.02em' }}>
-                Not getting calls from HR?<br />
+                Not getting calls from <span style={{ color: '#CC1016' }}>HR</span>?<br />
                 <span style={{ color: 'var(--accent)' }}>Your resume might be the problem.</span>
               </h1>
               <p style={{ fontSize: 16, color: 'var(--text-secondary)', marginBottom: 32, lineHeight: 1.7, maxWidth: 520 }}>
@@ -1436,7 +1436,7 @@ export default function Home() {
                               boxShadow: 'var(--shadow-md)',
                             }}
                           >
-                            {loading ? 'Analyzing...' : 'Get My Free Score \u2192'}
+                            {loading ? 'Processing...' : 'Unlock My Rewrite \u2192'}
                           </button>
                         </div>
                       )}
