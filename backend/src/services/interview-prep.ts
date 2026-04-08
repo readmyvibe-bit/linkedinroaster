@@ -85,6 +85,17 @@ export async function generateInterviewPrep(prepId: string, resumeId: string): P
   await migrationPromise;
   const v1StartTime = Date.now();
 
+  // Global timeout — mark as failed if not done in 3 minutes
+  const timeout = setTimeout(async () => {
+    try {
+      const check = await query('SELECT status FROM interview_preps WHERE id=$1', [prepId]);
+      if (check.rows[0]?.status === 'processing') {
+        console.error(`[interview-prep] ${prepId}: Timed out after 3 minutes`);
+        await query(`UPDATE interview_preps SET status='failed', error_message='Generation timed out. Please try again.' WHERE id=$1`, [prepId]);
+      }
+    } catch {}
+  }, 180000);
+
   try {
     // Update status to processing
     await query(`UPDATE interview_preps SET status='processing' WHERE id=$1`, [prepId]);
@@ -329,7 +340,9 @@ ${careerStage === 'student' || careerStage === 'fresher' ? `- STUDENT/FRESHER IN
     );
 
     console.log(`[interview-prep] ${prepId}: Complete — ${finalPrepData.questions.length} questions, ${finalPrepData.mcq.length} MCQs${meta.degraded ? ' (degraded)' : ''}`);
+    clearTimeout(timeout);
   } catch (err: any) {
+    clearTimeout(timeout);
     console.error(`[interview-prep] ${prepId}: Failed —`, err.message);
     await query(
       `UPDATE interview_preps SET status='failed', error_message=$1 WHERE id=$2`,
