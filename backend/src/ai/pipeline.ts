@@ -26,6 +26,14 @@ const razorpay = new Razorpay({
 
 // --- Types ---
 export interface ParsedProfile {
+  full_name?: string | null;
+  name?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  location?: string | null;
+  linkedin_url?: string | null;
+  website?: string | null;
+  target_role?: string | null;
   headline: string | null;
   about: string | null;
   current_role: {
