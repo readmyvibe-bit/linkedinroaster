@@ -265,8 +265,24 @@ Return ONLY valid JSON with this exact structure:
   const aiAch = Array.isArray(resumeData.achievements)
     ? resumeData.achievements.map((x: any) => String(x).trim()).filter(Boolean)
     : [];
-  const mergedAch = [...new Set([...aiAch, ...parsedAch, ...fromAdditional])];
+  const mergedAch = [...new Set([...aiAch, ...parsedAch, ...fromAdditional])]
+    // Filter out experience entries that leaked into achievements
+    .filter(a => {
+      const lower = a.toLowerCase();
+      // Skip if it looks like a job title line (contains " at " + company pattern)
+      if (/^(senior|sr\.?|jr\.?|lead|manager|specialist|officer|executive|intern|associate)\s/i.test(a) && lower.includes(' at ')) return false;
+      // Skip truncated entries (ending mid-word, less than 20 chars, or ending with common truncation)
+      if (a.length < 15 || /[a-z]$/.test(a) && a.length < 50) return false;
+      // Skip if it starts like an experience bullet
+      if (/^(Managed|Executed|Handled|Conducted|Maintained|Built|Developed|Orchestrated|Generated|Cultivated|Leveraged|Delivered|Achieved|Promoted|Recognized)\s/i.test(a) && a.length > 80) return false;
+      return true;
+    });
   if (mergedAch.length) resumeData.achievements = mergedAch;
+
+  // Ensure languages are captured from all sources
+  if (resumeData.skills?.languages?.length <= 1 && input.languages?.length) {
+    resumeData.skills.languages = input.languages;
+  }
 
   // 4. Extract ATS analysis
   const atsAnalysis = resumeData.ats_analysis || { score: 0, keywords_matched: [], keywords_missing: [], recommendations: [] };
