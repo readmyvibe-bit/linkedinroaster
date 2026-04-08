@@ -330,42 +330,49 @@ export default function ResumePreviewPage() {
         </div>
 
         {/* RIGHT PANEL — Resume Preview */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '32px 32px 60px', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
-          <div style={{ width: '100%', maxWidth: 794, background: 'white', borderRadius: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', overflow: 'visible' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '24px 24px 120px', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+          <div style={{ width: '100%', maxWidth: 794, background: 'white', borderRadius: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
             {resume.resume_data && renderResumeHTML(resume.resume_data, templateId)}
           </div>
         </div>
       </div>
 
       {/* MOBILE LAYOUT — shown only on small screens */}
-      <div className="lg:hidden" style={{ padding: '16px' }}>
-        {/* Mobile ATS Score */}
-        <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E5E7EB', padding: '16px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 16 }}>
-          <div style={{ fontSize: 32, fontWeight: 800, color: scoreColor }}>{resume.ats_score}%</div>
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: scoreColor }}>{scoreLabel}</div>
-            <div style={{ fontSize: 11, color: '#6B7280' }}>ATS Compatibility Score</div>
+      <div className="lg:hidden" style={{ padding: '16px', paddingBottom: 140 }}>
+        {/* Mobile ATS Score + Template — stacked */}
+        <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E5E7EB', padding: '16px', marginBottom: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
+            <div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: scoreColor, lineHeight: 1 }}>{resume.ats_score}%</div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: scoreColor, marginTop: 2 }}>{scoreLabel}</div>
+            </div>
+            <div style={{ flex: 1, height: 6, borderRadius: 3, background: '#E5E7EB' }}>
+              <div style={{ height: '100%', borderRadius: 3, background: scoreColor, width: `${resume.ats_score}%` }} />
+            </div>
           </div>
+          <select value={templateId} onChange={e => setTemplateId(e.target.value)} style={{ width: '100%', padding: '10px 14px', border: '1px solid #D1D5DB', borderRadius: 8, fontSize: 14, background: 'white' }}>
+            {TEMPLATES.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+          </select>
         </div>
 
-        {/* Mobile Template */}
-        <select value={templateId} onChange={e => setTemplateId(e.target.value)} style={{ width: '100%', padding: '10px 14px', border: '1px solid #D1D5DB', borderRadius: 8, fontSize: 14, marginBottom: 12, background: 'white' }}>
-          {TEMPLATES.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-        </select>
-
         {/* Mobile Resume Preview */}
-        <div style={{ background: 'white', borderRadius: 8, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', overflow: 'visible', marginBottom: 100, paddingBottom: 16 }}>
+        <div style={{ background: 'white', borderRadius: 8, boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
           {resume.resume_data && renderResumeHTML(resume.resume_data, templateId)}
         </div>
       </div>
 
-      {/* MOBILE STICKY BOTTOM BAR */}
-      <div className="lg:hidden" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'white', borderTop: '1px solid #E5E7EB', padding: '10px 16px', display: 'flex', gap: 8, zIndex: 50 }}>
-        <button onClick={handleDownloadPDF} disabled={pdfGenerating} style={{ flex: 2, padding: '12px', background: '#057642', color: 'white', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
-          {pdfGenerating ? 'Generating...' : 'Download PDF'}
-        </button>
-        <a href={`/resume/${resumeId}/edit`} style={{ flex: 1, padding: '12px', background: 'white', color: '#0B69C7', border: '2px solid #0B69C7', borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: 'none', textAlign: 'center' }}>Edit</a>
-        <button onClick={() => handleInterview()} disabled={prepLoading} style={{ flex: 1, padding: '12px', background: '#0B69C7', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Prep</button>
+      {/* MOBILE STICKY BOTTOM BAR — 2 rows */}
+      <div className="lg:hidden" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'white', borderTop: '1px solid #E5E7EB', padding: '8px 16px 12px', zIndex: 50, boxShadow: '0 -4px 12px rgba(0,0,0,0.06)' }}>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
+          <button onClick={handleDownloadPDF} disabled={pdfGenerating} style={{ flex: 1, padding: '11px', background: '#057642', color: 'white', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+            {pdfGenerating ? 'Generating...' : 'Download PDF'}
+          </button>
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <a href={`/resume/${resumeId}/edit`} style={{ flex: 1, padding: '9px', background: 'white', color: '#0B69C7', border: '1.5px solid #0B69C7', borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: 'none', textAlign: 'center' }}>Edit</a>
+          <button onClick={() => handleInterview()} disabled={prepLoading} style={{ flex: 1, padding: '9px', background: '#0B69C7', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>Interview Prep</button>
+          <a href={`${API_URL}/api/resume/${resumeId}/download/txt`} style={{ padding: '9px 14px', background: '#F3F4F6', color: '#374151', border: '1px solid #D1D5DB', borderRadius: 8, fontSize: 12, fontWeight: 500, textDecoration: 'none', textAlign: 'center' }}>TXT</a>
+        </div>
       </div>
     </div>
   );

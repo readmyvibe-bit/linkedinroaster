@@ -549,13 +549,13 @@ export default function ResumeEditorPage() {
                 <button onClick={() => setMobileView('preview')} style={{ padding: '5px 16px', borderRadius: 'var(--radius-pill)', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: mobileView === 'preview' ? 'var(--accent)' : 'transparent', color: mobileView === 'preview' ? '#fff' : 'var(--text-secondary)', transition: 'all var(--transition)' }}>Preview</button>
               </div>
             )}
-            {/* Actions */}
-            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
-              <select value={templateId} onChange={e => setTemplateId(e.target.value)} style={{ padding: '5px 8px', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-sm)', fontSize: 12, outline: 'none', maxWidth: isMobile ? 110 : 180, color: 'var(--text-secondary)', background: 'var(--bg-surface)', cursor: 'pointer' }}>
+            {/* Actions — Desktop */}
+            <div className="hidden sm:flex" style={{ gap: 6, alignItems: 'center', flexShrink: 0 }}>
+              <select value={templateId} onChange={e => setTemplateId(e.target.value)} style={{ padding: '6px 10px', border: '1px solid #D1D5DB', borderRadius: 8, fontSize: 12, outline: 'none', maxWidth: 180, color: '#374151', background: 'white', cursor: 'pointer' }}>
                 {TEMPLATES.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
               </select>
-              <button onClick={handleDownloadPDF} disabled={pdfGenerating} className="saas-btn saas-btn-primary" style={{ padding: '5px 14px', fontSize: 12, opacity: pdfGenerating ? 0.6 : 1 }}>{pdfGenerating ? 'Generating...' : 'Download PDF'}</button>
-              <a href={`${API_URL}/api/resume/${resumeId}/download/txt`} className="saas-btn saas-btn-ghost hidden sm:inline-flex" style={{ padding: '5px 12px', fontSize: 12 }}>TXT</a>
+              <button onClick={handleDownloadPDF} disabled={pdfGenerating} style={{ padding: '6px 16px', fontSize: 12, fontWeight: 600, background: '#057642', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', opacity: pdfGenerating ? 0.6 : 1 }}>{pdfGenerating ? 'Generating...' : 'Download PDF'}</button>
+              <a href={`${API_URL}/api/resume/${resumeId}/download/txt`} style={{ padding: '6px 12px', fontSize: 12, fontWeight: 500, color: '#374151', border: '1px solid #D1D5DB', borderRadius: 8, textDecoration: 'none', background: '#F9FAFB' }}>TXT</a>
             </div>
           </div>
         </div>
@@ -1251,6 +1251,20 @@ export default function ResumeEditorPage() {
           </div>
         </div>
       </div>
+
+      {/* MOBILE BOTTOM BAR — template + download */}
+      {isMobile && (
+        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'white', borderTop: '1px solid #E5E7EB', padding: '8px 16px', zIndex: 50, boxShadow: '0 -4px 12px rgba(0,0,0,0.06)' }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <select value={templateId} onChange={e => setTemplateId(e.target.value)} style={{ flex: 1, padding: '10px 12px', border: '1px solid #D1D5DB', borderRadius: 8, fontSize: 13, background: 'white' }}>
+              {TEMPLATES.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
+            <button onClick={handleDownloadPDF} disabled={pdfGenerating} style={{ padding: '10px 18px', background: '#057642', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', opacity: pdfGenerating ? 0.6 : 1 }}>
+              {pdfGenerating ? '...' : 'PDF'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
