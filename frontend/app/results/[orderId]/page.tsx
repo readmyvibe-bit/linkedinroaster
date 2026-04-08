@@ -1629,6 +1629,9 @@ export default function ResultsPage() {
   const [linkedinUploading, setLinkedinUploading] = useState(false);
   const [linkedinUploadDone, setLinkedinUploadDone] = useState(false);
   const linkedinFileRef = useRef<HTMLInputElement>(null);
+  const [activeSection, setActiveSection] = useState<'score' | 'rewrite' | 'resume' | 'prep' | 'share'>('score');
+  const [resumes, setResumes] = useState<any[]>([]);
+  const [resumesLoading, setResumesLoading] = useState(true);
 
   const fetchOrder = useCallback(async () => {
     try {
@@ -1688,6 +1691,16 @@ export default function ResultsPage() {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [fetchOrder]);
+
+  // Fetch resumes when results are done
+  useEffect(() => {
+    if (data?.status === 'done') {
+      fetch(`${API_URL}/api/resume/by-order/${orderId}`)
+        .then(r => r.json())
+        .then(d => { setResumes(d.resumes || []); setResumesLoading(false); })
+        .catch(() => setResumesLoading(false));
+    }
+  }, [data, orderId]);
 
   // ── Error state ──
   if (error) {
@@ -1858,230 +1871,269 @@ export default function ResultsPage() {
         </div>
       </header>
 
-      {/* ═══ 1. SCORE BANNER ═══ */}
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '20px 16px 0' }}>
-        <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', overflow: 'hidden', marginBottom: 16 }}>
-
-          {/* Banner gradient */}
-          <div style={{ background: 'linear-gradient(135deg, #004182 0%, #0B69C7 50%, #057642 100%)', padding: '24px 28px 20px', color: 'white' }}>
-            <div style={{ textAlign: 'center', fontSize: 10, fontWeight: 700, letterSpacing: 2, opacity: 0.7, marginBottom: 8, textTransform: 'uppercase' }}>
-              {isResumeMode ? 'ATS Resume Score' : isQuestionnaireMode ? 'Profile Score' : 'LinkedIn Profile Score'}
-            </div>
-            {/* Score row */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 14 }}>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 36, fontWeight: 800, lineHeight: 1, opacity: 0.7 }}>{scores.before.overall}</div>
-                <div style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, opacity: 0.6 }}>Before</div>
-              </div>
-              <div style={{ fontSize: 22, opacity: 0.5 }}>&rarr;</div>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 48, fontWeight: 800, lineHeight: 1 }}>{scores.after.overall}</div>
-                <div style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, opacity: 0.8 }}>After</div>
-              </div>
-              <div style={{ background: 'rgba(255,255,255,0.2)', fontSize: 14, fontWeight: 800, padding: '4px 14px', borderRadius: 20 }}>+{improvement}</div>
-            </div>
-            {/* Human-readable dimension chips */}
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}>
-              {(isResumeMode ? [
-                { label: 'ATS Keywords', b: scores.before.ats || 0, a: scores.after.ats || 0 },
-                { label: 'Action Verbs', b: Math.round((scores.before.experience || 0) * 0.8), a: scores.after.experience || 0 },
-                { label: 'Quantification', b: Math.round((scores.before.completeness || 0) * 0.7), a: scores.after.completeness || 0 },
-              ] : [
-                { label: 'Headline', b: scores.before.headline, a: scores.after.headline },
-                { label: 'About', b: scores.before.about, a: scores.after.about },
-                { label: 'Experience', b: scores.before.experience, a: scores.after.experience },
-                { label: 'ATS', b: scores.before.ats || 0, a: scores.after.ats || 0 },
-              ]).map(s => (
-                <span key={s.label} style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: '4px 12px', fontSize: 11, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                  {s.label}: <span style={{ color: improvementColor(s.b, s.a) }}>{improvementLabel(s.b, s.a)}</span>
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Avatar + name area */}
-          <div style={{ padding: '0 20px 20px' }}>
-            <div style={{ marginTop: -24, marginBottom: 10 }}>
-              <div style={{
-                width: 52, height: 52, borderRadius: '50%', background: '#0B69C7',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 20, fontWeight: 800, color: 'white',
-                border: '3px solid white', boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-              }}>
-                {rewrite.rewritten_headline?.charAt(0)?.toUpperCase() || 'P'}
-              </div>
-            </div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: '#191919', marginBottom: 2 }}>{userName}</div>
-            {userLocation && <div style={{ fontSize: 13, color: '#666', marginBottom: 4 }}>{userLocation}</div>}
-            <div style={{ fontSize: 13, fontWeight: 600, color: afterScore >= 70 ? '#057642' : '#92400E' }}>
-              {rankLabel} of {isResumeMode ? 'resumes' : 'LinkedIn profiles'}
-            </div>
-            {improvement > 0 && (
-              <div style={{ marginTop: 16, background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 10, padding: '14px 16px' }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#057642' }}>
-                  &#9989; {isResumeMode
-                    ? 'Your ATS resume score improved by ' + improvement + ' points. Build your optimized resume and copy LinkedIn content below.'
-                    : isQuestionnaireMode
-                    ? 'Your profile score improved by ' + improvement + ' points. Build your resume and LinkedIn content below.'
-                    : 'Your profile improved by ' + improvement + ' points. Copy your rewritten sections below.'}
-                </div>
-              </div>
-            )}
-            {isResumeMode && (
-              <div style={{ marginTop: 12, background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 10, padding: '16px 18px' }}>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  ref={linkedinFileRef}
-                  style={{ display: 'none' }}
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    setLinkedinFile(file);
-                    setLinkedinUploading(true);
-                    try {
-                      const formData = new FormData();
-                      formData.append('file', file);
-                      const res = await fetch(`${API_URL}/api/linkedin-pdf/parse`, { method: 'POST', body: formData });
-                      const parsed = await res.json();
-                      if (!res.ok) { alert(parsed.error || 'Failed to parse PDF'); return; }
-                      const rawText = parsed.raw_paste || parsed.rawText || JSON.stringify(parsed.parsed || '');
-                      sessionStorage.setItem('linkedin_parsed', rawText);
-                      window.location.href = '/?tab=linkedin&from=results';
-                    } catch {
-                      alert('Could not parse file. Please try again.');
-                    } finally {
-                      setLinkedinUploading(false);
-                    }
-                  }}
-                />
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#0A66C2', marginBottom: 4 }}>
-                      Get a LinkedIn-specific analysis
-                    </div>
-                    <div style={{ fontSize: 12, color: '#64748B', lineHeight: 1.5 }}>
-                      Upload your LinkedIn PDF for a detailed profile score and rewrite tailored to LinkedIn.
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => linkedinFileRef.current?.click()}
-                    disabled={linkedinUploading}
-                    style={{ padding: '10px 18px', background: '#0A66C2', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', opacity: linkedinUploading ? 0.6 : 1 }}
-                  >
-                    {linkedinUploading ? 'Parsing...' : 'Upload LinkedIn PDF'}
-                  </button>
-                </div>
-                {linkedinFile && !linkedinUploading && (
-                  <div style={{ marginTop: 8, fontSize: 12, color: '#057642' }}>
-                    &#10003; {linkedinFile.name} parsed — redirecting to start your LinkedIn analysis...
-                  </div>
-                )}
-              </div>
-            )}
-            {isQuestionnaireMode && (
-              <div style={{ marginTop: 12, background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 10, padding: '14px 16px' }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#0A66C2', marginBottom: 4 }}>
-                  Want a more accurate score?
-                </div>
-                <div style={{ fontSize: 12, color: '#64748B', lineHeight: 1.5 }}>
-                  Upload your resume or LinkedIn PDF for a detailed, personalized analysis.{' '}
-                  <a href="/?tab=resume" style={{ color: '#0A66C2', fontWeight: 600 }}>Upload Resume &rarr;</a>
-                </div>
-              </div>
-            )}
-          </div>
+      {/* Tab Navigation */}
+      <div style={{ background: 'white', borderBottom: '1px solid #E0E0E0', position: 'sticky', top: 0, zIndex: 50 }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 16px', display: 'flex', gap: 0, overflowX: 'auto' }}>
+          {[
+            { key: 'score', label: 'Score', icon: '\ud83d\udcca' },
+            { key: 'rewrite', label: 'Rewrite', icon: '\u270d\ufe0f' },
+            { key: 'resume', label: 'Resume', icon: '\ud83d\udcc4' },
+            { key: 'prep', label: 'Interview Prep', icon: '\ud83c\udfaf' },
+            { key: 'share', label: 'Share & More', icon: '\ud83d\udce4' },
+          ].map(tab => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveSection(tab.key as any)}
+              style={{
+                padding: '14px 20px',
+                background: 'none',
+                border: 'none',
+                borderBottom: activeSection === tab.key ? '3px solid #0B69C7' : '3px solid transparent',
+                cursor: 'pointer',
+                fontSize: 13,
+                fontWeight: activeSection === tab.key ? 700 : 500,
+                color: activeSection === tab.key ? '#0B69C7' : '#666',
+                whiteSpace: 'nowrap',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                transition: 'all 0.2s',
+              }}
+            >
+              <span>{tab.icon}</span>
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* ═══ 2. WHAT WAS HOLDING YOUR PROFILE BACK ═══ */}
-      {(missingKeywords.length > 0 || weakVerbs.length > 0 || quantBreakdown) && (
-        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 16px 16px' }}>
-          <div style={{ fontSize: 18, fontWeight: 700, color: '#191919', marginBottom: 12 }}>{isResumeMode ? 'Resume Improvements — What AI Fixed' : isQuestionnaireMode ? 'Profile Improvements' : 'What Was Holding Your Profile Back'}</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
+      {/* ═══ SCORE TAB ═══ */}
+      {activeSection === 'score' && (
+        <>
+          {/* Score Banner */}
+          <div style={{ maxWidth: 1100, margin: '0 auto', padding: '20px 16px 0' }}>
+            <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', overflow: 'hidden', marginBottom: 16 }}>
 
-            {/* Card 1: Missing Keywords */}
-            {missingKeywords.length > 0 && (
-              <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '18px 20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 20 }}>&#128269;</span>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: '#191919' }}>Missing ATS Keywords</span>
+              {/* Banner gradient */}
+              <div style={{ background: 'linear-gradient(135deg, #004182 0%, #0B69C7 50%, #057642 100%)', padding: '24px 28px 20px', color: 'white' }}>
+                <div style={{ textAlign: 'center', fontSize: 10, fontWeight: 700, letterSpacing: 2, opacity: 0.7, marginBottom: 8, textTransform: 'uppercase' }}>
+                  {isResumeMode ? 'ATS Resume Score' : isQuestionnaireMode ? 'Profile Score' : 'LinkedIn Profile Score'}
+                </div>
+                {/* Score row */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 14 }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: 36, fontWeight: 800, lineHeight: 1, opacity: 0.7 }}>{scores.before.overall}</div>
+                    <div style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, opacity: 0.6 }}>Before</div>
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#057642', background: '#F0FDF4', padding: '2px 8px', borderRadius: 8 }}>&#9989; Fixed</span>
-                </div>
-                <div style={{ fontSize: 13, color: '#666', lineHeight: 1.5, marginBottom: 8 }}>
-                  {missingKeywords.length} keyword{missingKeywords.length !== 1 ? 's' : ''} recruiters search for were absent from your profile.
-                </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                  {missingKeywords.slice(0, 6).map((k, i) => (
-                    <span key={i} style={{ background: '#FEF2F2', color: '#CC1016', padding: '2px 8px', borderRadius: 8, fontSize: 11, textDecoration: 'line-through' }}>{k}</span>
-                  ))}
-                  {missingKeywords.length > 6 && <span style={{ fontSize: 11, color: '#666', padding: '2px 4px' }}>+{missingKeywords.length - 6} more</span>}
-                </div>
-              </div>
-            )}
-
-            {/* Card 2: Weak Verbs */}
-            {weakVerbs.length > 0 && (
-              <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '18px 20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 20 }}>&#9997;&#65039;</span>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: '#191919' }}>Weak Action Verbs</span>
+                  <div style={{ fontSize: 22, opacity: 0.5 }}>&rarr;</div>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: 48, fontWeight: 800, lineHeight: 1 }}>{scores.after.overall}</div>
+                    <div style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1, opacity: 0.8 }}>After</div>
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#057642', background: '#F0FDF4', padding: '2px 8px', borderRadius: 8 }}>&#9989; Fixed</span>
+                  <div style={{ background: 'rgba(255,255,255,0.2)', fontSize: 14, fontWeight: 800, padding: '4px 14px', borderRadius: 20 }}>+{improvement}</div>
                 </div>
-                <div style={{ fontSize: 13, color: '#666', lineHeight: 1.5, marginBottom: 8 }}>
-                  {weakVerbs.length} weak verb{weakVerbs.length !== 1 ? 's' : ''} replaced with high-impact power verbs.
-                </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                  {weakVerbs.slice(0, 5).map((v, i) => (
-                    <span key={i} style={{ fontSize: 12, color: '#666' }}>
-                      <span style={{ textDecoration: 'line-through', color: '#CC1016' }}>{v.verb}</span>
-                      <span style={{ color: '#999', margin: '0 3px' }}>&rarr;</span>
-                      <span style={{ color: '#057642', fontWeight: 600 }}>{v.suggested_replacement}</span>
-                      {i < Math.min(weakVerbs.length, 5) - 1 && <span style={{ color: '#DDD', margin: '0 4px' }}>|</span>}
+                {/* Human-readable dimension chips */}
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  {(isResumeMode ? [
+                    { label: 'ATS Keywords', b: scores.before.ats || 0, a: scores.after.ats || 0 },
+                    { label: 'Action Verbs', b: Math.round((scores.before.experience || 0) * 0.8), a: scores.after.experience || 0 },
+                    { label: 'Quantification', b: Math.round((scores.before.completeness || 0) * 0.7), a: scores.after.completeness || 0 },
+                  ] : [
+                    { label: 'Headline', b: scores.before.headline, a: scores.after.headline },
+                    { label: 'About', b: scores.before.about, a: scores.after.about },
+                    { label: 'Experience', b: scores.before.experience, a: scores.after.experience },
+                    { label: 'ATS', b: scores.before.ats || 0, a: scores.after.ats || 0 },
+                  ]).map(s => (
+                    <span key={s.label} style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: '4px 12px', fontSize: 11, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                      {s.label}: <span style={{ color: improvementColor(s.b, s.a) }}>{improvementLabel(s.b, s.a)}</span>
                     </span>
                   ))}
                 </div>
               </div>
-            )}
 
-            {/* Card 3: Quantification */}
-            {quantBreakdown && (
-              <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '18px 20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 20 }}>&#128202;</span>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: '#191919' }}>Low Quantification</span>
+              {/* Avatar + name area */}
+              <div style={{ padding: '0 20px 20px' }}>
+                <div style={{ marginTop: -24, marginBottom: 10 }}>
+                  <div style={{
+                    width: 52, height: 52, borderRadius: '50%', background: '#0B69C7',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 20, fontWeight: 800, color: 'white',
+                    border: '3px solid white', boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+                  }}>
+                    {rewrite.rewritten_headline?.charAt(0)?.toUpperCase() || 'P'}
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#057642', background: '#F0FDF4', padding: '2px 8px', borderRadius: 8 }}>&#9989; Fixed</span>
                 </div>
-                <div style={{ fontSize: 13, color: '#666', lineHeight: 1.5, marginBottom: 8 }}>
-                  Only {quantBreakdown.quantified_bullets} of {quantBreakdown.total_bullets} bullets had numbers or metrics.
+                <div style={{ fontSize: 18, fontWeight: 700, color: '#191919', marginBottom: 2 }}>{userName}</div>
+                {userLocation && <div style={{ fontSize: 13, color: '#666', marginBottom: 4 }}>{userLocation}</div>}
+                <div style={{ fontSize: 13, fontWeight: 600, color: afterScore >= 70 ? '#057642' : '#92400E' }}>
+                  {rankLabel} of {isResumeMode ? 'resumes' : 'LinkedIn profiles'}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ flex: 1, height: 6, borderRadius: 3, background: '#F3F4F6', overflow: 'hidden' }}>
-                    <div style={{ width: `${quantBreakdown.percentage}%`, height: '100%', borderRadius: 3, background: quantBreakdown.percentage < 40 ? '#EF4444' : quantBreakdown.percentage < 70 ? '#F59E0B' : '#057642' }} />
+                {improvement > 0 && (
+                  <div style={{ marginTop: 16, background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 10, padding: '14px 16px' }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#057642' }}>
+                      &#9989; {isResumeMode
+                        ? 'Your ATS resume score improved by ' + improvement + ' points. Build your optimized resume and copy LinkedIn content below.'
+                        : isQuestionnaireMode
+                        ? 'Your profile score improved by ' + improvement + ' points. Build your resume and LinkedIn content below.'
+                        : 'Your profile improved by ' + improvement + ' points. Copy your rewritten sections below.'}
+                    </div>
                   </div>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: '#191919' }}>{quantBreakdown.percentage}% — Grade: {quantBreakdown.grade}</span>
-                </div>
+                )}
+                {isResumeMode && (
+                  <div style={{ marginTop: 12, background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 10, padding: '16px 18px' }}>
+                    <input
+                      type="file"
+                      accept=".pdf"
+                      ref={linkedinFileRef}
+                      style={{ display: 'none' }}
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setLinkedinFile(file);
+                        setLinkedinUploading(true);
+                        try {
+                          const formData = new FormData();
+                          formData.append('file', file);
+                          const res = await fetch(`${API_URL}/api/linkedin-pdf/parse`, { method: 'POST', body: formData });
+                          const parsed = await res.json();
+                          if (!res.ok) { alert(parsed.error || 'Failed to parse PDF'); return; }
+                          const rawText = parsed.raw_paste || parsed.rawText || JSON.stringify(parsed.parsed || '');
+                          sessionStorage.setItem('linkedin_parsed', rawText);
+                          window.location.href = '/?tab=linkedin&from=results';
+                        } catch {
+                          alert('Could not parse file. Please try again.');
+                        } finally {
+                          setLinkedinUploading(false);
+                        }
+                      }}
+                    />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: '#0A66C2', marginBottom: 4 }}>
+                          Get a LinkedIn-specific analysis
+                        </div>
+                        <div style={{ fontSize: 12, color: '#64748B', lineHeight: 1.5 }}>
+                          Upload your LinkedIn PDF for a detailed profile score and rewrite tailored to LinkedIn.
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => linkedinFileRef.current?.click()}
+                        disabled={linkedinUploading}
+                        style={{ padding: '10px 18px', background: '#0A66C2', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', opacity: linkedinUploading ? 0.6 : 1 }}
+                      >
+                        {linkedinUploading ? 'Parsing...' : 'Upload LinkedIn PDF'}
+                      </button>
+                    </div>
+                    {linkedinFile && !linkedinUploading && (
+                      <div style={{ marginTop: 8, fontSize: 12, color: '#057642' }}>
+                        &#10003; {linkedinFile.name} parsed — redirecting to start your LinkedIn analysis...
+                      </div>
+                    )}
+                  </div>
+                )}
+                {isQuestionnaireMode && (
+                  <div style={{ marginTop: 12, background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 10, padding: '14px 16px' }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#0A66C2', marginBottom: 4 }}>
+                      Want a more accurate score?
+                    </div>
+                    <div style={{ fontSize: 12, color: '#64748B', lineHeight: 1.5 }}>
+                      Upload your resume or LinkedIn PDF for a detailed, personalized analysis.{' '}
+                      <a href="/?tab=resume" style={{ color: '#0A66C2', fontWeight: 600 }}>Upload Resume &rarr;</a>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
-        </div>
+
+          {/* What Was Holding Your Profile Back */}
+          {(missingKeywords.length > 0 || weakVerbs.length > 0 || quantBreakdown) && (
+            <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 16px 16px' }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#191919', marginBottom: 12 }}>{isResumeMode ? 'Resume Improvements — What AI Fixed' : isQuestionnaireMode ? 'Profile Improvements' : 'What Was Holding Your Profile Back'}</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
+
+                {/* Card 1: Missing Keywords */}
+                {missingKeywords.length > 0 && (
+                  <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '18px 20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 20 }}>&#128269;</span>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: '#191919' }}>Missing ATS Keywords</span>
+                      </div>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: '#057642', background: '#F0FDF4', padding: '2px 8px', borderRadius: 8 }}>&#9989; Fixed</span>
+                    </div>
+                    <div style={{ fontSize: 13, color: '#666', lineHeight: 1.5, marginBottom: 8 }}>
+                      {missingKeywords.length} keyword{missingKeywords.length !== 1 ? 's' : ''} recruiters search for were absent from your profile.
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                      {missingKeywords.slice(0, 6).map((k, i) => (
+                        <span key={i} style={{ background: '#FEF2F2', color: '#CC1016', padding: '2px 8px', borderRadius: 8, fontSize: 11, textDecoration: 'line-through' }}>{k}</span>
+                      ))}
+                      {missingKeywords.length > 6 && <span style={{ fontSize: 11, color: '#666', padding: '2px 4px' }}>+{missingKeywords.length - 6} more</span>}
+                    </div>
+                  </div>
+                )}
+
+                {/* Card 2: Weak Verbs */}
+                {weakVerbs.length > 0 && (
+                  <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '18px 20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 20 }}>&#9997;&#65039;</span>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: '#191919' }}>Weak Action Verbs</span>
+                      </div>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: '#057642', background: '#F0FDF4', padding: '2px 8px', borderRadius: 8 }}>&#9989; Fixed</span>
+                    </div>
+                    <div style={{ fontSize: 13, color: '#666', lineHeight: 1.5, marginBottom: 8 }}>
+                      {weakVerbs.length} weak verb{weakVerbs.length !== 1 ? 's' : ''} replaced with high-impact power verbs.
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                      {weakVerbs.slice(0, 5).map((v, i) => (
+                        <span key={i} style={{ fontSize: 12, color: '#666' }}>
+                          <span style={{ textDecoration: 'line-through', color: '#CC1016' }}>{v.verb}</span>
+                          <span style={{ color: '#999', margin: '0 3px' }}>&rarr;</span>
+                          <span style={{ color: '#057642', fontWeight: 600 }}>{v.suggested_replacement}</span>
+                          {i < Math.min(weakVerbs.length, 5) - 1 && <span style={{ color: '#DDD', margin: '0 4px' }}>|</span>}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Card 3: Quantification */}
+                {quantBreakdown && (
+                  <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '18px 20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 20 }}>&#128202;</span>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: '#191919' }}>Low Quantification</span>
+                      </div>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: '#057642', background: '#F0FDF4', padding: '2px 8px', borderRadius: 8 }}>&#9989; Fixed</span>
+                    </div>
+                    <div style={{ fontSize: 13, color: '#666', lineHeight: 1.5, marginBottom: 8 }}>
+                      Only {quantBreakdown.quantified_bullets} of {quantBreakdown.total_bullets} bullets had numbers or metrics.
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ flex: 1, height: 6, borderRadius: 3, background: '#F3F4F6', overflow: 'hidden' }}>
+                        <div style={{ width: `${quantBreakdown.percentage}%`, height: '100%', borderRadius: 3, background: quantBreakdown.percentage < 40 ? '#EF4444' : quantBreakdown.percentage < 70 ? '#F59E0B' : '#057642' }} />
+                      </div>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#191919' }}>{quantBreakdown.percentage}% — Grade: {quantBreakdown.grade}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </>
       )}
 
-      {/* ═══ 3. TWO-COLUMN LAYOUT ═══ */}
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 16px 20px', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-
-        {/* LEFT COLUMN (60%) */}
-        <div style={{ flex: '1 1 580px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* ═══ REWRITE TAB ═══ */}
+      {activeSection === 'rewrite' && (
+        <div style={{ maxWidth: 800, margin: '0 auto', padding: '20px 16px' }}>
 
           {/* Resume Builder CTA — primary for resume users */}
           {isResumeMode && (
-            <div style={{ background: 'linear-gradient(135deg, #057642, #16A34A)', borderRadius: 12, padding: '24px 28px', color: 'white' }}>
+            <div style={{ background: 'linear-gradient(135deg, #057642, #16A34A)', borderRadius: 12, padding: '24px 28px', color: 'white', marginBottom: 16 }}>
               <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>Your Improved Resume is Ready</div>
               <div style={{ fontSize: 13, opacity: 0.9, lineHeight: 1.5, marginBottom: 16 }}>
                 AI fixed {missingKeywords.length > 0 ? missingKeywords.length + ' missing keywords, ' : ''}{weakVerbs.length > 0 ? weakVerbs.length + ' weak verbs, ' : ''}and optimized your bullets for ATS scanners. Build your resume now.
@@ -2090,27 +2142,26 @@ export default function ResultsPage() {
                 <button onClick={handleResumeCTA} style={{ padding: '12px 28px', background: 'white', color: '#057642', border: 'none', borderRadius: 50, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
                   Build My Resume
                 </button>
-                <a href="#rewrite-section" style={{ padding: '12px 20px', background: 'rgba(255,255,255,0.2)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 50, fontSize: 13, fontWeight: 600, textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
-                  See LinkedIn Suggestions
-                </a>
               </div>
             </div>
           )}
 
           {isResumeMode && (
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#191919', padding: '8px 0 0' }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#191919', padding: '8px 0 0', marginBottom: 16 }}>
               LinkedIn Profile Suggestions
               <span style={{ fontSize: 12, fontWeight: 400, color: '#666', marginLeft: 8 }}>Based on your resume</span>
             </div>
           )}
 
+          {/* Blue info banner for resume users */}
+          {isResumeMode && (
+            <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, padding: '8px 12px', marginBottom: 12, fontSize: 12, color: '#0A66C2', fontWeight: 600 }}>
+              &#128161; LinkedIn content generated from your resume &mdash; copy these to your LinkedIn profile
+            </div>
+          )}
+
           {/* Headline card */}
-          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }} id="rewrite-section">
-            {isResumeMode && (
-              <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, padding: '8px 12px', marginBottom: 12, fontSize: 12, color: '#0A66C2', fontWeight: 600 }}>
-                &#128161; LinkedIn content generated from your resume &mdash; copy these to your LinkedIn profile
-              </div>
-            )}
+          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px', marginBottom: 16 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <span style={{ fontSize: 16, fontWeight: 700, color: '#191919' }}>{isResumeMode ? 'LinkedIn Headline' : 'Headline'}</span>
               <CopyBtn text={rewrite.rewritten_headline} field="headline-top" />
@@ -2145,7 +2196,7 @@ export default function ResultsPage() {
           </div>
 
           {/* About card */}
-          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }}>
+          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px', marginBottom: 16 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <span style={{ fontSize: 16, fontWeight: 700, color: '#191919' }}>{isResumeMode ? 'LinkedIn About' : 'About'}</span>
               <CopyBtn text={rewrite.rewritten_about} field="about" />
@@ -2164,7 +2215,7 @@ export default function ResultsPage() {
           </div>
 
           {/* Experience card */}
-          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }}>
+          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px', marginBottom: 16 }}>
             <span style={{ fontSize: 16, fontWeight: 700, color: '#191919', display: 'block', marginBottom: 14 }}>{isResumeMode ? 'Improved Experience Bullets' : 'Experience'}</span>
             {rewrite.rewritten_experience?.map((exp, i) => (
               <div key={i} style={{ background: '#F9FAFB', borderRadius: 10, padding: '16px 18px', marginBottom: 10 }}>
@@ -2189,7 +2240,7 @@ export default function ResultsPage() {
 
           {/* Skills card */}
           {rewrite.suggested_skills?.length > 0 && (
-            <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }}>
+            <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px', marginBottom: 16 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                 <span style={{ fontSize: 16, fontWeight: 700, color: '#191919' }}>Skills</span>
                 <CopyBtn text={rewrite.suggested_skills.map(s => s.skill).join(', ')} field="skills" />
@@ -2201,81 +2252,112 @@ export default function ResultsPage() {
               </div>
             </div>
           )}
+
+          {/* Copy All button */}
+          <div style={{ textAlign: 'center', marginTop: 8 }}>
+            <button
+              onClick={() => { handleCopy(`HEADLINE:\n${rewrite.rewritten_headline}\n\nABOUT:\n${rewrite.rewritten_about}\n\nEXPERIENCE:\n${rewrite.rewritten_experience?.map(e => `${e.title} at ${e.company}\n${formatBulletsForCopy(e.bullets)}`).join('\n\n') || ''}\n\nSKILLS:\n${rewrite.suggested_skills?.map(s => s.skill).join(', ') || ''}`, 'copy-all'); }}
+              style={{ padding: '12px 32px', background: '#0B69C7', color: 'white', border: 'none', borderRadius: 50, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+            >
+              {copiedField === 'copy-all' ? 'Copied Everything!' : 'Copy All Sections'}
+            </button>
+          </div>
         </div>
+      )}
 
-        {/* RIGHT COLUMN (40%) */}
-        <div className="w-full lg:w-auto lg:max-w-[380px]" style={{ flex: '1 1 320px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* ═══ RESUME TAB ═══ */}
+      {activeSection === 'resume' && (
+        <div style={{ maxWidth: 800, margin: '0 auto', padding: '20px 16px' }}>
+          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '24px' }}>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: '#191919', margin: '0 0 16px' }}>Your ATS Resume</h2>
 
-          {/* Next Steps checklist */}
+            {resumesLoading ? (
+              <div style={{ textAlign: 'center', padding: 32, color: '#666' }}>Loading your resume...</div>
+            ) : resumes.length > 0 ? (
+              <div>
+                {resumes.map((r: any, i: number) => (
+                  <div key={r.id} style={{ background: '#F9FAFB', borderRadius: 10, padding: '16px 20px', marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+                    <div>
+                      <div style={{ fontSize: 15, fontWeight: 600, color: '#191919' }}>{r.target_role || `Resume ${i + 1}`}</div>
+                      <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
+                        Template: {r.template_id || 'Classic'}
+                        {r.ats_score ? <span style={{ color: '#057642', fontWeight: 600, marginLeft: 8 }}>ATS: {r.ats_score}%</span> : null}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <a href={`/resume/${r.id}`} style={{ padding: '8px 16px', background: '#0B69C7', color: 'white', borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>View & Download</a>
+                      <a href={`/resume/${r.id}/edit`} style={{ padding: '8px 16px', background: '#F3F4F6', color: '#191919', borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: 'none', border: '1px solid #D1D5DB' }}>Edit</a>
+                    </div>
+                  </div>
+                ))}
+                <div style={{ marginTop: 16 }}>
+                  <a href={`/resume?orderId=${orderId}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 20px', background: '#057642', color: 'white', borderRadius: 50, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
+                    + Generate Another Resume
+                  </a>
+                  <span style={{ fontSize: 12, color: '#666', marginLeft: 12 }}>{resumes.length}/{isPro ? 10 : 5} used</span>
+                </div>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: 32 }}>
+                <div style={{ fontSize: 48, marginBottom: 12 }}>{'\ud83d\udcc4'}</div>
+                <p style={{ fontSize: 15, fontWeight: 600, color: '#191919', marginBottom: 4 }}>Your resume is being generated...</p>
+                <p style={{ fontSize: 13, color: '#666', marginBottom: 16 }}>This usually takes 30-60 seconds after results are ready.</p>
+                <a href={`/resume?orderId=${orderId}`} style={{ display: 'inline-block', padding: '10px 24px', background: '#0B69C7', color: 'white', borderRadius: 50, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
+                  Build Resume Now
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ═══ INTERVIEW PREP TAB ═══ */}
+      {activeSection === 'prep' && (
+        <div style={{ maxWidth: 800, margin: '0 auto', padding: '20px 16px' }}>
+          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '24px' }}>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: '#191919', margin: '0 0 8px' }}>Interview Prep</h2>
+            <p style={{ fontSize: 14, color: '#666', margin: '0 0 16px' }}>15 personalized questions + STAR answers tailored to your profile</p>
+            <a
+              href={resumes.length > 0 ? `/interview-prep/${resumes[0].id}?resumeId=${resumes[0].id}` : `/resume?orderId=${orderId}`}
+              onClick={(e) => {
+                if (resumes.length === 0) {
+                  e.preventDefault();
+                  alert('Generate a resume first to access interview prep.');
+                }
+              }}
+              style={{ display: 'inline-block', padding: '12px 28px', background: '#0B69C7', color: 'white', borderRadius: 50, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}
+            >
+              Start Interview Prep
+            </a>
+            <p style={{ fontSize: 12, color: '#888', marginTop: 8 }}>{isPro ? '3 prep sessions per resume' : '1 prep session per resume'} included in your plan</p>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ SHARE & MORE TAB ═══ */}
+      {activeSection === 'share' && (
+        <div style={{ maxWidth: 800, margin: '0 auto', padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* Feedback widget */}
           <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#191919', marginBottom: 14 }}>Next Steps</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {/* Step 1: Scored */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#057642' }}>
-                <span style={{ fontSize: 16 }}>&#9989;</span>
-                <span style={{ fontWeight: 600 }}>{isResumeMode ? 'Resume scored' : 'Profile scored'}</span>
-                <span style={{ marginLeft: 'auto', fontSize: 11, color: '#999' }}>Done</span>
-              </div>
-              {/* Step 2: Rewritten */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#057642' }}>
-                <span style={{ fontSize: 16 }}>&#9989;</span>
-                <span style={{ fontWeight: 600 }}>{isResumeMode ? 'ATS keywords + verbs optimized' : isQuestionnaireMode ? 'Profile content generated' : 'Profile rewritten'}</span>
-                <span style={{ marginLeft: 'auto', fontSize: 11, color: '#999' }}>Done</span>
-              </div>
-              {isResumeMode ? (
-                <>
-                  {/* Step 3: Build resume (primary for resume users) */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#191919' }}>
-                    <span style={{ width: 18, height: 18, borderRadius: 4, border: '2px solid #D1D5DB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} />
-                    <span style={{ fontWeight: 600, flex: 1 }}>Build & download resume</span>
-                    <button onClick={handleResumeCTA} style={{ padding: '4px 12px', background: '#057642', color: 'white', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                      Build
-                    </button>
-                  </div>
-                  {/* Step 4: Copy LinkedIn content */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#191919' }}>
-                    <span style={{ width: 18, height: 18, borderRadius: 4, border: '2px solid #D1D5DB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} />
-                    <span style={{ fontWeight: 600, flex: 1 }}>Copy LinkedIn suggestions to profile</span>
-                    <button onClick={() => { handleCopy(`HEADLINE:\n${rewrite.rewritten_headline}\n\nABOUT:\n${rewrite.rewritten_about}\n\nSKILLS:\n${rewrite.suggested_skills?.map(s => s.skill).join(', ') || ''}`, 'copy-all'); }} style={{ padding: '4px 12px', background: '#F3F4F6', color: '#191919', border: '1px solid #D1D5DB', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                      {copiedField === 'copy-all' ? 'Copied!' : 'Copy All'}
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  {/* Step 3: Copy to LinkedIn (primary for LinkedIn users) */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#191919' }}>
-                    <span style={{ width: 18, height: 18, borderRadius: 4, border: '2px solid #D1D5DB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} />
-                    <span style={{ fontWeight: 600, flex: 1 }}>{isQuestionnaireMode ? 'Copy content to LinkedIn' : 'Copy sections to LinkedIn'}</span>
-                    <button onClick={() => { handleCopy(`HEADLINE:\n${rewrite.rewritten_headline}\n\nABOUT:\n${rewrite.rewritten_about}\n\nSKILLS:\n${rewrite.suggested_skills?.map(s => s.skill).join(', ') || ''}`, 'copy-all'); }} style={{ padding: '4px 12px', background: '#0B69C7', color: 'white', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                      {copiedField === 'copy-all' ? 'Copied!' : 'Copy All'}
-                    </button>
-                  </div>
-                  {/* Step 4: Generate resume */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#191919' }}>
-                    <span style={{ width: 18, height: 18, borderRadius: 4, border: '2px solid #D1D5DB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} />
-                    <span style={{ fontWeight: 600, flex: 1 }}>Generate resume</span>
-                    <button onClick={handleResumeCTA} style={{ padding: '4px 12px', background: '#057642', color: 'white', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                      Build
-                    </button>
-                  </div>
-                </>
-              )}
-              {/* Step 5: Interview prep */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#191919' }}>
-                <span style={{ width: 18, height: 18, borderRadius: 4, border: '2px solid #D1D5DB', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} />
-                <span style={{ fontWeight: 600, flex: 1 }}>Interview prep</span>
-                <button onClick={() => { window.location.href = `/resume?orderId=${orderId}`; }} style={{ padding: '4px 12px', background: '#F3F4F6', color: '#191919', border: '1px solid #D1D5DB', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                  Start
-                </button>
-              </div>
-            </div>
+            <FeedbackWidget orderId={orderId} />
           </div>
 
-          {/* Resume Builder section */}
-          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }} id="resume-section">
-            <ResumeBuilderSection orderId={orderId} maxResumes={isPro ? 10 : 5} plan={plan} />
-          </div>
+          {/* Share buttons */}
+          <SafeRender name="ShareButtons">
+            <ShareButtons
+              caption={rewrite.linkedin_post_hook}
+              cardUrl={results.card_image_url}
+              orderId={orderId}
+              beforeScore={scores.before.overall}
+              afterScore={scores.after.overall}
+              referralUrl={referral_url}
+            />
+          </SafeRender>
+
+          {/* Referral widget */}
+          <SafeRender name="ReferralWidget">
+            <ReferralWidget code={referral_code} url={referral_url} cardUrl={results.card_image_url} />
+          </SafeRender>
 
           {/* Upgrade to Pro (Standard only) */}
           {!isPro && (
@@ -2285,13 +2367,8 @@ export default function ResultsPage() {
               <button onClick={handleUpgrade} style={{ padding: '10px 24px', background: 'white', color: '#0B69C7', border: 'none', borderRadius: 50, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>Upgrade &#8212; &#8377;500</button>
             </div>
           )}
-
-          {/* Feedback widget */}
-          <div style={{ background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px' }}>
-            <FeedbackWidget orderId={orderId} />
-          </div>
         </div>
-      </div>
+      )}
 
       {/* ═══ Disclaimer ═══ */}
       <section style={{ background: '#F3F2EF', padding: '20px 16px' }}>

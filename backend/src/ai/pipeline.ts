@@ -9,6 +9,7 @@ import { query } from '../db';
 import { calculateScore, capAfterScore, ScoreBreakdown } from '../lib/scoring';
 import { sendResultsEmail, sendRefundEmail as sendRefundEmailService } from '../services/email';
 import { generateAndUploadCard } from '../services/card-generator';
+import { generateResume } from '../services/resume-generator';
 
 // --- Clients ---
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!);
@@ -1336,6 +1337,31 @@ export async function runPipeline(orderId: string): Promise<void> {
            processing_status='done', processing_done_at=NOW() WHERE id=$3`,
           [JSON.stringify(before), JSON.stringify(after), orderId],
         );
+
+        // Auto-generate first resume (no form needed)
+        try {
+          const pp = parsed;
+          const autoResumeInput = {
+            orderId,
+            userDetails: {
+              name: pp.full_name || pp.name || '',
+              email: order.email || '',
+              phone: pp.phone || '',
+              location: pp.location || '',
+              linkedin: pp.linkedin_url || '',
+              website: pp.website || '',
+            },
+            targetRole: pp.target_role || pp.current_role?.title || pp.headline?.split('|')[0]?.trim() || '',
+            jobDescription: order.job_description || '',
+            templateId: 'classic' as const,
+            pageCount: 2 as const,
+          };
+          const { resumeId } = await generateResume(autoResumeInput);
+          console.log(`[PIPELINE] Auto-generated resume ${resumeId} for order ${orderId}`);
+        } catch (resumeErr: any) {
+          // Non-fatal — user can still generate manually
+          console.error(`[PIPELINE] Auto-resume failed for ${orderId}:`, resumeErr.message);
+        }
 
         await postProcess(orderId);
 
