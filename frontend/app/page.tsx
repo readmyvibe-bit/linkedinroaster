@@ -652,6 +652,12 @@ export default function Home() {
   const [studentStep, setStudentStep] = useState(1);
   const [studentFormData, setStudentFormData] = useState<any>(null);
 
+  // Teaser referral code
+  const [showTeaserReferral, setShowTeaserReferral] = useState(false);
+  const [teaserReferralCode, setTeaserReferralCode] = useState('');
+  const [teaserReferralEmail, setTeaserReferralEmail] = useState('');
+  const [teaserReferralRedeeming, setTeaserReferralRedeeming] = useState(false);
+
   // FAQ & misc
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -669,6 +675,11 @@ export default function Home() {
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
     }
   }, [teaser]);
+
+  // Pre-fill teaser referral email from main email state
+  useEffect(() => {
+    if (email && !teaserReferralEmail) setTeaserReferralEmail(email);
+  }, [email]);
 
   // Handle ?plan= and ?tab= query params
   useEffect(() => {
@@ -1843,6 +1854,60 @@ export default function Home() {
             </div>
           </div>
         </section>
+      )}
+
+      {/* Referral Code — after teaser, before pricing */}
+      {teaser && (
+        <div style={{ maxWidth: 480, margin: '16px auto 0', textAlign: 'center' }}>
+          {!showTeaserReferral ? (
+            <button onClick={() => setShowTeaserReferral(true)} style={{ background: 'none', border: 'none', color: 'var(--accent)', fontSize: 13, cursor: 'pointer', fontWeight: 500 }}>
+              Have a referral code?
+            </button>
+          ) : (
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <input
+                value={teaserReferralCode}
+                onChange={e => setTeaserReferralCode(e.target.value.toUpperCase())}
+                placeholder="Enter referral code"
+                style={{ padding: '10px 14px', border: '1px solid var(--border-default)', borderRadius: 8, fontSize: 13, fontFamily: 'monospace', width: 200 }}
+              />
+              <input
+                value={teaserReferralEmail}
+                onChange={e => setTeaserReferralEmail(e.target.value)}
+                placeholder="Your email"
+                type="email"
+                style={{ padding: '10px 14px', border: '1px solid var(--border-default)', borderRadius: 8, fontSize: 13, width: 200 }}
+              />
+              <button
+                onClick={async () => {
+                  if (!teaserReferralCode.trim() || !teaserReferralEmail.trim()) return;
+                  setTeaserReferralRedeeming(true);
+                  try {
+                    const res = await fetch(`${API_URL}/api/redeem-code`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        code: teaserReferralCode.trim(),
+                        email: teaserReferralEmail.trim(),
+                        profile_data: { raw_paste: (inputSource === 'resume' ? resumeRawText : pdfRawPaste).trim() },
+                        input_source: inputSource,
+                      }),
+                    });
+                    const data = await res.json();
+                    if (!res.ok) { alert(data.error || 'Invalid code'); setTeaserReferralRedeeming(false); return; }
+                    if (data.order_id) {
+                      window.location.href = data.redirect_url || `/results/${data.order_id}`;
+                    }
+                  } catch { alert('Could not reach server.'); setTeaserReferralRedeeming(false); }
+                }}
+                disabled={teaserReferralRedeeming}
+                style={{ padding: '10px 18px', background: 'var(--success)', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', opacity: teaserReferralRedeeming ? 0.6 : 1 }}
+              >
+                {teaserReferralRedeeming ? '...' : 'Redeem'}
+              </button>
+            </div>
+          )}
+        </div>
       )}
 
       {/* ═══════════════════════════════════ */}

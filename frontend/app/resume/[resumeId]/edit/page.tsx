@@ -413,9 +413,19 @@ export default function ResumeEditorPage() {
   }
 
   const enhanceButtonStyle: React.CSSProperties = {
-    background: 'none', border: 'none', cursor: 'pointer',
-    fontSize: 16, padding: '2px 4px', opacity: 0.6,
-    transition: 'opacity 0.2s',
+    background: 'linear-gradient(135deg, #7C3AED, #0B69C7)',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: 14,
+    fontWeight: 700,
+    padding: '4px 8px',
+    borderRadius: 6,
+    color: 'white',
+    opacity: 1,
+    transition: 'all 0.2s',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 2,
   };
 
   const updateCustomSection = useCallback((index: number, field: 'title' | 'content', value: string) => {
@@ -699,7 +709,7 @@ export default function ResumeEditorPage() {
                         } catch { /* silent */ }
                         setEnhancingFields(prev => ({ ...prev, summary: false }));
                       }}
-                      title="AI Enhance"
+                      title="AI Enhance — Rewrite this text with stronger action verbs and metrics"
                     >
                       {enhancingFields['summary'] ? '...' : '\u2728'}
                     </button>
@@ -841,7 +851,7 @@ export default function ResumeEditorPage() {
                             const startYear = startStr.match(/\d{4}/)?.[0] || '';
                             const endMonth = endStr.replace(/\s*\d{4}$/, '').replace('Present', '').trim();
                             const endYear = endStr === 'Present' ? '' : (endStr.match(/\d{4}/)?.[0] || '');
-                            const isCurrent = exp.current || endStr === 'Present';
+                            const isCurrent = !!exp.current;
                             return (
                           <div style={{ display: 'flex', gap: 8, ...fieldGap, flexWrap: 'wrap' }}>
                             <div style={{ flex: 1, minWidth: 110 }}>
@@ -897,7 +907,20 @@ export default function ResumeEditorPage() {
                                     updateExperience(i, 'current', e.target.checked);
                                     if (e.target.checked) {
                                       updateExperience(i, 'endDate', '');
+                                      updateExperience(i, 'end_date', '');
                                       updateExperience(i, 'dates', '');
+                                      // Move this entry to top of experience list
+                                      setResumeData(prev => {
+                                        if (!prev || !prev.experience) return prev;
+                                        const exp = [...prev.experience];
+                                        const [moved] = exp.splice(i, 1);
+                                        moved.current = true;
+                                        moved.endDate = '';
+                                        moved.end_date = '';
+                                        // Uncheck current on all others
+                                        exp.forEach(e => { e.current = false; });
+                                        return { ...prev, experience: [moved, ...exp] };
+                                      });
                                     }
                                   }}
                                 />
@@ -971,7 +994,7 @@ export default function ResumeEditorPage() {
                                   } catch { /* silent */ }
                                   setEnhancingFields(prev => ({ ...prev, [`bullet-${i}-${j}`]: false }));
                                 }}
-                                title="AI Enhance"
+                                title="AI Enhance — Rewrite this text with stronger action verbs and metrics"
                               >
                                 {enhancingFields[`bullet-${i}-${j}`] ? '...' : '\u2728'}
                               </button>
@@ -1152,7 +1175,7 @@ export default function ResumeEditorPage() {
                           } catch { /* silent */ }
                           setEnhancingFields(prev => ({ ...prev, [`achievement-${i}`]: false }));
                         }}
-                        title="AI Enhance"
+                        title="AI Enhance — Rewrite this text with stronger action verbs and metrics"
                       >
                         {enhancingFields[`achievement-${i}`] ? '...' : '\u2728'}
                       </button>
