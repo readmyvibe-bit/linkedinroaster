@@ -781,6 +781,13 @@ export default function Home() {
         (p.education || []).map((e: any) => `${e.degree || ''} ${e.field || ''} - ${e.institution || ''}`).join('\n') || ''
       );
       setConfirmSkills((p.skills || []).join(', '));
+
+      // Auto-set targetRole from parsed data if not already filled
+      if (!targetRole.trim()) {
+        const inferredRole = p.target_role || p.current_role?.title || (p.headline ? p.headline.split('|')[0]?.trim() : '');
+        if (inferredRole) setTargetRole(inferredRole);
+      }
+
       setShowConfirmScreen(true);
     } catch (err: any) {
       // Resume upload error — user sees error message below
@@ -841,6 +848,13 @@ export default function Home() {
         (p.education || []).map((e: any) => `${e.degree || ''} ${e.field || ''} - ${e.institution || ''}`).join('\n') || ''
       );
       setConfirmSkills((p.skills || []).join(', '));
+
+      // Auto-set targetRole from parsed data if not already filled
+      if (!targetRole.trim()) {
+        const inferredRole = p.target_role || p.current_role?.title || (p.headline ? p.headline.split('|')[0]?.trim() : '');
+        if (inferredRole) setTargetRole(inferredRole);
+      }
+
       setShowConfirmScreen(true);
     } catch (err: any) {
       // PDF upload error — user sees error message below

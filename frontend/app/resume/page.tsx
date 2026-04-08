@@ -199,7 +199,9 @@ function ResumeFormContent() {
           if (pp.phone) setPhone(pp.phone);
           if (pp.linkedin_url || data.linkedin_url) setLinkedinUrl(pp.linkedin_url || data.linkedin_url);
           if (pp.website) setWebsite(pp.website);
-          if (pp.headline) setTargetRole(pp.headline.split('|')[0]?.trim() || '');
+          if (pp.target_role) setTargetRole(pp.target_role);
+          else if (pp.current_role?.title) setTargetRole(pp.current_role.title);
+          else if (pp.headline) setTargetRole(pp.headline.split('|')[0]?.trim() || '');
 
           // Extract contact info from raw text if parser missed it
           if (!pp.phone && rawInput) {
@@ -228,11 +230,21 @@ function ResumeFormContent() {
               .filter(Boolean)
               .join('\n\n');
             if (achievementLines) setKeyAchievements(achievementLines);
+            else if (pp.about) setKeyAchievements(pp.about.slice(0, 300));
+          } else if (pp.about) {
+            setKeyAchievements(pp.about.slice(0, 300));
           }
           // Auto-fill certifications
           if (pp.certifications?.length) setCertifications(pp.certifications.slice(0, 5));
-          // Auto-fill languages if available
+          // Auto-fill languages if available, with fallback extraction from raw text
           if (pp.languages?.length) setLanguages(pp.languages);
+          else if (rawInput) {
+            const langMatch = rawInput.match(/Languages?[:\s]+([^\n]+)/i);
+            if (langMatch) {
+              const langs = langMatch[1].split(/[,;|]/).map((l: string) => l.trim().replace(/\(.*\)/, '').trim()).filter(Boolean);
+              if (langs.length) setLanguages(langs);
+            }
+          }
           // Calculate experience years from durations
           if (pp.experience?.length) {
             const totalYears = calcExperienceFromDurations(pp.experience);
