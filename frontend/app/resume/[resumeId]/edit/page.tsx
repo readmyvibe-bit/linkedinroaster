@@ -436,14 +436,36 @@ export default function ResumeEditorPage() {
   }, []);
 
   // ─── Download PDF ───
-  function handleDownloadPDF() {
+  const [pdfGenerating, setPdfGenerating] = useState(false);
+
+  async function handleDownloadPDF() {
     if (!resumeData) return;
     const html = buildPrintHTML(resumeData, templateId);
+    const name = resumeData?.contact?.name || 'resume';
+    const filename = `${name.replace(/[^a-zA-Z0-9]/g, '-')}-resume.pdf`;
+
+    // Try server-side PDF first
+    setPdfGenerating(true);
+    try {
+      const res = await fetch(`${API_URL}/api/resume/generate-pdf`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ html, filename }),
+      });
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = filename; a.click();
+        URL.revokeObjectURL(url);
+        setPdfGenerating(false);
+        return;
+      }
+    } catch {}
+    setPdfGenerating(false);
+    // Fallback: browser print
     const win = window.open('', '_blank');
     if (!win) { alert('Please allow popups to download PDF.'); return; }
-    win.document.write(html);
-    win.document.close();
-    win.document.title = ' ';
+    win.document.write(html); win.document.close(); win.document.title = ' ';
     setTimeout(() => win.print(), 600);
   }
 
@@ -522,7 +544,7 @@ export default function ResumeEditorPage() {
               <select value={templateId} onChange={e => setTemplateId(e.target.value)} style={{ padding: '5px 8px', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-sm)', fontSize: 12, outline: 'none', maxWidth: isMobile ? 110 : 180, color: 'var(--text-secondary)', background: 'var(--bg-surface)', cursor: 'pointer' }}>
                 {TEMPLATES.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
               </select>
-              <button onClick={handleDownloadPDF} className="saas-btn saas-btn-primary" style={{ padding: '5px 14px', fontSize: 12 }}>Export PDF</button>
+              <button onClick={handleDownloadPDF} disabled={pdfGenerating} className="saas-btn saas-btn-primary" style={{ padding: '5px 14px', fontSize: 12, opacity: pdfGenerating ? 0.6 : 1 }}>{pdfGenerating ? 'Generating...' : 'Download PDF'}</button>
               <a href={`${API_URL}/api/resume/${resumeId}/download/txt`} className="saas-btn saas-btn-ghost hidden sm:inline-flex" style={{ padding: '5px 12px', fontSize: 12 }}>TXT</a>
             </div>
           </div>

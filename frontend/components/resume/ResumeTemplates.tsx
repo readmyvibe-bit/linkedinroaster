@@ -92,7 +92,7 @@ export const TEMPLATES: (TemplateDefinition & { proOnly?: boolean })[] = [
   { id: 'classic', name: 'Classic Professional', description: 'Traditional clean layout. Maximum ATS compatibility.', category: 'ATS-Friendly', atsLevel: 'high', ats: 'high', bestFor: ['any', 'general', 'corporate'] },
   { id: 'modern', name: 'Modern Accent', description: 'Blue accent styling with skill tags. ATS safe.', category: 'ATS-Friendly', atsLevel: 'high', ats: 'high', bestFor: ['tech', 'analyst', 'engineer'] },
   { id: 'minimal', name: 'Minimalist', description: 'Ultra clean with maximum whitespace.', category: 'ATS-Friendly', atsLevel: 'high', ats: 'high', bestFor: ['consulting', 'finance', 'any'] },
-  { id: 'compact', name: 'Compact Dense', description: 'Maximum content in minimum space.', category: 'ATS-Friendly', atsLevel: 'high', ats: 'high', bestFor: ['experienced', 'senior', 'any'] },
+  { id: 'compact', name: 'ATS Optimized', description: 'Engineered to pass every ATS scanner — zero formatting tricks, pure content, maximum parse rate.', category: 'ATS-Friendly', atsLevel: 'high', ats: 'high', bestFor: ['experienced', 'senior', 'any', 'fresher'] },
   { id: 'technical', name: 'Technical Developer', description: 'Code-inspired design for engineering roles.', category: 'ATS-Friendly', atsLevel: 'high', ats: 'high', bestFor: ['engineer', 'developer', 'tech', 'devops'] },
   { id: 'bold', name: 'Bold Statement', description: 'High impact with strong visual hierarchy.', category: 'Professional', atsLevel: 'high', ats: 'medium', bestFor: ['sales', 'marketing', 'leadership'] },
   { id: 'monochrome', name: 'Monochrome Prestige', description: 'Pure black and white luxury typography.', category: 'Professional', atsLevel: 'high', ats: 'high', bestFor: ['corporate', 'finance', 'law'] },
@@ -2409,46 +2409,69 @@ function printExecutive(data: ResumeData): string {
 // ─── Print: Compact ─────────────────────────────────────────────────────────
 
 function printCompact(data: ResumeData): string {
+  // ATS Optimized — pure semantic structure, zero decorative CSS, maximum parse rate
   const c = data.contact || {};
-  const cp = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean).map(esc).join(' | ');
-  const allSkills = flattenSkills(data.skills);
-  const hdr = (t: string) => `<div style="font-size:9px;font-weight:700;text-transform:uppercase;color:#555;border-bottom:0.5px solid #E5E7EB;padding-bottom:1px;margin-bottom:3px">${t}</div>`;
-  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;line-height:1.4;color:#333;padding:24px 32px;max-width:100%">`;
-  h += `<div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;margin-bottom:6px"><div style="font-size:20px;font-weight:700;color:#111">${esc(c.name) || 'Your Name'}</div>`;
-  if (cp) h += `<div style="font-size:9px;color:#666;text-align:right">${cp}</div>`;
-  h += `</div><div style="border-bottom:0.5px solid #D1D5DB;margin-bottom:6px"></div>`;
-  if (data.summary) h += `<div style="margin-bottom:6px">${hdr('Summary')}<div>${esc(data.summary)}</div></div>`;
+  const contactLine = [c.email, c.phone, c.location, c.linkedin, c.website].filter(Boolean).map(esc).join(' | ');
+  const hdr = (t: string) => `<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#000;border-bottom:1px solid #000;padding-bottom:2px;margin:10px 0 6px 0">${t}</div>`;
+
+  let h = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#000;padding:28px 36px;max-width:100%">`;
+
+  // Name — large, centered, no flex
+  h += `<div style="text-align:center;margin-bottom:4px"><div style="font-size:22px;font-weight:700;color:#000;letter-spacing:1px">${esc(c.name) || 'YOUR NAME'}</div>`;
+  if (contactLine) h += `<div style="font-size:10px;color:#333;margin-top:4px">${contactLine}</div>`;
+  h += `</div>`;
+
+  // Summary
+  if (data.summary) h += `${hdr('PROFESSIONAL SUMMARY')}<div style="margin-bottom:4px">${esc(data.summary)}</div>`;
+
+  // Experience
   if (data.experience?.length) {
-    h += `<div style="margin-bottom:6px">${hdr('Experience')}`;
+    h += hdr('PROFESSIONAL EXPERIENCE');
     data.experience.forEach(exp => {
       const title = esc(getExpTitle(exp));
       const dates = esc(getExpDates(exp));
-      const company = exp.company ? `, ${esc(exp.company)}` : '';
-      const loc = exp.location ? ` &mdash; ${esc(exp.location)}` : '';
-      h += `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;flex-wrap:wrap"><span><span style="font-weight:700">${title}</span>${company}${loc}</span><span style="font-size:9px;color:#888;font-style:italic">${dates}</span></div>`;
+      const company = exp.company ? esc(exp.company) : '';
+      const loc = exp.location ? esc(exp.location) : '';
+      // Title and dates on same line, company below — no flex, simple block
+      h += `<div style="margin-bottom:8px">`;
+      h += `<div><span style="font-weight:700">${title}</span>${dates ? ` | ${dates}` : ''}</div>`;
+      if (company) h += `<div style="font-style:italic;color:#333">${company}${loc ? ', ' + loc : ''}</div>`;
       if (exp.bullets?.length) {
-        h += `<div style="margin-top:2px">`;
-        exp.bullets.forEach(b => { h += `<div style="padding-left:10px;text-indent:-10px;margin-bottom:1px">&bull; ${esc(b)}</div>`; });
-        h += `</div>`;
+        exp.bullets.forEach(b => { h += `<div style="padding-left:14px;text-indent:-14px;margin-top:2px">- ${esc(b)}</div>`; });
       }
       h += `</div>`;
     });
-    h += `</div>`;
   }
+
+  // Education
   if (data.education?.length) {
-    h += `<div style="margin-bottom:6px">${hdr('Education')}`;
+    h += hdr('EDUCATION');
     data.education.forEach(edu => {
       const deg = esc(getEduDegree(edu));
       const school = esc(getEduSchool(edu));
       const dates = esc(getEduDates(edu));
-      const gpa = edu.gpa ? ` (GPA: ${esc(edu.gpa)})` : '';
-      h += `<div style="margin-bottom:4px;display:flex;justify-content:space-between;flex-wrap:wrap"><span><span style="font-weight:700">${deg}</span> &mdash; ${school}${gpa}</span><span style="font-size:9px;color:#888;font-style:italic">${dates}</span></div>`;
+      const gpa = edu.gpa ? ` | GPA: ${esc(edu.gpa)}` : '';
+      h += `<div style="margin-bottom:4px"><span style="font-weight:700">${deg}</span> — ${school}${dates ? ' | ' + dates : ''}${gpa}</div>`;
     });
-    h += `</div>`;
   }
-  if (allSkills.length) h += `<div style="margin-bottom:6px">${hdr('Skills')}<div>${allSkills.map(esc).join(', ')}</div></div>`;
-  const ach = buildAchievementsHTML(data, '&bull;');
-  if (ach) h += `<div style="margin-bottom:6px">${hdr('Achievements')}${ach}</div>`;
+
+  // Skills — pure comma-separated, grouped by category
+  const sk = buildSkillsGroupedHTML(data);
+  if (sk) h += `${hdr('SKILLS')}${sk}`;
+
+  // Achievements
+  const ach = buildAchievementsHTML(data, '-');
+  if (ach) h += `${hdr('KEY ACHIEVEMENTS')}${ach}`;
+
+  // Custom sections
+  if (data.custom_sections?.length) {
+    data.custom_sections.forEach(sec => {
+      if (sec.title && sec.items?.length) {
+        h += `${hdr(esc(sec.title).toUpperCase())}<div>${sec.items.map(esc).join(', ')}</div>`;
+      }
+    });
+  }
+
   h += `</div>`;
   return printPageWrapper(h);
 }
