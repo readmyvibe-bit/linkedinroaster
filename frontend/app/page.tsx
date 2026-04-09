@@ -1791,14 +1791,21 @@ export default function Home() {
             <div style={{ display: 'flex', gap: 16, overflowX: 'auto', paddingBottom: 8, scrollSnapType: 'x mandatory' }}>
               {TEMPLATES.slice(0, 8).map(t => (
                 <div key={t.id} style={{ flex: '0 0 200px', scrollSnapAlign: 'start', background: 'white', borderRadius: 10, border: '1px solid rgba(15,23,42,0.08)', overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}>
-                  <div style={{ height: 160, background: '#F8FAFC', borderBottom: '1px solid rgba(15,23,42,0.06)', overflow: 'hidden', position: 'relative' }}>
-                    <div style={{ transform: 'scale(0.22)', transformOrigin: 'top left', width: 900, height: 700, pointerEvents: 'none' }}>
+                  <div style={{ height: 240, background: '#F8FAFC', borderBottom: '1px solid rgba(15,23,42,0.06)', overflow: 'hidden', position: 'relative' }}>
+                    <div style={{ transform: 'scale(0.2)', transformOrigin: 'top left', width: 1000, height: 1300, pointerEvents: 'none' }}>
                       {renderResumeHTML({
-                        contact: { name: 'Priya Mehta', email: 'priya@email.com', phone: '9876543210', location: 'Bangalore' },
-                        summary: 'Results-driven Full-Stack Engineer with 5+ years building scalable web applications serving 50K+ users.',
-                        experience: [{ role: 'Senior Software Engineer', company: 'TechCorp', location: 'Bangalore', bullets: ['Led team of 8 engineers delivering 3 products', 'Reduced API latency by 40% through optimization'] }],
-                        education: [{ degree: 'B.Tech CSE', institution: 'IIT Delhi', year: '2019' }],
-                        skills: ['React', 'Node.js', 'Python', 'AWS', 'TypeScript'],
+                        contact: { name: 'Priya Mehta', email: 'priya.mehta@gmail.com', phone: '9876543210', location: 'Bangalore, India', linkedin: 'linkedin.com/in/priyamehta' },
+                        summary: 'Results-driven Full-Stack Engineer with 5+ years of experience building scalable web applications serving 50K+ daily active users. Expert in React, Node.js, and cloud infrastructure. Proven track record of reducing deployment time by 60% and improving API performance across enterprise products.',
+                        experience: [
+                          { role: 'Senior Software Engineer', company: 'TechCorp India', location: 'Bangalore', dates: 'Jan 2022 - Present', bullets: ['Led a cross-functional team of 8 engineers delivering 3 high-impact products generating $2M ARR', 'Reduced API response latency by 40% through query optimization and Redis caching layer implementation', 'Architected microservices migration serving 50K+ daily users with 99.9% uptime SLA', 'Mentored 4 junior developers through structured code reviews and pair programming sessions'] },
+                          { role: 'Software Engineer', company: 'StartupXYZ', location: 'Mumbai', dates: 'Jun 2019 - Dec 2021', bullets: ['Built real-time analytics dashboard processing 1M+ events daily using React and D3.js', 'Implemented CI/CD pipeline reducing deployment time from 2 hours to 15 minutes', 'Designed RESTful APIs consumed by 3 client applications with comprehensive test coverage'] },
+                          { role: 'Junior Developer', company: 'WebSolutions', location: 'Pune', dates: 'Jul 2018 - May 2019', bullets: ['Developed responsive frontend components using React and TypeScript', 'Collaborated with UX team to improve user engagement metrics by 25%'] },
+                        ],
+                        education: [
+                          { degree: 'B.Tech Computer Science', institution: 'IIT Delhi', year: '2018', gpa: '8.7' },
+                        ],
+                        skills: ['React', 'Node.js', 'TypeScript', 'Python', 'AWS', 'Docker', 'PostgreSQL', 'Redis', 'GraphQL', 'CI/CD'],
+                        achievements: ['Best Innovation Award at TechCorp 2023', 'Open source contributor — 500+ GitHub stars'],
                       }, t.id)}
                     </div>
                   </div>
