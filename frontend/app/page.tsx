@@ -1322,44 +1322,25 @@ export default function Home() {
                             onDragOver={(e) => { e.preventDefault(); setResumeDragOver(true); }}
                             onDragLeave={(e) => { e.preventDefault(); setResumeDragOver(false); }}
                             style={{
-                              border: `2px dashed ${resumeDragOver ? '#0B69C7' : resumeParsed ? '#057642' : '#D1D5DB'}`,
-                              borderRadius: 16, padding: 32, textAlign: 'center', marginBottom: 12,
-                              background: resumeDragOver ? '#EFF6FF' : resumeParsed ? '#F0FDF4' : '#FAFBFC',
-                              cursor: resumeUploading ? 'wait' : 'pointer', transition: 'all 0.3s',
-                              boxShadow: resumeDragOver ? '0 0 0 4px rgba(11,105,199,0.1)' : 'none',
+                              border: `1.5px dashed ${resumeDragOver ? 'var(--accent)' : resumeParsed ? 'var(--success)' : '#CBD5E1'}`,
+                              borderRadius: 12, padding: 28, textAlign: 'center', marginBottom: 12,
+                              background: resumeDragOver ? '#F0F7FF' : resumeParsed ? '#F0FDF4' : '#FAFBFC',
+                              cursor: resumeUploading ? 'wait' : 'pointer', transition: 'all 0.2s',
                             }}
                           >
                             <input ref={resumeInputRef} type="file" accept=".pdf,.docx" onChange={e => { const f = e.target.files?.[0]; if (f) uploadAndParseResume(f); }} style={{ display: 'none' }} />
                             {resumeUploading ? (
                               <>
-                                <div style={{ width: 48, height: 48, border: '3px solid #E5E7EB', borderTopColor: '#0B69C7', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
-                                <div style={{ fontSize: 15, fontWeight: 700, color: '#0B69C7' }}>Analyzing your resume...</div>
-                                <div style={{ fontSize: 12, color: '#6B7280', marginTop: 6 }}>AI is extracting your data</div>
-                                <div style={{ width: 120, height: 4, borderRadius: 2, background: '#E5E7EB', margin: '10px auto 0', overflow: 'hidden' }}>
-                                  <div style={{ height: '100%', borderRadius: 2, background: 'linear-gradient(90deg, #0B69C7, #057642)', animation: 'shimmer 1.5s infinite', backgroundSize: '200% 100%' }} />
-                                </div>
-                                <style>{`@keyframes spin { to { transform: rotate(360deg); } } @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }`}</style>
+                                <div style={{ fontSize: 28, marginBottom: 6, animation: 'spin 1s linear infinite' }}>&#9881;</div>
+                                <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--accent)' }}>Parsing your resume...</div>
+                                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>Extracting your data &bull; 5-10 seconds</div>
+                                <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
                               </>
                             ) : (
                               <>
-                                <div style={{ width: 56, height: 56, borderRadius: 16, background: 'linear-gradient(135deg, #EFF6FF, #DBEAFE)', border: '1px solid #BFDBFE', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
-                                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0B69C7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                                </div>
-                                <div style={{ fontSize: 16, fontWeight: 700, color: '#111827' }}>{resumeDragOver ? 'Drop your file here' : 'Upload your resume'}</div>
-                                <div style={{ fontSize: 13, color: '#6B7280', marginTop: 4 }}>PDF or DOCX &bull; drag & drop or click to browse</div>
-                                <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 12 }}>
-                                  <span style={{ fontSize: 11, color: '#9CA3AF', display: 'flex', alignItems: 'center', gap: 4 }}>
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                                    Encrypted
-                                  </span>
-                                  <span style={{ fontSize: 11, color: '#9CA3AF' }}>&bull;</span>
-                                  <span style={{ fontSize: 11, color: '#9CA3AF', display: 'flex', alignItems: 'center', gap: 4 }}>
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10"/></svg>
-                                    Instant
-                                  </span>
-                                  <span style={{ fontSize: 11, color: '#9CA3AF' }}>&bull;</span>
-                                  <span style={{ fontSize: 11, color: '#9CA3AF' }}>100% Free</span>
-                                </div>
+                                <div style={{ width: 44, height: 44, borderRadius: 12, background: 'var(--accent-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', fontSize: 20 }}>&#128196;</div>
+                                <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>{resumeDragOver ? 'Drop here' : 'Upload your resume'}</div>
+                                <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 }}>PDF or DOCX &bull; click or drag</div>
                               </>
                             )}
                           </div>
