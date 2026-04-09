@@ -124,7 +124,7 @@ function LoginForm({ onLogin }: { onLogin: () => void }) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--li-gray)' }}>
+    <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-canvas)' }}>
       <div className="li-card p-8 w-full max-w-sm">
         <h1 className="text-xl font-bold mb-4" style={{ color: 'var(--li-text-primary)' }}>Admin Login</h1>
         {error && <p className="text-sm mb-3 p-2 rounded" style={{ color: '#DC2626', background: '#FEE2E2' }}>{error}</p>}
@@ -1812,7 +1812,7 @@ export default function AdminPage() {
 
   if (checking) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--li-gray)' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-canvas)' }}>
         <p style={{ color: 'var(--li-text-secondary)' }}>Loading...</p>
       </div>
     );
@@ -1821,23 +1821,23 @@ export default function AdminPage() {
   if (!authed) return <LoginForm onLogin={() => setAuthed(true)} />;
 
   return (
-    <main className="min-h-screen" style={{ background: 'var(--li-gray)' }}>
+    <main className="min-h-screen" style={{ background: 'var(--bg-canvas)' }}>
       {/* Nav */}
-      <nav className="px-4 py-3 flex gap-2 flex-wrap items-center" style={{ background: 'var(--li-card)', borderBottom: '1px solid var(--li-border)' }}>
-        <span className="font-bold mr-4" style={{ color: 'var(--li-blue)' }}>Admin</span>
+      <nav className="px-4 py-3 flex gap-2 flex-wrap items-center" style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)', boxShadow: 'var(--shadow-xs)' }}>
+        <span className="font-bold mr-4" style={{ color: 'var(--accent)' }}>Admin</span>
         {NAV.map(n => (
           <button key={n.key} onClick={() => setScreen(n.key)}
             className="text-sm px-3 py-1 rounded-full cursor-pointer border-none"
             style={{
-              background: screen === n.key ? 'var(--li-blue)' : 'transparent',
-              color: screen === n.key ? 'white' : 'var(--li-text-secondary)',
+              background: screen === n.key ? 'var(--accent)' : 'transparent',
+              color: screen === n.key ? 'white' : 'var(--text-secondary)',
             }}>{n.label}</button>
         ))}
         <div className="flex-1" />
         <button
           onClick={handleLogout}
           className="text-xs px-3 py-1 rounded-full cursor-pointer border-none"
-          style={{ background: 'var(--li-gray)', color: 'var(--li-text-secondary)' }}
+          style={{ background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}
         >
           Logout
         </button>

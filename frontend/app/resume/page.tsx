@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { TEMPLATES } from '../../components/resume/ResumeTemplates';
+import { SaasMarketingHeader } from '../../components/saas/SaasMarketingHeader';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -428,17 +429,23 @@ function ResumeFormContent() {
   // ─── Error / Loading states ───
   if (orderLoading) {
     return (
-      <div style={{ minHeight: '100vh', background: '#F3F2EF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p style={{ color: '#666', fontSize: 15 }}>Loading...</p>
+      <div className="saas-app-canvas" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <SaasMarketingHeader />
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: 15 }}>Loading...</p>
+        </div>
       </div>
     );
   }
 
   if (orderError) {
     return (
-      <div style={{ minHeight: '100vh', background: '#F3F2EF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ background: '#fff', border: '1px solid #E0E0E0', borderRadius: 12, padding: 32, maxWidth: 440, textAlign: 'center' }}>
+      <div className="saas-app-canvas" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <SaasMarketingHeader />
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <div className="saas-card" style={{ padding: 32, maxWidth: 440, textAlign: 'center' }}>
           <p style={{ color: '#CC1016', fontSize: 15, margin: 0 }}>{orderError}</p>
+        </div>
         </div>
       </div>
     );
@@ -451,19 +458,23 @@ function ResumeFormContent() {
       window.location.href = isBuild ? `/build/results/${orderId}` : `/results/${orderId}#resume-section`;
     }
     return (
-      <div style={{ minHeight: '100vh', background: '#F3F2EF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p style={{ color: '#666', fontSize: 15 }}>Redirecting to your results...</p>
+      <div className="saas-app-canvas" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <SaasMarketingHeader />
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: 15 }}>Redirecting to your results...</p>
+        </div>
       </div>
     );
   }
 
   // ─── Main Form ───
   return (
-    <div style={{ minHeight: '100vh', background: '#F3F2EF', padding: '32px 16px' }}>
+    <div className="saas-app-canvas" style={{ minHeight: '100vh', padding: '24px 16px 40px' }}>
+      <SaasMarketingHeader />
       <form onSubmit={handleSubmit} style={{ maxWidth: 680, margin: '0 auto' }}>
         {/* Header */}
         <div style={{
-          background: '#004182', borderRadius: '12px 12px 0 0', padding: '24px 28px',
+          background: 'var(--accent)', borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0', padding: '24px 28px',
           color: '#fff',
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -479,9 +490,9 @@ function ResumeFormContent() {
         </div>
 
         {/* Card Body */}
-        <div style={{
-          background: '#fff', border: '1px solid #E0E0E0', borderTop: 'none',
-          borderRadius: '0 0 12px 12px', padding: '28px',
+        <div className="saas-card" style={{
+          borderTop: 'none',
+          borderRadius: '0 0 var(--radius-lg) var(--radius-lg)', padding: '28px',
         }}>
 
           {/* UPLOAD SECTION - Optional Resume Upload */}
@@ -718,7 +729,7 @@ function ResumeFormContent() {
                 return (
                   <button key={cat} type="button" onClick={() => setTemplateFilter(cat)} style={{
                     padding: '4px 10px', borderRadius: 16, fontSize: 11, fontWeight: 600, cursor: 'pointer', border: 'none',
-                    background: templateFilter === cat ? '#0A66C2' : '#F3F2EF',
+                    background: templateFilter === cat ? '#0A66C2' : 'var(--bg-subtle)',
                     color: templateFilter === cat ? '#fff' : '#666',
                     whiteSpace: 'nowrap',
                   }}>{cat} ({count})</button>
@@ -875,7 +886,7 @@ function ResumeFormContent() {
 
 export default function ResumeFormPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F3F2EF' }}><p style={{ color: '#666' }}>Loading...</p></div>}>
+    <Suspense fallback={<div className="saas-app-canvas" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p style={{ color: 'var(--text-secondary)' }}>Loading...</p></div>}>
       <ResumeFormContent />
     </Suspense>
   );

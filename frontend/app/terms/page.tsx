@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { LegalPageShell } from '../../components/saas/LegalPageShell';
 
 export const metadata: Metadata = {
   title: 'Terms & Conditions — ProfileRoaster',
@@ -7,20 +8,8 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <main className="min-h-screen pb-16">
-      <div className="max-w-3xl mx-auto px-4 pt-12">
-        <a href="/" className="text-sm font-medium mb-8 inline-block" style={{ color: 'var(--li-blue)' }}>
-          &larr; Back to Home
-        </a>
-
-        <h1 className="text-3xl font-extrabold mb-2" style={{ color: 'var(--li-text-primary)' }}>
-          Terms &amp; Conditions
-        </h1>
-        <p className="text-sm mb-8" style={{ color: 'var(--li-text-secondary)' }}>
-          Last updated: March 31, 2026
-        </p>
-
-        <div className="space-y-8 text-sm leading-relaxed" style={{ color: 'var(--li-text-primary)' }}>
+    <LegalPageShell title="Terms & Conditions" updated="March 31, 2026">
+      <div className="space-y-8">
 
           <section>
             <h2 className="text-lg font-bold mb-3">1. Acceptance of Terms</h2>
@@ -356,7 +345,6 @@ export default function TermsPage() {
           </section>
 
         </div>
-      </div>
-    </main>
+    </LegalPageShell>
   );
 }

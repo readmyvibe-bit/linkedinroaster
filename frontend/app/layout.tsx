@@ -26,15 +26,15 @@ export default function RootLayout({
       </head>
       <body>
         {children}
-        <footer style={{ borderTop: '1px solid var(--li-border)', background: 'var(--li-card)' }}>
-          <div style={{ maxWidth: 672, margin: '0 auto', padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
-            <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', justifyContent: 'center' }}>
-              <a href="/terms" style={{ fontSize: 13, color: 'var(--li-text-secondary)', textDecoration: 'none' }}>Terms &amp; Conditions</a>
-              <a href="/privacy" style={{ fontSize: 13, color: 'var(--li-text-secondary)', textDecoration: 'none' }}>Privacy Policy</a>
-              <a href="/refund" style={{ fontSize: 13, color: 'var(--li-text-secondary)', textDecoration: 'none' }}>Refund Policy</a>
-              <span style={{ fontSize: 13, color: 'var(--li-text-secondary)' }}>Contact: support@profileroaster.in</span>
+        <footer className="site-footer-saas">
+          <div className="site-footer-saas-inner">
+            <div className="site-footer-saas-links">
+              <a href="/terms">Terms &amp; Conditions</a>
+              <a href="/privacy">Privacy Policy</a>
+              <a href="/refund">Refund Policy</a>
+              <span>Contact: support@profileroaster.in</span>
             </div>
-            <p style={{ fontSize: 12, color: 'var(--li-text-secondary)', margin: 0 }}>
+            <p className="site-footer-saas-copy">
               &copy; 2026 Profile Roaster. Not affiliated with LinkedIn Corporation.
             </p>
           </div>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { SaasMarketingHeader } from '../../components/saas/SaasMarketingHeader';
 
 // ─── Types ───
 interface PlanFeature {
@@ -286,43 +287,8 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 export default function PricingPage() {
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F3F2EF' }}>
-      {/* Top bar */}
-      <div
-        style={{
-          background: '#FFFFFF',
-          borderBottom: '1px solid #E0E0E0',
-          padding: '12px 24px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <Link
-          href="/"
-          style={{
-            fontSize: 14,
-            color: '#0B69C7',
-            textDecoration: 'none',
-            fontWeight: 500,
-          }}
-        >
-          &larr; Home
-        </Link>
-        <Link
-          href="/dashboard"
-          style={{
-            fontSize: 14,
-            color: '#0B69C7',
-            textDecoration: 'none',
-            fontWeight: 500,
-          }}
-        >
-          Dashboard
-        </Link>
-      </div>
-
-      {/* Content */}
+    <div className="saas-app-canvas">
+      <SaasMarketingHeader />
       <div
         style={{
           maxWidth: 1100,
@@ -441,39 +407,6 @@ export default function PricingPage() {
             ))}
           </div>
         </div>
-      </div>
-
-      {/* Footer */}
-      <div
-        style={{
-          borderTop: '1px solid #E0E0E0',
-          background: '#FFFFFF',
-          padding: '24px 16px',
-          textAlign: 'center',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            gap: 24,
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            marginBottom: 12,
-          }}
-        >
-          <Link href="/terms" style={{ fontSize: 13, color: '#666666', textDecoration: 'none' }}>
-            Terms &amp; Conditions
-          </Link>
-          <Link href="/privacy" style={{ fontSize: 13, color: '#666666', textDecoration: 'none' }}>
-            Privacy Policy
-          </Link>
-          <Link href="/refund" style={{ fontSize: 13, color: '#666666', textDecoration: 'none' }}>
-            Refund Policy
-          </Link>
-        </div>
-        <p style={{ fontSize: 12, color: '#666666', margin: 0 }}>
-          &copy; 2026 Profile Roaster. Not affiliated with LinkedIn Corporation.
-        </p>
       </div>
     </div>
   );

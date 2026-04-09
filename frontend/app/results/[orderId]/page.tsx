@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, Component, ErrorInfo, ReactNode } from 'react';
 import { useParams } from 'next/navigation';
+import { SaasMarketingHeader } from '../../../components/saas/SaasMarketingHeader';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -1706,9 +1707,12 @@ export default function ResultsPage() {
   // ── Error state ──
   if (error) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-4">
-        <ErrorState type={error} onRetry={error === 'api_down' ? () => { setError(null); fetchOrder(); } : undefined} />
-      </main>
+      <div className="saas-app-canvas min-h-screen flex flex-col">
+        <SaasMarketingHeader />
+        <main className="flex flex-1 items-center justify-center px-4">
+          <ErrorState type={error} onRetry={error === 'api_down' ? () => { setError(null); fetchOrder(); } : undefined} />
+        </main>
+      </div>
     );
   }
 
@@ -1717,7 +1721,9 @@ export default function ResultsPage() {
     const isStuck = Date.now() - stuckSince > 10000;
 
     return (
-      <main className="min-h-screen flex items-center justify-center px-4">
+      <div className="saas-app-canvas min-h-screen flex flex-col">
+        <SaasMarketingHeader />
+        <main className="flex flex-1 items-center justify-center px-4">
         <div className="li-card p-8 max-w-md w-full text-center">
           <div className="text-4xl mb-4">{currentLabel.emoji}</div>
           <h2 className="text-lg font-bold mb-2" style={{ color: 'var(--li-text-primary)' }}>
@@ -1744,19 +1750,23 @@ export default function ResultsPage() {
             }
           `}</style>
         </div>
-      </main>
+        </main>
+      </div>
     );
   }
 
   // ── Loading ──
   if (!data) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-3xl mb-2">⏳</div>
-          <p style={{ color: 'var(--li-text-secondary)' }}>Loading results...</p>
-        </div>
-      </main>
+      <div className="saas-app-canvas min-h-screen flex flex-col">
+        <SaasMarketingHeader />
+        <main className="flex flex-1 items-center justify-center">
+          <div className="text-center">
+            <div className="text-3xl mb-2">⏳</div>
+            <p style={{ color: 'var(--li-text-secondary)' }}>Loading results...</p>
+          </div>
+        </main>
+      </div>
     );
   }
 
@@ -1856,22 +1866,16 @@ export default function ResultsPage() {
   const quantBreakdown = analysis?.quantification_breakdown;
 
   return (
-    <main style={{ fontFamily: "'Inter', system-ui, sans-serif", background: '#F8FAFC', minHeight: '100vh', paddingBottom: 0 }}>
-      <style>{`@keyframes countUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }`}</style>
-      {/* Header */}
-      <header style={{ background: '#0B69C7', padding: '10px 16px' }}>
+    <div className="saas-app-canvas" style={{ minHeight: '100vh' }}>
+      <SaasMarketingHeader />
+      <div style={{ borderBottom: '1px solid var(--border-default)', background: 'var(--bg-surface)', padding: '8px 20px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <a href="/dashboard" style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', textDecoration: 'none', fontWeight: 600 }}>&larr; Dashboard</a>
-            <span style={{ color: 'rgba(255,255,255,0.3)' }}>|</span>
-            <a href="/" style={{ textDecoration: 'none' }}>
-              <span style={{ fontSize: 16, fontWeight: 800, color: 'white' }}>Profile</span>
-              <span style={{ fontSize: 16, fontWeight: 800, color: 'rgba(255,255,255,0.85)' }}>Roaster</span>
-            </a>
-          </div>
-          {isPro && <span style={{ fontSize: 11, fontWeight: 700, color: '#0B69C7', background: 'white', padding: '3px 10px', borderRadius: 12 }}>PRO</span>}
+          <a href="/dashboard" style={{ fontSize: 13, color: 'var(--accent)', textDecoration: 'none', fontWeight: 600 }}>&larr; Dashboard</a>
+          {isPro && <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent)', background: 'var(--accent-subtle)', padding: '3px 10px', borderRadius: 12 }}>PRO</span>}
         </div>
-      </header>
+      </div>
+    <main style={{ fontFamily: "'Inter', system-ui, sans-serif", background: 'var(--bg-canvas)', minHeight: '100vh', paddingBottom: 0 }}>
+      <style>{`@keyframes countUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }`}</style>
 
       {/* Tab Navigation — Premium */}
       <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E5E7EB', position: 'sticky', top: 0, zIndex: 50, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
@@ -2428,7 +2432,7 @@ export default function ResultsPage() {
       )}
 
       {/* ═══ Disclaimer ═══ */}
-      <section style={{ background: '#F8FAFC', padding: '20px 16px' }}>
+      <section style={{ background: 'var(--bg-canvas)', padding: '20px 16px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ background: '#FFFBEB', border: '1px solid #F59E0B', borderRadius: 10, padding: '12px 16px', fontSize: 12, color: '#78350F', lineHeight: 1.6 }}>
             <strong>AI-Generated Content:</strong> Please review all content for accuracy before publishing. Verify company names, job titles, dates, and metrics are factually correct.
@@ -2436,6 +2440,7 @@ export default function ResultsPage() {
         </div>
       </section>
     </main>
+    </div>
   );
 }
 

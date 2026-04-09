@@ -1236,7 +1236,7 @@ export default function ResumeEditorPage() {
                 <button
                   onClick={addExperience}
                   style={{
-                    padding: '8px 16px', background: '#F3F2EF', color: '#0A66C2', border: '1px solid #D0D0D0',
+                    padding: '8px 16px', background: 'var(--bg-subtle)', color: 'var(--accent)', border: '1px solid var(--border-default)',
                     borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer',
                   }}
                 >
@@ -1285,7 +1285,7 @@ export default function ResumeEditorPage() {
                 <button
                   onClick={addEducation}
                   style={{
-                    padding: '8px 16px', background: '#F3F2EF', color: '#0A66C2', border: '1px solid #D0D0D0',
+                    padding: '8px 16px', background: 'var(--bg-subtle)', color: 'var(--accent)', border: '1px solid var(--border-default)',
                     borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer',
                   }}
                 >
@@ -1425,7 +1425,7 @@ export default function ResumeEditorPage() {
                   <button
                     onClick={addCustomSection}
                     style={{
-                      padding: '8px 16px', background: '#F3F2EF', color: '#0A66C2', border: '1px solid #D0D0D0',
+                      padding: '8px 16px', background: 'var(--bg-subtle)', color: 'var(--accent)', border: '1px solid var(--border-default)',
                       borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer',
                     }}
                   >

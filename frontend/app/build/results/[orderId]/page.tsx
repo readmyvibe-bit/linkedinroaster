@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
+import { SaasMarketingHeader } from '../../../../components/saas/SaasMarketingHeader';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -154,10 +155,13 @@ export default function BuildResultsPage() {
   // Loading / Error states
   if (error) {
     return (
-      <div style={{ minHeight: '100vh', background: '#F3F2EF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Inter', sans-serif" }}>
-        <div style={{ background: 'white', borderRadius: 14, padding: 32, textAlign: 'center', maxWidth: 400 }}>
+      <div className="saas-app-canvas" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: "'Inter', sans-serif" }}>
+        <SaasMarketingHeader />
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <div className="saas-card" style={{ padding: 32, textAlign: 'center', maxWidth: 400 }}>
           <p style={{ color: '#CC1016', fontSize: 15 }}>{error}</p>
-          <button onClick={fetchResults} style={{ padding: '8px 20px', background: '#0A66C2', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', marginTop: 10 }}>Retry</button>
+          <button onClick={fetchResults} className="saas-btn saas-btn-primary" style={{ marginTop: 10 }}>Retry</button>
+        </div>
         </div>
       </div>
     );
@@ -169,8 +173,10 @@ export default function BuildResultsPage() {
     const isPending = status === 'pending';
 
     return (
-      <div style={{ minHeight: '100vh', background: '#F3F2EF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Inter', sans-serif" }}>
-        <div style={{ background: 'white', borderRadius: 14, padding: '40px 32px', textAlign: 'center', maxWidth: 440 }}>
+      <div className="saas-app-canvas" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: "'Inter', sans-serif" }}>
+        <SaasMarketingHeader />
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <div className="saas-card" style={{ padding: '40px 32px', textAlign: 'center', maxWidth: 440 }}>
           {status === 'failed' ? (
             <>
               <div style={{ fontSize: 36, marginBottom: 12 }}>&#9888;&#65039;</div>
@@ -206,6 +212,7 @@ export default function BuildResultsPage() {
             </>
           )}
         </div>
+        </div>
       </div>
     );
   }
@@ -219,12 +226,15 @@ export default function BuildResultsPage() {
 
   if (!profile) {
     return (
-      <div style={{ minHeight: '100vh', background: '#F3F2EF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Inter', sans-serif" }}>
-        <div style={{ background: 'white', borderRadius: 14, padding: 32, textAlign: 'center', maxWidth: 400 }}>
+      <div className="saas-app-canvas" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: "'Inter', sans-serif" }}>
+        <SaasMarketingHeader />
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <div className="saas-card" style={{ padding: 32, textAlign: 'center', maxWidth: 400 }}>
           <div style={{ fontSize: 36, marginBottom: 12 }}>&#9888;&#65039;</div>
           <h2 style={{ fontSize: 18, fontWeight: 700, color: '#CC1016', margin: '0 0 8px' }}>Profile data missing</h2>
           <p style={{ fontSize: 14, color: '#666' }}>Please contact support@profileroaster.in with your order ID.</p>
           <p style={{ fontSize: 12, color: '#999', marginTop: 8 }}>{orderId}</p>
+        </div>
         </div>
       </div>
     );
@@ -254,22 +264,18 @@ export default function BuildResultsPage() {
   const userName = data.form_input?.full_name || 'User';
   const userInitial = userName.charAt(0).toUpperCase();
   const isStudent = plan === 'student' || data.form_input?.career_stage === 'student' || data.form_input?.career_stage === 'fresher';
-  const cardStyle: React.CSSProperties = { background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px', marginBottom: 16 };
+  const cardStyle: React.CSSProperties = { background: 'var(--bg-surface)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-default)', padding: '20px 24px', marginBottom: 16, boxShadow: 'var(--shadow-xs)' };
 
   return (
-    <main style={{ fontFamily: "'Inter', system-ui, sans-serif", background: '#F3F2EF', minHeight: '100vh' }}>
-      {/* HEADER BAR */}
-      <div style={{ background: '#0B69C7', padding: '10px 0' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <a href="/build" style={{ textDecoration: 'none' }}>
-            <span style={{ fontSize: 18, fontWeight: 800, color: 'white' }}>Profile</span>
-            <span style={{ fontSize: 18, fontWeight: 800, color: 'rgba(255,255,255,0.75)' }}>Roaster</span>
-          </a>
-          <a href="/dashboard" style={{ fontSize: 13, color: 'white', textDecoration: 'none', fontWeight: 600 }}>&larr; My Dashboard</a>
+    <div className="saas-app-canvas" style={{ minHeight: '100vh' }}>
+      <SaasMarketingHeader />
+      <div style={{ borderBottom: '1px solid var(--border-default)', background: 'var(--bg-surface)', padding: '10px 20px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+          <span className="saas-label" style={{ letterSpacing: '0.06em' }}>LinkedIn build</span>
+          <a href="/dashboard" style={{ fontSize: 13, color: 'var(--accent)', textDecoration: 'none', fontWeight: 600 }}>&larr; My Dashboard</a>
         </div>
       </div>
-
-      <div style={{ padding: '20px' }}>
+      <main style={{ fontFamily: "'Inter', system-ui, sans-serif", padding: '20px' }}>
         {/* PROFILE CARD */}
         <div style={{ maxWidth: 1100, margin: '0 auto 20px', background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', overflow: 'hidden' }}>
           {/* Banner */}
@@ -786,7 +792,7 @@ export default function BuildResultsPage() {
         <div style={{ maxWidth: 1100, margin: '0 auto', textAlign: 'center', padding: '16px 0' }}>
           <p style={{ fontSize: 12, color: '#999' }}>Results emailed to {data.email} &bull; Bookmark this page for future reference</p>
         </div>
-      </div>
     </main>
+    </div>
   );
 }

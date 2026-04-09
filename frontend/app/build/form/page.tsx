@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { SaasMarketingHeader } from '../../../components/saas/SaasMarketingHeader';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -288,10 +289,12 @@ function BuildFormContent() {
   const planLabels: Record<string, string> = { standard: 'Standard — \u20B9499', pro: 'Pro — \u20B9999' };
   const inputStyle = { width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #D1D5DB', fontSize: 14, boxSizing: 'border-box' as const };
   const labelStyle = { display: 'block', fontSize: 13, fontWeight: 600 as const, color: '#374151', marginBottom: 6 };
-  const sectionStyle = { background: 'white', borderRadius: 14, padding: '24px 28px', marginBottom: 16, border: '1px solid #E0E0E0' };
+  const sectionStyle = { background: 'var(--bg-surface)', borderRadius: 'var(--radius-lg)', padding: '24px 28px', marginBottom: 16, border: '1px solid var(--border-default)', boxShadow: 'var(--shadow-xs)' };
 
   return (
-    <main style={{ fontFamily: "'Inter', system-ui, sans-serif", background: '#F3F2EF', minHeight: '100vh', padding: '20px' }}>
+    <div className="saas-app-canvas" style={{ minHeight: '100vh' }}>
+      <SaasMarketingHeader />
+      <main style={{ fontFamily: "'Inter', system-ui, sans-serif", padding: '20px 20px 40px' }}>
       <div style={{ maxWidth: 680, margin: '0 auto' }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
@@ -525,12 +528,13 @@ function BuildFormContent() {
         </form>
       </div>
     </main>
+    </div>
   );
 }
 
 export default function BuildFormPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#F3F2EF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p style={{ color: '#666' }}>Loading...</p></div>}>
+    <Suspense fallback={<div className="saas-app-canvas" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p style={{ color: 'var(--text-secondary)' }}>Loading...</p></div>}>
       <BuildFormContent />
     </Suspense>
   );

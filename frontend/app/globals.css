@@ -227,3 +227,182 @@ p, span, div, a, h1, h2, h3, h4 {
 
 /* Decorative emojis — hidden from screen readers */
 [role="presentation"] { speak: none; }
+
+/* ─── App chrome (marketing / legal / flows) ─── */
+.saas-app-canvas {
+  min-height: 100vh;
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+}
+
+.saas-marketing-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-default);
+  box-shadow: var(--shadow-xs);
+}
+
+.saas-marketing-header-inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 640px) {
+  .saas-marketing-header-inner { padding: 12px 32px; }
+}
+
+.saas-marketing-logo {
+  text-decoration: none;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-right: auto;
+}
+
+.saas-marketing-logo-accent { color: var(--accent); }
+.saas-marketing-logo-text { color: var(--text-primary); }
+
+.saas-marketing-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px 20px;
+  flex-wrap: wrap;
+}
+
+.saas-marketing-nav a {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+.saas-marketing-nav a:hover {
+  color: var(--accent);
+}
+
+.saas-marketing-trailing {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.saas-legal-main {
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+}
+
+@media (min-width: 640px) {
+  .saas-legal-main { padding: 40px 28px 80px; }
+}
+
+.saas-legal-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 28px 24px 36px;
+}
+
+@media (min-width: 640px) {
+  .saas-legal-card { padding: 36px 40px 44px; }
+}
+
+.saas-legal-title {
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.saas-legal-updated {
+  font-size: var(--fs-small);
+  color: var(--text-muted);
+  margin: 0 0 28px;
+}
+
+.saas-legal-prose {
+  font-size: var(--fs-body);
+  line-height: 1.65;
+  color: var(--text-primary);
+}
+
+.saas-legal-prose h2 {
+  font-size: var(--fs-md);
+  font-weight: 700;
+  margin: 1.75rem 0 0.75rem;
+  color: var(--text-primary);
+}
+
+.saas-legal-prose h2:first-child { margin-top: 0; }
+
+.saas-legal-prose h3 {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  margin: 1.25rem 0 0.5rem;
+  color: var(--text-primary);
+}
+
+.saas-legal-prose p { margin: 0.5rem 0; }
+
+.saas-legal-prose ul {
+  list-style: disc;
+  padding-left: 1.35rem;
+  margin: 0.5rem 0;
+}
+
+.saas-legal-prose ul li { margin: 0.25rem 0; }
+
+.site-footer-saas {
+  border-top: 1px solid var(--border-default);
+  background: var(--bg-surface);
+}
+
+.site-footer-saas-inner {
+  max-width: 672px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.site-footer-saas-links {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.site-footer-saas-links a,
+.site-footer-saas-links span {
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.site-footer-saas-links a:hover {
+  color: var(--accent);
+}
+
+.site-footer-saas-copy {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+  text-align: center;
+}

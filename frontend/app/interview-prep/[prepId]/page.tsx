@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
+import { SaasMarketingHeader } from '../../../components/saas/SaasMarketingHeader';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -246,7 +247,7 @@ export default function InterviewPrepPage() {
   // ─── Loading State ───
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: '#F3F2EF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ minHeight: '100vh', background: 'var(--bg-canvas)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center', maxWidth: 400 }}>
           <div style={{
             width: 48, height: 48, border: '4px solid #E0E0E0', borderTopColor: '#0A66C2',
@@ -278,7 +279,7 @@ export default function InterviewPrepPage() {
     const isFailed = prep?.status === 'failed';
     const errorMsg = error || prep?.error_message || 'Failed to generate interview prep.';
     return (
-      <div style={{ minHeight: '100vh', background: '#F3F2EF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ minHeight: '100vh', background: 'var(--bg-canvas)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center', background: '#fff', borderRadius: 12, padding: '40px 32px', border: '1px solid #E0E0E0', maxWidth: 440 }}>
           <div style={{ fontSize: 18, fontWeight: 700, color: '#CC1016', marginBottom: 8 }}>
             {isFailed ? 'Generation Failed' : 'Something went wrong'}
@@ -343,11 +344,12 @@ export default function InterviewPrepPage() {
   ];
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F3F2EF' }}>
-      {/* ─── HEADER ─── */}
+    <div className="saas-app-canvas" style={{ minHeight: '100vh' }}>
+      <SaasMarketingHeader />
+      {/* ─── PAGE HEADER ─── */}
       <div style={{
-        background: '#fff', borderBottom: '1px solid #E0E0E0', padding: '12px 16px',
-        position: 'sticky', top: 0, zIndex: 100,
+        background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)', padding: '12px 16px',
+        boxShadow: 'var(--shadow-xs)',
       }}>
         <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
           <div>
@@ -368,7 +370,7 @@ export default function InterviewPrepPage() {
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={() => window.print()} style={{
-              padding: '6px 14px', background: '#F3F2EF', color: '#666', border: '1px solid #D0D0D0',
+              padding: '6px 14px', background: 'var(--bg-subtle)', color: 'var(--text-secondary)', border: '1px solid var(--border-default)',
               borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer',
             }}>Print / PDF</button>
             <button onClick={() => { if (prep?.resume_id) window.location.href = `/resume/${prep.resume_id}`; else window.history.back(); }} style={{

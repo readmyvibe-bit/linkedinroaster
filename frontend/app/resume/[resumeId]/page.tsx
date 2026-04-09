@@ -183,7 +183,7 @@ export default function ResumePreviewPage() {
   const filteredTemplates = filterCategory === 'All' ? TEMPLATES : TEMPLATES.filter(t => t.category === filterCategory);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F1F3F5', fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-canvas)', fontFamily: "'Inter', system-ui, sans-serif" }}>
 
       {/* HEADER */}
       <header style={{ height: 52, background: '#FFFFFF', borderBottom: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', padding: '0 20px', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 100 }}>

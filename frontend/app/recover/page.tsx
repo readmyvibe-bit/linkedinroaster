@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { SaasMarketingHeader } from '../../components/saas/SaasMarketingHeader';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -139,22 +140,17 @@ export default function RecoverPage() {
     const buildOrders = orders.filter(o => o.type === 'build');
 
     return (
-      <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: '#F3F2EF', minHeight: '100vh' }}>
-        {/* Header */}
-        <header style={{ background: 'white', borderBottom: '1px solid #E0E0E0', padding: '14px 20px' }}>
-          <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <a href="/" style={{ textDecoration: 'none' }}>
-                <span style={{ fontSize: 18, fontWeight: 800, color: '#0A66C2' }}>Profile</span>
-                <span style={{ fontSize: 18, fontWeight: 800, color: '#191919' }}>Roaster</span>
-              </a>
-              <span style={{ fontSize: 13, color: '#888', marginLeft: 12 }}>{email}</span>
-            </div>
-            <button onClick={() => { setStep('email'); setOrders([]); setEmail(''); setOtp(''); }} style={{ fontSize: 13, color: '#666', background: '#F3F4F6', border: 'none', borderRadius: 8, padding: '6px 14px', cursor: 'pointer' }}>
-              Logout
-            </button>
-          </div>
-        </header>
+      <div className="saas-app-canvas" style={{ fontFamily: "'Inter', system-ui, sans-serif", minHeight: '100vh' }}>
+        <SaasMarketingHeader
+          trailing={
+            <>
+              <span style={{ fontSize: 12, color: 'var(--text-muted)', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={email}>{email}</span>
+              <button type="button" onClick={() => { setStep('email'); setOrders([]); setEmail(''); setOtp(''); }} className="saas-btn saas-btn-ghost" style={{ fontSize: 12, padding: '6px 12px' }}>
+                Log out
+              </button>
+            </>
+          }
+        />
 
         <div style={{ maxWidth: 900, margin: '0 auto', padding: '24px 20px' }}>
           <h1 style={{ fontSize: 22, fontWeight: 800, color: '#191919', marginBottom: 4 }}>Your Results</h1>
@@ -271,14 +267,16 @@ export default function RecoverPage() {
 
   // ─── Email / OTP steps (centered) ───
   return (
-    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: '#F3F2EF', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+    <div className="saas-app-canvas" style={{ fontFamily: "'Inter', system-ui, sans-serif", minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <SaasMarketingHeader />
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ maxWidth: 480, width: '100%' }}>
-        <div style={{ background: '#004182', padding: '16px 24px', borderRadius: '12px 12px 0 0' }}>
-          <h1 style={{ color: 'white', fontSize: 16, fontWeight: 700, margin: 0 }}>Recover Your Results</h1>
-          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, margin: '4px 0 0' }}>profileroaster.in</p>
+        <div style={{ background: 'var(--accent)', padding: '18px 24px', borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0' }}>
+          <h1 style={{ color: 'white', fontSize: 17, fontWeight: 700, margin: 0 }}>Recover your results</h1>
+          <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, margin: '4px 0 0' }}>Enter the email from your purchase</p>
         </div>
 
-        <div style={{ background: 'white', padding: 32, borderRadius: '0 0 12px 12px', border: '1px solid #E0E0E0', borderTop: 'none' }}>
+        <div className="saas-card" style={{ padding: 32, borderRadius: '0 0 var(--radius-lg) var(--radius-lg)', borderTop: 'none' }}>
           {step === 'email' && (
             <>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: '#191919', marginBottom: 8 }}>Find Your Results</h2>
@@ -330,11 +328,12 @@ export default function RecoverPage() {
           {error && <p style={{ color: '#DC2626', fontSize: 13, marginTop: 12, textAlign: 'center' }}>{error}</p>}
         </div>
 
-        <p style={{ textAlign: 'center', fontSize: 12, color: '#999', marginTop: 16 }}>
-          <a href="/" style={{ color: '#0A66C2', textDecoration: 'none' }}>profileroaster.in</a>
+        <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--text-muted)', marginTop: 16 }}>
+          <a href="/" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 600 }}>Home</a>
           {' '}&middot;{' '}
-          <a href="/privacy" style={{ color: '#999', textDecoration: 'none' }}>Privacy Policy</a>
+          <a href="/privacy" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Privacy</a>
         </p>
+      </div>
       </div>
     </div>
   );

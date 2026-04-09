@@ -10,11 +10,12 @@ export default function BuildRedirect() {
   }, [router]);
 
   return (
-    <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F4F6F9' }}>
-      <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: 28, marginBottom: 12 }}>&#128640;</div>
-        <div style={{ fontSize: 16, fontWeight: 600, color: '#191919', marginBottom: 4 }}>Redirecting...</div>
-        <div style={{ fontSize: 13, color: '#64748B' }}>Taking you to the profile builder</div>
+    <main className="saas-app-canvas" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+      <div className="saas-card" style={{ padding: '40px 48px', textAlign: 'center', maxWidth: 360 }}>
+        <div style={{ fontSize: 32, marginBottom: 16 }} role="presentation">&#128640;</div>
+        <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>Redirecting</div>
+        <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>Taking you to the profile builder</div>
+        <div className="saas-skeleton" style={{ width: 120, height: 4, borderRadius: 2, margin: '20px auto 0' }} aria-hidden />
       </div>
     </main>
   );

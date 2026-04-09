@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
+import { SaasMarketingHeader } from '../../../../components/saas/SaasMarketingHeader';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -113,19 +114,15 @@ export default function CompanyInterviewPrepPage() {
   const cardStyle: React.CSSProperties = { background: 'white', borderRadius: 12, border: '1px solid #E0E0E0', padding: '20px 24px', marginBottom: 16 };
 
   return (
-    <main style={{ fontFamily: "'Inter', system-ui, sans-serif", background: '#F3F2EF', minHeight: '100vh' }}>
-      {/* Header */}
-      <div style={{ background: '#0B69C7', padding: '10px 0' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <a href={`/build/results/${orderId}`} style={{ fontSize: 13, color: 'white', textDecoration: 'none', fontWeight: 600 }}>&larr; Back to Results</a>
-          <a href="/" style={{ textDecoration: 'none' }}>
-            <span style={{ fontSize: 16, fontWeight: 800, color: 'white' }}>Profile</span>
-            <span style={{ fontSize: 16, fontWeight: 800, color: 'rgba(255,255,255,0.75)' }}>Roaster</span>
-          </a>
+    <div className="saas-app-canvas" style={{ minHeight: '100vh' }}>
+      <SaasMarketingHeader />
+      <div style={{ borderBottom: '1px solid var(--border-default)', background: 'var(--bg-surface)', padding: '10px 20px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <a href={`/build/results/${orderId}`} style={{ fontSize: 13, color: 'var(--accent)', textDecoration: 'none', fontWeight: 600 }}>&larr; Back to build results</a>
         </div>
       </div>
-
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '20px' }}>
+      <main style={{ fontFamily: "'Inter', system-ui, sans-serif", padding: '20px' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         {/* Title */}
         <h1 style={{ fontSize: 24, fontWeight: 800, color: '#191919', margin: '0 0 4px' }}>Company Interview Prep</h1>
         <p style={{ fontSize: 14, color: '#666', margin: '0 0 20px' }}>
@@ -367,6 +364,7 @@ export default function CompanyInterviewPrepPage() {
           </div>
         </div>
       </div>
-    </main>
+      </main>
+    </div>
   );
 }
