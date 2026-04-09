@@ -255,6 +255,68 @@ export default function ResumeEditorPage() {
   const previewRef = useRef<HTMLDivElement>(null);
 
   // Generate CSS overrides string for preview and PDF
+  // Build styled HTML for both preview and PDF
+  function buildStyledHTML(): string {
+    if (!resumeData) return '';
+    let html = buildPrintHTML(resumeData, templateId);
+    const s = styleSettings;
+
+    // 1. Replace bullet characters — only bullet entities at start of lines
+    if (s.bullet !== '\u2022') {
+      html = html.replace(/&bull;\s*/g, s.bullet + ' ');
+      html = html.replace(/&#8226;\s*/g, s.bullet + ' ');
+      html = html.replace(/(>)\s*[•·▸►▶»→■●▪‣]\s/g, '$1' + s.bullet + ' ');
+    }
+
+    // 2. Replace contact separator — only in text between > and < that contains |
+    if (s.separator !== '|') {
+      // Target the contact line — usually within first part of the resume
+      html = html.replace(/(>[^<]{0,200})\s\|\s/g, (match, prefix) => {
+        return prefix + ` ${s.separator} `;
+      });
+    }
+
+    // 3. Font size overrides via inline style replacement
+    // Body font size — replace the root font-size
+    html = html.replace(/font-size:\s*1[0-2](\.\d+)?px/g, `font-size:${s.fontSize.body}px`);
+
+    // Name — replace large font sizes (18px+)
+    html = html.replace(/font-size:\s*(1[8-9]|[2-3]\d)px/g, `font-size:${s.fontSize.name}px`);
+
+    // Section titles — find uppercase+letter-spacing elements and change their font-size
+    html = html.replace(/(text-transform:\s*uppercase[^"]*?)font-size:\s*\d+px/g, `$1font-size:${s.fontSize.section}px`);
+    html = html.replace(/(font-size:\s*\d+px[^"]*?text-transform:\s*)uppercase/g, `font-size:${s.fontSize.section}px;$1${s.textTransform.section}`);
+
+    // 4. Font weight overrides
+    // Section titles weight
+    html = html.replace(/(text-transform:\s*uppercase[^"]*?)font-weight:\s*\d+/g, `$1font-weight:${s.fontWeight.section}`);
+
+    // 5. Text transform for section titles
+    if (s.textTransform.section !== 'uppercase') {
+      html = html.replace(/text-transform:\s*uppercase/g, `text-transform:${s.textTransform.section}`);
+    }
+
+    // 6. Spacing — between sections
+    html = html.replace(/margin-bottom:\s*16px/g, `margin-bottom:${s.spacing.betweenSections}px`);
+    html = html.replace(/margin-bottom:\s*18px/g, `margin-bottom:${s.spacing.betweenSections}px`);
+
+    // Spacing — list items
+    html = html.replace(/(text-indent:[^"]*?)margin-bottom:\s*[12345]px/g, `$1margin-bottom:${s.spacing.listItems}px`);
+
+    // Spacing — content blocks
+    html = html.replace(/margin-bottom:\s*8px/g, `margin-bottom:${s.spacing.contentBlocks}px`);
+    html = html.replace(/margin-bottom:\s*12px/g, `margin-bottom:${s.spacing.contentBlocks}px`);
+
+    // 7. Section title borders
+    if (s.borders.sectionTitles === 0) {
+      html = html.replace(/border-bottom:\s*[\d.]+px\s+solid\s+[^;"]+/g, 'border-bottom:none');
+    } else {
+      html = html.replace(/(border-bottom:\s*)[\d.]+px(\s+solid)/g, `$1${s.borders.sectionTitles}px$2`);
+    }
+
+    return html;
+  }
+
   // Check if style is at default values (no overrides needed)
   const isDefaultStyles = styleSettings.fontSize.body === 11 && styleSettings.fontSize.name === 18 &&
     styleSettings.fontWeight.heading1 === '600' && styleSettings.spacing.betweenSections === 16 &&
@@ -642,8 +704,7 @@ export default function ResumeEditorPage() {
 
   async function handleDownloadPDF() {
     if (!resumeData) return;
-    let html = buildPrintHTML(resumeData, templateId);
-    html = injectStyleOverrides(html);
+    const html = isDefaultStyles ? buildPrintHTML(resumeData, templateId) : buildStyledHTML();
     const name = resumeData?.contact?.name || 'resume';
     const filename = `${name.replace(/[^a-zA-Z0-9]/g, '-')}-resume.pdf`;
 
@@ -1631,12 +1692,22 @@ export default function ResumeEditorPage() {
             <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{matched} keywords matched</span>
             {keywordsMissing.length > 0 && <span style={{ fontSize: 12, color: 'var(--warning)' }}>{keywordsMissing.length} missing</span>}
           </div>
-          {/* Paper preview with style overrides */}
+          {/* Paper preview — uses same HTML as PDF for perfect match */}
           <div style={{ flex: 1, padding: 24, overflowY: 'auto', background: '#F1F3F5' }}>
-            <style>{getStyleOverrideCSS()}</style>
-            <div ref={previewRef} className="rs-preview" style={{ maxWidth: 794, margin: '0 auto', background: 'white', borderRadius: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
-              {renderResumeHTML(resumeData, templateId)}
-            </div>
+            {isDefaultStyles ? (
+              <div ref={previewRef} style={{ maxWidth: 794, margin: '0 auto', background: 'white', borderRadius: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
+                {renderResumeHTML(resumeData, templateId)}
+              </div>
+            ) : (
+              <div ref={previewRef} style={{ maxWidth: 794, margin: '0 auto', background: 'white', borderRadius: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', overflow: 'hidden' }}
+                dangerouslySetInnerHTML={{ __html: (() => {
+                  const fullHtml = buildStyledHTML();
+                  const bodyMatch = fullHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/);
+                  const styleMatch = fullHtml.match(/<style>([\s\S]*?)<\/style>/);
+                  return (styleMatch ? `<style>${styleMatch[1]}</style>` : '') + (bodyMatch ? bodyMatch[1] : '');
+                })() }}
+              />
+            )}
           </div>
         </div>
       </div>
