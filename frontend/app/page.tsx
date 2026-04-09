@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { TEMPLATES, renderResumeHTML, getRecommendedTemplates } from '../components/resume/ResumeTemplates';
+import '../styles/landing-pr.css';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -114,7 +115,7 @@ function ReferralCodeRedeemer() {
       <div style={{ textAlign: 'center', marginTop: 12 }}>
         <button
           onClick={() => setShowForm(true)}
-          style={{ fontSize: 13, color: '#0A66C2', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}
+          style={{ fontSize: 13, color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}
         >
           Have a referral code?
         </button>
@@ -148,7 +149,7 @@ function ReferralCodeRedeemer() {
           { key: 'paste' as const, label: 'Paste' },
         ].map(t => (
           <button key={t.key} onClick={() => { setRefInputMode(t.key); setProfileData(''); setFileName(''); }}
-            style={{ flex: 1, padding: '6px 8px', fontSize: 11, fontWeight: refInputMode === t.key ? 700 : 500, borderRadius: 6, border: 'none', cursor: 'pointer', background: refInputMode === t.key ? '#E8F0FE' : '#F3F4F6', color: refInputMode === t.key ? '#0A66C2' : '#666' }}>
+            style={{ flex: 1, padding: '6px 8px', fontSize: 11, fontWeight: refInputMode === t.key ? 700 : 500, borderRadius: 6, border: 'none', cursor: 'pointer', background: refInputMode === t.key ? '#E8F0FE' : '#F3F4F6', color: refInputMode === t.key ? 'var(--accent)' : '#666' }}>
             {t.label}
           </button>
         ))}
@@ -162,11 +163,11 @@ function ReferralCodeRedeemer() {
         >
           <input ref={refFileInputRef} type="file" accept={refInputMode === 'resume' ? '.pdf,.docx' : '.pdf'} onChange={e => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }} style={{ display: 'none' }} />
           {fileUploading ? (
-            <span style={{ color: '#0A66C2', fontWeight: 600 }}>Parsing...</span>
+            <span style={{ color: 'var(--accent)', fontWeight: 600 }}>Parsing...</span>
           ) : profileData ? (
             <span style={{ color: '#057642', fontWeight: 600 }}>{'\u2705'} {fileName} loaded</span>
           ) : (
-            <span style={{ color: '#0A66C2', fontWeight: 600 }}>
+            <span style={{ color: 'var(--accent)', fontWeight: 600 }}>
               {refInputMode === 'resume' ? '\uD83D\uDCC4 Upload Resume (PDF/DOCX)' : '\uD83D\uDCBC Upload LinkedIn PDF'}
             </span>
           )}
@@ -291,7 +292,7 @@ function ProfileInputForm({
       description: `${plan === 'pro' ? 'Pro' : 'Standard'} Career Transformation`,
       order_id: orderData.razorpay_order_id,
       prefill: { email: userEmail },
-      theme: { color: '#0A66C2' },
+      theme: { color: '#0d9488' },
       handler: function () {
         window.location.href = `/results/${orderData.order_id}`;
       },
@@ -392,7 +393,7 @@ function ProfileInputForm({
           disabled={submitting || !email.trim() || !rawPaste.trim()}
           style={{
             width: '100%', padding: '14px 24px', borderRadius: 50, border: 'none',
-            background: 'linear-gradient(135deg, #0A66C2, #004182)', color: 'white',
+            background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%)', color: 'white',
             fontSize: 15, fontWeight: 700, cursor: 'pointer',
             opacity: submitting || !email.trim() || !rawPaste.trim() ? 0.5 : 1,
             boxShadow: '0 4px 16px rgba(10,102,194,0.35)',
@@ -403,7 +404,7 @@ function ProfileInputForm({
         {/* Referral code option */}
         <div style={{ textAlign: 'center', marginTop: 12 }}>
           {!showReferral ? (
-            <button onClick={() => setShowReferral(true)} style={{ background: 'none', border: 'none', color: '#0A66C2', fontSize: 13, cursor: 'pointer', fontWeight: 500 }}>
+            <button onClick={() => setShowReferral(true)} style={{ background: 'none', border: 'none', color: 'var(--accent)', fontSize: 13, cursor: 'pointer', fontWeight: 500 }}>
               Have a referral code?
             </button>
           ) : (
@@ -1109,32 +1110,32 @@ export default function Home() {
   );
 
   return (
-    <main style={{ minHeight: '100vh', background: 'var(--bg-canvas)' }}>
+    <main className="pr-landing" style={{ minHeight: '100vh', background: 'var(--bg-canvas)' }}>
       {/* ═══ NAV ═══ */}
-      <nav style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(15,23,42,0.08)' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 60 }}>
-          <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 2 }}>
-            <span style={{ fontSize: 18, fontWeight: 800, color: '#0A66C2' }}>Profile</span>
-            <span style={{ fontSize: 18, fontWeight: 800, color: '#0F172A' }}>Roaster</span>
+      <nav className="pr-nav" style={{ position: 'sticky', top: 0, zIndex: 100 }}>
+        <div className="pr-nav__inner">
+          <a href="/" className="pr-nav__logo">
+            <span className="pr-nav__logo-mark">Profile</span>
+            <span className="pr-nav__logo-text">Roaster</span>
           </a>
-          <div className="hidden sm:flex" style={{ alignItems: 'center', gap: 28 }}>
-            <a href="#how-it-works" style={{ fontSize: 14, fontWeight: 500, color: '#475569', textDecoration: 'none' }}>How it works</a>
-            <a href="#templates" style={{ fontSize: 14, fontWeight: 500, color: '#475569', textDecoration: 'none' }}>Templates</a>
-            <a href="#pricing" style={{ fontSize: 14, fontWeight: 500, color: '#475569', textDecoration: 'none' }}>Pricing</a>
-            <a href="#faq" style={{ fontSize: 14, fontWeight: 500, color: '#475569', textDecoration: 'none' }}>FAQ</a>
-            <a href="/dashboard" style={{ fontSize: 14, fontWeight: 500, color: '#475569', textDecoration: 'none' }}>Dashboard</a>
-            <button onClick={() => heroRef.current?.scrollIntoView({ behavior: 'smooth' })} style={{ padding: '8px 20px', background: '#0A66C2', color: 'white', border: 'none', borderRadius: 999, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Get started</button>
+          <div className="hidden sm:flex pr-nav__links">
+            <a href="#how-it-works" className="pr-nav__link">How it works</a>
+            <a href="#templates" className="pr-nav__link">Templates</a>
+            <a href="#pricing" className="pr-nav__link">Pricing</a>
+            <a href="#faq" className="pr-nav__link">FAQ</a>
+            <a href="/dashboard" className="pr-nav__link">Dashboard</a>
+            <button type="button" className="pr-nav__cta" onClick={() => heroRef.current?.scrollIntoView({ behavior: 'smooth' })}>Get started</button>
           </div>
-          <button className="sm:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8, fontSize: 22 }}>{mobileMenuOpen ? '✕' : '☰'}</button>
+          <button type="button" className="sm:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8, fontSize: 22, color: 'var(--text-primary)' }} aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}>{mobileMenuOpen ? '✕' : '☰'}</button>
         </div>
         {mobileMenuOpen && (
-          <div className="sm:hidden" style={{ background: 'white', borderTop: '1px solid rgba(15,23,42,0.08)', padding: '12px 24px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: 15, fontWeight: 500, color: '#0F172A', textDecoration: 'none', padding: '8px 0' }}>How it works</a>
-            <a href="#templates" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: 15, fontWeight: 500, color: '#0F172A', textDecoration: 'none', padding: '8px 0' }}>Templates</a>
-            <a href="#pricing" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: 15, fontWeight: 500, color: '#0F172A', textDecoration: 'none', padding: '8px 0' }}>Pricing</a>
-            <a href="#faq" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: 15, fontWeight: 500, color: '#0F172A', textDecoration: 'none', padding: '8px 0' }}>FAQ</a>
-            <a href="/dashboard" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: 15, fontWeight: 500, color: '#0F172A', textDecoration: 'none', padding: '8px 0' }}>Dashboard</a>
-            <button onClick={() => { setMobileMenuOpen(false); heroRef.current?.scrollIntoView({ behavior: 'smooth' }); }} style={{ padding: '12px', background: '#0A66C2', color: 'white', border: 'none', borderRadius: 999, fontSize: 15, fontWeight: 600, cursor: 'pointer', marginTop: 4 }}>Get started free</button>
+          <div className="sm:hidden pr-mobile-panel">
+            <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)}>How it works</a>
+            <a href="#templates" onClick={() => setMobileMenuOpen(false)}>Templates</a>
+            <a href="#pricing" onClick={() => setMobileMenuOpen(false)}>Pricing</a>
+            <a href="#faq" onClick={() => setMobileMenuOpen(false)}>FAQ</a>
+            <a href="/dashboard" onClick={() => setMobileMenuOpen(false)}>Dashboard</a>
+            <button type="button" onClick={() => { setMobileMenuOpen(false); heroRef.current?.scrollIntoView({ behavior: 'smooth' }); }}>Get started free</button>
           </div>
         )}
       </nav>
@@ -1142,23 +1143,20 @@ export default function Home() {
       {/* ═══════════════════════════════════ */}
       {/* HERO — Two Columns                  */}
       {/* ═══════════════════════════════════ */}
-      <section ref={heroRef} style={{ background: '#FAFAFA', padding: '64px 0 48px', position: 'relative' }}>
-        {/* Subtle grid pattern overlay */}
-        <div style={{ position: 'absolute', inset: 0, opacity: 0.03, backgroundImage: 'radial-gradient(circle, #0F172A 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-        <div className="landing-section" style={{ position: 'relative', maxWidth: 1200 }}>
-          <div style={{ display: 'flex', gap: 48, alignItems: 'center', flexWrap: 'wrap' }}>
+      <section ref={heroRef} className="pr-hero">
+        <div className="pr-hero__grid">
 
             {/* LEFT — Value Proposition */}
             <div style={{ flex: '1.2 1 420px', minWidth: 0 }}>
-              <div className="saas-eyebrow" style={{ marginBottom: 12, color: '#0A66C2' }}>FREE PROFILE SCORE</div>
-              <h1 style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 900, color: '#0F172A', marginBottom: 12, lineHeight: 1.12, letterSpacing: '-0.03em' }}>
-                Not getting calls from <span style={{ color: '#CC1016', fontSize: '1.05em', fontWeight: 900 }}>HR</span>?<br />
-                <span style={{ color: '#0A66C2' }}>Your resume might be the problem.</span>
+              <div className="pr-eyebrow">Free profile score</div>
+              <h1 className="pr-hero__title">
+                Not getting calls from <span className="pr-hero__title-em">HR</span>?<br />
+                <span className="pr-hero__title-accent">Your resume might be the problem.</span>
               </h1>
-              <p style={{ fontSize: 16, color: '#475569', marginBottom: 16, lineHeight: 1.7, maxWidth: 520 }}>
+              <p className="pr-hero__lead">
                 Upload your resume or LinkedIn PDF. AI scores it instantly, rewrites everything, and builds interview prep — in under 3 minutes.
               </p>
-              <p style={{ fontSize: 14, color: '#64748B', marginBottom: 32 }}>
+              <p className="pr-hero__meta">
                 Starting at &#8377;499 &bull; One-time payment
               </p>
 
@@ -1166,7 +1164,7 @@ export default function Home() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 32 }}>
                 {[
                   { bg: '#FFF7ED', color: '#EA580C', icon: '📋', title: 'Instant ATS analysis', desc: 'Upload resume or LinkedIn PDF' },
-                  { bg: '#EFF6FF', color: '#0A66C2', icon: '✍️', title: 'AI-powered rewrite', desc: 'Headline, about, experience bullets' },
+                  { bg: '#EFF6FF', color: 'var(--accent)', icon: '✍️', title: 'AI-powered rewrite', desc: 'Headline, about, experience bullets' },
                   { bg: '#F5F3FF', color: '#7C3AED', icon: '🎯', title: 'Interview prep kit', desc: '15 STAR-format questions + cheat sheet' },
                   { bg: '#F0FDF4', color: '#16A34A', icon: '📄', title: 'ATS resume builder', desc: '11 templates, instant PDF download' },
                 ].map((item, i) => (
@@ -1181,7 +1179,7 @@ export default function Home() {
               </div>
 
               {/* Before / After comparison strip */}
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 16, background: 'rgba(15,23,42,0.03)', border: '1px solid rgba(15,23,42,0.08)', borderRadius: 'var(--radius-md)', padding: '10px 20px' }}>
+              <div className="pr-stat-pill">
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: 18, fontWeight: 800, color: '#DC2626' }}>42</div>
                   <div style={{ fontSize: 10, color: '#94A3B8' }}>Before</div>
@@ -1191,21 +1189,21 @@ export default function Home() {
                   <div style={{ fontSize: 18, fontWeight: 800, color: '#16A34A' }}>87</div>
                   <div style={{ fontSize: 10, color: '#94A3B8' }}>After</div>
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#0A66C2' }}>+45 pts avg improvement</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent)' }}>+45 pts avg improvement</div>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 16 }}>
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E', animation: 'pulse 2s infinite' }} />
-                <span style={{ fontSize: 14, fontWeight: 600, color: '#0F172A' }}>2,400+ resumes analyzed this month</span>
+                <div className="pr-live-dot" />
+                <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>2,400+ resumes analyzed this month</span>
               </div>
             </div>
 
             {/* RIGHT (45%) — Upload Card with Tabs */}
             <div data-upload-area style={{ flex: '1 1 380px', minWidth: 0, maxWidth: 500 }}>
-              <div style={{ background: 'white', borderRadius: 16, border: '1px solid rgba(15,23,42,0.08)', boxShadow: '0 4px 6px -1px rgba(15,23,42,0.06), 0 10px 15px -3px rgba(15,23,42,0.04)', overflow: 'hidden' }}>
+              <div className="pr-upload-shell">
 
                 {/* Tab navigation — clean pills */}
-                <div style={{ padding: '16px 20px 0', background: 'var(--bg-surface)' }}>
+                <div className="pr-tab-rail">
                   <div style={{ display: 'inline-flex', gap: 4, padding: 4, background: 'var(--bg-canvas)', borderRadius: 10, width: '100%' }}>
                     {/* Student tab hidden — accessible via /?tab=student */}
                     <button onClick={() => { setActiveInputTab('resume'); setInputSource('resume'); }}
@@ -1484,7 +1482,7 @@ export default function Home() {
                           {/* Step indicator */}
                           <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
                             {[1, 2, 3, 4].map(s => (
-                              <div key={s} style={{ flex: 1, height: 3, borderRadius: 2, background: studentStep >= s ? '#0B69C7' : '#E0E0E0', transition: 'background 0.3s' }} />
+                              <div key={s} style={{ flex: 1, height: 3, borderRadius: 2, background: studentStep >= s ? 'var(--accent)' : '#E0E0E0', transition: 'background 0.3s' }} />
                             ))}
                           </div>
 
@@ -1522,7 +1520,7 @@ export default function Home() {
                                 </select>
                               </div>
                               <input placeholder="City (e.g., Hyderabad)" value={studentLocation} onChange={e => setStudentLocation(e.target.value)} style={{ padding: '10px 14px', border: '1px solid #D1D5DB', borderRadius: 8, fontSize: 14 }} />
-                              <button disabled={!studentName.trim() || !studentCollege.trim()} onClick={() => setStudentStep(2)} style={{ padding: '12px', background: !studentName.trim() || !studentCollege.trim() ? '#D1D5DB' : '#0B69C7', color: 'white', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Next &rarr;</button>
+                              <button disabled={!studentName.trim() || !studentCollege.trim()} onClick={() => setStudentStep(2)} style={{ padding: '12px', background: !studentName.trim() || !studentCollege.trim() ? '#D1D5DB' : 'var(--accent)', color: 'white', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Next &rarr;</button>
                             </div>
                           )}
 
@@ -1563,12 +1561,12 @@ export default function Home() {
                                   // Default
                                   : ['Software Developer', 'Data Analyst', 'Business Analyst', 'Marketing Executive', 'HR Executive']
                                 ).map(r => (
-                                  <button key={r} onClick={() => setStudentTargetRole(r)} style={{ padding: '4px 12px', borderRadius: 16, border: studentTargetRole === r ? '2px solid #0B69C7' : '1px solid #D1D5DB', background: studentTargetRole === r ? '#EFF6FF' : 'white', fontSize: 12, cursor: 'pointer', color: '#191919' }}>{r}</button>
+                                  <button key={r} onClick={() => setStudentTargetRole(r)} style={{ padding: '4px 12px', borderRadius: 16, border: studentTargetRole === r ? '2px solid var(--accent)' : '1px solid #D1D5DB', background: studentTargetRole === r ? '#EFF6FF' : 'white', fontSize: 12, cursor: 'pointer', color: '#191919' }}>{r}</button>
                                 ))}
                               </div>
                               <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                                 <button onClick={() => setStudentStep(1)} style={{ flex: 1, padding: '12px', background: 'white', color: '#666', border: '1px solid #D1D5DB', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>&larr; Back</button>
-                                <button disabled={!studentTargetRole.trim()} onClick={() => setStudentStep(3)} style={{ flex: 2, padding: '12px', background: !studentTargetRole.trim() ? '#D1D5DB' : '#0B69C7', color: 'white', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Next &rarr;</button>
+                                <button disabled={!studentTargetRole.trim()} onClick={() => setStudentStep(3)} style={{ flex: 2, padding: '12px', background: !studentTargetRole.trim() ? '#D1D5DB' : 'var(--accent)', color: 'white', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Next &rarr;</button>
                               </div>
                             </div>
                           )}
@@ -1581,7 +1579,7 @@ export default function Home() {
                               <textarea placeholder={"Projects\ne.g., E-commerce app using React + Node\nChat app with Socket.io..."} value={studentProjects} onChange={e => setStudentProjects(e.target.value)} rows={3} style={{ padding: '10px 14px', border: '1px solid #D1D5DB', borderRadius: 8, fontSize: 13, resize: 'vertical', fontFamily: 'inherit' }} />
                               <div style={{ display: 'flex', gap: 8 }}>
                                 <button onClick={() => setStudentStep(2)} style={{ flex: 1, padding: '12px', background: 'white', color: '#666', border: '1px solid #D1D5DB', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>&larr; Back</button>
-                                <button onClick={() => setStudentStep(4)} style={{ flex: 2, padding: '12px', background: '#0B69C7', color: 'white', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Next &rarr;</button>
+                                <button onClick={() => setStudentStep(4)} style={{ flex: 2, padding: '12px', background: 'var(--accent)', color: 'white', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Next &rarr;</button>
                               </div>
                             </div>
                           )}
@@ -1651,12 +1649,12 @@ export default function Home() {
 @keyframes countUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
                           `}</style>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-                            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#0B69C7', animation: 'pulse 1.5s infinite' }} />
+                            <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--accent)', animation: 'pulse 1.5s infinite' }} />
                             <span style={{ fontSize: 14, fontWeight: 600, color: '#191919' }}>{loadingStage}</span>
                           </div>
                           {/* Progress bar */}
                           <div style={{ height: 4, borderRadius: 2, background: '#F3F4F6', overflow: 'hidden', marginBottom: 12 }}>
-                            <div style={{ height: '100%', borderRadius: 2, background: 'linear-gradient(90deg, #0B69C7, #057642)', transition: 'width 1s ease', width: `${loadingProgress}%` }} />
+                            <div style={{ height: '100%', borderRadius: 2, background: 'linear-gradient(90deg, var(--accent), #057642)', transition: 'width 1s ease', width: `${loadingProgress}%` }} />
                           </div>
                           {/* Skeleton lines */}
                           <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
@@ -1693,27 +1691,25 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </div>
-
         </div>
       </section>
 
       {/* ── Trusted by professionals logo bar ── */}
-      <section style={{ background: '#FFFFFF', borderBottom: '1px solid rgba(15,23,42,0.06)', padding: '16px 0' }}>
+      <section className="pr-trust-strip">
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 32, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>Trusted by professionals at</span>
+          <span className="pr-trust-strip__label">Trusted by professionals at</span>
           {['TCS', 'Infosys', 'Wipro', 'Amazon', 'Google', 'Deloitte', 'Accenture', 'HDFC'].map(name => (
-            <span key={name} style={{ fontSize: 14, fontWeight: 700, color: '#CBD5E1', letterSpacing: '0.02em' }}>{name}</span>
+            <span key={name} className="pr-trust-strip__co">{name}</span>
           ))}
         </div>
       </section>
 
       {/* Product Showcase — floating preview */}
-      <section id="templates" style={{ background: '#FFFFFF', padding: '60px 0 80px', overflow: 'hidden' }}>
+      <section id="templates" className="pr-showcase-section">
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 16px', textAlign: 'center' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#0B69C7', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>See it in action</div>
-          <h2 style={{ fontSize: 28, fontWeight: 800, color: '#111827', marginBottom: 12, letterSpacing: '-0.02em' }}>Upload your resume. Get everything back in 90 seconds.</h2>
-          <p style={{ fontSize: 15, color: '#6B7280', marginBottom: 40, maxWidth: 600, margin: '0 auto 40px' }}>AI scores your profile, rewrites your LinkedIn, builds an ATS resume, and preps you for interviews.</p>
+          <div className="pr-section-kicker" style={{ letterSpacing: '0.18em' }}>See it in action</div>
+          <h2 className="pr-section-title" style={{ maxWidth: 640, margin: '0 auto 12px' }}>Upload your resume. Get everything back in 90 seconds.</h2>
+          <p className="pr-section-desc" style={{ marginBottom: 40 }}>AI scores your profile, rewrites your LinkedIn, builds an ATS resume, and preps you for interviews.</p>
 
           {/* Simulated product flow — 3 cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, textAlign: 'left' }}>
@@ -1740,19 +1736,19 @@ export default function Home() {
 
             {/* Card 2: Resume */}
             <div style={{ background: 'white', borderRadius: 12, border: '1px solid rgba(15,23,42,0.08)', overflow: 'hidden', boxShadow: '0 1px 3px rgba(15,23,42,0.04)' }}>
-              <div style={{ background: '#0B69C7', padding: '12px 24px', color: 'white', fontSize: 10, fontWeight: 700, letterSpacing: 2 }}>ATS-OPTIMIZED RESUME</div>
+              <div style={{ background: 'var(--accent)', padding: '12px 24px', color: 'white', fontSize: 10, fontWeight: 700, letterSpacing: 2 }}>ATS-OPTIMIZED RESUME</div>
               <div style={{ padding: '20px 24px' }}>
                 <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, padding: '16px', marginBottom: 12 }}>
                   <div style={{ fontSize: 16, fontWeight: 700, color: '#111827', marginBottom: 2 }}>Priya Mehta</div>
                   <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 10 }}>Full-Stack Engineer &bull; Bangalore</div>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: '#0B69C7', letterSpacing: 1, marginBottom: 4 }}>EXPERIENCE</div>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--accent)', letterSpacing: 1, marginBottom: 4 }}>EXPERIENCE</div>
                   <div style={{ height: 5, background: '#F3F4F6', borderRadius: 2, marginBottom: 3 }} />
                   <div style={{ height: 5, background: '#F3F4F6', borderRadius: 2, marginBottom: 3, width: '85%' }} />
                   <div style={{ height: 5, background: '#F3F4F6', borderRadius: 2, marginBottom: 8, width: '70%' }} />
-                  <div style={{ fontSize: 9, fontWeight: 700, color: '#0B69C7', letterSpacing: 1, marginBottom: 4 }}>SKILLS</div>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--accent)', letterSpacing: 1, marginBottom: 4 }}>SKILLS</div>
                   <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                     {['React', 'Node.js', 'Python', 'AWS'].map(s => (
-                      <span key={s} style={{ fontSize: 9, background: '#EFF6FF', color: '#0B69C7', padding: '2px 6px', borderRadius: 4 }}>{s}</span>
+                      <span key={s} style={{ fontSize: 9, background: '#EFF6FF', color: 'var(--accent)', padding: '2px 6px', borderRadius: 4 }}>{s}</span>
                     ))}
                   </div>
                 </div>
@@ -1768,7 +1764,7 @@ export default function Home() {
               <div style={{ background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', padding: '12px 24px', color: 'white', fontSize: 10, fontWeight: 700, letterSpacing: 2 }}>INTERVIEW PREP</div>
               <div style={{ padding: '16px 24px' }}>
                 {[
-                  { type: 'Behavioral', q: 'Tell me about a time you led a team through a tight deadline.', color: '#0B69C7' },
+                  { type: 'Behavioral', q: 'Tell me about a time you led a team through a tight deadline.', color: 'var(--accent)' },
                   { type: 'Technical', q: 'How would you optimize a slow SQL query in production?', color: '#057642' },
                   { type: 'HR', q: 'Why should we hire you over other candidates?', color: '#E16B00' },
                 ].map((item, i) => (
@@ -1786,7 +1782,7 @@ export default function Home() {
           <div style={{ marginTop: 40, textAlign: 'left' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <h3 style={{ fontSize: 20, fontWeight: 700, color: '#0F172A', margin: 0 }}>{TEMPLATES.length} ATS-optimized templates</h3>
-              <a href="/pricing" style={{ fontSize: 14, fontWeight: 600, color: '#0A66C2', textDecoration: 'none' }}>See all →</a>
+              <a href="/pricing" style={{ fontSize: 14, fontWeight: 600, color: 'var(--accent)', textDecoration: 'none' }}>See all →</a>
             </div>
             <div style={{ display: 'flex', gap: 16, overflowX: 'auto', paddingBottom: 8, scrollSnapType: 'x mandatory' }}>
               {TEMPLATES.slice(0, 8).map(t => (
@@ -1821,7 +1817,7 @@ export default function Home() {
             </div>
           </div>
 
-          <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ marginTop: 32, padding: '14px 36px', background: '#0B69C7', color: 'white', border: 'none', borderRadius: 50, fontSize: 15, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 16px rgba(11,105,199,0.3)' }}>
+          <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="pr-nav__cta" style={{ marginTop: 32, padding: '14px 36px', fontSize: 15 }}>
             Try It Free &mdash; Upload Your Resume
           </button>
         </div>
@@ -1857,7 +1853,7 @@ export default function Home() {
                 {teaser.subscores && (
                   <div style={{ padding: '20px 32px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                     {[
-                      { label: 'ATS Keywords', score: teaser.subscores.ats_keywords, color: '#0B69C7' },
+                      { label: 'ATS Keywords', score: teaser.subscores.ats_keywords, color: 'var(--accent)' },
                       { label: 'Experience Impact', score: teaser.subscores.experience_impact, color: '#7C3AED' },
                       { label: 'Headline Strength', score: teaser.subscores.headline_strength, color: '#E16B00' },
                       { label: 'Job Readiness', score: teaser.subscores.overall_readiness, color: '#057642' },
@@ -1905,7 +1901,7 @@ export default function Home() {
                   <div style={{ position: 'relative', background: '#F0F7FF', borderRadius: 10, padding: '14px 18px', overflow: 'hidden' }}>
                     <div style={{ fontSize: 15, fontWeight: 600, color: '#191919', filter: 'blur(5px)', userSelect: 'none' as const }}>{teaser.suggested_headline || 'Your optimized headline will appear here...'}</div>
                     <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(240,247,255,0.7)' }}>
-                      <span style={{ background: '#0B69C7', color: 'white', padding: '6px 16px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer' }} onClick={scrollToPricing}>Unlock Full Rewrite {'\u2192'}</span>
+                      <span style={{ background: 'var(--accent)', color: 'white', padding: '6px 16px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer' }} onClick={scrollToPricing}>Unlock Full Rewrite {'\u2192'}</span>
                     </div>
                   </div>
                 </div>
@@ -2205,12 +2201,12 @@ export default function Home() {
       {!teaser && (
         <>
           {/* ── Everything You Need ── */}
-          <section style={{ padding: '72px 0', background: '#FFFFFF', borderBottom: '1px solid rgba(15,23,42,0.06)' }}>
+          <section style={{ padding: '88px 0', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)' }}>
             <div className="landing-section">
-              <div style={{ textAlign: 'center', marginBottom: 48 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#0A66C2', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>Complete career toolkit</div>
-                <h2 style={{ fontSize: 32, fontWeight: 800, color: '#0F172A', marginBottom: 8, letterSpacing: '-0.02em' }}>Everything you need to land interviews</h2>
-                <p style={{ fontSize: 16, color: '#64748B', maxWidth: 480, margin: '0 auto' }}>One-time payment. Complete career toolkit. No subscriptions.</p>
+              <div className="pr-section-head">
+                <div className="pr-section-kicker">Complete career toolkit</div>
+                <h2 className="pr-section-title">Everything you need to land interviews</h2>
+                <p className="pr-section-desc">One-time payment. Complete career toolkit. No subscriptions.</p>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 24 }}>
                 {[
@@ -2219,10 +2215,10 @@ export default function Home() {
                   { bg: '#FFF7ED', color: '#EA580C', icon: '\uD83D\uDCC4', title: 'ATS Resume', desc: 'Professional resume matched to your JD. 11 ATS-optimized templates.' },
                   { bg: 'var(--success-subtle)', color: 'var(--success)', icon: '\uD83D\uDCCB', title: 'Cover Letter', desc: 'Personalized cover letter for every application. Ready to use.' },
                 ].map((f, i) => (
-                  <div key={i} style={{ padding: '28px 24px', background: '#FAFAFA', borderRadius: 12, border: '1px solid rgba(15,23,42,0.06)' }}>
+                  <div key={i} className="pr-bento-card">
                     <div className="icon-tile" style={{ background: f.bg, color: f.color, marginBottom: 16 }}>{f.icon}</div>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: '#0F172A', marginBottom: 6 }}>{f.title}</div>
-                    <div style={{ fontSize: 14, color: '#64748B', lineHeight: 1.6 }}>{f.desc}</div>
+                    <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>{f.title}</div>
+                    <div style={{ fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.65 }}>{f.desc}</div>
                   </div>
                 ))}
               </div>
@@ -2230,11 +2226,11 @@ export default function Home() {
           </section>
 
           {/* ── How It Works ── */}
-          <section id="how-it-works" style={{ padding: '72px 0', background: '#FAFAFA', borderBottom: '1px solid rgba(15,23,42,0.06)' }}>
+          <section id="how-it-works" style={{ padding: '88px 0', background: 'var(--bg-canvas)', borderBottom: '1px solid var(--border-default)' }}>
             <div className="landing-section">
-              <div style={{ textAlign: 'center', marginBottom: 48 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#0A66C2', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>Simple process</div>
-                <h2 style={{ fontSize: 32, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}>Three steps. That{"'"}s it.</h2>
+              <div className="pr-section-head">
+                <div className="pr-section-kicker">Simple process</div>
+                <h2 className="pr-section-title">Three steps. That{"'"}s it.</h2>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 32, maxWidth: 900, margin: '0 auto' }}>
                 {[
@@ -2246,7 +2242,7 @@ export default function Home() {
                     {i < 2 && (
                       <div style={{ position: 'absolute', top: 24, left: 'calc(50% + 24px)', right: 'calc(-50% + 24px)', height: 2, borderTop: '2px dashed #E2E8F0' }} />
                     )}
-                    <div style={{ width: 48, height: 48, borderRadius: '50%', border: '2px solid #0A66C2', color: '#0A66C2', fontSize: 18, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', background: 'white', position: 'relative', zIndex: 1 }}>{s.num}</div>
+                    <div style={{ width: 52, height: 52, borderRadius: '50%', border: '2px solid var(--accent)', color: 'var(--accent)', fontSize: 18, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', background: 'var(--bg-surface)', boxShadow: '0 4px 20px rgba(13,148,136,0.15)', position: 'relative', zIndex: 1 }}>{s.num}</div>
                     <div style={{ fontSize: 16, fontWeight: 700, color: '#0F172A', marginBottom: 6 }}>{s.title}</div>
                     <div style={{ fontSize: 14, color: '#64748B', lineHeight: 1.6 }}>{s.desc}</div>
                   </div>
@@ -2358,11 +2354,11 @@ export default function Home() {
           </section>
 
           {/* ── FAQ ── */}
-          <section id="faq" style={{ padding: '72px 0', background: '#FFFFFF', borderBottom: '1px solid rgba(15,23,42,0.06)' }}>
-            <div className="landing-section" style={{ maxWidth: 680 }}>
-              <div style={{ textAlign: 'center', marginBottom: 40 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#0A66C2', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>FAQ</div>
-                <h2 style={{ fontSize: 32, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}>Frequently asked questions</h2>
+          <section id="faq" style={{ padding: '88px 0', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)' }}>
+            <div className="landing-section" style={{ maxWidth: 720 }}>
+              <div className="pr-section-head" style={{ marginBottom: 36 }}>
+                <div className="pr-section-kicker">FAQ</div>
+                <h2 className="pr-section-title">Frequently asked questions</h2>
               </div>
               {[
                 { q: 'Is the profile score really free?', a: 'Yes! Upload your resume or LinkedIn PDF and get an instant AI score with a suggested headline — completely free, no signup required.' },
@@ -2399,7 +2395,7 @@ export default function Home() {
           <section style={{ padding: '80px 0', background: '#F8FAFC', borderBottom: '1px solid #E5E7EB' }}>
             <div style={{ maxWidth: 800, margin: '0 auto', padding: '0 16px' }}>
               <div style={{ textAlign: 'center', marginBottom: 40 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#0B69C7', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>Why ProfileRoaster</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>Why ProfileRoaster</div>
                 <h2 style={{ fontSize: 28, fontWeight: 800, color: '#111827', letterSpacing: '-0.02em' }}>Compare your options</h2>
               </div>
               <div style={{ background: 'white', borderRadius: 12, border: '1px solid rgba(15,23,42,0.08)', overflow: 'hidden' }}>
@@ -2407,7 +2403,7 @@ export default function Home() {
                   <thead>
                     <tr style={{ background: '#F8FAFC' }}>
                       <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 600, color: '#6B7280', borderBottom: '1px solid #E5E7EB' }}>Feature</th>
-                      <th style={{ padding: '14px 20px', textAlign: 'center', fontWeight: 700, color: '#0B69C7', borderBottom: '1px solid #E5E7EB', background: '#EFF6FF' }}>ProfileRoaster</th>
+                      <th style={{ padding: '14px 20px', textAlign: 'center', fontWeight: 700, color: 'var(--accent)', borderBottom: '1px solid #E5E7EB', background: '#EFF6FF' }}>ProfileRoaster</th>
                       <th style={{ padding: '14px 20px', textAlign: 'center', fontWeight: 600, color: '#6B7280', borderBottom: '1px solid #E5E7EB' }}>ChatGPT</th>
                       <th style={{ padding: '14px 20px', textAlign: 'center', fontWeight: 600, color: '#6B7280', borderBottom: '1px solid #E5E7EB' }}>Resume Writer</th>
                     </tr>
@@ -2436,16 +2432,17 @@ export default function Home() {
           </section>
 
           {/* ── Final CTA ── */}
-          <section style={{ background: '#0A66C2', padding: '72px 0', textAlign: 'center' }}>
-            <div className="landing-section" style={{ maxWidth: 600 }}>
-              <div style={{ fontSize: 32, fontWeight: 800, color: 'white', marginBottom: 12, letterSpacing: '-0.02em' }}>Stop losing interviews.</div>
-              <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.85)', marginBottom: 12, lineHeight: 1.7 }}>Every day with a weak profile is another recruiter who scrolled past you.</div>
-              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)', marginBottom: 28, lineHeight: 1.6 }}>
+          <section className="pr-cta-final">
+            <div className="landing-section" style={{ maxWidth: 600, position: 'relative', zIndex: 1 }}>
+              <div style={{ fontSize: 'clamp(1.65rem, 4vw, 2rem)', fontWeight: 800, color: 'white', marginBottom: 12, letterSpacing: '-0.02em' }}>Stop losing interviews.</div>
+              <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.9)', marginBottom: 12, lineHeight: 1.7 }}>Every day with a weak profile is another recruiter who scrolled past you.</div>
+              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.75)', marginBottom: 28, lineHeight: 1.6 }}>
                 Resume writers charge &#8377;3,000&ndash;15,000 and take days. We do everything in under 3 minutes for &#8377;499. One time. No subscription.
               </div>
               <button
+                type="button"
                 onClick={() => { heroRef.current?.scrollIntoView({ behavior: 'smooth' }); }}
-                style={{ background: 'white', color: '#0A66C2', fontSize: 16, fontWeight: 700, padding: '16px 40px', borderRadius: 999, border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                style={{ background: 'white', color: 'var(--accent)', fontSize: 16, fontWeight: 700, padding: '16px 40px', borderRadius: 999, border: 'none', cursor: 'pointer', boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}
               >
                 Upload Your Resume &mdash; Free Score &rarr;
               </button>
@@ -2457,13 +2454,13 @@ export default function Home() {
       {/* ═══════════════════════════════════ */}
       {/* FOOTER                              */}
       {/* ═══════════════════════════════════ */}
-      <footer style={{ padding: '32px 24px', background: '#0F172A', color: 'white' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+      <footer className="pr-footer">
+        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 20 }}>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 800 }}><span style={{ color: '#60A5FA' }}>Profile</span>Roaster</div>
-            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>AI-powered career tools for Indian professionals</div>
+            <div className="pr-footer__logo"><span>Profile</span>Roaster</div>
+            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 6 }}>AI-powered career tools for Indian professionals</div>
           </div>
-          <div style={{ display: 'flex', gap: 20 }}>
+          <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
             {[
               { label: 'Pricing', href: '/pricing' },
               { label: 'Dashboard', href: '/dashboard' },
@@ -2471,10 +2468,10 @@ export default function Home() {
               { label: 'Privacy', href: '/privacy' },
               { label: 'Refund', href: '/refund' },
             ].map((l, i) => (
-              <a key={i} href={l.href} style={{ fontSize: 13, color: '#94A3B8', textDecoration: 'none' }}>{l.label}</a>
+              <a key={i} href={l.href}>{l.label}</a>
             ))}
           </div>
-          <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>&copy; 2026 ProfileRoaster. All rights reserved.</div>
+          <div style={{ fontSize: 12, color: '#64748b' }}>&copy; 2026 ProfileRoaster. All rights reserved.</div>
         </div>
       </footer>
     </main>

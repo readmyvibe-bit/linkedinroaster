@@ -1,0 +1,396 @@
+/* ProfileRoaster landing — Teal / career-coach SaaS (Teal HQ–inspired, not affiliated) */
+
+.pr-landing {
+  --accent: #0d9488;
+  --accent-hover: #0f766e;
+  --accent-subtle: #ccfbf1;
+  --bg-canvas: #f3faf8;
+  --bg-surface: #ffffff;
+  --bg-subtle: #ecfdf5;
+  --border-default: rgba(13, 148, 136, 0.12);
+  --border-strong: rgba(13, 148, 136, 0.22);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --pr-glow: rgba(45, 212, 191, 0.35);
+  --pr-violet: #6366f1;
+  --pr-amber: #d97706;
+  --shadow-soft: 0 4px 24px rgba(15, 23, 42, 0.06);
+  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.04), 0 12px 40px rgba(13, 148, 136, 0.08);
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+}
+
+.pr-nav {
+  background: rgba(255, 255, 255, 0.78) !important;
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border-bottom: 1px solid var(--border-default) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset;
+}
+
+.pr-nav__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+.pr-nav__logo {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  letter-spacing: -0.03em;
+}
+
+.pr-nav__logo-mark {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.pr-nav__logo-text {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.pr-nav__links {
+  display: flex;
+  align-items: center;
+  gap: 8px 28px;
+}
+
+.pr-nav__link {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.pr-nav__link:hover {
+  color: var(--accent);
+}
+
+.pr-nav__cta {
+  padding: 10px 22px;
+  background: linear-gradient(135deg, var(--accent) 0%, #14b8a6 100%);
+  color: #fff !important;
+  border: none;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pr-nav__cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4);
+}
+
+.pr-hero {
+  position: relative;
+  padding: 72px 0 56px;
+  overflow: hidden;
+  background: linear-gradient(165deg, #ecfdf5 0%, #f0fdfa 28%, #f8fafc 62%, #ffffff 100%);
+}
+
+.pr-hero::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  right: -15%;
+  width: min(70vw, 720px);
+  height: min(70vw, 720px);
+  background: radial-gradient(circle at 35% 35%, var(--pr-glow) 0%, transparent 58%);
+  pointer-events: none;
+}
+
+.pr-hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-default), transparent);
+  pointer-events: none;
+}
+
+.pr-hero__grid {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  gap: 56px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.pr-eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(204, 251, 241, 0.9);
+  border: 1px solid rgba(13, 148, 136, 0.15);
+}
+
+.pr-hero__title {
+  font-size: clamp(2rem, 5vw, 3.15rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 16px;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+}
+
+.pr-hero__title-em {
+  color: #dc2626;
+  font-weight: 800;
+}
+
+.pr-hero__title-accent {
+  background: linear-gradient(135deg, var(--accent-hover) 0%, #2dd4bf 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.pr-hero__lead {
+  font-size: 17px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  max-width: 34rem;
+  margin: 0 0 12px;
+}
+
+.pr-hero__meta {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+}
+
+.pr-stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: 12px 22px;
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(8px);
+}
+
+.pr-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: pr-pulse 2s ease-in-out infinite;
+}
+
+@keyframes pr-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.65; transform: scale(0.92); }
+}
+
+.pr-upload-shell {
+  background: var(--bg-surface);
+  border-radius: var(--radius-2xl);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.pr-tab-rail {
+  padding: 18px 20px 0;
+  background: linear-gradient(180deg, var(--bg-subtle) 0%, var(--bg-surface) 100%);
+}
+
+.pr-trust-strip {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-default);
+  padding: 20px 0;
+}
+
+.pr-trust-strip__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.pr-trust-strip__co {
+  font-size: 14px;
+  font-weight: 700;
+  color: #cbd5e1;
+  letter-spacing: 0.02em;
+}
+
+.pr-section-head {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.pr-section-kicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.pr-section-title {
+  font-size: clamp(1.65rem, 3vw, 2.25rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  margin: 0 0 10px;
+  line-height: 1.15;
+}
+
+.pr-section-desc {
+  font-size: 16px;
+  color: var(--text-secondary);
+  max-width: 32rem;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.pr-bento-card {
+  padding: 28px 24px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-default);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.pr-bento-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-soft);
+  transform: translateY(-2px);
+}
+
+.pr-showcase-section {
+  background: linear-gradient(180deg, #ffffff 0%, var(--bg-canvas) 100%);
+  padding: 72px 0 88px;
+  overflow: hidden;
+}
+
+.pr-cta-final {
+  background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent) 48%, #2dd4bf 100%);
+  padding: 80px 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.pr-cta-final::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 20% 80%, rgba(255,255,255,0.12) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.pr-footer {
+  padding: 40px 24px;
+  background: linear-gradient(180deg, #0f172a 0%, #0c1222 100%);
+  color: #e2e8f0;
+  border-top: 1px solid rgba(45, 212, 191, 0.12);
+}
+
+.pr-footer__logo {
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.pr-footer__logo span:first-child {
+  color: #5eead4;
+}
+
+.pr-footer a {
+  font-size: 13px;
+  color: #94a3b8;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.pr-footer a:hover {
+  color: #ccfbf1;
+}
+
+.pr-mobile-panel {
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-default);
+  padding: 14px 24px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pr-mobile-panel a {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-decoration: none;
+  padding: 10px 0;
+}
+
+.pr-mobile-panel button {
+  padding: 12px;
+  background: linear-gradient(135deg, var(--accent) 0%, #14b8a6 100%);
+  color: white;
+  border: none;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+/* SaaS buttons on landing pick up --accent from .pr-landing */
+.pr-landing .saas-btn-primary {
+  background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent) 100%);
+}
+
+.pr-landing .saas-btn-primary:hover {
+  background: var(--accent-hover);
+}
+
+.pr-landing .icon-tile {
+  border-radius: 14px;
+  width: 44px;
+  height: 44px;
+  font-size: 20px;
+}
+
+/* FAQ rows — calmer Teal-style dividers */
+.pr-landing #faq button span:first-child {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.pr-landing #pricing {
+  background: linear-gradient(180deg, var(--bg-canvas) 0%, var(--bg-surface) 100%) !important;
+}
