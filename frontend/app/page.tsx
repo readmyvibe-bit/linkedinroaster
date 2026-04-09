@@ -1785,23 +1785,29 @@ export default function Home() {
           {/* Template carousel */}
           <div style={{ marginTop: 40, textAlign: 'left' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ fontSize: 20, fontWeight: 700, color: '#0F172A', margin: 0 }}>11 ATS-optimized templates</h3>
-              <a href="#pricing" style={{ fontSize: 14, fontWeight: 600, color: '#0A66C2', textDecoration: 'none' }}>See all &rarr;</a>
+              <h3 style={{ fontSize: 20, fontWeight: 700, color: '#0F172A', margin: 0 }}>{TEMPLATES.length} ATS-optimized templates</h3>
+              <a href="/pricing" style={{ fontSize: 14, fontWeight: 600, color: '#0A66C2', textDecoration: 'none' }}>See all →</a>
             </div>
             <div style={{ display: 'flex', gap: 16, overflowX: 'auto', paddingBottom: 8, scrollSnapType: 'x mandatory' }}>
-              {TEMPLATES.slice(0, 6).map(t => (
-                <div key={t.id} style={{ flex: '0 0 180px', scrollSnapAlign: 'start', background: 'white', borderRadius: 10, border: '1px solid rgba(15,23,42,0.08)', overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}>
-                  <div style={{ height: 120, background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid rgba(15,23,42,0.06)' }}>
-                    <div style={{ width: 60, height: 80, background: 'white', borderRadius: 4, boxShadow: '0 1px 4px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column' as const, padding: '6px', gap: 3 }}>
-                      <div style={{ height: 4, background: '#0A66C2', borderRadius: 1, width: '70%' }} />
-                      <div style={{ height: 2, background: '#E2E8F0', borderRadius: 1 }} />
-                      <div style={{ height: 2, background: '#E2E8F0', borderRadius: 1, width: '80%' }} />
-                      <div style={{ height: 2, background: '#E2E8F0', borderRadius: 1, width: '60%' }} />
+              {TEMPLATES.slice(0, 8).map(t => (
+                <div key={t.id} style={{ flex: '0 0 200px', scrollSnapAlign: 'start', background: 'white', borderRadius: 10, border: '1px solid rgba(15,23,42,0.08)', overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}>
+                  <div style={{ height: 160, background: '#F8FAFC', borderBottom: '1px solid rgba(15,23,42,0.06)', overflow: 'hidden', position: 'relative' }}>
+                    <div style={{ transform: 'scale(0.22)', transformOrigin: 'top left', width: 900, height: 700, pointerEvents: 'none' }}>
+                      {renderResumeHTML({
+                        contact: { name: 'Priya Mehta', email: 'priya@email.com', phone: '9876543210', location: 'Bangalore' },
+                        summary: 'Results-driven Full-Stack Engineer with 5+ years building scalable web applications serving 50K+ users.',
+                        experience: [{ role: 'Senior Software Engineer', company: 'TechCorp', location: 'Bangalore', bullets: ['Led team of 8 engineers delivering 3 products', 'Reduced API latency by 40% through optimization'] }],
+                        education: [{ degree: 'B.Tech CSE', institution: 'IIT Delhi', year: '2019' }],
+                        skills: ['React', 'Node.js', 'Python', 'AWS', 'TypeScript'],
+                      }, t.id)}
                     </div>
                   </div>
                   <div style={{ padding: '10px 12px' }}>
                     <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>{t.name}</div>
-                    {t.ats === 'high' && <span style={{ fontSize: 10, fontWeight: 600, color: '#059669', background: '#ECFDF5', padding: '1px 6px', borderRadius: 4, marginTop: 4, display: 'inline-block' }}>ATS High</span>}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                      {t.ats === 'high' && <span style={{ fontSize: 10, fontWeight: 600, color: '#059669', background: '#ECFDF5', padding: '1px 6px', borderRadius: 4 }}>ATS High</span>}
+                      {t.ats === 'medium' && <span style={{ fontSize: 10, fontWeight: 600, color: '#D97706', background: '#FFFBEB', padding: '1px 6px', borderRadius: 4 }}>ATS Medium</span>}
+                    </div>
                   </div>
                 </div>
               ))}

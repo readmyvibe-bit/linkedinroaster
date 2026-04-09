@@ -240,7 +240,7 @@ export default function ResumePreviewPage() {
               Edit Resume
             </a>
             <button onClick={() => handleInterview()} disabled={prepLoading} style={{ width: '100%', padding: '12px', background: '#0B69C7', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', opacity: prepLoading ? 0.6 : 1 }}>
-              {prepLoading ? 'Starting...' : 'Interview Prep \u2192'}
+              {prepLoading ? 'Starting...' : 'Interview Prep →'}
             </button>
           </div>
 
@@ -316,7 +316,7 @@ export default function ResumePreviewPage() {
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', cursor: item.action ? 'pointer' : 'default' }} onClick={item.action}>
                 <span style={{ fontSize: 14 }}>{item.done ? '\u2705' : '\u2B1C'}</span>
                 <span style={{ fontWeight: item.done ? 600 : 400, color: item.done ? '#057642' : '#374151' }}>{item.label}</span>
-                {item.action && !item.done && <span style={{ fontSize: 11, color: '#0B69C7', marginLeft: 'auto' }}>Start \u2192</span>}
+                {item.action && !item.done && <span style={{ fontSize: 11, color: '#0B69C7', marginLeft: 'auto' }}>Start →</span>}
               </div>
             ))}
           </div>
