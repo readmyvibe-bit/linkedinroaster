@@ -807,7 +807,15 @@ export default function Home() {
         if (inferredRole) setTargetRole(inferredRole);
       }
 
-      setShowConfirmScreen(true);
+      // Auto-run teaser immediately (skip confirmation screen)
+      const h = p.headline || p.summary?.slice(0, 100) || confirmHeadline;
+      if (h && h.length >= 10) {
+        setHeadline(h);
+        runTeaser(h);
+      } else {
+        // Not enough data — show confirmation so user can fill headline
+        setShowConfirmScreen(true);
+      }
     } catch (err: any) {
       // Resume upload error — user sees error message below
       setResumeError('Could not reach the server. Please check your internet connection.');
@@ -874,7 +882,15 @@ export default function Home() {
         if (inferredRole) setTargetRole(inferredRole);
       }
 
-      setShowConfirmScreen(true);
+      // Auto-run teaser immediately (skip confirmation screen)
+      const h = p.headline || p.summary?.slice(0, 100) || confirmHeadline;
+      if (h && h.length >= 10) {
+        setHeadline(h);
+        runTeaser(h);
+      } else {
+        // Not enough data — show confirmation so user can fill headline
+        setShowConfirmScreen(true);
+      }
     } catch (err: any) {
       // PDF upload error — user sees error message below
       setPdfError('Could not reach the server. Please check your internet connection.');
@@ -2190,9 +2206,6 @@ export default function Home() {
               </div>
             </div>
           </section>
-
-          {/* ── Pricing (in marketing stack) ── */}
-          {!showPricing && !selectedPlan && pricingSection}
 
           {/* ── FAQ ── */}
           <section style={{ padding: 'var(--section-py) 0', background: 'var(--bg-canvas)', borderBottom: '1px solid var(--border-default)' }}>

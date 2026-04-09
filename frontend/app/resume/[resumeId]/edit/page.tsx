@@ -147,11 +147,24 @@ function skillsToCategories(parsed: { technical: string[]; soft: string[]; langu
 
 // ─── Shared Styles ───
 const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '8px 12px', border: '1px solid #E0E0E0',
-  borderRadius: 6, fontSize: 14, outline: 'none', boxSizing: 'border-box',
+  width: '100%',
+  padding: '10px 14px',
+  border: '1.5px solid #D1D5DB',
+  borderRadius: 10,
+  fontSize: 14,
+  outline: 'none',
+  boxSizing: 'border-box',
+  transition: 'border-color 0.2s',
+  fontFamily: 'inherit',
+  background: '#FAFBFC',
 };
 const labelStyle: React.CSSProperties = {
-  fontSize: 12, fontWeight: 600, color: '#555', marginBottom: 4, display: 'block',
+  fontSize: 12,
+  fontWeight: 600,
+  color: '#374151',
+  marginBottom: 6,
+  display: 'block',
+  letterSpacing: '0.02em',
 };
 const fieldGap: React.CSSProperties = { marginBottom: 12 };
 
@@ -482,13 +495,11 @@ export default function ResumeEditorPage() {
   // ─── Loading ───
   if (loading) {
     return (
-      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F3F2EF' }}>
+      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC', fontFamily: "'Inter', system-ui, sans-serif" }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{
-            width: 40, height: 40, border: '4px solid #E0E0E0', borderTopColor: '#0A66C2',
-            borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px',
-          }} />
-          <div style={{ fontSize: 15, color: '#666' }}>Loading editor...</div>
+          <div style={{ width: 48, height: 48, border: '3px solid #E5E7EB', borderTopColor: '#0B69C7', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 20px' }} />
+          <div style={{ fontSize: 16, fontWeight: 600, color: '#111827', marginBottom: 4 }}>Loading Editor</div>
+          <div style={{ fontSize: 13, color: '#6B7280' }}>Preparing your resume...</div>
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       </div>
@@ -498,14 +509,12 @@ export default function ResumeEditorPage() {
   // ─── Error ───
   if (error || !resumeData) {
     return (
-      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F3F2EF' }}>
-        <div style={{ textAlign: 'center', background: '#fff', borderRadius: 12, padding: '40px 32px', border: '1px solid #E0E0E0' }}>
-          <div style={{ fontSize: 18, fontWeight: 700, color: '#333', marginBottom: 8 }}>Resume not found</div>
-          <div style={{ fontSize: 14, color: '#666', marginBottom: 20 }}>The resume you&apos;re looking for doesn&apos;t exist or has expired.</div>
-          <a href="/" style={{
-            display: 'inline-block', padding: '10px 24px', background: '#0A66C2', color: '#fff',
-            borderRadius: 24, fontSize: 14, fontWeight: 600, textDecoration: 'none',
-          }}>Go Home</a>
+      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC', fontFamily: "'Inter', system-ui, sans-serif" }}>
+        <div style={{ textAlign: 'center', background: '#FFFFFF', borderRadius: 16, padding: '48px 40px', border: '1px solid #E5E7EB', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', maxWidth: 400 }}>
+          <div style={{ fontSize: 40, marginBottom: 16 }}>📄</div>
+          <div style={{ fontSize: 20, fontWeight: 700, color: '#111827', marginBottom: 8 }}>Resume not found</div>
+          <div style={{ fontSize: 14, color: '#6B7280', marginBottom: 24, lineHeight: 1.5 }}>This resume doesn&apos;t exist or has expired.</div>
+          <a href="/" style={{ display: 'inline-block', padding: '12px 28px', background: '#0B69C7', color: 'white', borderRadius: 50, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>Go Home</a>
         </div>
       </div>
     );
@@ -544,9 +553,9 @@ export default function ResumeEditorPage() {
             </div>
             {/* Mobile: Edit/Preview toggle */}
             {isMobile && (
-              <div style={{ display: 'flex', gap: 2, background: 'var(--bg-subtle)', borderRadius: 'var(--radius-pill)', padding: 2 }}>
-                <button onClick={() => setMobileView('edit')} style={{ padding: '5px 16px', borderRadius: 'var(--radius-pill)', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: mobileView === 'edit' ? 'var(--accent)' : 'transparent', color: mobileView === 'edit' ? '#fff' : 'var(--text-secondary)', transition: 'all var(--transition)' }}>Edit</button>
-                <button onClick={() => setMobileView('preview')} style={{ padding: '5px 16px', borderRadius: 'var(--radius-pill)', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: mobileView === 'preview' ? 'var(--accent)' : 'transparent', color: mobileView === 'preview' ? '#fff' : 'var(--text-secondary)', transition: 'all var(--transition)' }}>Preview</button>
+              <div style={{ display: 'flex', gap: 2, background: '#F1F3F5', borderRadius: 10, padding: 3 }}>
+                <button onClick={() => setMobileView('edit')} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', background: mobileView === 'edit' ? '#0B69C7' : 'transparent', color: mobileView === 'edit' ? 'white' : '#6B7280', transition: 'all 0.2s' }}>Edit</button>
+                <button onClick={() => setMobileView('preview')} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', background: mobileView === 'preview' ? '#0B69C7' : 'transparent', color: mobileView === 'preview' ? 'white' : '#6B7280', transition: 'all 0.2s' }}>Preview</button>
               </div>
             )}
             {/* Actions — Desktop */}
@@ -601,6 +610,8 @@ export default function ResumeEditorPage() {
             {/* ── Contact Tab ── */}
             {activeTab === 'contact' && (
               <div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: '#111827', marginBottom: 4 }}>Contact Information</div>
+                <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 20 }}>Your personal and professional details</div>
                 <div style={fieldGap}>
                   <label style={labelStyle}>Full Name</label>
                   <input style={inputStyle} value={contact.name || ''} onChange={e => updateContact('name', e.target.value)} />
@@ -693,6 +704,8 @@ export default function ResumeEditorPage() {
             {/* ── Summary Tab ── */}
             {activeTab === 'summary' && (
               <div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: '#111827', marginBottom: 4 }}>Professional Summary</div>
+                <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 20 }}>A brief overview of your career</div>
                 <div style={fieldGap}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <label style={labelStyle}>Professional Summary</label>
@@ -729,6 +742,8 @@ export default function ResumeEditorPage() {
             {/* ── Experience Tab ── */}
             {activeTab === 'experience' && (
               <div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: '#111827', marginBottom: 4 }}>Work Experience</div>
+                <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 20 }}>Your roles and achievements</div>
                 {(rd.experience || []).map((exp, i) => {
                   const isOpen = !!expandedJobs[i];
                   const dateStr = exp.dates || [exp.startDate || exp.start_date, exp.current ? 'Present' : (exp.endDate || exp.end_date)].filter(Boolean).join(' - ');
@@ -1052,6 +1067,8 @@ export default function ResumeEditorPage() {
             {/* ── Education Tab ── */}
             {activeTab === 'education' && (
               <div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: '#111827', marginBottom: 4 }}>Education</div>
+                <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 20 }}>Your academic background</div>
                 {(rd.education || []).map((edu, i) => (
                   <div key={i} style={{ border: '1px solid #E0E0E0', borderRadius: 8, padding: 16, marginBottom: 12 }}>
                     <div style={fieldGap}>
@@ -1099,6 +1116,8 @@ export default function ResumeEditorPage() {
             {/* ── Skills Tab ── */}
             {activeTab === 'skills' && (
               <div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: '#111827', marginBottom: 4 }}>Skills</div>
+                <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 20 }}>Technical and interpersonal competencies</div>
                 <div style={fieldGap}>
                   <label style={labelStyle}>Technical Skills</label>
                   <TagInput tags={skillsParsed.technical} onTagsChange={t => updateSkillCategory('technical', t)} placeholder="Add technical skill + Enter" />
@@ -1151,6 +1170,8 @@ export default function ResumeEditorPage() {
             {/* ── Extras Tab ── */}
             {activeTab === 'extras' && (
               <div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: '#111827', marginBottom: 4 }}>Extras</div>
+                <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 20 }}>Achievements, certifications, and custom sections</div>
                 {/* Achievements */}
                 <div style={{ marginBottom: 24 }}>
                   <label style={{ ...labelStyle, fontSize: 14, marginBottom: 8 }}>Achievements</label>
@@ -1244,8 +1265,8 @@ export default function ResumeEditorPage() {
             {keywordsMissing.length > 0 && <span style={{ fontSize: 12, color: 'var(--warning)' }}>{keywordsMissing.length} missing</span>}
           </div>
           {/* Paper preview */}
-          <div style={{ flex: 1, padding: 24, overflowY: 'auto' }}>
-            <div style={{ maxWidth: 794, margin: '0 auto', background: 'var(--bg-surface)', borderRadius: 4, boxShadow: 'var(--shadow-md)', overflow: 'hidden' }}>
+          <div style={{ flex: 1, padding: 24, overflowY: 'auto', background: '#F1F3F5' }}>
+            <div style={{ maxWidth: 794, margin: '0 auto', background: 'white', borderRadius: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
               {renderResumeHTML(resumeData, templateId)}
             </div>
           </div>
