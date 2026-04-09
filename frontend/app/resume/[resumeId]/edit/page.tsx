@@ -85,7 +85,7 @@ interface ResumeResponse {
 }
 
 type SavedStatus = 'saved' | 'saving' | 'unsaved';
-type TabName = 'contact' | 'summary' | 'experience' | 'education' | 'skills' | 'extras';
+type TabName = 'contact' | 'summary' | 'experience' | 'education' | 'skills' | 'extras' | 'styles';
 
 // ─── Helpers ───
 function getScoreColor(score: number): string {
@@ -228,6 +228,28 @@ export default function ResumeEditorPage() {
   const [dragExp, setDragExp] = useState<number | null>(null);
   const [dragOverExp, setDragOverExp] = useState<number | null>(null);
 
+  // Advanced Styles
+  const [styleSettings, setStyleSettings] = useState({
+    bullet: '\u2022',
+    separator: '|',
+    fontSize: { body: 11, heading1: 12, heading2: 11, section: 11, name: 18, minor: 10 },
+    fontWeight: { body: 'normal', heading1: '600', heading2: 'normal', section: '300', name: '600', minor: 'normal' },
+    textTransform: { heading1: 'none', heading2: 'none', section: 'uppercase', name: 'none', minor: 'none' },
+    spacing: { betweenSections: 16, titleContent: 8, headings: 3, contentBlocks: 5, listItems: 2 },
+    borders: { aboveHeader: 0, belowHeader: 1, sectionTitles: 1 },
+  });
+
+  function updateStyle(category: string, key: string, value: any) {
+    setStyleSettings(prev => ({
+      ...prev,
+      [category]: typeof prev[category as keyof typeof prev] === 'object'
+        ? { ...(prev[category as keyof typeof prev] as any), [key]: value }
+        : value,
+    }));
+    // Trigger auto-save by touching resumeData
+    setResumeData(prev => prev ? { ...prev } : prev);
+  }
+
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isFirstRender = useRef(true);
 
@@ -245,6 +267,7 @@ export default function ResumeEditorPage() {
         setOrderId(data.order_id || '');
         setTemplateId(data.template_id || 'classic');
         setSkillsParsed(normalizeSkills(data.resume_data?.skills));
+        if ((data.resume_data as any)?.styleSettings) setStyleSettings((data.resume_data as any).styleSettings);
         if (data.resume_data?.experience?.length) {
           const exp: Record<number, boolean> = {};
           exp[0] = true;
@@ -277,13 +300,14 @@ export default function ResumeEditorPage() {
       fetch(`${API_URL}/api/resume/${resumeId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resume_data: resumeData, template_id: templateId }),
+        body: JSON.stringify({ resume_data: { ...resumeData, styleSettings }, template_id: templateId }),
       })
         .then(res => { if (!res.ok) throw new Error('Save failed'); setSavedStatus('saved'); })
         .catch(() => setSavedStatus('unsaved'));
     }, 1000);
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
-  }, [resumeData, resumeId, templateId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resumeData, resumeId, templateId, styleSettings]);
 
   // ─── Update helpers ───
   const updateContact = useCallback((field: keyof ContactInfo, value: string) => {
@@ -532,6 +556,7 @@ export default function ResumeEditorPage() {
     { key: 'education', label: 'Education' },
     { key: 'skills', label: 'Skills' },
     { key: 'extras', label: 'Extras' },
+    { key: 'styles', label: 'Styles' },
   ];
 
   const savedStatusColor = savedStatus === 'saved' ? '#057642' : savedStatus === 'saving' ? '#888' : '#E67E22';
@@ -1251,6 +1276,186 @@ export default function ResumeEditorPage() {
                     + Add Section
                   </button>
                 </div>
+              </div>
+            )}
+
+            {/* ── Styles Tab ── */}
+            {activeTab === 'styles' && (
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: '#111827', marginBottom: 4 }}>Advanced Styles</div>
+                <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 24 }}>Fine-tune your resume&apos;s appearance</div>
+
+                {/* Bullet Style */}
+                <div style={{ marginBottom: 24 }}>
+                  <label style={{ ...labelStyle, marginBottom: 10 }}>Bullet Style</label>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    {['\u2022', '-', '\u00BB', '\u2192', '\u25B8', '\u25A0'].map(b => (
+                      <button key={b} onClick={() => updateStyle('bullet', '', b)} style={{
+                        width: 40, height: 40, borderRadius: 8, border: styleSettings.bullet === b ? '2px solid #0B69C7' : '1.5px solid #D1D5DB',
+                        background: styleSettings.bullet === b ? '#EFF6FF' : '#FAFBFC', fontSize: 16, cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#111827', fontWeight: 600,
+                      }}>{b}</button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Separator */}
+                <div style={{ marginBottom: 24 }}>
+                  <label style={{ ...labelStyle, marginBottom: 10 }}>Contact Separator</label>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    {['|', '\u2022', '-', ',', '/', '\u00B7'].map(s => (
+                      <button key={s} onClick={() => updateStyle('separator', '', s)} style={{
+                        width: 40, height: 40, borderRadius: 8, border: styleSettings.separator === s ? '2px solid #0B69C7' : '1.5px solid #D1D5DB',
+                        background: styleSettings.separator === s ? '#EFF6FF' : '#FAFBFC', fontSize: 16, cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#111827', fontWeight: 600,
+                      }}>{s}</button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div style={{ height: 1, background: '#E5E7EB', margin: '8px 0 20px' }} />
+
+                {/* Text Sizes */}
+                <div style={{ marginBottom: 24 }}>
+                  <label style={{ ...labelStyle, fontSize: 14, fontWeight: 700, marginBottom: 14 }}>Text Sizes</label>
+                  {[
+                    { key: 'body', label: 'Body Copy' },
+                    { key: 'heading1', label: 'Primary Heading' },
+                    { key: 'heading2', label: 'Secondary Heading' },
+                    { key: 'section', label: 'Section Titles' },
+                    { key: 'name', label: 'Full Name' },
+                    { key: 'minor', label: 'Minor Copy' },
+                  ].map(item => (
+                    <div key={item.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, padding: '6px 0' }}>
+                      <span style={{ fontSize: 13, color: '#374151' }}>{item.label}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <button onClick={() => updateStyle('fontSize', item.key, Math.max(8, (styleSettings.fontSize as any)[item.key] - 1))} style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #D1D5DB', background: '#FAFBFC', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>-</button>
+                        <span style={{ fontSize: 14, fontWeight: 600, color: '#111827', width: 24, textAlign: 'center' }}>{(styleSettings.fontSize as any)[item.key]}</span>
+                        <button onClick={() => updateStyle('fontSize', item.key, Math.min(36, (styleSettings.fontSize as any)[item.key] + 1))} style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #D1D5DB', background: '#FAFBFC', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+                        <span style={{ fontSize: 11, color: '#9CA3AF', width: 16 }}>pt</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Divider */}
+                <div style={{ height: 1, background: '#E5E7EB', margin: '8px 0 20px' }} />
+
+                {/* Text Weights */}
+                <div style={{ marginBottom: 24 }}>
+                  <label style={{ ...labelStyle, fontSize: 14, fontWeight: 700, marginBottom: 14 }}>Text Weights</label>
+                  {[
+                    { key: 'body', label: 'Body Copy' },
+                    { key: 'heading1', label: 'Primary Heading' },
+                    { key: 'heading2', label: 'Secondary Heading' },
+                    { key: 'section', label: 'Section Titles' },
+                    { key: 'name', label: 'Full Name' },
+                    { key: 'minor', label: 'Minor Copy' },
+                  ].map(item => (
+                    <div key={item.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                      <span style={{ fontSize: 13, color: '#374151' }}>{item.label}</span>
+                      <select value={(styleSettings.fontWeight as any)[item.key]} onChange={e => updateStyle('fontWeight', item.key, e.target.value)} style={{ padding: '6px 10px', border: '1.5px solid #D1D5DB', borderRadius: 8, fontSize: 12, background: '#FAFBFC', cursor: 'pointer', minWidth: 110 }}>
+                        <option value="100">Thin</option>
+                        <option value="200">Extra Light</option>
+                        <option value="300">Light</option>
+                        <option value="normal">Normal</option>
+                        <option value="500">Medium</option>
+                        <option value="600">Semi-Bold</option>
+                        <option value="700">Bold</option>
+                        <option value="800">Extra Bold</option>
+                      </select>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Divider */}
+                <div style={{ height: 1, background: '#E5E7EB', margin: '8px 0 20px' }} />
+
+                {/* Text Transformations */}
+                <div style={{ marginBottom: 24 }}>
+                  <label style={{ ...labelStyle, fontSize: 14, fontWeight: 700, marginBottom: 14 }}>Text Transformations</label>
+                  {[
+                    { key: 'heading1', label: 'Primary Heading' },
+                    { key: 'heading2', label: 'Secondary Heading' },
+                    { key: 'section', label: 'Section Titles' },
+                    { key: 'name', label: 'Full Name' },
+                    { key: 'minor', label: 'Minor Copy' },
+                  ].map(item => (
+                    <div key={item.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                      <span style={{ fontSize: 13, color: '#374151' }}>{item.label}</span>
+                      <select value={(styleSettings.textTransform as any)[item.key]} onChange={e => updateStyle('textTransform', item.key, e.target.value)} style={{ padding: '6px 10px', border: '1.5px solid #D1D5DB', borderRadius: 8, fontSize: 12, background: '#FAFBFC', cursor: 'pointer', minWidth: 110 }}>
+                        <option value="none">As Written</option>
+                        <option value="uppercase">ALL CAPS</option>
+                        <option value="capitalize">Capitalize</option>
+                        <option value="lowercase">lowercase</option>
+                      </select>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Divider */}
+                <div style={{ height: 1, background: '#E5E7EB', margin: '8px 0 20px' }} />
+
+                {/* Vertical Spacing */}
+                <div style={{ marginBottom: 24 }}>
+                  <label style={{ ...labelStyle, fontSize: 14, fontWeight: 700, marginBottom: 14 }}>Vertical Spacing</label>
+                  {[
+                    { key: 'betweenSections', label: 'Between Sections' },
+                    { key: 'titleContent', label: 'Titles & Content' },
+                    { key: 'headings', label: 'Between Headings' },
+                    { key: 'contentBlocks', label: 'Content Blocks' },
+                    { key: 'listItems', label: 'List Items' },
+                  ].map(item => (
+                    <div key={item.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                      <span style={{ fontSize: 13, color: '#374151' }}>{item.label}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <button onClick={() => updateStyle('spacing', item.key, Math.max(0, (styleSettings.spacing as any)[item.key] - 1))} style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #D1D5DB', background: '#FAFBFC', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>-</button>
+                        <span style={{ fontSize: 14, fontWeight: 600, color: '#111827', width: 24, textAlign: 'center' }}>{(styleSettings.spacing as any)[item.key]}</span>
+                        <button onClick={() => updateStyle('spacing', item.key, Math.min(40, (styleSettings.spacing as any)[item.key] + 1))} style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #D1D5DB', background: '#FAFBFC', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+                        <span style={{ fontSize: 11, color: '#9CA3AF', width: 16 }}>pt</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Divider */}
+                <div style={{ height: 1, background: '#E5E7EB', margin: '8px 0 20px' }} />
+
+                {/* Borders */}
+                <div style={{ marginBottom: 24 }}>
+                  <label style={{ ...labelStyle, fontSize: 14, fontWeight: 700, marginBottom: 14 }}>Borders</label>
+                  {[
+                    { key: 'aboveHeader', label: 'Above Header' },
+                    { key: 'belowHeader', label: 'Below Header' },
+                    { key: 'sectionTitles', label: 'Section Titles' },
+                  ].map(item => (
+                    <div key={item.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                      <span style={{ fontSize: 13, color: '#374151' }}>{item.label}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <button onClick={() => updateStyle('borders', item.key, Math.max(0, (styleSettings.borders as any)[item.key] - 1))} style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #D1D5DB', background: '#FAFBFC', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>-</button>
+                        <span style={{ fontSize: 14, fontWeight: 600, color: '#111827', width: 24, textAlign: 'center' }}>{(styleSettings.borders as any)[item.key]}</span>
+                        <button onClick={() => updateStyle('borders', item.key, Math.min(5, (styleSettings.borders as any)[item.key] + 1))} style={{ width: 28, height: 28, borderRadius: 6, border: '1px solid #D1D5DB', background: '#FAFBFC', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+                        <span style={{ fontSize: 11, color: '#9CA3AF', width: 16 }}>pt</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Reset button */}
+                <button onClick={() => {
+                  setStyleSettings({
+                    bullet: '\u2022', separator: '|',
+                    fontSize: { body: 11, heading1: 12, heading2: 11, section: 11, name: 18, minor: 10 },
+                    fontWeight: { body: 'normal', heading1: '600', heading2: 'normal', section: '300', name: '600', minor: 'normal' },
+                    textTransform: { heading1: 'none', heading2: 'none', section: 'uppercase', name: 'none', minor: 'none' },
+                    spacing: { betweenSections: 16, titleContent: 8, headings: 3, contentBlocks: 5, listItems: 2 },
+                    borders: { aboveHeader: 0, belowHeader: 1, sectionTitles: 1 },
+                  });
+                  setResumeData(prev => prev ? { ...prev } : prev);
+                }} style={{ width: '100%', padding: '10px', background: '#F3F4F6', color: '#374151', border: '1px solid #D1D5DB', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
+                  Reset to Defaults
+                </button>
               </div>
             )}
           </div>

@@ -1153,65 +1153,67 @@ export default function Home() {
       {/* ═══════════════════════════════════ */}
       {/* HERO — Two Columns                  */}
       {/* ═══════════════════════════════════ */}
-      <section ref={heroRef} style={{ background: 'var(--bg-canvas)', borderBottom: '1px solid var(--border-default)', padding: '64px 0 72px' }}>
-        <div className="landing-section">
+      <section ref={heroRef} style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%)', padding: '48px 0 32px', position: 'relative' }}>
+        {/* Subtle grid pattern overlay */}
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.03, backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+        <div className="landing-section" style={{ position: 'relative', maxWidth: 1200 }}>
           <div style={{ display: 'flex', gap: 48, alignItems: 'center', flexWrap: 'wrap' }}>
 
             {/* LEFT — Value Proposition */}
             <div style={{ flex: '1.2 1 420px', minWidth: 0 }}>
-              <div className="saas-eyebrow" style={{ marginBottom: 12 }}>FREE PROFILE SCORE</div>
-              <h1 style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 900, color: 'var(--text-primary)', marginBottom: 12, lineHeight: 1.12, letterSpacing: '-0.03em' }}>
+              <div className="saas-eyebrow" style={{ marginBottom: 12, color: 'rgba(255,255,255,0.5)' }}>FREE PROFILE SCORE</div>
+              <h1 style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 900, color: 'white', marginBottom: 12, lineHeight: 1.12, letterSpacing: '-0.03em' }}>
                 Not getting calls from <span style={{ color: '#CC1016', fontSize: '1.05em', fontWeight: 900 }}>HR</span>?<br />
-                <span style={{ color: 'var(--accent)' }}>Your resume might be the problem.</span>
+                <span style={{ color: '#60A5FA' }}>Your resume might be the problem.</span>
               </h1>
-              <p style={{ fontSize: 16, color: 'var(--text-secondary)', marginBottom: 16, lineHeight: 1.7, maxWidth: 520 }}>
+              <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.7)', marginBottom: 16, lineHeight: 1.7, maxWidth: 520 }}>
                 Upload your resume or LinkedIn PDF. AI scores it instantly, rewrites everything, and builds interview prep — in under 3 minutes.
               </p>
-              <p style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 32 }}>
+              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', marginBottom: 32 }}>
                 Starting at &#8377;499 &bull; One-time payment
               </p>
 
               {/* Value bullets with icon tiles */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 32 }}>
                 {[
-                  { bg: '#FFF7ED', color: '#EA580C', icon: '📋', title: 'Instant ATS analysis', desc: 'Upload resume or LinkedIn PDF' },
-                  { bg: 'var(--accent-subtle)', color: 'var(--accent)', icon: '✍️', title: 'AI-powered rewrite', desc: 'Headline, about, experience bullets' },
-                  { bg: '#F5F3FF', color: '#7C3AED', icon: '🎯', title: 'Interview prep kit', desc: '15 STAR-format questions + cheat sheet' },
-                  { bg: 'var(--success-subtle)', color: 'var(--success)', icon: '📄', title: 'ATS resume builder', desc: '11 templates, instant PDF download' },
+                  { bg: 'rgba(234,88,12,0.15)', color: '#EA580C', icon: '📋', title: 'Instant ATS analysis', desc: 'Upload resume or LinkedIn PDF' },
+                  { bg: 'rgba(11,105,199,0.15)', color: '#60A5FA', icon: '✍️', title: 'AI-powered rewrite', desc: 'Headline, about, experience bullets' },
+                  { bg: 'rgba(124,58,237,0.15)', color: '#A78BFA', icon: '🎯', title: 'Interview prep kit', desc: '15 STAR-format questions + cheat sheet' },
+                  { bg: 'rgba(5,118,66,0.15)', color: '#4ADE80', icon: '📄', title: 'ATS resume builder', desc: '11 templates, instant PDF download' },
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                     <div className="icon-tile" style={{ background: item.bg, color: item.color, fontSize: 18 }}>{item.icon}</div>
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{item.title}</div>
-                      <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>{item.desc}</div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>{item.title}</div>
+                      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{item.desc}</div>
                     </div>
                   </div>
                 ))}
               </div>
 
               {/* Before / After comparison strip */}
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 16, background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-md)', padding: '10px 20px', boxShadow: 'var(--shadow-xs)' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 16, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 'var(--radius-md)', padding: '10px 20px' }}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: 18, fontWeight: 800, color: '#DC2626' }}>42</div>
-                  <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>Before</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>Before</div>
                 </div>
-                <div style={{ fontSize: 18, color: 'var(--text-muted)' }}>&rarr;</div>
+                <div style={{ fontSize: 18, color: 'rgba(255,255,255,0.4)' }}>&rarr;</div>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--success)' }}>87</div>
-                  <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>After</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: '#4ADE80' }}>87</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>After</div>
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent)' }}>+45 pts avg improvement</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#60A5FA' }}>+45 pts avg improvement</div>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 16 }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E', animation: 'pulse 2s infinite' }} />
-                <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>2,400+ resumes analyzed this month</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>2,400+ resumes analyzed this month</span>
               </div>
             </div>
 
             {/* RIGHT (45%) — Upload Card with Tabs */}
             <div style={{ flex: '1 1 380px', minWidth: 0, maxWidth: 500 }}>
-              <div style={{ background: 'var(--bg-surface)', borderRadius: 16, border: '1px solid var(--border-default)', boxShadow: '0 4px 24px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)', overflow: 'hidden' }}>
+              <div style={{ background: 'white', borderRadius: 16, border: 'none', boxShadow: '0 8px 40px rgba(11,105,199,0.2)', overflow: 'hidden' }}>
 
                 {/* Tab navigation — clean pills */}
                 <div style={{ padding: '16px 20px 0', background: 'var(--bg-surface)' }}>
@@ -1707,6 +1709,18 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Trusted by professionals logo bar ── */}
+      <section style={{ background: '#FFFFFF', borderBottom: '1px solid #E5E7EB', padding: '20px 0' }}>
+        <div style={{ maxWidth: 1000, margin: '0 auto', textAlign: 'center', padding: '0 16px' }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#9CA3AF', letterSpacing: 2, textTransform: 'uppercase' as const, marginBottom: 12 }}>Trusted by professionals applying to</div>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 32, flexWrap: 'wrap', opacity: 0.5 }}>
+            {['TCS', 'Infosys', 'Wipro', 'Amazon', 'Google', 'Deloitte', 'Accenture', 'HDFC'].map(name => (
+              <span key={name} style={{ fontSize: 16, fontWeight: 800, color: '#374151', letterSpacing: 1 }}>{name}</span>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ═══════════════════════════════════ */}
       {/* TEASER RESULT                       */}
       {/* ═══════════════════════════════════ */}
@@ -2085,7 +2099,7 @@ export default function Home() {
       {!teaser && (
         <>
           {/* ── Everything You Need ── */}
-          <section style={{ padding: 'var(--section-py) 0', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)' }}>
+          <section style={{ padding: '80px 0', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)' }}>
             <div className="landing-section">
               <div style={{ textAlign: 'center', marginBottom: 48 }}>
                 <div className="saas-eyebrow" style={{ marginBottom: 8 }}>Complete career toolkit</div>
@@ -2094,12 +2108,12 @@ export default function Home() {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 24 }}>
                 {[
-                  { bg: 'var(--accent-subtle)', color: 'var(--accent)', icon: '✍️', title: 'Profile Rewrite', desc: 'AI scores your resume & profile, identifies issues, and rewrites everything.', free: false },
-                  { bg: '#F5F3FF', color: '#7C3AED', icon: '🎯', title: 'Interview Prep', desc: '15 personalized questions + STAR answers + cheat sheet + MCQ quiz.', free: false },
-                  { bg: '#FFF7ED', color: '#EA580C', icon: '📄', title: 'ATS Resume', desc: 'Professional resume matched to your JD. 11 ATS-optimized templates.', free: false },
-                  { bg: 'var(--success-subtle)', color: 'var(--success)', icon: '📋', title: 'Cover Letter', desc: 'Personalized cover letter for every application. Ready to use.', free: false },
+                  { bg: 'var(--accent-subtle)', color: 'var(--accent)', icon: '✍️', title: 'Profile Rewrite', desc: 'AI scores your resume & profile, identifies issues, and rewrites everything.', free: false, accent: '#0B69C7' },
+                  { bg: '#F5F3FF', color: '#7C3AED', icon: '🎯', title: 'Interview Prep', desc: '15 personalized questions + STAR answers + cheat sheet + MCQ quiz.', free: false, accent: '#7C3AED' },
+                  { bg: '#FFF7ED', color: '#EA580C', icon: '📄', title: 'ATS Resume', desc: 'Professional resume matched to your JD. 11 ATS-optimized templates.', free: false, accent: '#057642' },
+                  { bg: 'var(--success-subtle)', color: 'var(--success)', icon: '📋', title: 'Cover Letter', desc: 'Personalized cover letter for every application. Ready to use.', free: false, accent: '#E16B00' },
                 ].map((f, i) => (
-                  <div key={i} className="saas-card" style={{ padding: '28px 24px' }}>
+                  <div key={i} style={{ padding: '28px 24px', background: 'white', borderRadius: 16, border: '1px solid #E5E7EB', borderTop: `3px solid ${f.accent}`, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
                     <div className="icon-tile" style={{ background: f.bg, color: f.color, marginBottom: 16 }}>{f.icon}</div>
                     <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{f.title}</div>
                     <div style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{f.desc}</div>
@@ -2111,7 +2125,7 @@ export default function Home() {
           </section>
 
           {/* ── How It Works ── */}
-          <section style={{ padding: 'var(--section-py) 0', background: 'var(--bg-canvas)', borderBottom: '1px solid var(--border-default)' }}>
+          <section style={{ padding: '80px 0', background: 'var(--bg-canvas)', borderBottom: '1px solid var(--border-default)' }}>
             <div className="landing-section">
               <div style={{ textAlign: 'center', marginBottom: 48 }}>
                 <div className="saas-eyebrow" style={{ marginBottom: 8 }}>Simple process</div>
@@ -2124,7 +2138,10 @@ export default function Home() {
                   { num: '3', title: 'Download & apply', desc: 'Everything ready. Start applying with confidence today.' },
                 ].map((s, i) => (
                   <div key={i} style={{ textAlign: 'center', position: 'relative' }}>
-                    <div style={{ width: 48, height: 48, borderRadius: 14, background: 'var(--accent)', color: 'white', fontSize: 20, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>{s.num}</div>
+                    {i < 2 && (
+                      <div style={{ position: 'absolute', top: 24, left: 'calc(50% + 24px)', right: 'calc(-50% + 24px)', height: 2, borderTop: '2px dashed #E5E7EB' }} />
+                    )}
+                    <div style={{ width: 48, height: 48, borderRadius: 14, background: 'var(--accent)', color: 'white', fontSize: 20, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', position: 'relative', zIndex: 1 }}>{s.num}</div>
                     <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{s.title}</div>
                     <div style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{s.desc}</div>
                   </div>
@@ -2134,7 +2151,7 @@ export default function Home() {
           </section>
 
           {/* ── See Real Results ── */}
-          <section style={{ padding: 'var(--section-py) 0', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)' }}>
+          <section style={{ padding: '80px 0', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)' }}>
             <div className="landing-section" style={{ maxWidth: 1000 }}>
               <div style={{ textAlign: 'center', marginBottom: 40 }}>
                 <div className="saas-eyebrow" style={{ marginBottom: 8 }}>Real output</div>
@@ -2143,7 +2160,7 @@ export default function Home() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
 
                 {/* Rewrite Before/After */}
-                <div className="saas-card" style={{ overflow: 'hidden' }}>
+                <div style={{ overflow: 'hidden', borderRadius: 16, border: '1px solid #E5E7EB', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', transition: 'transform 0.2s, box-shadow 0.2s', background: 'white' }}>
                   <div style={{ padding: '12px 16px', fontSize: 12, fontWeight: 700, color: 'white', background: 'var(--accent)' }}>&#9997;&#65039; Profile Rewrite</div>
                   <div style={{ padding: '14px 16px' }}>
                     <div style={{ marginBottom: 10 }}>
@@ -2165,7 +2182,7 @@ export default function Home() {
                 </div>
 
                 {/* Resume Preview */}
-                <div className="saas-card" style={{ overflow: 'hidden' }}>
+                <div style={{ overflow: 'hidden', borderRadius: 16, border: '1px solid #E5E7EB', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', transition: 'transform 0.2s, box-shadow 0.2s', background: 'white' }}>
                   <div style={{ padding: '12px 16px', fontSize: 12, fontWeight: 700, color: 'white', background: 'var(--accent)' }}>&#128196; ATS Resume (11 templates)</div>
                   <div style={{ padding: 0 }}>
                     <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', margin: 12, borderRadius: 4, padding: 14, fontSize: 11 }}>
@@ -2185,7 +2202,7 @@ export default function Home() {
                 </div>
 
                 {/* Interview Prep Preview */}
-                <div className="saas-card" style={{ overflow: 'hidden' }}>
+                <div style={{ overflow: 'hidden', borderRadius: 16, border: '1px solid #E5E7EB', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', transition: 'transform 0.2s, box-shadow 0.2s', background: 'white' }}>
                   <div style={{ padding: '12px 16px', fontSize: 12, fontWeight: 700, color: 'white', background: 'linear-gradient(135deg, var(--success), #034A2A)' }}>&#127919; Interview Prep Kit</div>
                   <div style={{ padding: '14px 16px' }}>
                     {[
@@ -2208,7 +2225,7 @@ export default function Home() {
           </section>
 
           {/* ── FAQ ── */}
-          <section style={{ padding: 'var(--section-py) 0', background: 'var(--bg-canvas)', borderBottom: '1px solid var(--border-default)' }}>
+          <section style={{ padding: '80px 0', background: 'var(--bg-canvas)', borderBottom: '1px solid var(--border-default)' }}>
             <div className="landing-section" style={{ maxWidth: 720 }}>
               <div style={{ textAlign: 'center', marginBottom: 40 }}>
                 <div className="saas-eyebrow" style={{ marginBottom: 8 }}>FAQ</div>
@@ -2224,29 +2241,29 @@ export default function Home() {
                 { q: 'What payment methods do you accept?', a: "We accept UPI, credit/debit cards, net banking, and wallets via Razorpay — India's most trusted payment gateway." },
                 { q: 'Can I get a refund?', a: 'We offer refunds within 7 days for quality issues. See our refund policy.' },
               ].map((item, i) => (
-                <div key={i} style={{ borderBottom: '1px solid var(--border-default)' }}>
+                <div key={i} style={{ borderBottom: '1px solid var(--border-default)', borderLeft: faqOpen === i ? '3px solid var(--accent)' : '3px solid transparent', transition: 'border-color 0.2s' }}>
                   <button
                     onClick={() => setFaqOpen(faqOpen === i ? null : i)}
                     style={{
                       width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                      padding: '16px 0', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
+                      padding: '18px 0 18px 12px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
                     }}
                   >
-                    <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', paddingRight: 16 }}>{item.q}</span>
+                    <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', paddingRight: 16 }}>{item.q}</span>
                     <span style={{ fontSize: 20, color: 'var(--text-muted)', flexShrink: 0, transition: 'transform 0.2s', transform: faqOpen === i ? 'rotate(45deg)' : 'none', fontWeight: 300, lineHeight: 1 }}>+</span>
                   </button>
-                  {faqOpen === i && (
-                    <div style={{ padding: '0 0 16px', fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+                  <div style={{ overflow: 'hidden', maxHeight: faqOpen === i ? 200 : 0, transition: 'max-height 0.3s ease', paddingLeft: 12 }}>
+                    <div style={{ padding: '0 0 18px', fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
                       {item.a}
                     </div>
-                  )}
+                  </div>
                 </div>
               ))}
             </div>
           </section>
 
           {/* ── Final CTA ── */}
-          <section style={{ background: 'var(--accent)', padding: '64px 0', textAlign: 'center' }}>
+          <section style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)', padding: '80px 0', textAlign: 'center' }}>
             <div className="landing-section" style={{ maxWidth: 600 }}>
               <div style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'white', marginBottom: 12, letterSpacing: '-0.02em' }}>Stop losing interviews.</div>
               <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.85)', marginBottom: 12, lineHeight: 1.7 }}>Every day with a weak profile is another recruiter who scrolled past you.</div>
@@ -2255,7 +2272,7 @@ export default function Home() {
               </div>
               <button
                 onClick={() => { heroRef.current?.scrollIntoView({ behavior: 'smooth' }); }}
-                style={{ background: 'white', color: 'var(--accent)', fontSize: 16, fontWeight: 700, padding: '16px 40px', borderRadius: 'var(--radius-pill)', border: 'none', cursor: 'pointer', boxShadow: 'var(--shadow-md)' }}
+                style={{ background: 'white', color: '#0B69C7', fontSize: 16, fontWeight: 700, padding: '18px 44px', borderRadius: 50, border: 'none', cursor: 'pointer', boxShadow: '0 4px 24px rgba(255,255,255,0.2)' }}
               >
                 Upload Your Resume &mdash; Free Score &rarr;
               </button>
