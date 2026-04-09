@@ -67,22 +67,22 @@ router.post('/upload-parse', upload.single('file'), async (req: Request, res: Re
     let text = '';
 
     if (mime === 'application/pdf') {
-      // Use Claude to extract text from PDF via base64
-      const Anthropic = require('@anthropic-ai/sdk').default;
-      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
+      // Use Gemini Flash to extract text from PDF via base64 (5x faster than Claude)
+      const { GoogleGenerativeAI } = require('@google/generative-ai');
+      const flashAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!);
+      const flashModel = flashAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
       const base64 = req.file.buffer.toString('base64');
-      const pdfResponse = await anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4000,
-        messages: [{
+      const pdfResponse = await flashModel.generateContent({
+        contents: [{
           role: 'user',
-          content: [
-            { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } },
-            { type: 'text', text: 'Extract ALL text content from this PDF resume. Return only the raw text, preserving the structure (names, sections, bullet points). No commentary.' },
+          parts: [
+            { inlineData: { mimeType: 'application/pdf', data: base64 } },
+            { text: 'Extract ALL text content from this PDF resume. Return only the raw text, preserving the structure (names, sections, bullet points). No commentary.' },
           ],
         }],
+        generationConfig: { temperature: 0.0, maxOutputTokens: 8000 },
       });
-      text = ((pdfResponse.content[0] as any).text || '').trim();
+      text = pdfResponse.response.text().trim();
     } else if (mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || mime === 'application/msword') {
       const mammoth = require('mammoth');
       const result = await mammoth.extractRawText({ buffer: req.file.buffer });
