@@ -485,9 +485,24 @@ export default function ResumeEditorPage() {
   // ─── Download PDF ───
   const [pdfGenerating, setPdfGenerating] = useState(false);
 
+  function injectStyleOverrides(html: string): string {
+    const css = `
+      body { font-size: ${styleSettings.fontSize.body}px !important; }
+      [style*="font-size:2"], [style*="font-size: 2"], [style*="font-size:3"] { font-size: ${styleSettings.fontSize.name}px !important; font-weight: ${styleSettings.fontWeight.name} !important; text-transform: ${styleSettings.textTransform.name} !important; }
+      [style*="uppercase"], [style*="letter-spacing"] { font-size: ${styleSettings.fontSize.section}px !important; font-weight: ${styleSettings.fontWeight.section} !important; text-transform: ${styleSettings.textTransform.section} !important; border-bottom-width: ${styleSettings.borders.sectionTitles}px !important; }
+      [style*="font-weight:700"], [style*="font-weight: 700"], strong { font-weight: ${styleSettings.fontWeight.heading1} !important; font-size: ${styleSettings.fontSize.heading1}px !important; }
+      [style*="font-style:italic"] { font-size: ${styleSettings.fontSize.minor}px !important; }
+      [style*="text-indent"] { margin-bottom: ${styleSettings.spacing.listItems}px !important; }
+      .print-content-root > div > div { margin-bottom: ${styleSettings.spacing.betweenSections}px !important; }
+      .entry { margin-bottom: ${styleSettings.spacing.contentBlocks}px !important; }
+    `;
+    return html.replace('</style>', css + '</style>');
+  }
+
   async function handleDownloadPDF() {
     if (!resumeData) return;
-    const html = buildPrintHTML(resumeData, templateId);
+    let html = buildPrintHTML(resumeData, templateId);
+    html = injectStyleOverrides(html);
     const name = resumeData?.contact?.name || 'resume';
     const filename = `${name.replace(/[^a-zA-Z0-9]/g, '-')}-resume.pdf`;
 
@@ -1469,9 +1484,21 @@ export default function ResumeEditorPage() {
             <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{matched} keywords matched</span>
             {keywordsMissing.length > 0 && <span style={{ fontSize: 12, color: 'var(--warning)' }}>{keywordsMissing.length} missing</span>}
           </div>
-          {/* Paper preview */}
+          {/* Paper preview with style overrides */}
           <div style={{ flex: 1, padding: 24, overflowY: 'auto', background: '#F1F3F5' }}>
-            <div style={{ maxWidth: 794, margin: '0 auto', background: 'white', borderRadius: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
+            <style>{`
+              .resume-styled-preview { font-size: ${styleSettings.fontSize.body}px !important; }
+              .resume-styled-preview h1, .resume-styled-preview [style*="font-size:2"], .resume-styled-preview [style*="font-size: 2"], .resume-styled-preview [style*="font-size:3"] { font-size: ${styleSettings.fontSize.name}px !important; font-weight: ${styleSettings.fontWeight.name} !important; text-transform: ${styleSettings.textTransform.name} !important; }
+              .resume-styled-preview [style*="uppercase"], .resume-styled-preview [style*="border-bottom"] > div:first-child, .resume-styled-preview [style*="letter-spacing"] { font-size: ${styleSettings.fontSize.section}px !important; font-weight: ${styleSettings.fontWeight.section} !important; text-transform: ${styleSettings.textTransform.section} !important; border-bottom-width: ${styleSettings.borders.sectionTitles}px !important; }
+              .resume-styled-preview [style*="font-weight:700"], .resume-styled-preview [style*="font-weight: 700"], .resume-styled-preview strong { font-weight: ${styleSettings.fontWeight.heading1} !important; font-size: ${styleSettings.fontSize.heading1}px !important; text-transform: ${styleSettings.textTransform.heading1} !important; }
+              .resume-styled-preview [style*="font-style:italic"], .resume-styled-preview [style*="font-style: italic"] { font-size: ${styleSettings.fontSize.minor}px !important; font-weight: ${styleSettings.fontWeight.minor} !important; }
+              .resume-styled-preview li, .resume-styled-preview [style*="text-indent"] { margin-bottom: ${styleSettings.spacing.listItems}px !important; }
+              .resume-styled-preview > div > div { margin-bottom: ${styleSettings.spacing.betweenSections}px !important; }
+              .resume-styled-preview [style*="margin-bottom:8px"], .resume-styled-preview [style*="margin-bottom: 8px"], .resume-styled-preview .entry { margin-bottom: ${styleSettings.spacing.contentBlocks}px !important; }
+              .resume-styled-preview [style*="padding-left"][style*="text-indent"]::before, .resume-styled-preview li::marker { content: "${styleSettings.bullet} " !important; }
+              .resume-styled-preview [style*="text-indent"] { padding-left: 14px !important; text-indent: -14px !important; }
+            `}</style>
+            <div className="resume-styled-preview" style={{ maxWidth: 794, margin: '0 auto', background: 'white', borderRadius: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', overflow: 'hidden', lineHeight: 1.5 }}>
               {renderResumeHTML(resumeData, templateId)}
             </div>
           </div>
