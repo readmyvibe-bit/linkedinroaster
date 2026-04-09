@@ -1009,7 +1009,7 @@ export default function Home() {
 
   // ── Pricing section ──
   const pricingSection = (
-    <section ref={pricingRef} style={{ padding: '56px 24px', background: 'var(--bg-canvas)', borderBottom: '1px solid var(--border-default)' }}>
+    <section id="pricing" ref={pricingRef} style={{ padding: '56px 24px', background: 'var(--bg-canvas)', borderBottom: '1px solid var(--border-default)' }}>
       <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
         <h2 style={{ fontSize: 32, fontWeight: 900, color: 'var(--text-primary)', marginBottom: 4 }}>Simple Pricing</h2>
         <p style={{ fontSize: 15, color: 'var(--text-secondary)', marginBottom: 8 }}>For working professionals — full profile rewrite + resume + interview prep.</p>
@@ -1110,42 +1110,31 @@ export default function Home() {
 
   return (
     <main style={{ minHeight: '100vh', background: 'var(--bg-canvas)' }}>
-      {/* ─── NAV ─── */}
-      <nav className="landing-nav">
-        <div className="landing-section" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 56 }}>
-          <a href="/" style={{ textDecoration: 'none', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 2 }}>
-            <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--accent)', letterSpacing: '-0.02em' }}>Profile</span>
-            <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>Roaster</span>
+      {/* ═══ NAV ═══ */}
+      <nav style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(15,23,42,0.08)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 60 }}>
+          <a href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 2 }}>
+            <span style={{ fontSize: 18, fontWeight: 800, color: '#0A66C2' }}>Profile</span>
+            <span style={{ fontSize: 18, fontWeight: 800, color: '#0F172A' }}>Roaster</span>
           </a>
-          <div className="hidden sm:flex" style={{ gap: 8, alignItems: 'center' }}>
-            <a href="/dashboard" style={{ fontSize: 14, color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 500, padding: '6px 12px', borderRadius: 'var(--radius-sm)', transition: 'all var(--transition)' }}>Dashboard</a>
-            <a href="/pricing" style={{ fontSize: 14, color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 500, padding: '6px 12px', borderRadius: 'var(--radius-sm)', transition: 'all var(--transition)' }}>Pricing</a>
-            <button
-              onClick={() => heroRef.current?.scrollIntoView({ behavior: 'smooth' })}
-              style={{ fontSize: 14, fontWeight: 600, padding: '8px 20px', borderRadius: 'var(--radius-pill)', border: 'none', cursor: 'pointer', background: 'var(--accent)', color: 'white', transition: 'all var(--transition)' }}
-            >
-              Get Free Score
-            </button>
+          <div className="hidden sm:flex" style={{ alignItems: 'center', gap: 28 }}>
+            <a href="#how-it-works" style={{ fontSize: 14, fontWeight: 500, color: '#475569', textDecoration: 'none' }}>How it works</a>
+            <a href="#templates" style={{ fontSize: 14, fontWeight: 500, color: '#475569', textDecoration: 'none' }}>Templates</a>
+            <a href="#pricing" style={{ fontSize: 14, fontWeight: 500, color: '#475569', textDecoration: 'none' }}>Pricing</a>
+            <a href="#faq" style={{ fontSize: 14, fontWeight: 500, color: '#475569', textDecoration: 'none' }}>FAQ</a>
+            <a href="/dashboard" style={{ fontSize: 14, fontWeight: 500, color: '#475569', textDecoration: 'none' }}>Dashboard</a>
+            <button onClick={() => heroRef.current?.scrollIntoView({ behavior: 'smooth' })} style={{ padding: '8px 20px', background: '#0A66C2', color: 'white', border: 'none', borderRadius: 999, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Get started</button>
           </div>
-          <button
-            className="sm:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8, display: 'flex', flexDirection: 'column', gap: 5, borderRadius: 'var(--radius-sm)' }}
-            aria-label="Menu"
-          >
-            <span style={{ display: 'block', width: 18, height: 2, background: 'var(--text-primary)', borderRadius: 2, transition: 'all 0.2s', transform: mobileMenuOpen ? 'rotate(45deg) translateY(7px)' : 'none' }} />
-            <span style={{ display: 'block', width: 18, height: 2, background: 'var(--text-primary)', borderRadius: 2, transition: 'all 0.2s', opacity: mobileMenuOpen ? 0 : 1 }} />
-            <span style={{ display: 'block', width: 18, height: 2, background: 'var(--text-primary)', borderRadius: 2, transition: 'all 0.2s', transform: mobileMenuOpen ? 'rotate(-45deg) translateY(-7px)' : 'none' }} />
-          </button>
+          <button className="sm:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8, fontSize: 22 }}>{mobileMenuOpen ? '✕' : '☰'}</button>
         </div>
         {mobileMenuOpen && (
-          <div className="sm:hidden" style={{ borderTop: '1px solid var(--border-default)', padding: '8px 24px 12px' }}>
-            <a href="/dashboard" onClick={() => setMobileMenuOpen(false)} style={{ display: 'block', padding: '10px 0', fontSize: 15, color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 600 }}>Dashboard</a>
-            <a href="/pricing" onClick={() => setMobileMenuOpen(false)} style={{ display: 'block', padding: '10px 0', fontSize: 15, color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 600 }}>Pricing</a>
-            <button
-              onClick={() => { setMobileMenuOpen(false); heroRef.current?.scrollIntoView({ behavior: 'smooth' }); }}
-              style={{ display: 'block', width: '100%', marginTop: 8, padding: '12px', borderRadius: 'var(--radius-sm)', border: 'none', background: 'var(--accent)', color: 'white', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}
-            >Get Free Score</button>
+          <div className="sm:hidden" style={{ background: 'white', borderTop: '1px solid rgba(15,23,42,0.08)', padding: '12px 24px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: 15, fontWeight: 500, color: '#0F172A', textDecoration: 'none', padding: '8px 0' }}>How it works</a>
+            <a href="#templates" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: 15, fontWeight: 500, color: '#0F172A', textDecoration: 'none', padding: '8px 0' }}>Templates</a>
+            <a href="#pricing" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: 15, fontWeight: 500, color: '#0F172A', textDecoration: 'none', padding: '8px 0' }}>Pricing</a>
+            <a href="#faq" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: 15, fontWeight: 500, color: '#0F172A', textDecoration: 'none', padding: '8px 0' }}>FAQ</a>
+            <a href="/dashboard" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: 15, fontWeight: 500, color: '#0F172A', textDecoration: 'none', padding: '8px 0' }}>Dashboard</a>
+            <button onClick={() => { setMobileMenuOpen(false); heroRef.current?.scrollIntoView({ behavior: 'smooth' }); }} style={{ padding: '12px', background: '#0A66C2', color: 'white', border: 'none', borderRadius: 999, fontSize: 15, fontWeight: 600, cursor: 'pointer', marginTop: 4 }}>Get started free</button>
           </div>
         )}
       </nav>
@@ -1153,67 +1142,67 @@ export default function Home() {
       {/* ═══════════════════════════════════ */}
       {/* HERO — Two Columns                  */}
       {/* ═══════════════════════════════════ */}
-      <section ref={heroRef} style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%)', padding: '48px 0 32px', position: 'relative' }}>
+      <section ref={heroRef} style={{ background: '#FAFAFA', padding: '64px 0 48px', position: 'relative' }}>
         {/* Subtle grid pattern overlay */}
-        <div style={{ position: 'absolute', inset: 0, opacity: 0.03, backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.03, backgroundImage: 'radial-gradient(circle, #0F172A 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
         <div className="landing-section" style={{ position: 'relative', maxWidth: 1200 }}>
           <div style={{ display: 'flex', gap: 48, alignItems: 'center', flexWrap: 'wrap' }}>
 
             {/* LEFT — Value Proposition */}
             <div style={{ flex: '1.2 1 420px', minWidth: 0 }}>
-              <div className="saas-eyebrow" style={{ marginBottom: 12, color: 'rgba(255,255,255,0.5)' }}>FREE PROFILE SCORE</div>
-              <h1 style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 900, color: 'white', marginBottom: 12, lineHeight: 1.12, letterSpacing: '-0.03em' }}>
+              <div className="saas-eyebrow" style={{ marginBottom: 12, color: '#0A66C2' }}>FREE PROFILE SCORE</div>
+              <h1 style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 900, color: '#0F172A', marginBottom: 12, lineHeight: 1.12, letterSpacing: '-0.03em' }}>
                 Not getting calls from <span style={{ color: '#CC1016', fontSize: '1.05em', fontWeight: 900 }}>HR</span>?<br />
-                <span style={{ color: '#60A5FA' }}>Your resume might be the problem.</span>
+                <span style={{ color: '#0A66C2' }}>Your resume might be the problem.</span>
               </h1>
-              <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.7)', marginBottom: 16, lineHeight: 1.7, maxWidth: 520 }}>
+              <p style={{ fontSize: 16, color: '#475569', marginBottom: 16, lineHeight: 1.7, maxWidth: 520 }}>
                 Upload your resume or LinkedIn PDF. AI scores it instantly, rewrites everything, and builds interview prep — in under 3 minutes.
               </p>
-              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', marginBottom: 32 }}>
+              <p style={{ fontSize: 14, color: '#64748B', marginBottom: 32 }}>
                 Starting at &#8377;499 &bull; One-time payment
               </p>
 
               {/* Value bullets with icon tiles */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 32 }}>
                 {[
-                  { bg: 'rgba(234,88,12,0.15)', color: '#EA580C', icon: '📋', title: 'Instant ATS analysis', desc: 'Upload resume or LinkedIn PDF' },
-                  { bg: 'rgba(11,105,199,0.15)', color: '#60A5FA', icon: '✍️', title: 'AI-powered rewrite', desc: 'Headline, about, experience bullets' },
-                  { bg: 'rgba(124,58,237,0.15)', color: '#A78BFA', icon: '🎯', title: 'Interview prep kit', desc: '15 STAR-format questions + cheat sheet' },
-                  { bg: 'rgba(5,118,66,0.15)', color: '#4ADE80', icon: '📄', title: 'ATS resume builder', desc: '11 templates, instant PDF download' },
+                  { bg: '#FFF7ED', color: '#EA580C', icon: '📋', title: 'Instant ATS analysis', desc: 'Upload resume or LinkedIn PDF' },
+                  { bg: '#EFF6FF', color: '#0A66C2', icon: '✍️', title: 'AI-powered rewrite', desc: 'Headline, about, experience bullets' },
+                  { bg: '#F5F3FF', color: '#7C3AED', icon: '🎯', title: 'Interview prep kit', desc: '15 STAR-format questions + cheat sheet' },
+                  { bg: '#F0FDF4', color: '#16A34A', icon: '📄', title: 'ATS resume builder', desc: '11 templates, instant PDF download' },
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                     <div className="icon-tile" style={{ background: item.bg, color: item.color, fontSize: 18 }}>{item.icon}</div>
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>{item.title}</div>
-                      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{item.desc}</div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#334155' }}>{item.title}</div>
+                      <div style={{ fontSize: 13, color: '#64748B' }}>{item.desc}</div>
                     </div>
                   </div>
                 ))}
               </div>
 
               {/* Before / After comparison strip */}
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 16, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 'var(--radius-md)', padding: '10px 20px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 16, background: 'rgba(15,23,42,0.03)', border: '1px solid rgba(15,23,42,0.08)', borderRadius: 'var(--radius-md)', padding: '10px 20px' }}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: 18, fontWeight: 800, color: '#DC2626' }}>42</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>Before</div>
+                  <div style={{ fontSize: 10, color: '#94A3B8' }}>Before</div>
                 </div>
-                <div style={{ fontSize: 18, color: 'rgba(255,255,255,0.4)' }}>&rarr;</div>
+                <div style={{ fontSize: 18, color: '#CBD5E1' }}>&rarr;</div>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: '#4ADE80' }}>87</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>After</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: '#16A34A' }}>87</div>
+                  <div style={{ fontSize: 10, color: '#94A3B8' }}>After</div>
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#60A5FA' }}>+45 pts avg improvement</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#0A66C2' }}>+45 pts avg improvement</div>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 16 }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E', animation: 'pulse 2s infinite' }} />
-                <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>2,400+ resumes analyzed this month</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: '#0F172A' }}>2,400+ resumes analyzed this month</span>
               </div>
             </div>
 
             {/* RIGHT (45%) — Upload Card with Tabs */}
             <div data-upload-area style={{ flex: '1 1 380px', minWidth: 0, maxWidth: 500 }}>
-              <div style={{ background: 'white', borderRadius: 16, border: 'none', boxShadow: '0 8px 40px rgba(11,105,199,0.2)', overflow: 'hidden' }}>
+              <div style={{ background: 'white', borderRadius: 16, border: '1px solid rgba(15,23,42,0.08)', boxShadow: '0 4px 6px -1px rgba(15,23,42,0.06), 0 10px 15px -3px rgba(15,23,42,0.04)', overflow: 'hidden' }}>
 
                 {/* Tab navigation — clean pills */}
                 <div style={{ padding: '16px 20px 0', background: 'var(--bg-surface)' }}>
@@ -1710,19 +1699,17 @@ export default function Home() {
       </section>
 
       {/* ── Trusted by professionals logo bar ── */}
-      <section style={{ background: '#FFFFFF', borderBottom: '1px solid #E5E7EB', padding: '20px 0' }}>
-        <div style={{ maxWidth: 1000, margin: '0 auto', textAlign: 'center', padding: '0 16px' }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#9CA3AF', letterSpacing: 2, textTransform: 'uppercase' as const, marginBottom: 12 }}>Trusted by professionals applying to</div>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 32, flexWrap: 'wrap', opacity: 0.5 }}>
-            {['TCS', 'Infosys', 'Wipro', 'Amazon', 'Google', 'Deloitte', 'Accenture', 'HDFC'].map(name => (
-              <span key={name} style={{ fontSize: 16, fontWeight: 800, color: '#374151', letterSpacing: 1 }}>{name}</span>
-            ))}
-          </div>
+      <section style={{ background: '#FFFFFF', borderBottom: '1px solid rgba(15,23,42,0.06)', padding: '16px 0' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 32, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>Trusted by professionals at</span>
+          {['TCS', 'Infosys', 'Wipro', 'Amazon', 'Google', 'Deloitte', 'Accenture', 'HDFC'].map(name => (
+            <span key={name} style={{ fontSize: 14, fontWeight: 700, color: '#CBD5E1', letterSpacing: '0.02em' }}>{name}</span>
+          ))}
         </div>
       </section>
 
       {/* Product Showcase — floating preview */}
-      <section style={{ background: '#FFFFFF', padding: '60px 0 80px', overflow: 'hidden' }}>
+      <section id="templates" style={{ background: '#FFFFFF', padding: '60px 0 80px', overflow: 'hidden' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 16px', textAlign: 'center' }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: '#0B69C7', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>See it in action</div>
           <h2 style={{ fontSize: 28, fontWeight: 800, color: '#111827', marginBottom: 12, letterSpacing: '-0.02em' }}>Upload your resume. Get everything back in 90 seconds.</h2>
@@ -1732,7 +1719,7 @@ export default function Home() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, textAlign: 'left' }}>
 
             {/* Card 1: Score */}
-            <div style={{ background: '#F8FAFC', borderRadius: 16, border: '1px solid #E5E7EB', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+            <div style={{ background: 'white', borderRadius: 12, border: '1px solid rgba(15,23,42,0.08)', overflow: 'hidden', boxShadow: '0 1px 3px rgba(15,23,42,0.04)' }}>
               <div style={{ background: 'linear-gradient(135deg, #DC2626, #991B1B)', padding: '20px 24px', color: 'white' }}>
                 <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, opacity: 0.7 }}>YOUR PROFILE SCORE</div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginTop: 8 }}>
@@ -1752,7 +1739,7 @@ export default function Home() {
             </div>
 
             {/* Card 2: Resume */}
-            <div style={{ background: '#F8FAFC', borderRadius: 16, border: '1px solid #E5E7EB', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+            <div style={{ background: 'white', borderRadius: 12, border: '1px solid rgba(15,23,42,0.08)', overflow: 'hidden', boxShadow: '0 1px 3px rgba(15,23,42,0.04)' }}>
               <div style={{ background: '#0B69C7', padding: '12px 24px', color: 'white', fontSize: 10, fontWeight: 700, letterSpacing: 2 }}>ATS-OPTIMIZED RESUME</div>
               <div style={{ padding: '20px 24px' }}>
                 <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, padding: '16px', marginBottom: 12 }}>
@@ -1777,7 +1764,7 @@ export default function Home() {
             </div>
 
             {/* Card 3: Interview Prep */}
-            <div style={{ background: '#F8FAFC', borderRadius: 16, border: '1px solid #E5E7EB', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+            <div style={{ background: 'white', borderRadius: 12, border: '1px solid rgba(15,23,42,0.08)', overflow: 'hidden', boxShadow: '0 1px 3px rgba(15,23,42,0.04)' }}>
               <div style={{ background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', padding: '12px 24px', color: 'white', fontSize: 10, fontWeight: 700, letterSpacing: 2 }}>INTERVIEW PREP</div>
               <div style={{ padding: '16px 24px' }}>
                 {[
@@ -1792,6 +1779,32 @@ export default function Home() {
                 ))}
                 <div style={{ fontSize: 11, color: '#6B7280', textAlign: 'center', marginTop: 4 }}>15 questions + STAR answers + cheat sheet + quiz</div>
               </div>
+            </div>
+          </div>
+
+          {/* Template carousel */}
+          <div style={{ marginTop: 40, textAlign: 'left' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ fontSize: 20, fontWeight: 700, color: '#0F172A', margin: 0 }}>11 ATS-optimized templates</h3>
+              <a href="#pricing" style={{ fontSize: 14, fontWeight: 600, color: '#0A66C2', textDecoration: 'none' }}>See all &rarr;</a>
+            </div>
+            <div style={{ display: 'flex', gap: 16, overflowX: 'auto', paddingBottom: 8, scrollSnapType: 'x mandatory' }}>
+              {TEMPLATES.slice(0, 6).map(t => (
+                <div key={t.id} style={{ flex: '0 0 180px', scrollSnapAlign: 'start', background: 'white', borderRadius: 10, border: '1px solid rgba(15,23,42,0.08)', overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}>
+                  <div style={{ height: 120, background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid rgba(15,23,42,0.06)' }}>
+                    <div style={{ width: 60, height: 80, background: 'white', borderRadius: 4, boxShadow: '0 1px 4px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column' as const, padding: '6px', gap: 3 }}>
+                      <div style={{ height: 4, background: '#0A66C2', borderRadius: 1, width: '70%' }} />
+                      <div style={{ height: 2, background: '#E2E8F0', borderRadius: 1 }} />
+                      <div style={{ height: 2, background: '#E2E8F0', borderRadius: 1, width: '80%' }} />
+                      <div style={{ height: 2, background: '#E2E8F0', borderRadius: 1, width: '60%' }} />
+                    </div>
+                  </div>
+                  <div style={{ padding: '10px 12px' }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A' }}>{t.name}</div>
+                    {t.ats === 'high' && <span style={{ fontSize: 10, fontWeight: 600, color: '#059669', background: '#ECFDF5', padding: '1px 6px', borderRadius: 4, marginTop: 4, display: 'inline-block' }}>ATS High</span>}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -2179,25 +2192,24 @@ export default function Home() {
       {!teaser && (
         <>
           {/* ── Everything You Need ── */}
-          <section style={{ padding: '80px 0', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)' }}>
+          <section style={{ padding: '72px 0', background: '#FFFFFF', borderBottom: '1px solid rgba(15,23,42,0.06)' }}>
             <div className="landing-section">
               <div style={{ textAlign: 'center', marginBottom: 48 }}>
-                <div className="saas-eyebrow" style={{ marginBottom: 8 }}>Complete career toolkit</div>
-                <h2 style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 8, letterSpacing: '-0.02em' }}>Everything you need to land interviews</h2>
-                <p style={{ fontSize: 'var(--fs-md)', color: 'var(--text-secondary)', maxWidth: 480, margin: '0 auto' }}>One-time payment. Complete career toolkit. No subscriptions.</p>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#0A66C2', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>Complete career toolkit</div>
+                <h2 style={{ fontSize: 32, fontWeight: 800, color: '#0F172A', marginBottom: 8, letterSpacing: '-0.02em' }}>Everything you need to land interviews</h2>
+                <p style={{ fontSize: 16, color: '#64748B', maxWidth: 480, margin: '0 auto' }}>One-time payment. Complete career toolkit. No subscriptions.</p>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 24 }}>
                 {[
-                  { bg: 'var(--accent-subtle)', color: 'var(--accent)', icon: '✍️', title: 'Profile Rewrite', desc: 'AI scores your resume & profile, identifies issues, and rewrites everything.', free: false, accent: '#0B69C7' },
-                  { bg: '#F5F3FF', color: '#7C3AED', icon: '🎯', title: 'Interview Prep', desc: '15 personalized questions + STAR answers + cheat sheet + MCQ quiz.', free: false, accent: '#7C3AED' },
-                  { bg: '#FFF7ED', color: '#EA580C', icon: '📄', title: 'ATS Resume', desc: 'Professional resume matched to your JD. 11 ATS-optimized templates.', free: false, accent: '#057642' },
-                  { bg: 'var(--success-subtle)', color: 'var(--success)', icon: '📋', title: 'Cover Letter', desc: 'Personalized cover letter for every application. Ready to use.', free: false, accent: '#E16B00' },
+                  { bg: 'var(--accent-subtle)', color: 'var(--accent)', icon: '\u270D\uFE0F', title: 'Profile Rewrite', desc: 'AI scores your resume & profile, identifies issues, and rewrites everything.' },
+                  { bg: '#F5F3FF', color: '#7C3AED', icon: '\uD83C\uDFAF', title: 'Interview Prep', desc: '15 personalized questions + STAR answers + cheat sheet + MCQ quiz.' },
+                  { bg: '#FFF7ED', color: '#EA580C', icon: '\uD83D\uDCC4', title: 'ATS Resume', desc: 'Professional resume matched to your JD. 11 ATS-optimized templates.' },
+                  { bg: 'var(--success-subtle)', color: 'var(--success)', icon: '\uD83D\uDCCB', title: 'Cover Letter', desc: 'Personalized cover letter for every application. Ready to use.' },
                 ].map((f, i) => (
-                  <div key={i} style={{ padding: '28px 24px', background: 'white', borderRadius: 16, border: '1px solid #E5E7EB', borderTop: `3px solid ${f.accent}`, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                  <div key={i} style={{ padding: '28px 24px', background: '#FAFAFA', borderRadius: 12, border: '1px solid rgba(15,23,42,0.06)' }}>
                     <div className="icon-tile" style={{ background: f.bg, color: f.color, marginBottom: 16 }}>{f.icon}</div>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{f.title}</div>
-                    <div style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{f.desc}</div>
-                    {f.free && <div style={{ display: 'inline-block', background: 'var(--success)', color: 'white', fontSize: 12, fontWeight: 700, padding: '6px 16px', borderRadius: 'var(--radius-pill)', marginTop: 14, letterSpacing: 0.5 }}>Free</div>}
+                    <div style={{ fontSize: 16, fontWeight: 700, color: '#0F172A', marginBottom: 6 }}>{f.title}</div>
+                    <div style={{ fontSize: 14, color: '#64748B', lineHeight: 1.6 }}>{f.desc}</div>
                   </div>
                 ))}
               </div>
@@ -2205,11 +2217,11 @@ export default function Home() {
           </section>
 
           {/* ── How It Works ── */}
-          <section style={{ padding: '80px 0', background: 'var(--bg-canvas)', borderBottom: '1px solid var(--border-default)' }}>
+          <section id="how-it-works" style={{ padding: '72px 0', background: '#FAFAFA', borderBottom: '1px solid rgba(15,23,42,0.06)' }}>
             <div className="landing-section">
               <div style={{ textAlign: 'center', marginBottom: 48 }}>
-                <div className="saas-eyebrow" style={{ marginBottom: 8 }}>Simple process</div>
-                <h2 style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>Three steps. That{"'"}s it.</h2>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#0A66C2', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>Simple process</div>
+                <h2 style={{ fontSize: 32, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}>Three steps. That{"'"}s it.</h2>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 32, maxWidth: 900, margin: '0 auto' }}>
                 {[
@@ -2219,11 +2231,11 @@ export default function Home() {
                 ].map((s, i) => (
                   <div key={i} style={{ textAlign: 'center', position: 'relative' }}>
                     {i < 2 && (
-                      <div style={{ position: 'absolute', top: 24, left: 'calc(50% + 24px)', right: 'calc(-50% + 24px)', height: 2, borderTop: '2px dashed #E5E7EB' }} />
+                      <div style={{ position: 'absolute', top: 24, left: 'calc(50% + 24px)', right: 'calc(-50% + 24px)', height: 2, borderTop: '2px dashed #E2E8F0' }} />
                     )}
-                    <div style={{ width: 48, height: 48, borderRadius: 14, background: 'var(--accent)', color: 'white', fontSize: 20, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', position: 'relative', zIndex: 1 }}>{s.num}</div>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>{s.title}</div>
-                    <div style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6 }}>{s.desc}</div>
+                    <div style={{ width: 48, height: 48, borderRadius: '50%', border: '2px solid #0A66C2', color: '#0A66C2', fontSize: 18, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', background: 'white', position: 'relative', zIndex: 1 }}>{s.num}</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: '#0F172A', marginBottom: 6 }}>{s.title}</div>
+                    <div style={{ fontSize: 14, color: '#64748B', lineHeight: 1.6 }}>{s.desc}</div>
                   </div>
                 ))}
               </div>
@@ -2240,7 +2252,7 @@ export default function Home() {
               {/* Before/After Visual Comparison */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 16, marginBottom: 32, maxWidth: 800, margin: '0 auto 32px', alignItems: 'stretch' }}>
                 {/* Before */}
-                <div style={{ background: '#FEF2F2', borderRadius: 12, padding: '20px', border: '1px solid #FECACA' }}>
+                <div style={{ background: '#FEF2F2', borderRadius: 12, padding: '24px', border: '1px solid #FECACA' }}>
                   <div style={{ fontSize: 10, fontWeight: 700, color: '#DC2626', letterSpacing: 1, marginBottom: 10 }}>BEFORE &mdash; Score: 38</div>
                   <div style={{ fontSize: 14, color: '#991B1B', lineHeight: 1.6, fontStyle: 'italic' }}>&ldquo;Software Engineer | Python | Java | AWS | Docker | Seeking opportunities&rdquo;</div>
                   <div style={{ marginTop: 12, fontSize: 11, color: '#DC2626' }}>
@@ -2251,10 +2263,10 @@ export default function Home() {
                 </div>
                 {/* Arrow */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#0B69C7', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700, boxShadow: '0 4px 12px rgba(11,105,199,0.3)' }}>&rarr;</div>
+                  <span style={{ fontSize: 24, fontWeight: 700, color: '#94A3B8' }}>&rarr;</span>
                 </div>
                 {/* After */}
-                <div style={{ background: '#F0FDF4', borderRadius: 12, padding: '20px', border: '1px solid #BBF7D0' }}>
+                <div style={{ background: '#F0FDF4', borderRadius: 12, padding: '24px', border: '1px solid #BBF7D0' }}>
                   <div style={{ fontSize: 10, fontWeight: 700, color: '#057642', letterSpacing: 1, marginBottom: 10 }}>AFTER &mdash; Score: 84</div>
                   <div style={{ fontSize: 14, color: '#057642', lineHeight: 1.6, fontWeight: 600 }}>&ldquo;Full-Stack Engineer | Built 5 Apps Serving 50K+ Users | React + AWS + Node.js&rdquo;</div>
                   <div style={{ marginTop: 12, fontSize: 11, color: '#057642' }}>
@@ -2268,7 +2280,7 @@ export default function Home() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
 
                 {/* Rewrite Before/After */}
-                <div style={{ overflow: 'hidden', borderRadius: 16, border: '1px solid #E5E7EB', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', transition: 'transform 0.2s, box-shadow 0.2s', background: 'white' }}>
+                <div style={{ overflow: 'hidden', borderRadius: 12, border: '1px solid rgba(15,23,42,0.08)', boxShadow: '0 1px 3px rgba(15,23,42,0.04)', background: 'white' }}>
                   <div style={{ padding: '12px 16px', fontSize: 12, fontWeight: 700, color: 'white', background: 'var(--accent)' }}>&#9997;&#65039; Profile Rewrite</div>
                   <div style={{ padding: '14px 16px' }}>
                     <div style={{ marginBottom: 10 }}>
@@ -2290,7 +2302,7 @@ export default function Home() {
                 </div>
 
                 {/* Resume Preview */}
-                <div style={{ overflow: 'hidden', borderRadius: 16, border: '1px solid #E5E7EB', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', transition: 'transform 0.2s, box-shadow 0.2s', background: 'white' }}>
+                <div style={{ overflow: 'hidden', borderRadius: 12, border: '1px solid rgba(15,23,42,0.08)', boxShadow: '0 1px 3px rgba(15,23,42,0.04)', background: 'white' }}>
                   <div style={{ padding: '12px 16px', fontSize: 12, fontWeight: 700, color: 'white', background: 'var(--accent)' }}>&#128196; ATS Resume (11 templates)</div>
                   <div style={{ padding: 0 }}>
                     <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', margin: 12, borderRadius: 4, padding: 14, fontSize: 11 }}>
@@ -2310,7 +2322,7 @@ export default function Home() {
                 </div>
 
                 {/* Interview Prep Preview */}
-                <div style={{ overflow: 'hidden', borderRadius: 16, border: '1px solid #E5E7EB', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', transition: 'transform 0.2s, box-shadow 0.2s', background: 'white' }}>
+                <div style={{ overflow: 'hidden', borderRadius: 12, border: '1px solid rgba(15,23,42,0.08)', boxShadow: '0 1px 3px rgba(15,23,42,0.04)', background: 'white' }}>
                   <div style={{ padding: '12px 16px', fontSize: 12, fontWeight: 700, color: 'white', background: 'linear-gradient(135deg, var(--success), #034A2A)' }}>&#127919; Interview Prep Kit</div>
                   <div style={{ padding: '14px 16px' }}>
                     {[
@@ -2333,11 +2345,11 @@ export default function Home() {
           </section>
 
           {/* ── FAQ ── */}
-          <section style={{ padding: '80px 0', background: 'var(--bg-canvas)', borderBottom: '1px solid var(--border-default)' }}>
-            <div className="landing-section" style={{ maxWidth: 720 }}>
+          <section id="faq" style={{ padding: '72px 0', background: '#FFFFFF', borderBottom: '1px solid rgba(15,23,42,0.06)' }}>
+            <div className="landing-section" style={{ maxWidth: 680 }}>
               <div style={{ textAlign: 'center', marginBottom: 40 }}>
-                <div className="saas-eyebrow" style={{ marginBottom: 8 }}>FAQ</div>
-                <h2 style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>Frequently asked questions</h2>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#0A66C2', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>FAQ</div>
+                <h2 style={{ fontSize: 32, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}>Frequently asked questions</h2>
               </div>
               {[
                 { q: 'Is the profile score really free?', a: 'Yes! Upload your resume or LinkedIn PDF and get an instant AI score with a suggested headline — completely free, no signup required.' },
@@ -2349,19 +2361,19 @@ export default function Home() {
                 { q: 'What payment methods do you accept?', a: "We accept UPI, credit/debit cards, net banking, and wallets via Razorpay — India's most trusted payment gateway." },
                 { q: 'Can I get a refund?', a: 'We offer refunds within 7 days for quality issues. See our refund policy.' },
               ].map((item, i) => (
-                <div key={i} style={{ borderBottom: '1px solid var(--border-default)', borderLeft: faqOpen === i ? '3px solid var(--accent)' : '3px solid transparent', transition: 'border-color 0.2s' }}>
+                <div key={i} style={{ borderBottom: '1px solid rgba(15,23,42,0.06)' }}>
                   <button
                     onClick={() => setFaqOpen(faqOpen === i ? null : i)}
                     style={{
                       width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                      padding: '18px 0 18px 12px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
+                      padding: '18px 0', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
                     }}
                   >
-                    <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', paddingRight: 16 }}>{item.q}</span>
-                    <span style={{ fontSize: 20, color: 'var(--text-muted)', flexShrink: 0, transition: 'transform 0.2s', transform: faqOpen === i ? 'rotate(45deg)' : 'none', fontWeight: 300, lineHeight: 1 }}>+</span>
+                    <span style={{ fontSize: 16, fontWeight: 600, color: '#0F172A', paddingRight: 16 }}>{item.q}</span>
+                    <span style={{ fontSize: 20, color: '#94A3B8', flexShrink: 0, transition: 'transform 0.2s', transform: faqOpen === i ? 'rotate(45deg)' : 'none', fontWeight: 300, lineHeight: 1 }}>+</span>
                   </button>
-                  <div style={{ overflow: 'hidden', maxHeight: faqOpen === i ? 200 : 0, transition: 'max-height 0.3s ease', paddingLeft: 12 }}>
-                    <div style={{ padding: '0 0 18px', fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+                  <div style={{ overflow: 'hidden', maxHeight: faqOpen === i ? 200 : 0, transition: 'max-height 0.3s ease' }}>
+                    <div style={{ padding: '0 0 18px', fontSize: 15, color: '#475569', lineHeight: 1.7 }}>
                       {item.a}
                     </div>
                   </div>
@@ -2377,7 +2389,7 @@ export default function Home() {
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#0B69C7', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>Why ProfileRoaster</div>
                 <h2 style={{ fontSize: 28, fontWeight: 800, color: '#111827', letterSpacing: '-0.02em' }}>Compare your options</h2>
               </div>
-              <div style={{ background: 'white', borderRadius: 16, border: '1px solid #E5E7EB', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+              <div style={{ background: 'white', borderRadius: 12, border: '1px solid rgba(15,23,42,0.08)', overflow: 'hidden' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
                   <thead>
                     <tr style={{ background: '#F8FAFC' }}>
@@ -2411,16 +2423,16 @@ export default function Home() {
           </section>
 
           {/* ── Final CTA ── */}
-          <section style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)', padding: '80px 0', textAlign: 'center' }}>
+          <section style={{ background: '#0A66C2', padding: '72px 0', textAlign: 'center' }}>
             <div className="landing-section" style={{ maxWidth: 600 }}>
-              <div style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'white', marginBottom: 12, letterSpacing: '-0.02em' }}>Stop losing interviews.</div>
+              <div style={{ fontSize: 32, fontWeight: 800, color: 'white', marginBottom: 12, letterSpacing: '-0.02em' }}>Stop losing interviews.</div>
               <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.85)', marginBottom: 12, lineHeight: 1.7 }}>Every day with a weak profile is another recruiter who scrolled past you.</div>
               <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.65)', marginBottom: 28, lineHeight: 1.6 }}>
                 Resume writers charge &#8377;3,000&ndash;15,000 and take days. We do everything in under 3 minutes for &#8377;499. One time. No subscription.
               </div>
               <button
                 onClick={() => { heroRef.current?.scrollIntoView({ behavior: 'smooth' }); }}
-                style={{ background: 'white', color: '#0B69C7', fontSize: 16, fontWeight: 700, padding: '18px 44px', borderRadius: 50, border: 'none', cursor: 'pointer', boxShadow: '0 4px 24px rgba(255,255,255,0.2)' }}
+                style={{ background: 'white', color: '#0A66C2', fontSize: 16, fontWeight: 700, padding: '16px 40px', borderRadius: 999, border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
               >
                 Upload Your Resume &mdash; Free Score &rarr;
               </button>
@@ -2432,7 +2444,7 @@ export default function Home() {
       {/* ═══════════════════════════════════ */}
       {/* FOOTER                              */}
       {/* ═══════════════════════════════════ */}
-      <footer style={{ padding: '28px 24px', background: '#0F172A', color: 'white' }}>
+      <footer style={{ padding: '32px 24px', background: '#0F172A', color: 'white' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
           <div>
             <div style={{ fontSize: 16, fontWeight: 800 }}><span style={{ color: '#60A5FA' }}>Profile</span>Roaster</div>
