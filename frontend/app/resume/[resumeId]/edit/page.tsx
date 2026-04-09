@@ -254,94 +254,142 @@ export default function ResumeEditorPage() {
   const isFirstRender = useRef(true);
   const previewRef = useRef<HTMLDivElement>(null);
 
-  // Apply advanced styles to preview via DOM manipulation
-  useEffect(() => {
-    const el = previewRef.current;
-    if (!el) return;
+  // Generate CSS overrides string for preview and PDF
+  function getStyleOverrideCSS(): string {
+    return `
+      .rs-preview { font-size: ${styleSettings.fontSize.body}px !important; line-height: 1.5 !important; }
+      .rs-preview * { transition: none !important; }
 
-    // 1. Replace bullet characters
-    const defaultBullets = ['•', '·', '-', '–', '—', '▸', '►', '▶', '»', '→', '■', '●', '○', '★', '☆', '✦', '✧', '◆', '◇', '▪', '▫', '‣'];
-    const bulletRegex = new RegExp(`^[${defaultBullets.map(b => b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('')}]\\s*`);
-    el.querySelectorAll('[style*="text-indent"], li').forEach(node => {
-      const textNode = node.childNodes[0];
-      if (textNode && textNode.nodeType === 3) {
-        const text = textNode.textContent || '';
-        if (bulletRegex.test(text)) {
-          textNode.textContent = text.replace(bulletRegex, styleSettings.bullet + ' ');
+      /* Name — target largest font elements */
+      .rs-preview > div > div:first-child > div:first-child,
+      .rs-preview > div > div:first-child {
+        font-size: ${styleSettings.fontSize.name}px !important;
+        font-weight: ${styleSettings.fontWeight.name} !important;
+        ${styleSettings.textTransform.name !== 'none' ? `text-transform: ${styleSettings.textTransform.name} !important;` : ''}
+      }
+
+      /* Section titles — uppercase headers */
+      .rs-preview [style*="text-transform:uppercase"],
+      .rs-preview [style*="text-transform: uppercase"],
+      .rs-preview [style*="letter-spacing:2"],
+      .rs-preview [style*="letter-spacing: 2"],
+      .rs-preview [style*="letter-spacing:1"] {
+        font-size: ${styleSettings.fontSize.section}px !important;
+        font-weight: ${styleSettings.fontWeight.section} !important;
+        text-transform: ${styleSettings.textTransform.section} !important;
+        ${styleSettings.borders.sectionTitles > 0
+          ? `border-bottom: ${styleSettings.borders.sectionTitles}px solid currentColor !important; padding-bottom: 2px !important;`
+          : 'border-bottom: none !important;'}
+      }
+
+      /* Primary headings — bold job titles */
+      .rs-preview [style*="font-weight:700"],
+      .rs-preview [style*="font-weight: 700"],
+      .rs-preview [style*="font-weight:800"],
+      .rs-preview [style*="font-weight: 800"] {
+        font-weight: ${styleSettings.fontWeight.heading1} !important;
+        font-size: ${styleSettings.fontSize.heading1}px !important;
+        ${styleSettings.textTransform.heading1 !== 'none' ? `text-transform: ${styleSettings.textTransform.heading1} !important;` : ''}
+      }
+
+      /* Secondary headings — company names, subtitles */
+      .rs-preview [style*="font-weight:600"],
+      .rs-preview [style*="font-weight: 600"] {
+        font-weight: ${styleSettings.fontWeight.heading2} !important;
+        font-size: ${styleSettings.fontSize.heading2}px !important;
+        ${styleSettings.textTransform.heading2 !== 'none' ? `text-transform: ${styleSettings.textTransform.heading2} !important;` : ''}
+      }
+
+      /* Minor copy — dates, locations, italic text */
+      .rs-preview [style*="font-style:italic"],
+      .rs-preview [style*="font-style: italic"],
+      .rs-preview [style*="color:#888"],
+      .rs-preview [style*="color: #888"],
+      .rs-preview [style*="color:#94A3B8"],
+      .rs-preview [style*="color:#9CA3AF"] {
+        font-size: ${styleSettings.fontSize.minor}px !important;
+        font-weight: ${styleSettings.fontWeight.minor} !important;
+        ${styleSettings.textTransform.minor !== 'none' ? `text-transform: ${styleSettings.textTransform.minor} !important;` : ''}
+      }
+
+      /* Spacing — between sections */
+      .rs-preview > div > div > div {
+        margin-bottom: ${styleSettings.spacing.betweenSections}px !important;
+      }
+
+      /* Spacing — list items / bullets */
+      .rs-preview [style*="text-indent"],
+      .rs-preview li {
+        margin-bottom: ${styleSettings.spacing.listItems}px !important;
+      }
+
+      /* Spacing — content blocks (job entries) */
+      .rs-preview .entry,
+      .rs-preview [style*="margin-bottom:8px"],
+      .rs-preview [style*="margin-bottom: 8px"],
+      .rs-preview [style*="margin-bottom:12px"],
+      .rs-preview [style*="margin-bottom: 12px"],
+      .rs-preview [style*="margin-bottom:14px"] {
+        margin-bottom: ${styleSettings.spacing.contentBlocks}px !important;
+      }
+
+      /* Spacing — titles to content */
+      .rs-preview [style*="text-transform:uppercase"] + div,
+      .rs-preview [style*="text-transform: uppercase"] + div {
+        margin-top: ${styleSettings.spacing.titleContent}px !important;
+      }
+
+      /* Spacing — between headings */
+      .rs-preview [style*="font-weight:700"] + [style*="font-weight:600"],
+      .rs-preview [style*="font-weight:700"] + [style*="color:#6"],
+      .rs-preview [style*="font-weight:700"] + [style*="font-style"] {
+        margin-top: ${styleSettings.spacing.headings}px !important;
+      }
+
+      /* Borders — above/below header area */
+      .rs-preview > div > div:first-child {
+        ${styleSettings.borders.aboveHeader > 0 ? `border-top: ${styleSettings.borders.aboveHeader}px solid #333 !important;` : ''}
+        ${styleSettings.borders.belowHeader > 0 ? `border-bottom: ${styleSettings.borders.belowHeader}px solid #333 !important; padding-bottom: 8px !important;` : ''}
+      }
+    `;
+  }
+
+  // Apply bullet and separator replacements to rendered HTML
+  function applyTextReplacements(container: HTMLElement) {
+    if (!container) return;
+    // Replace bullets
+    const defaultBullets = ['•', '·', '–', '—', '▸', '►', '▶', '»', '→', '■', '●', '▪', '‣', '-'];
+    container.querySelectorAll('[style*="text-indent"], li').forEach(node => {
+      const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+      let textNode;
+      while ((textNode = walker.nextNode())) {
+        const t = textNode.textContent || '';
+        for (const b of defaultBullets) {
+          if (t.trimStart().startsWith(b + ' ') || t.trimStart().startsWith(b)) {
+            textNode.textContent = t.replace(new RegExp(`^\\s*\\${b}\\s*`), styleSettings.bullet + ' ');
+            break;
+          }
         }
       }
     });
-
-    // 2. Apply font sizes
-    el.style.fontSize = styleSettings.fontSize.body + 'px';
-    el.style.lineHeight = '1.5';
-
-    // Name (largest text, usually first big element)
-    el.querySelectorAll('[style*="font-size:2"], [style*="font-size: 2"], [style*="font-size:3"], [style*="font-size: 3"]').forEach(n => {
-      (n as HTMLElement).style.fontSize = styleSettings.fontSize.name + 'px';
-      (n as HTMLElement).style.fontWeight = styleSettings.fontWeight.name;
-      if (styleSettings.textTransform.name !== 'none') (n as HTMLElement).style.textTransform = styleSettings.textTransform.name;
-    });
-
-    // Section headers (uppercase text with letter-spacing)
-    el.querySelectorAll('[style*="text-transform:uppercase"], [style*="text-transform: uppercase"]').forEach(n => {
-      (n as HTMLElement).style.fontSize = styleSettings.fontSize.section + 'px';
-      (n as HTMLElement).style.fontWeight = styleSettings.fontWeight.section;
-      (n as HTMLElement).style.textTransform = styleSettings.textTransform.section;
-      if (styleSettings.borders.sectionTitles > 0) {
-        (n as HTMLElement).style.borderBottomWidth = styleSettings.borders.sectionTitles + 'px';
-      } else {
-        (n as HTMLElement).style.borderBottom = 'none';
+    // Replace separators in contact line
+    const allDivs = container.querySelectorAll('div');
+    allDivs.forEach(div => {
+      if (div.children.length === 0 && div.textContent && (div.textContent.includes(' | ') || div.textContent.includes(' • ') || div.textContent.includes(' · '))) {
+        div.textContent = div.textContent
+          .replace(/\s*\|\s*/g, ` ${styleSettings.separator} `)
+          .replace(/\s*•\s*/g, ` ${styleSettings.separator} `)
+          .replace(/\s*·\s*/g, ` ${styleSettings.separator} `);
       }
     });
+  }
 
-    // Bold text (job titles, headings)
-    el.querySelectorAll('[style*="font-weight:700"], [style*="font-weight: 700"], [style*="font-weight:800"], [style*="font-weight: 800"]').forEach(n => {
-      const fontSize = parseInt((n as HTMLElement).style.fontSize || '0');
-      // Only override heading-sized bold text, not everything
-      if (fontSize >= 13 || !(n as HTMLElement).style.fontSize) {
-        (n as HTMLElement).style.fontWeight = styleSettings.fontWeight.heading1;
-      }
-    });
-
-    // Italic text (dates, minor copy)
-    el.querySelectorAll('[style*="font-style:italic"], [style*="font-style: italic"]').forEach(n => {
-      (n as HTMLElement).style.fontSize = styleSettings.fontSize.minor + 'px';
-    });
-
-    // 3. Spacing
-    // Sections (top-level divs inside the resume content)
-    const contentRoot = el.querySelector('[style*="padding"]');
-    if (contentRoot) {
-      Array.from(contentRoot.children).forEach(child => {
-        (child as HTMLElement).style.marginBottom = styleSettings.spacing.betweenSections + 'px';
-      });
-    }
-
-    // List items
-    el.querySelectorAll('[style*="text-indent"], li').forEach(n => {
-      (n as HTMLElement).style.marginBottom = styleSettings.spacing.listItems + 'px';
-    });
-
-    // Entry blocks
-    el.querySelectorAll('.entry, [style*="margin-bottom:8px"], [style*="margin-bottom: 8px"], [style*="margin-bottom:12px"], [style*="margin-bottom: 12px"], [style*="margin-bottom:14px"]').forEach(n => {
-      (n as HTMLElement).style.marginBottom = styleSettings.spacing.contentBlocks + 'px';
-    });
-
-    // 4. Contact separator
-    const contactLine = el.querySelector('[style*="font-size:9px"], [style*="font-size: 9px"], [style*="font-size:10px"], [style*="font-size: 10px"]');
-    if (contactLine && contactLine.textContent?.includes('|')) {
-      contactLine.innerHTML = contactLine.innerHTML.replace(/\s*\|\s*/g, ` ${styleSettings.separator} `).replace(/\s*•\s*/g, ` ${styleSettings.separator} `).replace(/\s*·\s*/g, ` ${styleSettings.separator} `);
-    }
-
-    // 5. Header borders
-    const firstSection = el.querySelector('[style*="padding"]');
-    if (firstSection) {
-      if (styleSettings.borders.belowHeader > 0) {
-        (firstSection as HTMLElement).style.borderBottom = `${styleSettings.borders.belowHeader}px solid #333`;
-      }
-    }
-
+  // Apply text replacements after every render
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (previewRef.current) applyTextReplacements(previewRef.current);
+    }, 50);
+    return () => clearTimeout(timer);
   }, [styleSettings, resumeData, templateId]);
 
   // ─── Fetch ───
@@ -588,33 +636,8 @@ export default function ResumeEditorPage() {
     // 2. Replace contact separators
     processed = processed.replace(/\s*\|\s*/g, ` ${styleSettings.separator} `);
 
-    // 3. Inject CSS overrides
-    const css = `
-      body { font-size: ${styleSettings.fontSize.body}px !important; }
-      [style*="font-size:2"], [style*="font-size: 2"], [style*="font-size:3"] {
-        font-size: ${styleSettings.fontSize.name}px !important;
-        font-weight: ${styleSettings.fontWeight.name} !important;
-        text-transform: ${styleSettings.textTransform.name} !important;
-      }
-      [style*="text-transform:uppercase"], [style*="text-transform: uppercase"] {
-        font-size: ${styleSettings.fontSize.section}px !important;
-        font-weight: ${styleSettings.fontWeight.section} !important;
-        text-transform: ${styleSettings.textTransform.section} !important;
-        ${styleSettings.borders.sectionTitles > 0 ? `border-bottom: ${styleSettings.borders.sectionTitles}px solid #333 !important;` : 'border-bottom: none !important;'}
-      }
-      [style*="font-style:italic"], [style*="font-style: italic"] {
-        font-size: ${styleSettings.fontSize.minor}px !important;
-      }
-      [style*="text-indent"], li {
-        margin-bottom: ${styleSettings.spacing.listItems}px !important;
-      }
-      .print-content-root > div > div {
-        margin-bottom: ${styleSettings.spacing.betweenSections}px !important;
-      }
-      .entry, [class*="entry"] {
-        margin-bottom: ${styleSettings.spacing.contentBlocks}px !important;
-      }
-    `;
+    // 3. Inject same CSS as preview but scoped to print
+    const css = getStyleOverrideCSS().replace(/\.rs-preview/g, '.print-content-root');
     return processed.replace('</style>', css + '</style>');
   }
 
@@ -1611,7 +1634,8 @@ export default function ResumeEditorPage() {
           </div>
           {/* Paper preview with style overrides */}
           <div style={{ flex: 1, padding: 24, overflowY: 'auto', background: '#F1F3F5' }}>
-            <div ref={previewRef} key={`${templateId}-${JSON.stringify(styleSettings)}`} style={{ maxWidth: 794, margin: '0 auto', background: 'white', borderRadius: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
+            <style>{getStyleOverrideCSS()}</style>
+            <div ref={previewRef} className="rs-preview" style={{ maxWidth: 794, margin: '0 auto', background: 'white', borderRadius: 8, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
               {renderResumeHTML(resumeData, templateId)}
             </div>
           </div>
