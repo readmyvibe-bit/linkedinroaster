@@ -255,102 +255,90 @@ export default function ResumeEditorPage() {
   const previewRef = useRef<HTMLDivElement>(null);
 
   // Generate CSS overrides string for preview and PDF
+  // Check if style is at default values (no overrides needed)
+  const isDefaultStyles = styleSettings.fontSize.body === 11 && styleSettings.fontSize.name === 18 &&
+    styleSettings.fontWeight.heading1 === '600' && styleSettings.spacing.betweenSections === 16 &&
+    styleSettings.borders.sectionTitles === 1 && styleSettings.bullet === '\u2022' && styleSettings.separator === '|';
+
   function getStyleOverrideCSS(): string {
+    // Don't inject any overrides if at defaults — preserve template exactly
+    if (isDefaultStyles) return '';
+
+    const s = styleSettings;
     return `
-      .rs-preview { font-size: ${styleSettings.fontSize.body}px !important; line-height: 1.5 !important; }
-      .rs-preview * { transition: none !important; }
+      /* Body text size */
+      .rs-preview { font-size: ${s.fontSize.body}px !important; }
 
-      /* Name — target largest font elements */
-      .rs-preview > div > div:first-child > div:first-child,
-      .rs-preview > div > div:first-child {
-        font-size: ${styleSettings.fontSize.name}px !important;
-        font-weight: ${styleSettings.fontWeight.name} !important;
-        ${styleSettings.textTransform.name !== 'none' ? `text-transform: ${styleSettings.textTransform.name} !important;` : ''}
+      /* Full Name — elements with font-size 18px+ */
+      .rs-preview [style*="font-size:18"], .rs-preview [style*="font-size: 18"],
+      .rs-preview [style*="font-size:20"], .rs-preview [style*="font-size: 20"],
+      .rs-preview [style*="font-size:22"], .rs-preview [style*="font-size: 22"],
+      .rs-preview [style*="font-size:24"], .rs-preview [style*="font-size: 24"],
+      .rs-preview [style*="font-size:26"], .rs-preview [style*="font-size: 26"],
+      .rs-preview [style*="font-size:28"], .rs-preview [style*="font-size: 28"],
+      .rs-preview [style*="font-size:30"], .rs-preview [style*="font-size: 30"],
+      .rs-preview [style*="font-size:32"], .rs-preview [style*="font-size: 32"] {
+        font-size: ${s.fontSize.name}px !important;
+        font-weight: ${s.fontWeight.name} !important;
+        ${s.textTransform.name !== 'none' ? `text-transform: ${s.textTransform.name} !important;` : ''}
       }
 
-      /* Section titles — uppercase headers */
+      /* Section titles — uppercase text with letter-spacing */
       .rs-preview [style*="text-transform:uppercase"],
-      .rs-preview [style*="text-transform: uppercase"],
-      .rs-preview [style*="letter-spacing:2"],
-      .rs-preview [style*="letter-spacing: 2"],
-      .rs-preview [style*="letter-spacing:1"] {
-        font-size: ${styleSettings.fontSize.section}px !important;
-        font-weight: ${styleSettings.fontWeight.section} !important;
-        text-transform: ${styleSettings.textTransform.section} !important;
-        ${styleSettings.borders.sectionTitles > 0
-          ? `border-bottom: ${styleSettings.borders.sectionTitles}px solid currentColor !important; padding-bottom: 2px !important;`
-          : 'border-bottom: none !important;'}
+      .rs-preview [style*="text-transform: uppercase"] {
+        font-size: ${s.fontSize.section}px !important;
+        font-weight: ${s.fontWeight.section} !important;
+        text-transform: ${s.textTransform.section} !important;
+        ${s.borders.sectionTitles > 0
+          ? `border-bottom-width: ${s.borders.sectionTitles}px !important; border-bottom-style: solid !important;`
+          : `border-bottom: none !important;`}
       }
 
-      /* Primary headings — bold job titles */
-      .rs-preview [style*="font-weight:700"],
-      .rs-preview [style*="font-weight: 700"],
-      .rs-preview [style*="font-weight:800"],
-      .rs-preview [style*="font-weight: 800"] {
-        font-weight: ${styleSettings.fontWeight.heading1} !important;
-        font-size: ${styleSettings.fontSize.heading1}px !important;
-        ${styleSettings.textTransform.heading1 !== 'none' ? `text-transform: ${styleSettings.textTransform.heading1} !important;` : ''}
+      /* Primary headings — font-weight 700/800 with font-size 13px+ */
+      .rs-preview [style*="font-weight:700"][style*="font-size:1"],
+      .rs-preview [style*="font-weight: 700"][style*="font-size:1"],
+      .rs-preview [style*="font-weight:800"][style*="font-size:1"] {
+        font-weight: ${s.fontWeight.heading1} !important;
+        font-size: ${s.fontSize.heading1}px !important;
+        ${s.textTransform.heading1 !== 'none' ? `text-transform: ${s.textTransform.heading1} !important;` : ''}
       }
 
-      /* Secondary headings — company names, subtitles */
-      .rs-preview [style*="font-weight:600"],
-      .rs-preview [style*="font-weight: 600"] {
-        font-weight: ${styleSettings.fontWeight.heading2} !important;
-        font-size: ${styleSettings.fontSize.heading2}px !important;
-        ${styleSettings.textTransform.heading2 !== 'none' ? `text-transform: ${styleSettings.textTransform.heading2} !important;` : ''}
+      /* Secondary headings — italic company/location lines */
+      .rs-preview [style*="font-style:italic"][style*="font-size:1"],
+      .rs-preview [style*="font-style: italic"][style*="font-size:1"] {
+        font-size: ${s.fontSize.heading2}px !important;
+        font-weight: ${s.fontWeight.heading2} !important;
       }
 
-      /* Minor copy — dates, locations, italic text */
-      .rs-preview [style*="font-style:italic"],
-      .rs-preview [style*="font-style: italic"],
-      .rs-preview [style*="color:#888"],
-      .rs-preview [style*="color: #888"],
-      .rs-preview [style*="color:#94A3B8"],
-      .rs-preview [style*="color:#9CA3AF"] {
-        font-size: ${styleSettings.fontSize.minor}px !important;
-        font-weight: ${styleSettings.fontWeight.minor} !important;
-        ${styleSettings.textTransform.minor !== 'none' ? `text-transform: ${styleSettings.textTransform.minor} !important;` : ''}
+      /* Minor copy — small gray text (dates, labels) */
+      .rs-preview [style*="font-size:9"], .rs-preview [style*="font-size: 9"],
+      .rs-preview [style*="font-size:10"], .rs-preview [style*="font-size: 10"],
+      .rs-preview [style*="font-size:11"], .rs-preview [style*="font-size: 11"] {
+        font-size: ${s.fontSize.minor}px !important;
+        font-weight: ${s.fontWeight.minor} !important;
       }
 
-      /* Spacing — between sections */
-      .rs-preview > div > div > div {
-        margin-bottom: ${styleSettings.spacing.betweenSections}px !important;
+      /* Bullet line spacing */
+      .rs-preview [style*="text-indent"] {
+        margin-bottom: ${s.spacing.listItems}px !important;
       }
 
-      /* Spacing — list items / bullets */
-      .rs-preview [style*="text-indent"],
-      .rs-preview li {
-        margin-bottom: ${styleSettings.spacing.listItems}px !important;
+      /* Section spacing — only target margin-bottom on divs that had margin */
+      .rs-preview [style*="margin-bottom:16"], .rs-preview [style*="margin-bottom: 16"],
+      .rs-preview [style*="margin-bottom:18"], .rs-preview [style*="margin-bottom: 18"],
+      .rs-preview [style*="margin-bottom:14"], .rs-preview [style*="margin-bottom: 14"] {
+        margin-bottom: ${s.spacing.betweenSections}px !important;
       }
 
-      /* Spacing — content blocks (job entries) */
-      .rs-preview .entry,
-      .rs-preview [style*="margin-bottom:8px"],
-      .rs-preview [style*="margin-bottom: 8px"],
-      .rs-preview [style*="margin-bottom:12px"],
-      .rs-preview [style*="margin-bottom: 12px"],
-      .rs-preview [style*="margin-bottom:14px"] {
-        margin-bottom: ${styleSettings.spacing.contentBlocks}px !important;
+      /* Content block spacing */
+      .rs-preview [style*="margin-bottom:8"], .rs-preview [style*="margin-bottom: 8"],
+      .rs-preview [style*="margin-bottom:12"], .rs-preview [style*="margin-bottom: 12"] {
+        margin-bottom: ${s.spacing.contentBlocks}px !important;
       }
 
-      /* Spacing — titles to content */
-      .rs-preview [style*="text-transform:uppercase"] + div,
-      .rs-preview [style*="text-transform: uppercase"] + div {
-        margin-top: ${styleSettings.spacing.titleContent}px !important;
-      }
-
-      /* Spacing — between headings */
-      .rs-preview [style*="font-weight:700"] + [style*="font-weight:600"],
-      .rs-preview [style*="font-weight:700"] + [style*="color:#6"],
-      .rs-preview [style*="font-weight:700"] + [style*="font-style"] {
-        margin-top: ${styleSettings.spacing.headings}px !important;
-      }
-
-      /* Borders — above/below header area */
-      .rs-preview > div > div:first-child {
-        ${styleSettings.borders.aboveHeader > 0 ? `border-top: ${styleSettings.borders.aboveHeader}px solid #333 !important;` : ''}
-        ${styleSettings.borders.belowHeader > 0 ? `border-bottom: ${styleSettings.borders.belowHeader}px solid #333 !important; padding-bottom: 8px !important;` : ''}
-      }
+      /* Header borders */
+      ${s.borders.aboveHeader > 0 ? `.rs-preview > div > div:first-child { border-top: ${s.borders.aboveHeader}px solid #333 !important; }` : ''}
+      ${s.borders.belowHeader > 0 ? `.rs-preview [style*="border-bottom"] { border-bottom-width: ${s.borders.belowHeader}px !important; }` : ''}
     `;
   }
 
@@ -625,18 +613,29 @@ export default function ResumeEditorPage() {
   const [pdfGenerating, setPdfGenerating] = useState(false);
 
   function injectStyleOverrides(html: string): string {
-    // 1. Replace bullet characters in HTML content
-    const defaultBullets = ['&bull;', '&#9658;', '&#9733;', '•', '·', '▸', '►', '»', '→', '■', '-'];
     let processed = html;
-    defaultBullets.forEach(b => {
-      const regex = new RegExp(b.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*', 'g');
-      processed = processed.replace(regex, styleSettings.bullet + ' ');
-    });
 
-    // 2. Replace contact separators
-    processed = processed.replace(/\s*\|\s*/g, ` ${styleSettings.separator} `);
+    // 1. Replace ONLY bullet characters at start of bullet lines (not inside words)
+    // Target: text after text-indent or &bull; entities — NOT hyphens in words
+    if (styleSettings.bullet !== '•') {
+      processed = processed.replace(/&bull;\s*/g, styleSettings.bullet + ' ');
+      processed = processed.replace(/&#8226;\s*/g, styleSettings.bullet + ' ');
+      // Replace bullets at line start: "• text" or "- text" but ONLY after > or at start
+      processed = processed.replace(/>(\s*)[•·▸►▶»→■●▪‣]\s/g, '>$1' + styleSettings.bullet + ' ');
+    }
 
-    // 3. Inject same CSS as preview but scoped to print
+    // 2. Replace contact separators ONLY in the contact line (first few lines, not everywhere)
+    // Find the contact info section (usually within first 500 chars of body content)
+    if (styleSettings.separator !== '|') {
+      const bodyStart = processed.indexOf('<body');
+      if (bodyStart > -1) {
+        const first500 = processed.substring(bodyStart, bodyStart + 800);
+        const replaced = first500.replace(/\s\|\s/g, ` ${styleSettings.separator} `);
+        processed = processed.substring(0, bodyStart) + replaced + processed.substring(bodyStart + 800);
+      }
+    }
+
+    // 3. Inject CSS — scoped to print, preserving template colors
     const css = getStyleOverrideCSS().replace(/\.rs-preview/g, '.print-content-root');
     return processed.replace('</style>', css + '</style>');
   }
