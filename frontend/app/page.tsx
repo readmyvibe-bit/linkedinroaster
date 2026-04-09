@@ -1212,7 +1212,7 @@ export default function Home() {
             </div>
 
             {/* RIGHT (45%) — Upload Card with Tabs */}
-            <div style={{ flex: '1 1 380px', minWidth: 0, maxWidth: 500 }}>
+            <div data-upload-area style={{ flex: '1 1 380px', minWidth: 0, maxWidth: 500 }}>
               <div style={{ background: 'white', borderRadius: 16, border: 'none', boxShadow: '0 8px 40px rgba(11,105,199,0.2)', overflow: 'hidden' }}>
 
                 {/* Tab navigation — clean pills */}
@@ -1721,6 +1721,86 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Product Showcase — floating preview */}
+      <section style={{ background: '#FFFFFF', padding: '60px 0 80px', overflow: 'hidden' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 16px', textAlign: 'center' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#0B69C7', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>See it in action</div>
+          <h2 style={{ fontSize: 28, fontWeight: 800, color: '#111827', marginBottom: 12, letterSpacing: '-0.02em' }}>Upload your resume. Get everything back in 90 seconds.</h2>
+          <p style={{ fontSize: 15, color: '#6B7280', marginBottom: 40, maxWidth: 600, margin: '0 auto 40px' }}>AI scores your profile, rewrites your LinkedIn, builds an ATS resume, and preps you for interviews.</p>
+
+          {/* Simulated product flow — 3 cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, textAlign: 'left' }}>
+
+            {/* Card 1: Score */}
+            <div style={{ background: '#F8FAFC', borderRadius: 16, border: '1px solid #E5E7EB', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+              <div style={{ background: 'linear-gradient(135deg, #DC2626, #991B1B)', padding: '20px 24px', color: 'white' }}>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, opacity: 0.7 }}>YOUR PROFILE SCORE</div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginTop: 8 }}>
+                  <span style={{ fontSize: 42, fontWeight: 900 }}>38</span>
+                  <span style={{ fontSize: 18, opacity: 0.7 }}>&rarr;</span>
+                  <span style={{ fontSize: 42, fontWeight: 900, color: '#4ADE80' }}>84</span>
+                  <span style={{ fontSize: 14, fontWeight: 700, background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: 12 }}>+46 pts</span>
+                </div>
+              </div>
+              <div style={{ padding: '16px 24px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#6B7280', marginBottom: 6 }}><span>ATS Keywords</span><span style={{ color: '#DC2626', fontWeight: 600 }}>28/100</span></div>
+                <div style={{ height: 4, borderRadius: 2, background: '#E5E7EB', marginBottom: 12 }}><div style={{ height: '100%', borderRadius: 2, background: '#DC2626', width: '28%' }} /></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#6B7280', marginBottom: 6 }}><span>Experience Impact</span><span style={{ color: '#F59E0B', fontWeight: 600 }}>52/100</span></div>
+                <div style={{ height: 4, borderRadius: 2, background: '#E5E7EB', marginBottom: 12 }}><div style={{ height: '100%', borderRadius: 2, background: '#F59E0B', width: '52%' }} /></div>
+                <div style={{ fontSize: 11, color: '#DC2626', fontWeight: 600, marginTop: 8 }}>Missing: microservices, CI/CD, agile, AWS</div>
+              </div>
+            </div>
+
+            {/* Card 2: Resume */}
+            <div style={{ background: '#F8FAFC', borderRadius: 16, border: '1px solid #E5E7EB', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+              <div style={{ background: '#0B69C7', padding: '12px 24px', color: 'white', fontSize: 10, fontWeight: 700, letterSpacing: 2 }}>ATS-OPTIMIZED RESUME</div>
+              <div style={{ padding: '20px 24px' }}>
+                <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, padding: '16px', marginBottom: 12 }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#111827', marginBottom: 2 }}>Priya Mehta</div>
+                  <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 10 }}>Full-Stack Engineer &bull; Bangalore</div>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: '#0B69C7', letterSpacing: 1, marginBottom: 4 }}>EXPERIENCE</div>
+                  <div style={{ height: 5, background: '#F3F4F6', borderRadius: 2, marginBottom: 3 }} />
+                  <div style={{ height: 5, background: '#F3F4F6', borderRadius: 2, marginBottom: 3, width: '85%' }} />
+                  <div style={{ height: 5, background: '#F3F4F6', borderRadius: 2, marginBottom: 8, width: '70%' }} />
+                  <div style={{ fontSize: 9, fontWeight: 700, color: '#0B69C7', letterSpacing: 1, marginBottom: 4 }}>SKILLS</div>
+                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                    {['React', 'Node.js', 'Python', 'AWS'].map(s => (
+                      <span key={s} style={{ fontSize: 9, background: '#EFF6FF', color: '#0B69C7', padding: '2px 6px', borderRadius: 4 }}>{s}</span>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: 12, color: '#057642', fontWeight: 600 }}>ATS Score: 87%</span>
+                  <span style={{ fontSize: 11, color: '#6B7280' }}>11 templates available</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3: Interview Prep */}
+            <div style={{ background: '#F8FAFC', borderRadius: 16, border: '1px solid #E5E7EB', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+              <div style={{ background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', padding: '12px 24px', color: 'white', fontSize: 10, fontWeight: 700, letterSpacing: 2 }}>INTERVIEW PREP</div>
+              <div style={{ padding: '16px 24px' }}>
+                {[
+                  { type: 'Behavioral', q: 'Tell me about a time you led a team through a tight deadline.', color: '#0B69C7' },
+                  { type: 'Technical', q: 'How would you optimize a slow SQL query in production?', color: '#057642' },
+                  { type: 'HR', q: 'Why should we hire you over other candidates?', color: '#E16B00' },
+                ].map((item, i) => (
+                  <div key={i} style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, padding: '10px 12px', marginBottom: 8 }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: item.color, letterSpacing: 0.5, marginBottom: 3 }}>{item.type.toUpperCase()}</div>
+                    <div style={{ fontSize: 12, color: '#374151', lineHeight: 1.4 }}>{item.q}</div>
+                  </div>
+                ))}
+                <div style={{ fontSize: 11, color: '#6B7280', textAlign: 'center', marginTop: 4 }}>15 questions + STAR answers + cheat sheet + quiz</div>
+              </div>
+            </div>
+          </div>
+
+          <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ marginTop: 32, padding: '14px 36px', background: '#0B69C7', color: 'white', border: 'none', borderRadius: 50, fontSize: 15, fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 16px rgba(11,105,199,0.3)' }}>
+            Try It Free &mdash; Upload Your Resume
+          </button>
+        </div>
+      </section>
+
       {/* ═══════════════════════════════════ */}
       {/* TEASER RESULT                       */}
       {/* ═══════════════════════════════════ */}
@@ -2157,6 +2237,34 @@ export default function Home() {
                 <div className="saas-eyebrow" style={{ marginBottom: 8 }}>Real output</div>
                 <h2 style={{ fontSize: 'var(--fs-2xl)', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>See what ProfileRoaster generates</h2>
               </div>
+              {/* Before/After Visual Comparison */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 16, marginBottom: 32, maxWidth: 800, margin: '0 auto 32px', alignItems: 'stretch' }}>
+                {/* Before */}
+                <div style={{ background: '#FEF2F2', borderRadius: 12, padding: '20px', border: '1px solid #FECACA' }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: '#DC2626', letterSpacing: 1, marginBottom: 10 }}>BEFORE &mdash; Score: 38</div>
+                  <div style={{ fontSize: 14, color: '#991B1B', lineHeight: 1.6, fontStyle: 'italic' }}>&ldquo;Software Engineer | Python | Java | AWS | Docker | Seeking opportunities&rdquo;</div>
+                  <div style={{ marginTop: 12, fontSize: 11, color: '#DC2626' }}>
+                    <div>&#10007; Generic headline</div>
+                    <div>&#10007; No measurable impact</div>
+                    <div>&#10007; Missing 12 ATS keywords</div>
+                  </div>
+                </div>
+                {/* Arrow */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#0B69C7', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700, boxShadow: '0 4px 12px rgba(11,105,199,0.3)' }}>&rarr;</div>
+                </div>
+                {/* After */}
+                <div style={{ background: '#F0FDF4', borderRadius: 12, padding: '20px', border: '1px solid #BBF7D0' }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: '#057642', letterSpacing: 1, marginBottom: 10 }}>AFTER &mdash; Score: 84</div>
+                  <div style={{ fontSize: 14, color: '#057642', lineHeight: 1.6, fontWeight: 600 }}>&ldquo;Full-Stack Engineer | Built 5 Apps Serving 50K+ Users | React + AWS + Node.js&rdquo;</div>
+                  <div style={{ marginTop: 12, fontSize: 11, color: '#057642' }}>
+                    <div>&#10003; Achievement-focused headline</div>
+                    <div>&#10003; Quantified impact (50K+ users)</div>
+                    <div>&#10003; All ATS keywords present</div>
+                  </div>
+                </div>
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
 
                 {/* Rewrite Before/After */}
@@ -2259,6 +2367,46 @@ export default function Home() {
                   </div>
                 </div>
               ))}
+            </div>
+          </section>
+
+          {/* ── Comparison Table ── */}
+          <section style={{ padding: '80px 0', background: '#F8FAFC', borderBottom: '1px solid #E5E7EB' }}>
+            <div style={{ maxWidth: 800, margin: '0 auto', padding: '0 16px' }}>
+              <div style={{ textAlign: 'center', marginBottom: 40 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#0B69C7', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>Why ProfileRoaster</div>
+                <h2 style={{ fontSize: 28, fontWeight: 800, color: '#111827', letterSpacing: '-0.02em' }}>Compare your options</h2>
+              </div>
+              <div style={{ background: 'white', borderRadius: 16, border: '1px solid #E5E7EB', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+                  <thead>
+                    <tr style={{ background: '#F8FAFC' }}>
+                      <th style={{ padding: '14px 20px', textAlign: 'left', fontWeight: 600, color: '#6B7280', borderBottom: '1px solid #E5E7EB' }}>Feature</th>
+                      <th style={{ padding: '14px 20px', textAlign: 'center', fontWeight: 700, color: '#0B69C7', borderBottom: '1px solid #E5E7EB', background: '#EFF6FF' }}>ProfileRoaster</th>
+                      <th style={{ padding: '14px 20px', textAlign: 'center', fontWeight: 600, color: '#6B7280', borderBottom: '1px solid #E5E7EB' }}>ChatGPT</th>
+                      <th style={{ padding: '14px 20px', textAlign: 'center', fontWeight: 600, color: '#6B7280', borderBottom: '1px solid #E5E7EB' }}>Resume Writer</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { feature: 'ATS-optimized resume', us: '\u2713', gpt: '~', writer: '~' },
+                      { feature: 'LinkedIn profile rewrite', us: '\u2713', gpt: '~', writer: '\u2717' },
+                      { feature: 'Interview prep (15 Qs)', us: '\u2713', gpt: '\u2717', writer: '\u2717' },
+                      { feature: 'ATS score analysis', us: '\u2713', gpt: '\u2717', writer: '\u2717' },
+                      { feature: 'Cover letter', us: '\u2713', gpt: '~', writer: '\u2713' },
+                      { feature: 'Ready in minutes', us: '90 sec', gpt: '30+ min', writer: '3-7 days' },
+                      { feature: 'Price', us: '\u20b9499', gpt: '\u20b91700/mo', writer: '\u20b93000-15000' },
+                    ].map((row, i) => (
+                      <tr key={i} style={{ borderBottom: i < 6 ? '1px solid #F3F4F6' : 'none' }}>
+                        <td style={{ padding: '12px 20px', color: '#374151' }}>{row.feature}</td>
+                        <td style={{ padding: '12px 20px', textAlign: 'center', fontWeight: 600, color: '#057642', background: '#FAFFFE' }}>{row.us}</td>
+                        <td style={{ padding: '12px 20px', textAlign: 'center', color: row.gpt === '\u2717' ? '#DC2626' : '#6B7280' }}>{row.gpt}</td>
+                        <td style={{ padding: '12px 20px', textAlign: 'center', color: row.writer === '\u2717' ? '#DC2626' : '#6B7280' }}>{row.writer}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </section>
 
